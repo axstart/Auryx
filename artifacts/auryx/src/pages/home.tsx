@@ -130,7 +130,7 @@ export default function Home() {
               <span className="text-primary tracking-[0.3em] text-sm font-medium uppercase">Precision Longevity</span>
             </div>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif leading-[1.1] mb-8 font-light">
-              Unlock Your <br/> Highest Biology.
+              Longevity Is <br/> the New Luxury.
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-12 font-light leading-relaxed">
               Elite, medically guided peptide therapy protocols designed for high-performance individuals. Precision science meets unparalleled luxury care.
