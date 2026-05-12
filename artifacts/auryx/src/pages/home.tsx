@@ -567,7 +567,7 @@ export default function Home() {
             transition={{ duration: 0.8 }}
           >
             <h2 className="text-5xl md:text-7xl font-serif mb-8 leading-tight font-light">
-              Your Highest Self <br/> Is Waiting.
+              Your Biology. <br/> Optimized.
             </h2>
             <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto font-light">
               Membership to our clinical practice is limited to ensure uncompromising care for every patient. Request an introductory consultation today.
