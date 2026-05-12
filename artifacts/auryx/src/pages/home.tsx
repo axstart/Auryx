@@ -133,7 +133,7 @@ export default function Home() {
               Longevity Is <br/> the New Luxury.
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-12 font-light leading-relaxed">
-              Elite, medically guided peptide therapy protocols designed for high-performance individuals. Precision science meets unparalleled luxury care.
+              Elite, medically guided peptide therapy protocols designed for high-performance individuals. Precision science meets total biological optimization.
             </p>
             <div className="flex flex-col sm:flex-row gap-6">
               <Button 
