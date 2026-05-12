@@ -65,30 +65,175 @@ export default function Home() {
     }
   ];
 
-  const peptides = [
+  const peptideCategories = [
     {
-      name: "BPC-157",
-      moa: "Accelerates angiogenesis and upregulates growth hormone receptors in targeted tissues.",
-      benefits: ["Rapid tissue repair", "Gut lining restoration", "Potent anti-inflammatory"],
-      candidate: "Individuals recovering from injuries, surgeries, or suffering from chronic joint/gut issues."
+      category: "GLP-1 & Metabolic Peptides",
+      description: "Next-generation weight management and metabolic optimization compounds. Each agent targets distinct receptor pathways — your physician will select based on your metabolic profile, weight loss goals, and cardiovascular risk factors.",
+      peptides: [
+        {
+          name: "Semaglutide",
+          moa: "Selective GLP-1 receptor agonist that suppresses appetite centers in the hypothalamus and slows gastric emptying, producing profound caloric reduction without hunger.",
+          benefits: ["Sustained fat loss", "Improved insulin sensitivity", "Cardiovascular risk reduction", "Appetite normalization"],
+          candidate: "Ideal for those with significant metabolic dysfunction or a BMI requiring meaningful body recomposition."
+        },
+        {
+          name: "Tirzepatide",
+          moa: "Dual GLP-1 and GIP receptor agonist delivering superior weight reduction versus GLP-1 monotherapy, with enhanced effects on glucose metabolism and adipose tissue.",
+          benefits: ["Greater fat loss than semaglutide alone", "Improved lean mass preservation", "Superior glycemic control", "Enhanced lipid profile"],
+          candidate: "Patients seeking maximum metabolic impact, particularly those with insulin resistance or type 2 diabetes."
+        },
+        {
+          name: "Retatrutide",
+          moa: "Triple agonist targeting GLP-1, GIP, and glucagon receptors simultaneously — the most potent metabolic signaling compound available, driving energy expenditure alongside appetite suppression.",
+          benefits: ["Unprecedented fat reduction potential", "Accelerated metabolic rate", "Visceral fat targeting", "Liver fat reduction"],
+          candidate: "High-performance individuals seeking the frontier of metabolic optimization and body composition transformation."
+        }
+      ]
     },
     {
-      name: "Semaglutide / Tirzepatide",
-      moa: "GLP-1 and GIP receptor agonists that delay gastric emptying and signal satiety to the brain.",
-      benefits: ["Significant fat reduction", "Improved insulin sensitivity", "Cardiovascular protection"],
-      candidate: "Those seeking optimized body composition and metabolic health reset."
+      category: "Growth Hormone Secretagogues",
+      description: "GH secretagogues stimulate the pituitary gland to release endogenous growth hormone in natural pulsatile rhythms — restoring youthful GH levels without the risks of exogenous HGH. Protocol selection depends on your goals, IGF-1 levels, and desired pulse characteristics.",
+      note: "Choosing the right secretagogue matters. CJC-1295 + Ipamorelin is the versatile entry point — broad anti-aging benefits with a clean side-effect profile. Tesamorelin is more targeted, with the strongest clinical evidence for visceral fat reduction and is preferred when body composition is the primary goal. The Tesamorelin + Ipamorelin combination layers fat-burning specificity with deeper sleep and recovery enhancement, making it the premium choice for athletes and executives seeking both physique and performance outcomes.",
+      peptides: [
+        {
+          name: "CJC-1295 + Ipamorelin",
+          moa: "CJC-1295 extends the GHRH signal while Ipamorelin mimics ghrelin at the pituitary — together producing amplified, sustained GH pulses without cortisol or prolactin elevation.",
+          benefits: ["Deep sleep restoration", "Lean muscle accretion", "Skin elasticity and collagen synthesis", "Fat metabolism improvement", "Broad anti-aging effects"],
+          candidate: "The foundational anti-aging secretagogue stack. Ideal for those new to GH optimization seeking comprehensive restoration."
+        },
+        {
+          name: "Tesamorelin",
+          moa: "A stabilized GHRH analogue with the strongest clinical evidence base of any secretagogue — specifically proven to reduce visceral adipose tissue while elevating IGF-1 and preserving lean mass.",
+          benefits: ["Clinically proven visceral fat reduction", "Enhanced IGF-1 elevation", "Improved lipid profile", "Cognitive function support", "Cardiovascular protection"],
+          candidate: "Those prioritizing targeted abdominal fat loss, metabolic health, and evidence-backed GH optimization."
+        },
+        {
+          name: "Tesamorelin + Ipamorelin",
+          moa: "A precision-engineered combination that pairs Tesamorelin's visceral fat targeting with Ipamorelin's clean GH pulse amplification — layering metabolic specificity with recovery and sleep enhancement.",
+          benefits: ["Visceral fat reduction with enhanced GH amplitude", "Superior sleep architecture", "Accelerated injury recovery", "Lean mass preservation", "Synergistic anti-aging effect"],
+          candidate: "Athletes, executives, and longevity-focused individuals seeking the most comprehensive GH secretagogue protocol available."
+        }
+      ]
     },
     {
-      name: "CJC-1295 + Ipamorelin",
-      moa: "Synergistic GH secretagogues that stimulate the pituitary gland in natural pulsatile rhythms.",
-      benefits: ["Increased deep sleep", "Enhanced lean muscle mass", "Skin elasticity improvement"],
-      candidate: "Individuals focused on comprehensive anti-aging and vital restoration."
+      category: "Recovery & Regeneration",
+      description: "Precision peptides that accelerate the body's innate healing machinery — reducing downtime, resolving chronic injury, and restoring structural integrity at the cellular level.",
+      peptides: [
+        {
+          name: "BPC-157",
+          moa: "Body Protection Compound-157 accelerates angiogenesis, upregulates growth hormone receptors in injured tissue, and modulates the nitric oxide system to orchestrate comprehensive repair.",
+          benefits: ["Rapid tendon and ligament healing", "Gut lining restoration", "Joint inflammation resolution", "Nerve repair support", "Systemic anti-inflammatory action"],
+          candidate: "Individuals with chronic musculoskeletal injuries, post-surgical recovery needs, or gut permeability issues."
+        },
+        {
+          name: "TB-500 (Thymosin Beta-4)",
+          moa: "Regulates actin — a protein critical to cell structure — enabling accelerated cell migration to injury sites and promoting angiogenesis and muscle satellite cell activation.",
+          benefits: ["Systemic injury recovery", "Flexible tissue healing", "Reduced inflammation and scar formation", "Enhanced cardiovascular tissue repair", "Neurological recovery support"],
+          candidate: "Competitive athletes, post-surgical patients, and those with systemic or difficult-to-reach injuries."
+        },
+        {
+          name: "KPV",
+          moa: "A tripeptide derived from alpha-MSH that potently inhibits pro-inflammatory cytokine pathways — delivering targeted anti-inflammatory and wound-healing effects with exceptional tolerability.",
+          benefits: ["Potent anti-inflammatory action", "Accelerated wound and tissue healing", "Gut mucosal protection", "Immune modulation", "Skin barrier restoration"],
+          candidate: "Those managing inflammatory conditions, gut disorders, skin issues, or seeking a gentle but effective healing support peptide."
+        }
+      ]
     },
     {
-      name: "Thymosin Alpha-1",
-      moa: "Modulates the immune system by stimulating T-cell maturation and downregulating inflammatory cytokines.",
-      benefits: ["Immune system fortification", "Pathogen resistance", "Autoimmune modulation"],
-      candidate: "Executives navigating high-stress environments seeking immune resilience."
+      category: "Sexual Health & Vitality",
+      description: "Targeted interventions that address the neurological, vascular, and hormonal drivers of sexual function — restoring desire, performance, and intimacy with clinical precision.",
+      peptides: [
+        {
+          name: "PT-141 (Bremelanotide)",
+          moa: "Melanocortin receptor agonist acting directly on the central nervous system to initiate desire — addressing the neurological root of sexual dysfunction independent of hormonal or vascular pathways.",
+          benefits: ["Increased sexual desire in men and women", "Improved arousal and sensitivity", "Enhanced erectile function", "Centrally driven — works even with hormonal deficiency"],
+          candidate: "Men and women experiencing low libido, arousal difficulties, or sexual dysfunction unresponsive to conventional therapies."
+        },
+        {
+          name: "Kisspeptin",
+          moa: "Master regulator of the hypothalamic-pituitary-gonadal axis — kisspeptin directly stimulates GnRH release, driving upstream hormonal cascades that govern reproduction, desire, and sexual behavior.",
+          benefits: ["Natural testosterone and estrogen optimization", "Libido enhancement via hormonal axis", "Improved mood and emotional intimacy", "Fertility support", "Complementary to PT-141 for comprehensive sexual health"],
+          candidate: "Individuals with hormonal root causes of sexual dysfunction, or those seeking a more physiological approach to desire restoration."
+        }
+      ]
+    },
+    {
+      category: "Immune & Longevity",
+      description: "Compounds that operate at the deepest levels of biological aging — modulating immunity, extending telomere length, and activating the mitochondrial pathways that govern how long and how well we live.",
+      peptides: [
+        {
+          name: "Thymosin Alpha-1",
+          moa: "Thymic peptide that stimulates T-cell maturation, enhances dendritic cell function, and downregulates pathological inflammatory signaling — rebuilding immune surveillance from the ground up.",
+          benefits: ["Immune system fortification", "Enhanced pathogen resistance", "Autoimmune modulation", "Antiviral and antibacterial resilience", "Cancer immune surveillance support"],
+          candidate: "Executives navigating high-stress environments, frequent travelers, or those with immune dysregulation."
+        },
+        {
+          name: "Epithalon",
+          moa: "Tetrapeptide that activates telomerase — the enzyme responsible for maintaining telomere length — while regulating the pineal gland and circadian melatonin secretion for comprehensive longevity signaling.",
+          benefits: ["Telomere length preservation", "Enhanced melatonin production", "Circadian rhythm restoration", "Cellular senescence reduction", "Antioxidant upregulation"],
+          candidate: "Longevity-focused individuals seeking to address biological aging at the chromosomal level."
+        },
+        {
+          name: "Pinealon",
+          moa: "A tripeptide derived from the pineal gland that penetrates the blood-brain barrier, reducing oxidative stress in neural tissue, regulating circadian biology, and demonstrating neuroprotective and pro-longevity properties.",
+          benefits: ["Deep neuroprotection", "Circadian and sleep optimization", "Antioxidant neural defense", "Cognitive preservation with aging", "Longevity signaling synergy with Epithalon"],
+          candidate: "Those with sleep dysregulation, cognitive aging concerns, or seeking to stack longevity peptides for comprehensive effect."
+        },
+        {
+          name: "MOTS-c",
+          moa: "A mitochondrial-derived peptide that translocates to the nucleus under metabolic stress, activating AMPK pathways and SIRT1 — the same longevity switches activated by caloric restriction and exercise.",
+          benefits: ["Mitochondrial biogenesis", "Enhanced metabolic flexibility", "Insulin sensitivity improvement", "Exercise mimetic effects", "Longevity pathway activation"],
+          candidate: "High-performance individuals seeking cellular energy optimization and metabolic anti-aging at the mitochondrial level."
+        }
+      ]
+    },
+    {
+      category: "Cognitive & Neuroprotective",
+      description: "Precision neuropeptides that enhance neurotransmitter dynamics, protect against neurodegeneration, and promote the neuroplasticity that underlies peak cognitive performance.",
+      peptides: [
+        {
+          name: "Semax",
+          moa: "Synthetic analogue of ACTH that increases BDNF expression, enhances dopaminergic and serotonergic neurotransmission, and promotes cerebral blood flow for acute and sustained cognitive enhancement.",
+          benefits: ["Elevated BDNF and neuroplasticity", "Enhanced focus and working memory", "Neuroprotection under stress", "Mood stabilization", "Stroke and cognitive injury recovery"],
+          candidate: "High-performers seeking a reliable cognitive edge, or those recovering from neurological events."
+        },
+        {
+          name: "Selank",
+          moa: "Anxiolytic neuropeptide analogue of tuftsin that modulates GABA, serotonin, and enkephalin systems — delivering calm, focused clarity without sedation or dependency.",
+          benefits: ["Anxiety reduction without impairment", "Enhanced learning and memory consolidation", "Stable mood and emotional regulation", "Immune modulation", "Anti-fatigue effects"],
+          candidate: "Individuals managing high cognitive load with anxiety or stress, seeking clarity without pharmaceutical sedation."
+        },
+        {
+          name: "Cerebrolysin",
+          moa: "A purified mixture of low-molecular-weight neuropeptides and amino acids that mimics endogenous neurotrophic factors — directly nourishing neural circuitry and reversing markers of neurodegeneration.",
+          benefits: ["Robust neuroprotection", "Alzheimer's and cognitive decline prevention", "Post-stroke neural repair", "Enhanced memory and executive function", "Neurotrophin-level brain support"],
+          candidate: "Those with family history of neurodegeneration, cognitive aging concerns, or seeking the most potent neuroprotective intervention available."
+        },
+        {
+          name: "NAD+",
+          moa: "Essential coenzyme at the center of cellular energy metabolism, DNA repair, and sirtuin (longevity gene) activation — levels decline 50% by age 50, making restoration one of the highest-leverage longevity interventions.",
+          benefits: ["Cellular energy restoration", "DNA damage repair acceleration", "Sirtuin and longevity pathway activation", "Improved metabolic function", "Enhanced mental clarity and resilience"],
+          candidate: "Any adult seeking foundational longevity support. Particularly impactful for those experiencing energy decline, brain fog, or accelerated biological aging."
+        }
+      ]
+    },
+    {
+      category: "Auryx Signature Complexes",
+      description: "Proprietary Auryx compounded formulations — physician-curated peptide blends engineered for specific outcomes that no single agent can achieve alone.",
+      peptides: [
+        {
+          name: "GLOW Complex",
+          moa: "An Auryx-formulated blend targeting the biological drivers of skin luminosity, hair density, and connective tissue integrity — combining collagen-stimulating, antioxidant, and dermal repair peptides.",
+          benefits: ["Skin radiance and elasticity restoration", "Hair follicle regeneration", "Collagen and elastin synthesis", "Dermal inflammation reduction", "Nail and connective tissue strengthening"],
+          candidate: "Those prioritizing aesthetic longevity — the visible expression of deep biological health and cellular renewal."
+        },
+        {
+          name: "KLOW Complex",
+          moa: "An Auryx-curated cellular optimization blend targeting mitochondrial efficiency, metabolic rate, and inflammation at the systemic level — the foundational stack for total-body performance.",
+          benefits: ["Systemic inflammation reduction", "Metabolic rate enhancement", "Cellular energy optimization", "Recovery acceleration", "Whole-body performance baseline elevation"],
+          candidate: "High-performance individuals seeking a comprehensive cellular foundation protocol before or alongside targeted therapeutic peptides."
+        }
+      ]
     }
   ];
 
@@ -264,36 +409,55 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {peptides.map((pep, i) => (
+          <div className="space-y-20">
+            {peptideCategories.map((cat, ci) => (
               <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.95 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                key={ci}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="bg-card/50 p-8 rounded-lg border border-border"
+                transition={{ delay: ci * 0.05 }}
               >
-                <div className="flex justify-between items-start mb-4">
-                  <h3 className="text-2xl font-serif text-primary">{pep.name}</h3>
+                <div className="mb-8">
+                  <div className="flex items-center gap-4 mb-3">
+                    <div className="h-[1px] w-8 bg-primary/60" />
+                    <h3 className="text-2xl md:text-3xl font-serif text-foreground">{cat.category}</h3>
+                  </div>
+                  <p className="text-muted-foreground text-sm leading-relaxed max-w-3xl mb-4">{cat.description}</p>
+                  {"note" in cat && cat.note && (
+                    <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-2">
+                      <p className="text-xs uppercase tracking-wider text-primary mb-2">Physician's Note — Protocol Selection</p>
+                      <p className="text-sm text-foreground/80 leading-relaxed italic">{cat.note}</p>
+                    </div>
+                  )}
                 </div>
-                <p className="text-sm text-foreground/80 mb-6 italic leading-relaxed border-l-2 border-primary/30 pl-4">
-                  "{pep.moa}"
-                </p>
-                <div className="mb-6">
-                  <h4 className="text-xs uppercase tracking-wider text-muted-foreground mb-3">Primary Benefits</h4>
-                  <ul className="space-y-2">
-                    {pep.benefits.map((b, j) => (
-                      <li key={j} className="flex items-center text-sm text-foreground/90">
-                        <ChevronRight className="w-4 h-4 text-primary mr-2" />
-                        {b}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="pt-4 border-t border-border/50">
-                  <h4 className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Ideal Candidate</h4>
-                  <p className="text-sm text-foreground/70">{pep.candidate}</p>
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                  {cat.peptides.map((pep, i) => (
+                    <div
+                      key={i}
+                      className="bg-card/50 p-7 rounded-lg border border-border hover:border-primary/40 transition-colors duration-300"
+                    >
+                      <h4 className="text-xl font-serif text-primary mb-4">{pep.name}</h4>
+                      <p className="text-xs text-foreground/75 mb-5 leading-relaxed border-l-2 border-primary/30 pl-3 italic">
+                        {pep.moa}
+                      </p>
+                      <div className="mb-5">
+                        <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Primary Benefits</p>
+                        <ul className="space-y-1.5">
+                          {pep.benefits.map((b, j) => (
+                            <li key={j} className="flex items-start text-xs text-foreground/85">
+                              <ChevronRight className="w-3.5 h-3.5 text-primary mr-1.5 mt-0.5 shrink-0" />
+                              {b}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
+                      <div className="pt-4 border-t border-border/40">
+                        <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">Ideal Candidate</p>
+                        <p className="text-xs text-foreground/65 leading-relaxed">{pep.candidate}</p>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </motion.div>
             ))}
