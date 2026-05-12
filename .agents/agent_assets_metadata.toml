@@ -1,0 +1,20 @@
+uploads = []
+outputs = []
+
+[[generated]]
+id = "suidciotOVtVwGh14JXmp"
+uri = "file://artifacts/auryx/public/hero-bg.png"
+type = "image"
+title = "dark macro molecular biological"
+
+[[generated]]
+id = "Gn-r6s90wdPA3nSvzOS3Y"
+uri = "file://artifacts/auryx/public/about-bg.png"
+type = "image"
+title = "luxury medical consultation"
+
+[[generated]]
+id = "sn4ArEiYOdWCtDtkuLRaq"
+uri = "file://artifacts/auryx/public/education-bg.png"
+type = "image"
+title = "peptide science lab"
