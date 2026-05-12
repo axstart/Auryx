@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { ConsultationModal } from "@/components/ConsultationModal";
+import { PatientAssessment } from "@/components/PatientAssessment";
 import { Button } from "@/components/ui/button";
 import {
   Accordion,
@@ -339,6 +340,8 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      <PatientAssessment onOpenConsult={() => setModalOpen(true)} />
 
       {/* PROCESS SECTION */}
       <section id="process" className="py-32 px-6 md:px-12 bg-card relative z-20">
