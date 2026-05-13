@@ -35,9 +35,9 @@ export default function Footer() {
           <div>
             <h4 className="font-serif text-lg text-foreground mb-4">Contact</h4>
             <ul className="space-y-2 text-muted-foreground text-sm">
-              <li>concierge@auryx.com</li>
-              <li>+1 (800) 555-0199</li>
-              <li className="pt-2">Zürich | New York | Dubai</li>
+              <li><a href="mailto:auryxlife@zohoomail.com" className="hover:text-primary transition-colors">auryxlife@zohoomail.com</a></li>
+              <li><a href="tel:9178539663" className="hover:text-primary transition-colors">(917) 853-9663</a></li>
+              <li className="pt-2">Miami / New York / Boston</li>
             </ul>
           </div>
         </div>
