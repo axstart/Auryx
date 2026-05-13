@@ -249,7 +249,8 @@ export default function Home() {
     { q: "How much does treatment cost?", a: "Protocols are priced individually based on your therapeutic plan — the compounds selected, doses, and duration are specific to your biology and goals. Pricing is discussed in full during your private consultation, with no obligation to proceed." },
     { q: "Does Auryx accept insurance?", a: "Peptide therapy is an elective, precision medicine service and is not covered by insurance. All protocols are self-pay. We accept credit and debit cards, Zelle, and Venmo for your convenience." },
     { q: "Who are Auryx's providers?", a: "Auryx was founded and is led by a licensed MD and a licensed nurse practitioner, both specializing in regenerative and integrative medicine. Every protocol is reviewed, prescribed, and monitored by our clinical team — you are always under direct medical supervision." },
-    { q: "Is Auryx available in my state?", a: "We currently serve patients in New York, New Jersey, Massachusetts, West Virginia, and Florida. If you're outside these states, we'd still love to hear from you — submit a consultation request and you'll be among the first we contact as we expand into new territories." },
+    { q: "I'm already on a protocol from another provider. Can I continue it through Auryx?", a: "Yes — and we've made this as frictionless as possible. If you're already on an established peptide protocol and simply want to continue under Auryx's medical umbrella, you complete a brief intake form covering your current protocol, duration, and a short health screen. A physician reviews and approves within 24 hours, and your compounds are dispensed and delivered directly to you." },
+    { q: "Is Auryx available in my state?", a: "Auryx offers telemedicine consultations and direct-to-door delivery. Reach out and our team will confirm availability and next steps for your location." },
   ];
 
   return (
@@ -290,17 +291,24 @@ export default function Home() {
             <p className="text-sm text-primary/70 tracking-wide mb-12 font-light">
               Founded and led by licensed specialists in regenerative &amp; integrative medicine.
             </p>
-            <div className="flex flex-col sm:flex-row gap-6">
+            <div className="flex flex-col sm:flex-row gap-4 flex-wrap">
               <Button 
                 onClick={() => setModalOpen(true)}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 h-14 px-8 text-base tracking-wide"
               >
                 Book a Consultation
               </Button>
-              <Button 
+              <Button
                 variant="outline"
-                onClick={() => scrollToSection("categories")}
+                onClick={() => scrollToSection("assessment")}
                 className="border-primary/50 text-primary hover:bg-primary/10 h-14 px-8 text-base tracking-wide"
+              >
+                Continue My Protocol
+              </Button>
+              <Button 
+                variant="ghost"
+                onClick={() => scrollToSection("categories")}
+                className="text-muted-foreground hover:text-foreground h-14 px-8 text-base tracking-wide"
               >
                 Explore Protocols
               </Button>
@@ -350,7 +358,9 @@ export default function Home() {
         </div>
       </section>
 
-      <PatientAssessment onOpenConsult={() => setModalOpen(true)} />
+      <div id="assessment">
+        <PatientAssessment onOpenConsult={() => setModalOpen(true)} />
+      </div>
 
       {/* PROCESS SECTION */}
       <section id="process" className="py-32 px-6 md:px-12 bg-card relative z-20">
@@ -378,10 +388,10 @@ export default function Home() {
               <div className="absolute left-[23px] top-4 bottom-4 w-[1px] bg-border hidden md:block" />
               
               {[
-                { step: "01", title: "Private Medical Consultation", desc: "An exhaustive review of your health history, performance goals, and current baseline with our clinical team." },
-                { step: "02", title: "Biomarker & Genomic Profiling", desc: "Comprehensive blood diagnostics and cellular analysis to identify precise optimization opportunities." },
-                { step: "03", title: "Bespoke Protocol Architecture", desc: "The design of your customized peptide regimen, compounded specifically for your biology." },
-                { step: "04", title: "Guided Administration & Optimization", desc: "Continuous monitoring, protocol adjustments, and dedicated concierge support to ensure maximum efficacy." }
+                { step: "01", title: "Choose Your Path", desc: "New to peptides? Start with a private consultation. Already on an established protocol? Our streamlined intake gets you set up within 24 hours — no full consultation required." },
+                { step: "02", title: "Clinical Review & Approval", desc: "A licensed Auryx physician reviews your intake or conducts your consultation — assessing your history, goals, and protocol fit before any compound is dispensed." },
+                { step: "03", title: "Bespoke Protocol & Dispensing", desc: "Your protocol is prescribed, compounded by a US-licensed pharmacy, and delivered directly to your door — pharmaceutical-grade, 3rd-party tested." },
+                { step: "04", title: "Ongoing Optimization", desc: "Continuous monitoring, protocol adjustments, and dedicated concierge support — including Aria, available around the clock — to ensure maximum efficacy." }
               ].map((item, i) => (
                 <motion.div 
                   key={i}
