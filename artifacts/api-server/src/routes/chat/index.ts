@@ -7,15 +7,64 @@ import { adminAuth } from "../../middlewares/adminAuth.js";
 const router = Router();
 
 const ALERT_PHONE = "+19178539663";
+const BUSINESS_START = 8;   // 8 AM Eastern
+const BUSINESS_END   = 20;  // 8 PM Eastern
 
-function buildSystemPrompt(userName?: string): string {
+// ── Business hours helpers ──────────────────────────────────────────────────
+
+function getEasternHour(): number {
+  const now = new Date();
+  const eastern = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+  return eastern.getHours();
+}
+
+function isWithinBusinessHours(): boolean {
+  const h = getEasternHour();
+  return h >= BUSINESS_START && h < BUSINESS_END;
+}
+
+/** Returns a human-readable label for the next available opening. */
+function nextAvailableLabel(): string {
+  const now = new Date();
+  const eastern = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+  const day = eastern.getDay(); // 0=Sun, 6=Sat
+  const hour = eastern.getHours();
+
+  // If it's before 8am today (weekday), "today at 8 AM ET"
+  if (day >= 1 && day <= 5 && hour < BUSINESS_START) {
+    return "today at 8 AM ET";
+  }
+  // If it's Friday after hours, or weekend → Monday
+  if (day === 5 && hour >= BUSINESS_END) return "Monday at 8 AM ET";
+  if (day === 6) return "Monday at 8 AM ET";
+  if (day === 0) return "tomorrow at 8 AM ET";
+  // Weekday after hours → tomorrow
+  return "tomorrow at 8 AM ET";
+}
+
+// ── System prompt ───────────────────────────────────────────────────────────
+
+function buildSystemPrompt(
+  userName?: string,
+  teamAvailable?: boolean
+): string {
   const nameIntro = userName
-    ? `The visitor's name is ${userName}. Address them by their first name naturally throughout the conversation — warmly but not excessively.`
+    ? `The visitor's name is ${userName}. Address them by their first name naturally — warmly but not excessively.`
     : "";
+
+  const availabilityBlock = teamAvailable
+    ? `TEAM AVAILABILITY: The Auryx team is currently available (business hours: 8 AM – 8 PM ET). When a visitor needs escalation, you can offer to connect them right away.`
+    : `TEAM AVAILABILITY: The Auryx team is currently outside business hours (available Mon–Fri 8 AM – 8 PM ET). When escalation is needed, do NOT say you can connect them "right away." Instead, warmly acknowledge this and proactively offer three contact options for the next business day:
+  1. A phone callback — "We can have someone call you first thing tomorrow morning."
+  2. An email follow-up — "We can reach out by email — whatever is most convenient for you."
+  3. A text message — "If you prefer, we can send you a text when the team is back."
+  Ask the visitor which they prefer and reassure them their message has been received and will be prioritized first thing next business day. Make this feel attentive and premium, not like a voicemail.`;
 
   return `You are Aria, the Auryx AI health concierge — warm, precise, and exceptionally polished. You guide visitors through Auryx, a luxury precision longevity and peptide therapy practice.
 
 ${nameIntro}
+
+${availabilityBlock}
 
 TONE: Friendly, professional, and confident — like a world-class medical concierge who genuinely cares. Warm without being overly effusive. Use the visitor's first name occasionally to personalize, but keep it natural. Never robotic or generic.
 
@@ -41,70 +90,66 @@ GLP-1 & METABOLIC PEPTIDES:
 - Tirzepatide: Dual GLP-1 + GIP agonist, superior to semaglutide for weight reduction. Benefits: greater fat loss, lean mass preservation, superior glycemic control. Ideal for insulin resistance or type 2 diabetes.
 - Retatrutide: Triple GLP-1/GIP/glucagon agonist — most potent metabolic compound available. Benefits: unprecedented fat reduction, accelerated metabolic rate, visceral fat targeting. Ideal for those seeking the frontier of body composition transformation.
 
-GROWTH HORMONE SECRETAGOGUES (stimulate pituitary to release natural GH — safer than exogenous HGH):
-- CJC-1295 + Ipamorelin: Amplified, sustained GH pulses without cortisol elevation. Benefits: deep sleep restoration, lean muscle, skin elasticity, fat metabolism, broad anti-aging. Great entry-level GH stack.
-- Tesamorelin: Stabilized GHRH analogue with the strongest clinical evidence. Proven visceral fat reduction, elevated IGF-1. Best for abdominal fat loss and metabolic health.
-- Tesamorelin + Ipamorelin: Premium combination — visceral fat targeting + GH pulse amplification + recovery and sleep enhancement. Ideal for athletes and executives wanting comprehensive results.
+GROWTH HORMONE SECRETAGOGUES:
+- CJC-1295 + Ipamorelin: Amplified, sustained GH pulses without cortisol elevation. Benefits: deep sleep restoration, lean muscle, skin elasticity, fat metabolism, broad anti-aging.
+- Tesamorelin: Stabilized GHRH analogue with the strongest clinical evidence. Proven visceral fat reduction, elevated IGF-1.
+- Tesamorelin + Ipamorelin: Premium combination — visceral fat targeting + GH pulse amplification + recovery and sleep enhancement.
 
 RECOVERY & REGENERATION:
-- BPC-157: Accelerates angiogenesis, upregulates GH receptors in injured tissue. Benefits: tendon/ligament healing, gut lining restoration, joint inflammation resolution, nerve repair. Ideal for musculoskeletal injuries or gut issues.
-- TB-500 (Thymosin Beta-4): Regulates actin, enables cell migration to injury sites. Benefits: systemic injury recovery, reduced inflammation/scarring, cardiovascular tissue repair, neurological recovery. Ideal for athletes and post-surgical patients.
-- KPV: Tripeptide from alpha-MSH, inhibits pro-inflammatory cytokine pathways. Benefits: anti-inflammatory, wound healing, gut mucosal protection, skin barrier restoration. Gentle and highly tolerable.
+- BPC-157: Tendon/ligament healing, gut lining restoration, joint inflammation resolution, nerve repair.
+- TB-500 (Thymosin Beta-4): Systemic injury recovery, reduced inflammation/scarring, cardiovascular tissue repair, neurological recovery.
+- KPV: Anti-inflammatory, wound healing, gut mucosal protection, skin barrier restoration.
 
 SEXUAL HEALTH & VITALITY:
-- PT-141 (Bremelanotide): Melanocortin receptor agonist acting on CNS to initiate desire — independent of hormonal/vascular pathways. Benefits: increased libido in men and women, improved arousal, enhanced erectile function.
-- Kisspeptin: Master regulator of HPG axis, stimulates GnRH release. Benefits: natural testosterone/estrogen optimization, libido enhancement, fertility support, emotional intimacy.
+- PT-141 (Bremelanotide): Increased libido in men and women, improved arousal, enhanced erectile function.
+- Kisspeptin: Natural testosterone/estrogen optimization, libido enhancement, fertility support.
 
 IMMUNE & LONGEVITY:
-- Thymosin Alpha-1: Stimulates T-cell maturation, enhances immune surveillance. Benefits: immune fortification, pathogen resistance, autoimmune modulation, antiviral resilience. Ideal for high-stress executives and frequent travelers.
-- Epithalon: Activates telomerase, regulates pineal melatonin. Benefits: telomere length preservation, enhanced melatonin, circadian rhythm restoration, cellular senescence reduction. For those addressing aging at the chromosomal level.
-- Pinealon: Tripeptide from pineal gland, crosses blood-brain barrier. Benefits: deep neuroprotection, circadian optimization, cognitive preservation. Synergistic with Epithalon.
-- MOTS-c: Mitochondrial-derived peptide, activates AMPK and SIRT1 longevity pathways. Benefits: mitochondrial biogenesis, metabolic flexibility, insulin sensitivity, exercise mimetic effects.
+- Thymosin Alpha-1: Immune fortification, pathogen resistance, autoimmune modulation.
+- Epithalon: Telomere length preservation, enhanced melatonin, circadian rhythm restoration.
+- Pinealon: Deep neuroprotection, circadian optimization, cognitive preservation.
+- MOTS-c: Mitochondrial biogenesis, metabolic flexibility, insulin sensitivity.
 
 COGNITIVE & NEUROPROTECTIVE:
-- Semax: Increases BDNF, enhances dopaminergic/serotonergic transmission, cerebral blood flow. Benefits: elevated neuroplasticity, enhanced focus and working memory, neuroprotection, mood stabilization.
-- Selank: Anxiolytic neuropeptide, modulates GABA/serotonin/enkephalin. Benefits: anxiety reduction without impairment, enhanced memory consolidation, stable mood, anti-fatigue. Ideal for high cognitive load with anxiety.
-- Cerebrolysin: Neuropeptide mixture mimicking endogenous neurotrophic factors. Benefits: robust neuroprotection, Alzheimer's prevention, post-stroke repair, enhanced memory. Most potent neuroprotective intervention.
-- NAD+: Essential coenzyme for energy metabolism, DNA repair, sirtuin activation. Benefits: cellular energy restoration, DNA repair, longevity pathway activation, mental clarity. Foundational for anyone over 30.
+- Semax: Elevated neuroplasticity, enhanced focus and working memory, neuroprotection, mood stabilization.
+- Selank: Anxiety reduction without impairment, enhanced memory consolidation, stable mood.
+- Cerebrolysin: Robust neuroprotection, Alzheimer's prevention, post-stroke repair, enhanced memory.
+- NAD+: Cellular energy restoration, DNA repair, longevity pathway activation, mental clarity.
 
 AURYX SIGNATURE COMPLEXES:
-- GLOW Complex: Proprietary blend targeting skin luminosity, hair density, connective tissue. Benefits: skin radiance and elasticity, hair follicle regeneration, collagen synthesis, nail strengthening.
-- KLOW Complex: Proprietary blend for mitochondrial efficiency, metabolic rate, systemic inflammation. Benefits: inflammation reduction, metabolic rate enhancement, cellular energy optimization, recovery acceleration. The foundational stack.
+- GLOW Complex: Skin radiance and elasticity, hair follicle regeneration, collagen synthesis.
+- KLOW Complex: Inflammation reduction, metabolic rate enhancement, cellular energy optimization.
 
-WHEN TO OFFER ESCALATION TO THE AURYX TEAM:
+WHEN TO OFFER ESCALATION:
 - Visitor asks about specific dosing for their condition
-- Visitor has a complex medical history that would affect protocol selection
+- Visitor has a complex medical history
 - Visitor wants to begin a protocol immediately
 - Visitor has specific pricing questions
 - Any question requiring a physician's judgment
-When escalating, say something like: "That's a question best answered by one of our physicians directly. I'd love to connect you with the Auryx team — just say the word and we'll reach out to you personally."
+When escalating during business hours: "That's a question best answered by one of our physicians directly. I'd love to connect you with the Auryx team right away."
+When escalating outside hours: "Our team isn't available at this hour, but I want to make sure you hear back first thing. I can arrange a call, email, or text for the next business day — which would you prefer?"
 
-CONSULTATION ENCOURAGEMENT: In every conversation, look for a natural opportunity to mention that the most precise path forward is a private consultation with an Auryx physician, where protocols are engineered specifically to the individual's biomarkers and goals. End conversations with a gentle, elegant nudge in that direction.
+CONSULTATION ENCOURAGEMENT: In every conversation, look for a natural opportunity to mention that the most precise path forward is a private consultation with an Auryx physician. End conversations with a gentle, elegant nudge in that direction.
 
 Keep responses concise and elegant — 2–4 paragraphs max unless a detailed comparison is requested.`;
 }
 
-function isWithinBusinessHours(): boolean {
-  const now = new Date();
-  const eastern = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
-  const hours = eastern.getHours();
-  return hours >= 8 && hours < 20;
-}
+// ── SMS alert ───────────────────────────────────────────────────────────────
 
-async function sendSmsAlert(name: string, contact: string): Promise<void> {
+async function sendSmsAlert(
+  name: string,
+  contact: string,
+  preferredContact?: string
+): Promise<void> {
   const accountSid = process.env.TWILIO_ACCOUNT_SID;
   const authToken  = process.env.TWILIO_AUTH_TOKEN;
   const fromNumber = process.env.TWILIO_FROM_NUMBER;
 
-  if (!accountSid || !authToken || !fromNumber) {
-    return;
-  }
+  if (!accountSid || !authToken || !fromNumber) return;
+  if (!isWithinBusinessHours()) return;
 
-  if (!isWithinBusinessHours()) {
-    return;
-  }
-
-  const body = `🔔 Auryx chat escalation: ${name} (${contact || "no contact provided"}) requested to speak with the team via Aria. Log in to admin to view the conversation.`;
+  const preferNote = preferredContact ? ` Preferred contact: ${preferredContact}.` : "";
+  const body = `🔔 Auryx chat escalation: ${name} (${contact || "no contact"}) requested a team member via Aria.${preferNote} Log in to admin to view the conversation.`;
 
   const params = new URLSearchParams({
     To:   ALERT_PHONE,
@@ -128,13 +173,22 @@ async function sendSmsAlert(name: string, contact: string): Promise<void> {
     );
     if (!res.ok) {
       const text = await res.text();
-      throw new Error(`Twilio error ${res.status}: ${text}`);
+      throw new Error(`Twilio ${res.status}: ${text}`);
     }
   } catch (err) {
-    // Log but don't throw — SMS failure should not block the escalation response
     console.error("SMS alert failed:", err);
   }
 }
+
+// ── Routes ──────────────────────────────────────────────────────────────────
+
+router.get("/chat/hours", (_req, res) => {
+  const available = isWithinBusinessHours();
+  res.json({
+    available,
+    nextAvailable: available ? null : nextAvailableLabel(),
+  });
+});
 
 router.post("/chat/message", async (req, res) => {
   const { messages, userInfo } = req.body as {
@@ -152,7 +206,8 @@ router.post("/chat/message", async (req, res) => {
   res.setHeader("Connection", "keep-alive");
 
   try {
-    const systemPrompt = buildSystemPrompt(userInfo?.name);
+    const available    = isWithinBusinessHours();
+    const systemPrompt = buildSystemPrompt(userInfo?.name, available);
 
     const stream = await openai.chat.completions.create({
       model: "gpt-4.1",
@@ -178,10 +233,11 @@ router.post("/chat/message", async (req, res) => {
 });
 
 router.post("/chat/escalate", async (req, res) => {
-  const { name, email, phone, conversationJson } = req.body as {
+  const { name, email, phone, preferredContact, conversationJson } = req.body as {
     name: string;
     email?: string;
     phone?: string;
+    preferredContact?: string;
     conversationJson: string;
   };
 
@@ -194,11 +250,16 @@ router.post("/chat/escalate", async (req, res) => {
 
   const [row] = await db
     .insert(chatEscalationsTable)
-    .values({ name, email: email || "", conversationJson })
+    .values({
+      name,
+      email: email ?? "",
+      phone: phone ?? null,
+      preferredContact: preferredContact ?? null,
+      conversationJson,
+    })
     .returning();
 
-  // Fire-and-forget SMS alert
-  sendSmsAlert(name, contact).catch(() => {});
+  sendSmsAlert(name, contact, preferredContact).catch(() => {});
 
   res.status(201).json(row);
 });

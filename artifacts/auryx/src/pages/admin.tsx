@@ -411,6 +411,8 @@ interface ChatEscalation {
   id: number;
   name: string;
   email: string;
+  phone: string | null;
+  preferredContact: string | null;
   conversationJson: string;
   createdAt: string;
 }
@@ -465,13 +467,24 @@ function EscalationsTab({ adminKey }: { adminKey: string }) {
                     </div>
                     <div className="min-w-0">
                       <p className="font-medium text-foreground text-sm">{e.name}</p>
-                      <p className="text-xs text-muted-foreground">{e.email}</p>
+                      <p className="text-xs text-muted-foreground">{e.email}{e.phone ? ` · ${e.phone}` : ""}</p>
                     </div>
+                    {e.preferredContact && (
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium shrink-0 ${
+                        e.preferredContact === "call"
+                          ? "bg-blue-500/10 text-blue-300 border-blue-500/20"
+                          : e.preferredContact === "text"
+                          ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/20"
+                          : "bg-primary/10 text-primary border-primary/20"
+                      }`}>
+                        {e.preferredContact === "call" ? "📞 call" : e.preferredContact === "text" ? "💬 text" : "✉ email"}
+                      </span>
+                    )}
                     <span className="text-xs text-muted-foreground ml-auto mr-4 shrink-0">
                       {new Date(e.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
                     </span>
                     <span className="text-xs text-muted-foreground/60 shrink-0">
-                      {conversation.length} message{conversation.length !== 1 ? "s" : ""}
+                      {conversation.length} msg{conversation.length !== 1 ? "s" : ""}
                     </span>
                   </div>
                   <div className="ml-4 text-muted-foreground shrink-0">

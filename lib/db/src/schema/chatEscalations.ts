@@ -6,6 +6,8 @@ export const chatEscalationsTable = pgTable("chat_escalations", {
   id: serial("id").primaryKey(),
   name: text("name").notNull(),
   email: text("email").notNull(),
+  phone: text("phone"),
+  preferredContact: text("preferred_contact"),
   conversationJson: text("conversation_json").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
