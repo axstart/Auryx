@@ -36,7 +36,7 @@ export default function Navbar() {
             AURYX
           </Link>
 
-          <div className="hidden md:flex items-center gap-8 text-sm uppercase tracking-wider font-medium text-foreground/80">
+          <div className="hidden md:flex items-center gap-8 text-base uppercase tracking-wider font-medium text-foreground/80">
             <button onClick={() => scrollToSection("categories")} className="hover:text-primary transition-colors">Protocols</button>
             <button onClick={() => scrollToSection("process")} className="hover:text-primary transition-colors">Methodology</button>
             <button onClick={() => scrollToSection("education")} className="hover:text-primary transition-colors">Science</button>

@@ -23,7 +23,7 @@ export default function Footer() {
           
           <div>
             <h4 className="font-serif text-lg text-foreground mb-4">Explore</h4>
-            <ul className="space-y-2 text-muted-foreground text-sm uppercase tracking-wider">
+            <ul className="space-y-2 text-muted-foreground text-base uppercase tracking-wider">
               <li><button onClick={() => scrollToSection("categories")} className="hover:text-primary transition-colors">Protocols</button></li>
               <li><button onClick={() => scrollToSection("process")} className="hover:text-primary transition-colors">Methodology</button></li>
               <li><button onClick={() => scrollToSection("education")} className="hover:text-primary transition-colors">Science</button></li>

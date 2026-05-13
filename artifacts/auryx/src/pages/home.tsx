@@ -429,11 +429,11 @@ export default function Home() {
                     <div className="h-[1px] w-8 bg-primary/60" />
                     <h3 className="text-2xl md:text-3xl font-serif text-foreground">{cat.category}</h3>
                   </div>
-                  <p className="text-muted-foreground text-sm leading-relaxed max-w-3xl mb-4">{cat.description}</p>
+                  <p className="text-muted-foreground text-base leading-relaxed max-w-3xl mb-4">{cat.description}</p>
                   {"note" in cat && cat.note && (
                     <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-2">
-                      <p className="text-xs uppercase tracking-wider text-primary mb-2">Physician's Note — Protocol Selection</p>
-                      <p className="text-sm text-foreground/80 leading-relaxed italic">{cat.note}</p>
+                      <p className="text-sm uppercase tracking-wider text-primary mb-2">Physician's Note — Protocol Selection</p>
+                      <p className="text-base text-foreground/80 leading-relaxed italic">{cat.note}</p>
                     </div>
                   )}
                 </div>
@@ -444,14 +444,14 @@ export default function Home() {
                       className="bg-card/50 p-7 rounded-lg border border-border hover:border-primary/40 transition-colors duration-300"
                     >
                       <h4 className="text-xl font-serif text-primary mb-4">{pep.name}</h4>
-                      <p className="text-xs text-foreground/75 mb-5 leading-relaxed border-l-2 border-primary/30 pl-3 italic">
+                      <p className="text-sm text-foreground/75 mb-5 leading-relaxed border-l-2 border-primary/30 pl-3 italic">
                         {pep.moa}
                       </p>
                       <div className="mb-5">
-                        <p className="text-xs uppercase tracking-wider text-muted-foreground mb-2">Primary Benefits</p>
+                        <p className="text-sm uppercase tracking-wider text-muted-foreground mb-2">Primary Benefits</p>
                         <ul className="space-y-1.5">
                           {pep.benefits.map((b, j) => (
-                            <li key={j} className="flex items-start text-xs text-foreground/85">
+                            <li key={j} className="flex items-start text-sm text-foreground/85">
                               <ChevronRight className="w-3.5 h-3.5 text-primary mr-1.5 mt-0.5 shrink-0" />
                               {b}
                             </li>
@@ -459,8 +459,8 @@ export default function Home() {
                         </ul>
                       </div>
                       <div className="pt-4 border-t border-border/40">
-                        <p className="text-xs uppercase tracking-wider text-muted-foreground mb-1.5">Ideal Candidate</p>
-                        <p className="text-xs text-foreground/65 leading-relaxed">{pep.candidate}</p>
+                        <p className="text-sm uppercase tracking-wider text-muted-foreground mb-1.5">Ideal Candidate</p>
+                        <p className="text-sm text-foreground/65 leading-relaxed">{pep.candidate}</p>
                       </div>
                     </div>
                   ))}
