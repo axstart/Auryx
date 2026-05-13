@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import {
@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Package, Users, AlertTriangle, Plus, Trash2, Pencil, Check, X, MessageSquare, ChevronDown, ChevronUp } from "lucide-react";
+import { LogOut, Package, Users, AlertTriangle, Plus, Trash2, Pencil, Check, X, MessageSquare, ChevronDown, ChevronUp, Bot, Loader2 } from "lucide-react";
 
 const SESSION_KEY = "auryx_admin_key";
 
@@ -528,9 +528,124 @@ function EscalationsTab({ adminKey }: { adminKey: string }) {
   );
 }
 
+function AriaTab({ adminKey }: { adminKey: string }) {
+  const { toast } = useToast();
+  const [instructions, setInstructions] = useState("");
+  const [savedInstructions, setSavedInstructions] = useState("");
+  const [updatedAt, setUpdatedAt] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/admin/aria-settings", { headers: { "x-admin-key": adminKey } })
+      .then(r => r.json())
+      .then(data => {
+        setInstructions(data.instructions ?? "");
+        setSavedInstructions(data.instructions ?? "");
+        setUpdatedAt(data.updatedAt ?? null);
+        setLoading(false);
+      })
+      .catch(() => setLoading(false));
+  }, [adminKey]);
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      const res = await fetch("/api/admin/aria-settings", {
+        method: "PUT",
+        headers: { "x-admin-key": adminKey, "Content-Type": "application/json" },
+        body: JSON.stringify({ instructions }),
+      });
+      if (!res.ok) throw new Error("Save failed");
+      const data = await res.json();
+      setSavedInstructions(instructions);
+      setUpdatedAt(data.updatedAt ?? null);
+      toast({ title: "Saved", description: "Aria's instructions are live." });
+    } catch {
+      toast({ title: "Error", description: "Failed to save. Please try again.", variant: "destructive" });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleLoadDefault = async () => {
+    try {
+      const res = await fetch("/api/admin/aria-settings/default", { headers: { "x-admin-key": adminKey } });
+      const data = await res.json();
+      setInstructions(data.instructions ?? "");
+      toast({ title: "Default loaded", description: "Click Save to apply." });
+    } catch {
+      toast({ title: "Error", description: "Could not load default.", variant: "destructive" });
+    }
+  };
+
+  const isDirty = instructions !== savedInstructions;
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
+        <div>
+          <h2 className="text-2xl font-serif text-foreground mb-1">Aria Instructions</h2>
+          <p className="text-sm text-muted-foreground">
+            Edit what Aria knows and how she responds. Changes go live immediately after saving.
+          </p>
+        </div>
+        <div className="flex gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleLoadDefault}
+            className="text-xs border-border/60 text-muted-foreground hover:text-foreground"
+          >
+            Load Default
+          </Button>
+          <Button
+            size="sm"
+            onClick={handleSave}
+            disabled={!isDirty || saving}
+            className="bg-primary text-primary-foreground text-xs disabled:opacity-40"
+          >
+            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Save Changes"}
+          </Button>
+        </div>
+      </div>
+
+      {loading ? (
+        <div className="text-center py-20 text-muted-foreground text-sm">Loading...</div>
+      ) : (
+        <div className="space-y-3">
+          <div className="bg-primary/5 border border-primary/20 rounded-lg px-4 py-3 text-xs text-foreground/70 leading-relaxed">
+            <strong className="text-primary">How this works:</strong> Everything here — states, protocols, tone, escalation rules — is what Aria uses when talking to visitors. The visitor's name and business hours are injected automatically; everything else comes from this editor. Edit freely and hit Save.
+            {updatedAt && (
+              <span className="ml-2 text-muted-foreground/50">
+                · Last saved {new Date(updatedAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+              </span>
+            )}
+          </div>
+          <textarea
+            value={instructions}
+            onChange={e => setInstructions(e.target.value)}
+            className="w-full h-[600px] bg-card border border-border rounded-xl px-5 py-4 text-sm text-foreground/90 font-mono leading-relaxed resize-y focus:outline-none focus:border-primary/50 transition-colors"
+            spellCheck={false}
+          />
+          <div className="flex items-center justify-between text-xs text-muted-foreground/50">
+            <span>
+              {isDirty
+                ? <span className="text-amber-400/80">Unsaved changes — click Save to apply</span>
+                : <span className="text-emerald-500/60">All changes saved</span>
+              }
+            </span>
+            <span>{instructions.length.toLocaleString()} characters</span>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Admin() {
   const [adminKey, setAdminKey] = useState<string>(() => sessionStorage.getItem(SESSION_KEY) ?? "");
-  const [tab, setTab] = useState<"consultations" | "inventory" | "escalations">("consultations");
+  const [tab, setTab] = useState<"consultations" | "inventory" | "escalations" | "aria">("consultations");
 
   const handleLogout = () => {
     sessionStorage.removeItem(SESSION_KEY);
@@ -570,6 +685,13 @@ export default function Admin() {
               >
                 <MessageSquare className="inline w-4 h-4 mr-2" />Chat Escalations
               </button>
+              <button
+                data-testid="tab-aria"
+                onClick={() => setTab("aria")}
+                className={`px-4 py-2 text-sm rounded-md transition-colors ${tab === "aria" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <Bot className="inline w-4 h-4 mr-2" />Aria
+              </button>
             </nav>
           </div>
           <button
@@ -587,6 +709,7 @@ export default function Admin() {
           {tab === "consultations" && <ConsultationsTab adminKey={adminKey} />}
           {tab === "inventory" && <InventoryTab adminKey={adminKey} />}
           {tab === "escalations" && <EscalationsTab adminKey={adminKey} />}
+          {tab === "aria" && <AriaTab adminKey={adminKey} />}
         </motion.div>
       </div>
     </div>
