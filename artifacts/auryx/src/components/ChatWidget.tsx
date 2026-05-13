@@ -30,9 +30,10 @@ const SUGGESTED = [
 ];
 
 const CONTACT_OPTIONS = [
-  { value: "call",  label: "Phone call",    icon: Phone,      desc: "We'll call you back" },
-  { value: "email", label: "Email",         icon: Mail,       desc: "We'll email you" },
-  { value: "text",  label: "Text message",  icon: SmsIcon,    desc: "We'll text you" },
+  { value: "call",  label: "Phone call",    icon: Phone,          desc: "We'll call you back" },
+  { value: "email", label: "Email",         icon: Mail,           desc: "We'll email you" },
+  { value: "text",  label: "Text message",  icon: SmsIcon,        desc: "We'll text you" },
+  { value: "other", label: "Other",         icon: MessageCircle,  desc: "Your own message" },
 ];
 
 function IntakeForm({ onSubmit }: { onSubmit: (info: UserInfo) => void }) {
@@ -98,6 +99,7 @@ export default function ChatWidget() {
   const [loading, setLoading]               = useState(false);
   const [showEscalate, setShowEscalate]     = useState(false);
   const [preferredContact, setPreferredContact] = useState<string | null>(null);
+  const [otherNote, setOtherNote]           = useState("");
   const [escalated, setEscalated]           = useState(false);
   const [escLoading, setEscLoading]         = useState(false);
   const [showSuggested, setShowSuggested]   = useState(true);
@@ -229,6 +231,9 @@ export default function ChatWidget() {
   const handleEscalate = async (contact?: string) => {
     if (!userInfo) return;
     const chosen = contact ?? preferredContact ?? undefined;
+    const resolvedContact = chosen === "other" && otherNote.trim()
+      ? `other: ${otherNote.trim()}`
+      : chosen;
     setEscLoading(true);
     try {
       await fetch("/api/chat/escalate", {
@@ -238,7 +243,7 @@ export default function ChatWidget() {
           name: userInfo.name,
           email: userInfo.email,
           phone: userInfo.phone,
-          preferredContact: chosen,
+          preferredContact: resolvedContact,
           conversationJson: JSON.stringify(messages),
         }),
       });
@@ -258,6 +263,8 @@ export default function ChatWidget() {
           ? "They'll give you a call"
           : chosen === "text"
           ? "They'll send you a text"
+          : chosen === "other"
+          ? "They'll review your note and reach out to you"
           : "They'll reach out by email";
         confirmMsg = `You're all set, ${firstName}. ${methodNote} ${next}. Your conversation has been saved and you'll be a priority first thing. In the meantime, feel free to keep asking me anything.`;
       }
@@ -417,32 +424,55 @@ export default function ChatWidget() {
                             const Icon = opt.icon;
                             const selected = preferredContact === opt.value;
                             return (
-                              <button
-                                key={opt.value}
-                                onClick={() => setPreferredContact(selected ? null : opt.value)}
-                                className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs transition-colors border ${
-                                  selected
-                                    ? "border-primary/50 bg-primary/10 text-primary"
-                                    : "border-border/60 hover:border-primary/30 text-foreground/70"
-                                }`}
-                              >
-                                <Icon className="w-3.5 h-3.5 shrink-0" />
-                                <span className="font-medium">{opt.label}</span>
-                                <span className="ml-auto text-muted-foreground text-[10px]">{opt.desc}</span>
-                              </button>
+                              <div key={opt.value}>
+                                <button
+                                  onClick={() => {
+                                    setPreferredContact(selected ? null : opt.value);
+                                    if (selected) setOtherNote("");
+                                  }}
+                                  className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs transition-colors border ${
+                                    selected
+                                      ? "border-primary/50 bg-primary/10 text-primary"
+                                      : "border-border/60 hover:border-primary/30 text-foreground/70"
+                                  }`}
+                                >
+                                  <Icon className="w-3.5 h-3.5 shrink-0" />
+                                  <span className="font-medium">{opt.label}</span>
+                                  <span className="ml-auto text-muted-foreground text-[10px]">{opt.desc}</span>
+                                </button>
+                                {selected && opt.value === "other" && (
+                                  <div className="mt-1.5">
+                                    <input
+                                      autoFocus
+                                      maxLength={100}
+                                      value={otherNote}
+                                      onChange={e => setOtherNote(e.target.value)}
+                                      placeholder="Let us know how to reach you or what you need…"
+                                      className="w-full bg-background border border-primary/30 rounded-lg px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/60 transition-colors"
+                                    />
+                                    <p className="text-right text-[10px] text-muted-foreground/40 mt-0.5">
+                                      {otherNote.length}/100
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
                             );
                           })}
                         </div>
                         <div className="flex gap-2 pt-1">
                           <Button
                             onClick={() => handleEscalate(preferredContact ?? undefined)}
-                            disabled={escLoading || !preferredContact}
+                            disabled={
+                              escLoading ||
+                              !preferredContact ||
+                              (preferredContact === "other" && !otherNote.trim())
+                            }
                             size="sm"
                             className="flex-1 bg-primary text-primary-foreground h-8 text-xs disabled:opacity-40"
                           >
                             {escLoading
                               ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                              : preferredContact
+                              : preferredContact && !(preferredContact === "other" && !otherNote.trim())
                               ? `Confirm — ${CONTACT_OPTIONS.find(o => o.value === preferredContact)?.label}`
                               : "Select a preference above"
                             }
