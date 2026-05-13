@@ -7,6 +7,7 @@ import Home from "@/pages/home";
 import Admin from "@/pages/admin";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import ChatWidget from "@/components/ChatWidget";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ function Router() {
           </main>
           <Footer />
         </div>
+        <ChatWidget />
       </Route>
     </Switch>
   );

@@ -165,3 +165,31 @@ export const DeleteInventoryItemParams = zod.object({
 export const DeleteInventoryItemHeader = zod.object({
   "x-admin-key": zod.string(),
 });
+
+/**
+ * @summary Submit a chat escalation request
+ */
+
+export const CreateChatEscalationBody = zod.object({
+  name: zod.string().min(1),
+  email: zod.string().email(),
+  conversationJson: zod.string(),
+});
+
+/**
+ * @summary List all chat escalations (admin)
+ */
+export const ListChatEscalationsHeader = zod.object({
+  "x-admin-key": zod.string(),
+});
+
+export const ListChatEscalationsResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  conversationJson: zod.string(),
+  createdAt: zod.coerce.date(),
+});
+export const ListChatEscalationsResponse = zod.array(
+  ListChatEscalationsResponseItem,
+);

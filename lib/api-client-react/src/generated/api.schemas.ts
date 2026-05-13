@@ -83,3 +83,18 @@ export interface InventoryItemUpdate {
   lowStockThreshold?: number;
   notes?: string;
 }
+
+export interface ChatEscalateInput {
+  /** @minLength 1 */
+  name: string;
+  email: string;
+  conversationJson: string;
+}
+
+export interface ChatEscalation {
+  id: number;
+  name: string;
+  email: string;
+  conversationJson: string;
+  createdAt: string;
+}

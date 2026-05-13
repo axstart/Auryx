@@ -6,6 +6,8 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./chatEscalateInput";
+export * from "./chatEscalation";
 export * from "./consultation";
 export * from "./consultationInput";
 export * from "./consultationUpdate";

@@ -17,6 +17,8 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  ChatEscalateInput,
+  ChatEscalation,
   Consultation,
   ConsultationInput,
   ConsultationUpdate,
@@ -690,3 +692,164 @@ export const useDeleteInventoryItem = <
 > => {
   return useMutation(getDeleteInventoryItemMutationOptions(options));
 };
+
+/**
+ * @summary Submit a chat escalation request
+ */
+export const getCreateChatEscalationUrl = () => {
+  return `/api/chat/escalate`;
+};
+
+export const createChatEscalation = async (
+  chatEscalateInput: ChatEscalateInput,
+  options?: RequestInit,
+): Promise<ChatEscalation> => {
+  return customFetch<ChatEscalation>(getCreateChatEscalationUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(chatEscalateInput),
+  });
+};
+
+export const getCreateChatEscalationMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createChatEscalation>>,
+    TError,
+    { data: BodyType<ChatEscalateInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createChatEscalation>>,
+  TError,
+  { data: BodyType<ChatEscalateInput> },
+  TContext
+> => {
+  const mutationKey = ["createChatEscalation"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createChatEscalation>>,
+    { data: BodyType<ChatEscalateInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createChatEscalation(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateChatEscalationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createChatEscalation>>
+>;
+export type CreateChatEscalationMutationBody = BodyType<ChatEscalateInput>;
+export type CreateChatEscalationMutationError = ErrorType<void>;
+
+/**
+ * @summary Submit a chat escalation request
+ */
+export const useCreateChatEscalation = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createChatEscalation>>,
+    TError,
+    { data: BodyType<ChatEscalateInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createChatEscalation>>,
+  TError,
+  { data: BodyType<ChatEscalateInput> },
+  TContext
+> => {
+  return useMutation(getCreateChatEscalationMutationOptions(options));
+};
+
+/**
+ * @summary List all chat escalations (admin)
+ */
+export const getListChatEscalationsUrl = () => {
+  return `/api/chat/escalations`;
+};
+
+export const listChatEscalations = async (
+  options?: RequestInit,
+): Promise<ChatEscalation[]> => {
+  return customFetch<ChatEscalation[]>(getListChatEscalationsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListChatEscalationsQueryKey = () => {
+  return [`/api/chat/escalations`] as const;
+};
+
+export const getListChatEscalationsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listChatEscalations>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listChatEscalations>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListChatEscalationsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listChatEscalations>>
+  > = ({ signal }) => listChatEscalations({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listChatEscalations>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListChatEscalationsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listChatEscalations>>
+>;
+export type ListChatEscalationsQueryError = ErrorType<void>;
+
+/**
+ * @summary List all chat escalations (admin)
+ */
+
+export function useListChatEscalations<
+  TData = Awaited<ReturnType<typeof listChatEscalations>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listChatEscalations>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListChatEscalationsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}

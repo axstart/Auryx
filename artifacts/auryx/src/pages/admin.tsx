@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Package, Users, AlertTriangle, Plus, Trash2, Pencil, Check, X } from "lucide-react";
+import { LogOut, Package, Users, AlertTriangle, Plus, Trash2, Pencil, Check, X, MessageSquare, ChevronDown, ChevronUp } from "lucide-react";
 
 const SESSION_KEY = "auryx_admin_key";
 
@@ -407,9 +407,117 @@ function InventoryTab({ adminKey }: { adminKey: string }) {
   );
 }
 
+interface ChatEscalation {
+  id: number;
+  name: string;
+  email: string;
+  conversationJson: string;
+  createdAt: string;
+}
+
+function EscalationsTab({ adminKey }: { adminKey: string }) {
+  const headers = { "x-admin-key": adminKey };
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+
+  const { data: escalations = [], isLoading } = useQuery<ChatEscalation[]>({
+    queryKey: ["chat-escalations"],
+    queryFn: async () => {
+      const res = await fetch("/api/chat/escalations", { headers });
+      if (!res.ok) throw new Error("Failed to fetch escalations");
+      return res.json();
+    },
+    refetchInterval: 30000,
+  });
+
+  return (
+    <div>
+      <div className="mb-8">
+        <h2 className="text-2xl font-serif text-foreground mb-1">Chat Escalations</h2>
+        <p className="text-sm text-muted-foreground">
+          {escalations.length} visitor{escalations.length !== 1 ? "s" : ""} requested to connect with the team via Aria
+        </p>
+      </div>
+
+      {isLoading ? (
+        <div className="text-muted-foreground text-sm text-center py-20">Loading...</div>
+      ) : escalations.length === 0 ? (
+        <div className="text-center py-20 text-muted-foreground">
+          <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-30" />
+          <p>No chat escalations yet.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {[...escalations].reverse().map((e: ChatEscalation) => {
+            let conversation: { role: string; content: string }[] = [];
+            try { conversation = JSON.parse(e.conversationJson); } catch {}
+            const isExpanded = expandedId === e.id;
+            return (
+              <div key={e.id} className="bg-card/50 border border-border/60 hover:border-primary/20 transition-colors rounded-lg overflow-hidden">
+                <div
+                  className="flex items-center justify-between px-6 py-4 cursor-pointer"
+                  onClick={() => setExpandedId(isExpanded ? null : e.id)}
+                >
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="w-8 h-8 rounded-full bg-primary/15 border border-primary/25 flex items-center justify-center shrink-0">
+                      <span className="text-primary text-xs font-serif font-bold">
+                        {e.name.charAt(0).toUpperCase()}
+                      </span>
+                    </div>
+                    <div className="min-w-0">
+                      <p className="font-medium text-foreground text-sm">{e.name}</p>
+                      <p className="text-xs text-muted-foreground">{e.email}</p>
+                    </div>
+                    <span className="text-xs text-muted-foreground ml-auto mr-4 shrink-0">
+                      {new Date(e.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                    </span>
+                    <span className="text-xs text-muted-foreground/60 shrink-0">
+                      {conversation.length} message{conversation.length !== 1 ? "s" : ""}
+                    </span>
+                  </div>
+                  <div className="ml-4 text-muted-foreground shrink-0">
+                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  </div>
+                </div>
+
+                {isExpanded && conversation.length > 0 && (
+                  <div className="border-t border-border/40 px-6 py-5 bg-background/30 space-y-3">
+                    <p className="text-xs uppercase tracking-wider text-muted-foreground/60 mb-4">Conversation transcript</p>
+                    {conversation.map((msg, i) => (
+                      <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                        <div className={`max-w-[75%] rounded-xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
+                          msg.role === "user"
+                            ? "bg-primary/15 text-foreground border border-primary/20"
+                            : "bg-card border border-border/60 text-foreground/80"
+                        }`}>
+                          <span className="block text-[10px] uppercase tracking-wider mb-1 opacity-50">
+                            {msg.role === "user" ? e.name : "Aria"}
+                          </span>
+                          {msg.content}
+                        </div>
+                      </div>
+                    ))}
+                    <div className="pt-3 border-t border-border/30 flex justify-end">
+                      <a
+                        href={`mailto:${e.email}?subject=Following up from Auryx&body=Hi ${e.name},%0A%0AThank you for your interest in Auryx.`}
+                        className="text-xs text-primary hover:underline flex items-center gap-1"
+                      >
+                        Reply to {e.email} →
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function Admin() {
   const [adminKey, setAdminKey] = useState<string>(() => sessionStorage.getItem(SESSION_KEY) ?? "");
-  const [tab, setTab] = useState<"consultations" | "inventory">("consultations");
+  const [tab, setTab] = useState<"consultations" | "inventory" | "escalations">("consultations");
 
   const handleLogout = () => {
     sessionStorage.removeItem(SESSION_KEY);
@@ -442,6 +550,13 @@ export default function Admin() {
               >
                 <Package className="inline w-4 h-4 mr-2" />Inventory
               </button>
+              <button
+                data-testid="tab-escalations"
+                onClick={() => setTab("escalations")}
+                className={`px-4 py-2 text-sm rounded-md transition-colors ${tab === "escalations" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <MessageSquare className="inline w-4 h-4 mr-2" />Chat Escalations
+              </button>
             </nav>
           </div>
           <button
@@ -458,6 +573,7 @@ export default function Admin() {
         <motion.div key={tab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
           {tab === "consultations" && <ConsultationsTab adminKey={adminKey} />}
           {tab === "inventory" && <InventoryTab adminKey={adminKey} />}
+          {tab === "escalations" && <EscalationsTab adminKey={adminKey} />}
         </motion.div>
       </div>
     </div>

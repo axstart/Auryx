@@ -209,6 +209,50 @@ paths:
         "404":
           description: Not found
 
+  /chat/escalate:
+    post:
+      operationId: createChatEscalation
+      tags: [chat]
+      summary: Submit a chat escalation request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatEscalateInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatEscalation"
+        "400":
+          description: Invalid input
+
+  /chat/escalations:
+    get:
+      operationId: listChatEscalations
+      tags: [chat]
+      summary: List all chat escalations (admin)
+      parameters:
+        - in: header
+          name: x-admin-key
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of escalations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChatEscalation"
+        "401":
+          description: Unauthorized
+
 components:
   schemas:
     HealthStatus:
@@ -331,4 +375,33 @@ components:
           minimum: 0
         notes:
           type: string
+
+    ChatEscalateInput:
+      type: object
+      required: [name, email, conversationJson]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        conversationJson:
+          type: string
+
+    ChatEscalation:
+      type: object
+      required: [id, name, email, conversationJson, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        conversationJson:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
 

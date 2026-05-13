@@ -531,6 +531,91 @@ export default function Home() {
         </div>
       </section>
 
+      {/* QUALITY & STANDARDS SECTION */}
+      <section className="py-24 px-6 md:px-12 bg-background relative z-20 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(201,168,68,0.06),transparent_60%)]" />
+        <div className="container mx-auto max-w-7xl relative">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.7 }}
+            className="text-center mb-16"
+          >
+            <p className="text-primary tracking-[0.2em] text-sm uppercase mb-4">Pharmaceutical Excellence</p>
+            <h2 className="text-4xl md:text-5xl font-serif mb-5">No Compromises. No Shortcuts.</h2>
+            <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
+              Every compound in every Auryx protocol is held to the same standard: pharmaceutical-grade purity, sourced on American soil, and verified by independent science.
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-14">
+            {[
+              {
+                icon: "🇺🇸",
+                title: "US-Sourced",
+                body: "All peptides are compounded exclusively by FDA-registered US pharmacies operating under strict cGMP manufacturing standards.",
+              },
+              {
+                icon: "⚗️",
+                title: "Pharmaceutical Grade",
+                body: "We work only with licensed compounding pharmacies — not research-grade or grey-market suppliers. Medical quality, full stop.",
+              },
+              {
+                icon: "🔬",
+                title: "3rd Party Tested",
+                body: "Every batch is independently verified by accredited third-party laboratories before it reaches a single patient.",
+              },
+              {
+                icon: "✦",
+                title: "99%+ Purity",
+                body: "Purity certificates are available on request. We maintain a 99% minimum purity standard across all compounds in our formulary.",
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: i * 0.1 }}
+                className="bg-card border border-border hover:border-primary/30 transition-colors rounded-xl p-7"
+              >
+                <div className="text-3xl mb-5">{item.icon}</div>
+                <h3 className="text-lg font-serif text-foreground mb-3">{item.title}</h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">{item.body}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="bg-primary/5 border border-primary/25 rounded-xl px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-6"
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-10 h-10 rounded-full border border-primary/30 bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-primary text-lg">✓</span>
+              </div>
+              <div>
+                <p className="text-foreground font-medium mb-1">Certificates of Analysis available on request</p>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Ask for the CoA on any compound in your protocol at any time. Transparency is not a feature — it is the standard.
+                </p>
+              </div>
+            </div>
+            <Button
+              onClick={() => setModalOpen(true)}
+              variant="outline"
+              className="border-primary/40 text-primary hover:bg-primary/10 whitespace-nowrap shrink-0 px-7"
+            >
+              Request a CoA
+            </Button>
+          </motion.div>
+        </div>
+      </section>
+
       {/* FAQ SECTION */}
       <section id="faq" className="py-32 px-6 md:px-12 bg-background relative z-20">
         <div className="container mx-auto max-w-3xl">

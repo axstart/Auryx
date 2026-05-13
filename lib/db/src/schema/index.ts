@@ -19,3 +19,4 @@
 
 export * from "./consultations";
 export * from "./inventory";
+export * from "./chatEscalations";
