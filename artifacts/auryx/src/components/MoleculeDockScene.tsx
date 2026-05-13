@@ -3,209 +3,224 @@ import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import * as THREE from "three";
 
 /* ─── Palette ──────────────────────────────────────────────────────────────── */
-const C_GOLD      = new THREE.Color("#D4A843");
-const C_GOLD_EMI  = new THREE.Color("#9A6F10");
-const C_GOLD_PALE = new THREE.Color("#F0D080");
-const C_TEAL      = new THREE.Color("#0ABFB0");
-const C_TEAL_EMI  = new THREE.Color("#087A72");
+const C_GOLD_BRIGHT = new THREE.Color("#F0C84A");
+const C_GOLD        = new THREE.Color("#C9A030");
+const C_GOLD_DIM    = new THREE.Color("#7A5A10");
+const C_TEAL        = new THREE.Color("#0ABFB0");
 
-/* ─── Animation timing (9-second loop) ────────────────────────────────────── */
-const LOOP       = 9;
-const T_APPROACH = 0.33;
-const T_DOCKED   = 0.62;
-const T_RELEASE  = 0.82;
+/* ─── Node count & geometry constants ─────────────────────────────────────── */
+const NODE_COUNT      = 58;
+const CLOUD_RADIUS    = 3.6;
+const CONNECT_DIST    = 1.85;   // max distance to draw a connection
+const MAX_LINES       = 400;    // pre-allocated connection buffer
+const PULSE_INTERVAL  = 2.2;    // seconds between activation pulses
 
-const smoothstep = (t: number) => t * t * (3 - 2 * t);
-const clamp01    = (t: number) => Math.max(0, Math.min(1, t));
-const inv        = (a: number, b: number, v: number) => clamp01((v - a) / (b - a));
-
-/* ─── Alpha-helix backbone positions (12 residues) ─────────────────────────── */
-function buildHelix(n = 12) {
-  const helixR = 0.52;      // coil radius
-  const rise   = 0.29;      // rise per residue
-  const turn   = (100 * Math.PI) / 180; // ~100° per residue
-  const yStart = -((n - 1) * rise) / 2;
-  const atoms: THREE.Vector3[] = [];
-  const sides: { pos: THREE.Vector3; r: number }[] = [];
-
-  for (let i = 0; i < n; i++) {
-    const a = i * turn;
-    const x = helixR * Math.cos(a);
-    const z = helixR * Math.sin(a);
-    const y = yStart + i * rise;
-    atoms.push(new THREE.Vector3(x, y, z));
-
-    // Side chain: point radially outward
-    const sr = helixR + 0.38;
-    sides.push({
-      pos: new THREE.Vector3(sr * Math.cos(a), y + 0.04, sr * Math.sin(a)),
-      r: 0.09 + Math.random() * 0.06,
-    });
-  }
-  return { atoms, sides };
-}
-
-const HELIX = buildHelix(12);
-const FLOAT_POS = new THREE.Vector3(-2.8,  0.3, 0);
-const DOCK_POS  = new THREE.Vector3( 1.6,  0.0, 0);
-const REC_POS   = new THREE.Vector3( 1.6,  0.0, 0);
-
-/* ─── Receptor geometry (deep binding groove) ──────────────────────────────── */
-const REC_RESIDUES: { p: [number,number,number]; r: number }[] = [
-  // left lobe
-  { p:[-1.05,-1.30,-0.12], r:0.40 }, { p:[-1.25,-0.48, 0.18], r:0.38 },
-  { p:[-1.20, 0.38,-0.14], r:0.40 }, { p:[-1.00, 1.20, 0.12], r:0.36 },
-  { p:[-0.55, 1.80, 0.00], r:0.34 },
-  // right lobe
-  { p:[ 1.05,-1.30, 0.12], r:0.40 }, { p:[ 1.25,-0.48,-0.18], r:0.38 },
-  { p:[ 1.20, 0.38, 0.14], r:0.40 }, { p:[ 1.00, 1.20,-0.12], r:0.36 },
-  { p:[ 0.55, 1.80, 0.00], r:0.34 },
-  // bottom of groove
-  { p:[-0.38,-1.70, 0.10], r:0.24 }, { p:[ 0.00,-1.88,-0.06], r:0.24 },
-  { p:[ 0.38,-1.70,-0.10], r:0.24 },
-  // inner pocket detail
-  { p:[-0.62,-0.60,-0.30], r:0.18 }, { p:[ 0.62,-0.60, 0.30], r:0.18 },
-  { p:[-0.42, 0.60, 0.32], r:0.18 }, { p:[ 0.42, 0.60,-0.32], r:0.18 },
-];
-
-/* ─── Bond helper ──────────────────────────────────────────────────────────── */
-function Bond({ a, b, emi, opacity = 0.88 }: {
-  a: THREE.Vector3; b: THREE.Vector3; emi: number; opacity?: number;
-}) {
-  const dir  = b.clone().sub(a);
-  const len  = dir.length();
-  const mid  = a.clone().add(b).multiplyScalar(0.5);
-  const q    = new THREE.Quaternion().setFromUnitVectors(new THREE.Vector3(0,1,0), dir.normalize());
-  const euler = new THREE.Euler().setFromQuaternion(q);
-  return (
-    <mesh position={mid.toArray() as [number,number,number]} rotation={[euler.x, euler.y, euler.z]}>
-      <cylinderGeometry args={[0.028, 0.028, len, 7, 1]} />
-      <meshPhysicalMaterial color={C_GOLD} emissive={C_GOLD_EMI} emissiveIntensity={emi}
-        metalness={0.92} roughness={0.12} clearcoat={0.8} transparent opacity={opacity} />
-    </mesh>
+/* ─── Seeded random helpers ────────────────────────────────────────────────── */
+function randInSphere(r: number): THREE.Vector3 {
+  const u = Math.random(), v = Math.random(), w = Math.random();
+  const phi   = Math.acos(2 * u - 1);
+  const theta = 2 * Math.PI * v;
+  const rad   = r * Math.cbrt(w);
+  return new THREE.Vector3(
+    rad * Math.sin(phi) * Math.cos(theta),
+    rad * Math.sin(phi) * Math.sin(theta),
+    rad * Math.cos(phi),
   );
 }
 
-/* ─── Helix ribbon (tube connecting backbone) ──────────────────────────────── */
-function HelixRibbon({ glowRef }: { glowRef: React.RefObject<number> }) {
-  const mat = useRef<THREE.MeshPhysicalMaterial>(null!);
-  const tubeMesh = useMemo(() => {
-    const curve = new THREE.CatmullRomCurve3(HELIX.atoms, false, "catmullrom", 0.5);
-    const geo = new THREE.TubeGeometry(curve, 80, 0.055, 8, false);
-    return geo;
-  }, []);
+/* ─── Node data (fixed at mount) ──────────────────────────────────────────── */
+function makeNodes(n: number) {
+  return Array.from({ length: n }, (_, i) => {
+    const pos  = randInSphere(CLOUD_RADIUS).add(new THREE.Vector3(1.4, 0, 0));
+    const vel  = new THREE.Vector3(
+      (Math.random() - 0.5) * 0.012,
+      (Math.random() - 0.5) * 0.010,
+      (Math.random() - 0.5) * 0.008,
+    );
+    const size   = 0.055 + Math.random() * 0.12;   // small=background, large=foreground
+    const phase  = Math.random() * Math.PI * 2;
+    const isTeal = i < 6;                           // 6 teal accent nodes
+    return { pos, vel, size, phase, isTeal };
+  });
+}
 
-  useFrame(() => {
-    if (mat.current) mat.current.emissiveIntensity = 0.25 + (glowRef.current ?? 0) * 0.9;
+/* ─── Dynamic connection lines ─────────────────────────────────────────────── */
+function ConnectionWeb({ nodeRefs }: { nodeRefs: React.RefObject<THREE.Vector3[]> }) {
+  const geoRef  = useRef<THREE.BufferGeometry>(null!);
+  const matRef  = useRef<THREE.LineBasicMaterial>(null!);
+  const pulseRef = useRef(0);
+
+  const posArr = useMemo(() => new Float32Array(MAX_LINES * 2 * 3), []);
+
+  useFrame(({ clock }) => {
+    const nodes = nodeRefs.current;
+    if (!nodes || !geoRef.current) return;
+
+    const t   = clock.getElapsedTime();
+    const pulse = (Math.sin(t * 0.7) + 1) * 0.5;  // 0→1 breathing cycle
+    pulseRef.current = pulse;
+
+    // Build active connections
+    let idx = 0;
+    for (let i = 0; i < nodes.length && idx < MAX_LINES - 1; i++) {
+      for (let j = i + 1; j < nodes.length && idx < MAX_LINES - 1; j++) {
+        const d = nodes[i].distanceTo(nodes[j]);
+        if (d < CONNECT_DIST) {
+          posArr[idx * 6 + 0] = nodes[i].x; posArr[idx * 6 + 1] = nodes[i].y; posArr[idx * 6 + 2] = nodes[i].z;
+          posArr[idx * 6 + 3] = nodes[j].x; posArr[idx * 6 + 4] = nodes[j].y; posArr[idx * 6 + 5] = nodes[j].z;
+          idx++;
+        }
+      }
+    }
+    // Zero out remaining slots (degenerate = invisible)
+    posArr.fill(0, idx * 6);
+
+    const attr = geoRef.current.attributes.position as THREE.BufferAttribute;
+    (attr.array as Float32Array).set(posArr);
+    attr.needsUpdate = true;
+    geoRef.current.setDrawRange(0, idx * 2);
+
+    if (matRef.current) {
+      matRef.current.opacity = 0.18 + pulse * 0.28;
+    }
   });
 
+  const geo = useMemo(() => {
+    const g = new THREE.BufferGeometry();
+    g.setAttribute("position", new THREE.BufferAttribute(posArr, 3));
+    return g;
+  }, [posArr]);
+
   return (
-    <mesh geometry={tubeMesh}>
-      <meshPhysicalMaterial ref={mat} color={C_GOLD} emissive={C_GOLD_EMI}
-        emissiveIntensity={0.25} metalness={0.95} roughness={0.08}
-        clearcoat={1.0} clearcoatRoughness={0.06} transparent opacity={0.92} />
-    </mesh>
+    <lineSegments geometry={geo}>
+      <lineBasicMaterial ref={matRef} color={C_GOLD} transparent opacity={0.22} depthWrite={false} />
+    </lineSegments>
   );
 }
 
-/* ─── Helix atoms + side chains ────────────────────────────────────────────── */
-function HelixAtoms({ glowRef }: { glowRef: React.RefObject<number> }) {
-  const atomMats  = useRef<(THREE.MeshPhysicalMaterial | null)[]>([]);
-  const sideMats  = useRef<(THREE.MeshPhysicalMaterial | null)[]>([]);
+/* ─── Individual node spheres ──────────────────────────────────────────────── */
+function NodeCloud({ nodeRefs }: { nodeRefs: React.RefObject<THREE.Vector3[]> }) {
+  const groupRef = useRef<THREE.Group>(null!);
+  const nodes    = useRef(makeNodes(NODE_COUNT));
+  const meshRefs = useRef<(THREE.Mesh | null)[]>([]);
 
-  useFrame(() => {
-    const g = glowRef.current ?? 0;
-    const emi = 0.30 + g * 1.1;
-    atomMats.current.forEach(m => { if (m) m.emissiveIntensity = emi; });
-    sideMats.current.forEach(m => { if (m) m.emissiveIntensity = emi * 0.55; });
+  useFrame(({ clock }, delta) => {
+    const t  = clock.getElapsedTime();
+    const ns = nodes.current;
+
+    for (let i = 0; i < ns.length; i++) {
+      const n   = ns[i];
+      // Drift
+      n.pos.addScaledVector(n.vel, 1);
+      // Soft boundary — pull back toward cloud center
+      const fromCenter = n.pos.clone().sub(new THREE.Vector3(1.4, 0, 0));
+      if (fromCenter.length() > CLOUD_RADIUS * 1.15) {
+        n.vel.addScaledVector(fromCenter.normalize(), -0.0008);
+      }
+      // Update mesh position
+      const mesh = meshRefs.current[i];
+      if (mesh) {
+        mesh.position.copy(n.pos);
+        const emi = 0.35 + Math.sin(t * 0.9 + n.phase) * 0.25;
+        const mat = mesh.material as THREE.MeshPhysicalMaterial;
+        mat.emissiveIntensity = emi;
+      }
+      // Sync into shared ref for ConnectionWeb
+      if (nodeRefs.current) nodeRefs.current[i] = n.pos;
+    }
+
+    // Gentle overall rotation
+    if (groupRef.current) {
+      groupRef.current.rotation.y += delta * 0.06;
+      groupRef.current.rotation.x = Math.sin(t * 0.04) * 0.12;
+    }
   });
 
+  const ns = nodes.current;
   return (
-    <group>
-      {HELIX.atoms.map((pos, i) => (
-        <mesh key={`a${i}`} position={pos.toArray() as [number,number,number]}>
-          <sphereGeometry args={[0.155, 20, 14]} />
-          <meshPhysicalMaterial ref={el => { atomMats.current[i] = el; }}
-            color={C_GOLD_PALE} emissive={C_GOLD_EMI} emissiveIntensity={0.3}
-            metalness={0.92} roughness={0.10} clearcoat={1.0} clearcoatRoughness={0.05}
-            iridescence={0.4} iridescenceIOR={1.9} />
-        </mesh>
-      ))}
-      {HELIX.sides.map((s, i) => (
-        <group key={`s${i}`}>
-          <mesh position={s.pos.toArray() as [number,number,number]}>
-            <sphereGeometry args={[s.r, 12, 8]} />
-            <meshPhysicalMaterial ref={el => { sideMats.current[i] = el; }}
-              color={C_GOLD} emissive={C_GOLD_EMI} emissiveIntensity={0.2}
-              metalness={0.88} roughness={0.15} clearcoat={0.7} />
-          </mesh>
-          <Bond a={HELIX.atoms[i]} b={s.pos} emi={0.15} opacity={0.70} />
-        </group>
-      ))}
-    </group>
-  );
-}
-
-/* ─── Receptor protein ─────────────────────────────────────────────────────── */
-function ReceptorProtein({ glowRef }: { glowRef: React.RefObject<number> }) {
-  const mats = useRef<(THREE.MeshPhysicalMaterial | null)[]>([]);
-
-  useFrame(() => {
-    const g = glowRef.current ?? 0;
-    mats.current.forEach((m, i) => {
-      if (!m) return;
-      const isInner = i >= 10;
-      m.emissiveIntensity = isInner ? 0.10 + g * 0.70 : 0.06 + g * 0.45;
-    });
-  });
-
-  return (
-    <group position={REC_POS.toArray() as [number,number,number]}>
-      {REC_RESIDUES.map((res, i) => (
-        <mesh key={i} position={res.p}>
-          <sphereGeometry args={[res.r, 16, 11]} />
-          <meshPhysicalMaterial ref={el => { mats.current[i] = el; }}
-            color={C_TEAL} emissive={C_TEAL_EMI} emissiveIntensity={0.06}
-            metalness={0.35} roughness={0.50}
-            clearcoat={0.6} clearcoatRoughness={0.25}
-            transparent opacity={i >= 10 ? 0.72 : 0.88} />
+    <group ref={groupRef}>
+      {ns.map((n, i) => (
+        <mesh key={i} ref={el => { meshRefs.current[i] = el; }} position={n.pos.toArray() as [number,number,number]}>
+          <sphereGeometry args={[n.size, n.size > 0.13 ? 18 : 10, n.size > 0.13 ? 14 : 8]} />
+          <meshPhysicalMaterial
+            color={n.isTeal ? C_TEAL : C_GOLD}
+            emissive={n.isTeal ? C_TEAL : (n.size > 0.12 ? C_GOLD_BRIGHT : C_GOLD_DIM)}
+            emissiveIntensity={0.35}
+            metalness={0.85} roughness={0.12}
+            clearcoat={0.9} clearcoatRoughness={0.08}
+            iridescence={n.size > 0.12 ? 0.5 : 0.1}
+            iridescenceIOR={1.8}
+          />
         </mesh>
       ))}
     </group>
   );
 }
 
-/* ─── Floating gold particle field ─────────────────────────────────────────── */
-function ParticleField() {
-  const ref   = useRef<THREE.Points>(null!);
-  const COUNT = 120;
+/* ─── Pulsing activation rings (heartbeat) ────────────────────────────────── */
+function PulseRings() {
+  const ringsRef = useRef<{ mesh: THREE.Mesh | null; t: number; delay: number }[]>([
+    { mesh: null, t: 0, delay: 0 },
+    { mesh: null, t: 0, delay: PULSE_INTERVAL * 0.5 },
+    { mesh: null, t: 0, delay: PULSE_INTERVAL },
+  ]);
+
+  useFrame(({ clock }) => {
+    const t = clock.getElapsedTime();
+    ringsRef.current.forEach(ring => {
+      if (!ring.mesh) return;
+      const phase = ((t + ring.delay) % (PULSE_INTERVAL * 1.5)) / (PULSE_INTERVAL * 1.5);
+      const scale = 0.3 + phase * 4.5;
+      const alpha = (1 - phase) * 0.35;
+      ring.mesh.scale.setScalar(scale);
+      (ring.mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, alpha);
+    });
+  });
+
+  return (
+    <group position={[1.4, 0, 0]}>
+      {ringsRef.current.map((ring, i) => (
+        <mesh key={i} ref={el => { ring.mesh = el; }}>
+          <torusGeometry args={[1, 0.012, 8, 60]} />
+          <meshBasicMaterial color={C_GOLD} transparent opacity={0.3} depthWrite={false} />
+        </mesh>
+      ))}
+    </group>
+  );
+}
+
+/* ─── Background particle dust ─────────────────────────────────────────────── */
+function StarDust() {
+  const ref    = useRef<THREE.Points>(null!);
+  const COUNT  = 180;
 
   const { positions, phases } = useMemo(() => {
     const pos = new Float32Array(COUNT * 3);
     const ph  = new Float32Array(COUNT);
     for (let i = 0; i < COUNT; i++) {
-      pos[i*3]   = (Math.random() - 0.5) * 16;
-      pos[i*3+1] = (Math.random() - 0.5) * 9;
-      pos[i*3+2] = (Math.random() - 0.5) * 5 - 1.5;
-      ph[i]      = Math.random() * Math.PI * 2;
+      pos[i * 3]     = (Math.random() - 0.3) * 18;
+      pos[i * 3 + 1] = (Math.random() - 0.5) * 11;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 6 - 2;
+      ph[i]          = Math.random() * Math.PI * 2;
     }
     return { positions: pos, phases: ph };
   }, []);
 
-  const basePos = useMemo(() => positions.slice(), [positions]);
+  const base = useMemo(() => positions.slice(), [positions]);
 
   useFrame(({ clock }) => {
     const t  = clock.getElapsedTime();
-    const p  = ref.current?.geometry.attributes.position;
-    if (!p) return;
+    const pa = ref.current?.geometry.attributes.position;
+    if (!pa) return;
+    const arr = pa.array as Float32Array;
     for (let i = 0; i < COUNT; i++) {
       const ph = phases[i];
-      (p.array as Float32Array)[i*3]   = basePos[i*3]   + Math.sin(t * 0.22 + ph) * 0.18;
-      (p.array as Float32Array)[i*3+1] = basePos[i*3+1] + Math.sin(t * 0.17 + ph + 1) * 0.22;
-      (p.array as Float32Array)[i*3+2] = basePos[i*3+2] + Math.sin(t * 0.14 + ph + 2) * 0.12;
+      arr[i * 3]     = base[i * 3]     + Math.sin(t * 0.18 + ph) * 0.20;
+      arr[i * 3 + 1] = base[i * 3 + 1] + Math.sin(t * 0.14 + ph + 1) * 0.24;
+      arr[i * 3 + 2] = base[i * 3 + 2] + Math.sin(t * 0.11 + ph + 2) * 0.14;
     }
-    p.needsUpdate = true;
-    ref.current.rotation.y = t * 0.025;
+    pa.needsUpdate = true;
+    ref.current.rotation.y = t * 0.018;
   });
 
   return (
@@ -213,271 +228,185 @@ function ParticleField() {
       <bufferGeometry>
         <bufferAttribute attach="attributes-position" args={[positions, 3]} />
       </bufferGeometry>
-      <pointsMaterial color="#D4A843" size={0.038} transparent opacity={0.55} sizeAttenuation depthWrite={false} />
+      <pointsMaterial color="#D4A843" size={0.028} transparent opacity={0.45} sizeAttenuation depthWrite={false} />
     </points>
   );
 }
 
-/* ─── Camera drift ─────────────────────────────────────────────────────────── */
+/* ─── Camera gentle drift ──────────────────────────────────────────────────── */
 function CameraDrift() {
   const { camera } = useThree();
   useFrame(({ clock }) => {
     const t = clock.getElapsedTime();
-    camera.position.x = Math.sin(t * 0.11) * 0.55;
-    camera.position.y = Math.sin(t * 0.07 + 0.5) * 0.28 + 0.15;
-    camera.lookAt(0.5, 0, 0);
+    camera.position.x = Math.sin(t * 0.09) * 0.65;
+    camera.position.y = Math.sin(t * 0.06 + 0.8) * 0.32 + 0.15;
+    camera.lookAt(1.2, 0, 0);
   });
   return null;
 }
 
-/* ─── Main orchestrator ────────────────────────────────────────────────────── */
-function DockerScene() {
-  const groupRef  = useRef<THREE.Group>(null!);
-  const clock     = useRef(0);
-  const glowRef   = useRef(0);
-
-  useFrame((_, delta) => {
-    clock.current = (clock.current + delta) % LOOP;
-    const t = clock.current / LOOP;
-    const g = groupRef.current;
-    if (!g) return;
-
-    let glow = 0;
-
-    if (t < T_APPROACH) {
-      const ft = clock.current;
-      g.position.copy(FLOAT_POS).add(new THREE.Vector3(
-        Math.sin(ft * 0.38) * 0.14,
-        Math.sin(ft * 0.50 + 1.1) * 0.16,
-        Math.sin(ft * 0.28) * 0.08,
-      ));
-      g.rotation.y += delta * 0.32;
-      g.rotation.x += delta * 0.10;
-
-    } else if (t < T_DOCKED) {
-      const p = smoothstep(inv(T_APPROACH, T_DOCKED, t));
-      g.position.lerpVectors(FLOAT_POS, DOCK_POS, p);
-      g.rotation.x = THREE.MathUtils.lerp(g.rotation.x, 0, delta * 4);
-      g.rotation.y = THREE.MathUtils.lerp(g.rotation.y, 0, delta * 4);
-      g.rotation.z = THREE.MathUtils.lerp(g.rotation.z, 0, delta * 4);
-      glow = p;
-
-    } else if (t < T_RELEASE) {
-      g.position.copy(DOCK_POS);
-      g.rotation.set(0, 0, 0);
-      const pulse = (Math.sin(clock.current * 3.8) + 1) * 0.5;
-      glow = 0.72 + pulse * 0.28;
-
-    } else {
-      const p = smoothstep(inv(T_RELEASE, 1.0, t));
-      g.position.lerpVectors(DOCK_POS, FLOAT_POS, p);
-      g.rotation.y += delta * 0.50 * p;
-      glow = 1 - p;
-    }
-
-    glowRef.current = glow;
-  });
+/* ─── Main scene ───────────────────────────────────────────────────────────── */
+function ConstellationScene() {
+  const nodePositions = useRef<THREE.Vector3[]>(
+    Array.from({ length: NODE_COUNT }, () => new THREE.Vector3())
+  );
 
   return (
     <>
-      {/* Lighting */}
-      <ambientLight intensity={0.18} />
-      <pointLight position={[-6, 4, 4]}  intensity={25} color="#D4A843" distance={14} decay={2} />
-      <pointLight position={[ 5, 0, 4]}  intensity={28} color="#0ABFB0" distance={15} decay={2} />
-      <pointLight position={[ 0, 5, 5]}  intensity={10} color="#F8E8C0" distance={18} decay={2} />
-      <pointLight position={[-2,-4, 2]}  intensity={8}  color="#C07820" distance={10} decay={2} />
-
+      <ambientLight intensity={0.12} />
+      <pointLight position={[-4, 5, 5]}  intensity={22} color="#D4A843" distance={16} decay={2} />
+      <pointLight position={[ 6, -2, 4]} intensity={18} color="#0ABFB0" distance={14} decay={2} />
+      <pointLight position={[ 0, -5, 3]} intensity={10} color="#C07820" distance={12} decay={2} />
       <CameraDrift />
-      <ParticleField />
-      <ReceptorProtein glowRef={glowRef} />
-
-      <group ref={groupRef} position={FLOAT_POS.toArray() as [number,number,number]}>
-        <HelixRibbon glowRef={glowRef} />
-        <HelixAtoms  glowRef={glowRef} />
-      </group>
+      <StarDust />
+      <PulseRings />
+      <NodeCloud nodeRefs={nodePositions} />
+      <ConnectionWeb nodeRefs={nodePositions} />
     </>
   );
 }
 
-/* ─── SVG / CSS fallback (no WebGL) ───────────────────────────────────────── */
-function SvgFallback() {
-  // Pre-compute helix positions for SVG
-  const helixNodes = Array.from({ length: 12 }, (_, i) => {
-    const angle   = (i * 100 * Math.PI) / 180;
-    const cx      = 820;
-    const cyStart = 145;
-    const rx      = 58;
-    const ry      = 14; // perspective foreshortening
-    const riseY   = 33;
-    const x       = cx + rx * Math.cos(angle);
-    const y       = cyStart + i * riseY;
-    const depth   = Math.sin(angle); // -1 back, +1 front
-    const opacity = 0.40 + depth * 0.55;
-    const r       = 11 + depth * 5.5;
-    return { x, y, r, opacity, depth, angle };
-  });
+/* ─── SVG / CSS fallback ───────────────────────────────────────────────────── */
+const SVG_NODES: { x: number; y: number; r: number; teal?: boolean }[] = [
+  {x:720,y:180,r:14},{x:840,y:140,r:10},{x:950,y:200,r:16},{x:1060,y:155,r:9},
+  {x:1120,y:250,r:13},{x:1080,y:360,r:11},{x:980,y:420,r:15},{x:860,y:390,r:9},
+  {x:760,y:310,r:12},{x:660,y:250,r:8},{x:810,y:260,r:7},{x:920,y:300,r:10},
+  {x:1000,y:280,r:8},{x:1150,y:340,r:12},{x:1050,y:460,r:9},{x:900,y:510,r:11},
+  {x:750,y:470,r:8},{x:640,y:370,r:10},{x:690,y:160,r:7},{x:1100,y:140,r:8},
+  {x:830,y:490,r:7},{x:1000,y:180,r:9,teal:true},{x:760,y:380,r:8,teal:true},
+  {x:1080,y:300,r:7,teal:true},{x:940,y:460,r:9,teal:true},{x:660,y:300,r:6},
+  {x:1160,y:420,r:10},{x:870,y:220,r:8},{x:970,y:350,r:6},{x:1030,y:390,r:8},
+];
 
+function getConnections() {
+  const THRESH = 195;
+  const conns: { x1:number;y1:number;x2:number;y2:number;i:number;j:number }[] = [];
+  for (let i = 0; i < SVG_NODES.length; i++) {
+    for (let j = i + 1; j < SVG_NODES.length; j++) {
+      const a = SVG_NODES[i], b = SVG_NODES[j];
+      const d = Math.hypot(a.x - b.x, a.y - b.y);
+      if (d < THRESH) conns.push({ x1:a.x, y1:a.y, x2:b.x, y2:b.y, i, j });
+    }
+  }
+  return conns;
+}
+
+const CONNECTIONS = getConnections();
+
+function SvgFallback() {
   return (
     <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
       <style>{`
-        @keyframes helix-drift {
+        @keyframes node-pulse {
+          0%,100%{transform:scale(1);opacity:var(--base-op)}
+          50%{transform:scale(1.18);opacity:1}
+        }
+        @keyframes line-pulse {
+          0%,100%{stroke-opacity:0.12}
+          50%{stroke-opacity:0.45}
+        }
+        @keyframes line-travel {
+          0%{stroke-dashoffset:var(--len);stroke-opacity:0}
+          15%{stroke-opacity:0.6}
+          85%{stroke-opacity:0.6}
+          100%{stroke-dashoffset:0;stroke-opacity:0}
+        }
+        @keyframes ring-expand {
+          0%{r:20;opacity:0.5;stroke-width:2}
+          100%{r:200;opacity:0;stroke-width:0.5}
+        }
+        @keyframes drift {
           0%,100%{transform:translate(0px,0px)}
-          30%{transform:translate(3px,-14px)}
-          60%{transform:translate(-3px,-9px)}
+          25%{transform:translate(var(--dx),var(--dy))}
+          75%{transform:translate(calc(var(--dx)*-0.6),calc(var(--dy)*0.4))}
         }
-        @keyframes helix-approach {
-          0%,30%{transform:translateX(0px) rotate(4deg);opacity:1}
-          52%,68%{transform:translateX(520px) rotate(0deg);opacity:1}
-          85%,100%{transform:translateX(0px) rotate(4deg);opacity:1}
+        @keyframes stardust {
+          0%,100%{opacity:0.08}50%{opacity:0.22}
         }
-        @keyframes receptor-breathe {
-          0%,100%{filter:brightness(1) drop-shadow(0 0 4px rgba(10,191,176,0.3))}
-          50%{filter:brightness(1.25) drop-shadow(0 0 16px rgba(10,191,176,0.6))}
-        }
-        @keyframes receptor-glow-on {
-          0%,30%{filter:brightness(1) drop-shadow(0 0 4px rgba(10,191,176,0.3))}
-          55%,70%{filter:brightness(1.7) drop-shadow(0 0 22px rgba(10,191,176,0.8))}
-          85%,100%{filter:brightness(1) drop-shadow(0 0 4px rgba(10,191,176,0.3))}
-        }
-        @keyframes particle-float {
-          0%,100%{transform:translate(0,0);opacity:var(--op)}
-          33%{transform:translate(var(--dx),var(--dy));opacity:calc(var(--op)*1.4)}
-          66%{transform:translate(calc(var(--dx)*-0.5),calc(var(--dy)*1.3));opacity:calc(var(--op)*0.7)}
-        }
-        @keyframes ribbon-pulse {
-          0%,100%{opacity:0.75;filter:brightness(1)}
-          50%{opacity:0.92;filter:brightness(1.35) drop-shadow(0 0 5px rgba(212,168,67,0.5))}
-        }
-        .helix-group{animation:helix-approach 9s ease-in-out infinite;transform-origin:820px 345px;}
-        .receptor-group{animation:receptor-glow-on 9s ease-in-out infinite;}
-        .receptor-breathe{animation:receptor-breathe 3.2s ease-in-out infinite;}
-        .ribbon{animation:ribbon-pulse 2.4s ease-in-out infinite;}
+        .constellation-wrap{animation:drift 12s ease-in-out infinite;--dx:4px;--dy:-6px;}
       `}</style>
-      <svg viewBox="0 0 1200 680" className="w-full h-full" style={{opacity:0.52}} preserveAspectRatio="xMidYMid slice">
+      <svg viewBox="0 0 1280 720" className="w-full h-full" style={{opacity:0.55}} preserveAspectRatio="xMidYMid slice">
         <defs>
-          <radialGradient id="gGold" cx="40%" cy="35%" r="60%">
-            <stop offset="0%" stopColor="#F0D888"/>
-            <stop offset="60%" stopColor="#C9A030"/>
-            <stop offset="100%" stopColor="#7A5010"/>
+          <radialGradient id="ng" cx="40%" cy="35%" r="60%">
+            <stop offset="0%" stopColor="#F8E090"/>
+            <stop offset="55%" stopColor="#C9A030"/>
+            <stop offset="100%" stopColor="#6A4808"/>
           </radialGradient>
-          <radialGradient id="gGoldPale" cx="35%" cy="30%" r="65%">
-            <stop offset="0%" stopColor="#FAECC0"/>
-            <stop offset="100%" stopColor="#B08820"/>
-          </radialGradient>
-          <radialGradient id="gTeal" cx="40%" cy="35%" r="60%">
-            <stop offset="0%" stopColor="#40E0D0"/>
+          <radialGradient id="tg" cx="40%" cy="35%" r="60%">
+            <stop offset="0%" stopColor="#50F0E0"/>
             <stop offset="60%" stopColor="#0ABFB0"/>
-            <stop offset="100%" stopColor="#065F58"/>
+            <stop offset="100%" stopColor="#055050"/>
           </radialGradient>
-          <filter id="fGold" x="-60%" y="-60%" width="220%" height="220%">
-            <feGaussianBlur stdDeviation="5" result="b"/>
+          <filter id="glow" x="-80%" y="-80%" width="260%" height="260%">
+            <feGaussianBlur stdDeviation="6" result="b"/>
             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
-          <filter id="fTeal" x="-80%" y="-80%" width="260%" height="260%">
-            <feGaussianBlur stdDeviation="7" result="b"/>
-            <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-          </filter>
-          <filter id="fSoft">
-            <feGaussianBlur stdDeviation="2.5" result="b"/>
+          <filter id="softglow" x="-40%" y="-40%" width="180%" height="180%">
+            <feGaussianBlur stdDeviation="3" result="b"/>
             <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
           </filter>
         </defs>
 
-        {/* Particle field */}
-        {[
-          [120,90,18,0.14,"8px","-6px"],[280,200,22,0.10,"-10px","8px"],[60,330,15,0.16,"6px","-10px"],
-          [400,80,12,0.12,"9px","5px"],[500,400,20,0.09,"-7px","9px"],[180,500,16,0.13,"10px","-7px"],
-          [650,150,14,0.11,"-8px","6px"],[700,470,18,0.10,"7px","-9px"],[350,560,12,0.14,"-6px","8px"],
-          [1050,120,16,0.12,"8px","-6px"],[1100,350,14,0.10,"-9px","7px"],[980,500,20,0.09,"6px","10px"],
-          [1150,580,13,0.13,"-7px","-8px"],[850,580,17,0.11,"9px","5px"],[90,600,15,0.12,"-5px","9px"],
-          [450,300,11,0.15,"7px","-7px"],[560,230,13,0.11,"-8px","6px"],[750,320,16,0.10,"6px","8px"],
-        ].map(([x,y,r,op,dx,dy],i) => (
-          <circle key={`p${i}`} cx={x as number} cy={y as number} r={r as number}
-            fill="url(#gGold)" filter="url(#fSoft)"
-            style={{
-              animation:`particle-float ${3.5+i*0.4}s ease-in-out infinite`,
-              animationDelay:`${i*0.31}s`,
-              ['--op' as string]: op,
-              ['--dx' as string]: dx,
-              ['--dy' as string]: dy,
-              opacity: op as number,
-            } as React.CSSProperties}
-          />
-        ))}
+        {/* Star dust */}
+        {Array.from({length:70},(_,i)=>{
+          const x=Math.sin(i*137.5)*640+640, y=Math.cos(i*137.5)*360+360;
+          return <circle key={i} cx={x} cy={y} r={1.2} fill="#D4A843"
+            style={{animation:`stardust ${2.5+i*0.18}s ease-in-out infinite`,animationDelay:`${i*0.11}s`,opacity:0.12}}/>;
+        })}
 
-        {/* Receptor */}
-        <g className="receptor-group" transform="translate(920,310)">
-          <g className="receptor-breathe" filter="url(#fTeal)">
-            {[
-              [-98,-126,37],[-118,-44,35],[-115,40,37],[-94,122,33],[-52,172,31],
-              [ 98,-126,37],[ 118,-44,35],[ 115,40,37],[ 94,122,33],[ 52,172,31],
-              [-34,-160,22],[0,-178,22],[34,-160,22],
-              [-58,-55,17],[58,-55,17],[-40,58,17],[40,58,17],
-            ].map(([x,y,r],i)=>(
-              <circle key={i} cx={x} cy={y} r={r}
-                fill="url(#gTeal)" opacity={i>=10?0.68:0.88}/>
-            ))}
-          </g>
-        </g>
-
-        {/* Helix group (animated) */}
-        <g className="helix-group">
-          {/* Backbone tube as bezier ribbon */}
-          <path
-            className="ribbon"
-            d={`M ${helixNodes[0].x} ${helixNodes[0].y} ` +
-               helixNodes.slice(1).map((n,i) => {
-                 const prev = helixNodes[i];
-                 const mx   = (prev.x + n.x) / 2;
-                 return `Q ${mx} ${(prev.y+n.y)/2} ${n.x} ${n.y}`;
-               }).join(" ")}
-            stroke="url(#gGold)" strokeWidth="8" fill="none"
-            strokeOpacity="0.75" filter="url(#fGold)"
-          />
-
-          {/* Side chain bonds (back pass) */}
-          {helixNodes.filter(n=>n.depth<0).map((n,i)=>{
-            const sideX = n.x + Math.cos(n.angle)*36;
-            const sideY = n.y + 4;
-            return <line key={`sb${i}`} x1={n.x} y1={n.y} x2={sideX} y2={sideY}
-              stroke="#C9A030" strokeWidth="3" strokeOpacity="0.40"/>;
+        <g className="constellation-wrap">
+          {/* Connection lines — base */}
+          {CONNECTIONS.map((c,i)=>{
+            const len=Math.hypot(c.x2-c.x1,c.y2-c.y1);
+            return <line key={`lb${i}`} x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2}
+              stroke="#C9A030" strokeWidth="1"
+              style={{animation:`line-pulse ${3+i*0.07}s ease-in-out infinite`,animationDelay:`${(i*0.23)%3}s`,strokeOpacity:0.18}}/>;
           })}
-          {/* Atoms (back pass — behind ribbon) */}
-          {helixNodes.filter(n=>n.depth<0).sort((a,b)=>a.depth-b.depth).map((n,i)=>(
-            <circle key={`ab${i}`} cx={n.x} cy={n.y} r={n.r}
-              fill="url(#gGold)" opacity={n.opacity} filter="url(#fGold)"/>
+
+          {/* Travelling pulses on select connections */}
+          {CONNECTIONS.filter((_,i)=>i%3===0).map((c,i)=>{
+            const len=Math.hypot(c.x2-c.x1,c.y2-c.y1);
+            return <line key={`lp${i}`} x1={c.x1} y1={c.y1} x2={c.x2} y2={c.y2}
+              stroke="#F0C84A" strokeWidth="2" fill="none" filter="url(#softglow)"
+              strokeDasharray={len} strokeDashoffset={len}
+              style={{
+                ['--len' as string]: len,
+                animation:`line-travel ${2.8+i*0.35}s linear infinite`,
+                animationDelay:`${i*0.45}s`,
+              } as React.CSSProperties}/>;
+          })}
+
+          {/* Nodes */}
+          {SVG_NODES.map((n,i)=>(
+            <circle key={i} cx={n.x} cy={n.y} r={n.r}
+              fill={n.teal?"url(#tg)":"url(#ng)"}
+              filter="url(#glow)"
+              style={{
+                animation:`node-pulse ${2.2+i*0.19}s ease-in-out infinite`,
+                animationDelay:`${i*0.13}s`,
+                transformOrigin:`${n.x}px ${n.y}px`,
+                ['--base-op' as string]: n.r>11?'0.92':'0.72',
+                opacity: n.r>11?0.92:0.72,
+              } as React.CSSProperties}/>
           ))}
-          {/* Side chain bonds (front pass) */}
-          {helixNodes.filter(n=>n.depth>=0).map((n,i)=>{
-            const sideX = n.x + Math.cos(n.angle)*38;
-            const sideY = n.y + 4;
-            return (
-              <g key={`sf${i}`}>
-                <line x1={n.x} y1={n.y} x2={sideX} y2={sideY}
-                  stroke="#D4A843" strokeWidth="3.5" strokeOpacity="0.55"/>
-                <circle cx={sideX} cy={sideY} r={8} fill="url(#gGoldPale)" opacity={0.70} filter="url(#fSoft)"/>
-              </g>
-            );
-          })}
-          {/* Atoms (front pass — over ribbon) */}
-          {helixNodes.filter(n=>n.depth>=0).sort((a,b)=>a.depth-b.depth).map((n,i)=>(
-            <circle key={`af${i}`} cx={n.x} cy={n.y} r={n.r}
-              fill="url(#gGoldPale)" opacity={n.opacity} filter="url(#fGold)"/>
+
+          {/* Expanding pulse rings from large nodes */}
+          {SVG_NODES.filter(n=>n.r>12).map((n,i)=>(
+            <circle key={`ring${i}`} cx={n.x} cy={n.y} r={20}
+              fill="none" stroke={n.teal?"#0ABFB0":"#C9A030"} strokeWidth="1.5"
+              style={{
+                animation:`ring-expand ${3.2+i*0.8}s ease-out infinite`,
+                animationDelay:`${i*1.1}s`,
+                opacity:0.5,
+              }}/>
           ))}
         </g>
-
-        {/* Subtle background grid */}
-        {Array.from({length:9},(_,row)=>Array.from({length:18},(_,col)=>(
-          <circle key={`g${row}-${col}`}
-            cx={col*70+35} cy={row*78+22} r={1.4}
-            fill="#C9A843" opacity={0.08}/>
-        )))}
       </svg>
     </div>
   );
 }
 
-/* ─── Error boundary ───────────────────────────────────────────────────────── */
+/* ─── Error boundary & WebGL detect ────────────────────────────────────────── */
 class WebGLBoundary extends Component<{children:ReactNode;fallback:ReactNode},{err:boolean}> {
   state = { err: false };
   static getDerivedStateFromError() { return { err: true }; }
@@ -497,10 +426,10 @@ export default function MoleculeDockScene() {
   if (!supportsWebGL()) return <SvgFallback />;
   return (
     <WebGLBoundary fallback={<SvgFallback />}>
-      <Canvas camera={{ position: [0, 0.15, 7.2], fov: 48 }}
+      <Canvas camera={{ position: [0, 0.15, 7.8], fov: 50 }}
         gl={{ alpha: true, antialias: true, failIfMajorPerformanceCaveat: false }}
         style={{ background: "transparent" }} dpr={[1, 1.8]}>
-        <DockerScene />
+        <ConstellationScene />
       </Canvas>
     </WebGLBoundary>
   );
