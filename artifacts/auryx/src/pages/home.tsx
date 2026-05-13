@@ -492,7 +492,7 @@ export default function Home() {
               <img 
                 src="/about-bg.png" 
                 alt="Auryx consultation room" 
-                className="w-full h-full object-cover"
+                className="w-full h-full object-cover object-top"
               />
             </motion.div>
 
