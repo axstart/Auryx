@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Package, Users, AlertTriangle, Plus, Trash2, Pencil, Check, X, MessageSquare, ChevronDown, ChevronUp, Bot, Loader2 } from "lucide-react";
+import { LogOut, Package, Users, AlertTriangle, Plus, Trash2, Pencil, Check, X, MessageSquare, ChevronDown, ChevronUp, Bot, Loader2, ClipboardList } from "lucide-react";
 
 const SESSION_KEY = "auryx_admin_key";
 
@@ -528,6 +528,200 @@ function EscalationsTab({ adminKey }: { adminKey: string }) {
   );
 }
 
+interface ProtocolContinuation {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string | null;
+  peptides: string;
+  duration: string;
+  prescribingContext: string;
+  prescribingDetails?: string | null;
+  redFlagsJson: string;
+  notes?: string | null;
+  status: string;
+  createdAt: string;
+}
+
+function continuationStatusColor(status: string) {
+  if (status === "pending") return "bg-amber-500/20 text-amber-300 border-amber-500/30";
+  if (status === "approved") return "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
+  if (status === "needs-review") return "bg-blue-500/20 text-blue-300 border-blue-500/30";
+  if (status === "rejected") return "bg-red-500/20 text-red-300 border-red-500/30";
+  return "bg-border text-muted-foreground";
+}
+
+function prescribingLabel(val: string) {
+  const map: Record<string, string> = {
+    "md-do": "MD / DO",
+    "np-pa": "NP / PA",
+    "functional": "Functional / integrative",
+    "telehealth": "Online clinic / telehealth",
+    "self-managed": "Self-managed",
+    "other": "Other",
+  };
+  return map[val] ?? val;
+}
+
+function durationLabel(val: string) {
+  const map: Record<string, string> = {
+    "less-than-1-month": "< 1 month",
+    "1-3-months": "1–3 months",
+    "3-6-months": "3–6 months",
+    "6-12-months": "6–12 months",
+    "more-than-1-year": "> 1 year",
+  };
+  return map[val] ?? val;
+}
+
+function ContinuationsTab({ adminKey }: { adminKey: string }) {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+  const [expanded, setExpanded] = useState<number | null>(null);
+
+  const headers = { "x-admin-key": adminKey };
+
+  const { data: items = [], isLoading } = useQuery<ProtocolContinuation[]>({
+    queryKey: ["admin-protocol-continuations"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/protocol-continuations", { headers });
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json() as Promise<ProtocolContinuation[]>;
+    },
+  });
+
+  const handleStatus = async (id: number, status: string) => {
+    try {
+      const res = await fetch(`/api/admin/protocol-continuations/${id}`, {
+        method: "PATCH",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error();
+      queryClient.invalidateQueries({ queryKey: ["admin-protocol-continuations"] });
+    } catch {
+      toast({ title: "Failed to update status", variant: "destructive" });
+    }
+  };
+
+  const pending = items.filter(i => i.status === "pending").length;
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center py-24">
+        <Loader2 className="w-6 h-6 animate-spin text-primary mr-3" />
+        <span className="text-muted-foreground text-sm">Loading protocol continuations…</span>
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-8">
+        <div>
+          <h2 className="text-2xl font-serif text-foreground mb-1">Protocol Continuations</h2>
+          <p className="text-sm text-muted-foreground">
+            Patients who submitted a "Continue My Protocol" intake. {pending > 0 && <span className="text-primary font-medium">{pending} pending review.</span>}
+          </p>
+        </div>
+      </div>
+
+      {items.length === 0 ? (
+        <div className="text-center py-24 text-muted-foreground">
+          <ClipboardList className="w-10 h-10 mx-auto mb-4 opacity-30" />
+          <p className="text-sm">No protocol continuations yet.</p>
+        </div>
+      ) : (
+        <div className="space-y-4">
+          {items.map(item => {
+            const flags: string[] = (() => { try { return JSON.parse(item.redFlagsJson); } catch { return []; } })();
+            const isOpen = expanded === item.id;
+            return (
+              <div key={item.id} className="border border-border/60 rounded-xl bg-card/40 overflow-hidden">
+                <div className="p-5 flex flex-col sm:flex-row sm:items-center gap-4">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-1 flex-wrap">
+                      <span className="font-medium text-foreground text-sm">{item.name}</span>
+                      <span className={`text-xs px-2 py-0.5 rounded-full border ${continuationStatusColor(item.status)}`}>{item.status}</span>
+                      {flags.length > 0 && (
+                        <span className="text-xs px-2 py-0.5 rounded-full border bg-amber-500/10 text-amber-300 border-amber-500/30">
+                          <AlertTriangle className="inline w-3 h-3 mr-1" />flags
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground truncate">{item.email}{item.phone ? ` · ${item.phone}` : ""}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {durationLabel(item.duration)} · {prescribingLabel(item.prescribingContext)}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-3 shrink-0 flex-wrap">
+                    <Select value={item.status} onValueChange={v => handleStatus(item.id, v)}>
+                      <SelectTrigger className="h-8 text-xs w-36 bg-background/50 border-border/60">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="approved">Approved</SelectItem>
+                        <SelectItem value="needs-review">Needs Review</SelectItem>
+                        <SelectItem value="rejected">Rejected</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <a
+                      href={`mailto:${item.email}?subject=Your Auryx Protocol Continuation&body=Hi ${item.name},%0A%0A`}
+                      className="text-xs text-primary hover:underline whitespace-nowrap"
+                    >
+                      Reply
+                    </a>
+                    <button
+                      onClick={() => setExpanded(isOpen ? null : item.id)}
+                      className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
+                    >
+                      {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      {isOpen ? "Less" : "Details"}
+                    </button>
+                  </div>
+                </div>
+                {isOpen && (
+                  <div className="border-t border-border/40 bg-background/30 px-5 py-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                    <div>
+                      <p className="text-muted-foreground uppercase tracking-wider mb-1">Current Protocol</p>
+                      <p className="text-foreground whitespace-pre-wrap">{item.peptides}</p>
+                    </div>
+                    {item.prescribingDetails && (
+                      <div>
+                        <p className="text-muted-foreground uppercase tracking-wider mb-1">Provider / Clinic</p>
+                        <p className="text-foreground">{item.prescribingDetails}</p>
+                      </div>
+                    )}
+                    {item.notes && (
+                      <div className="sm:col-span-2">
+                        <p className="text-muted-foreground uppercase tracking-wider mb-1">Patient Notes</p>
+                        <p className="text-foreground whitespace-pre-wrap">{item.notes}</p>
+                      </div>
+                    )}
+                    {flags.length > 0 && (
+                      <div className="sm:col-span-2">
+                        <p className="text-amber-400 uppercase tracking-wider mb-1">Red Flags</p>
+                        <ul className="list-disc list-inside text-amber-300/80 space-y-1">
+                          {flags.map(f => <li key={f}>{f}</li>)}
+                        </ul>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-muted-foreground uppercase tracking-wider mb-1">Submitted</p>
+                      <p className="text-foreground">{new Date(item.createdAt).toLocaleString()}</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 function AriaTab({ adminKey }: { adminKey: string }) {
   const { toast } = useToast();
   const [instructions, setInstructions] = useState("");
@@ -645,7 +839,7 @@ function AriaTab({ adminKey }: { adminKey: string }) {
 
 export default function Admin() {
   const [adminKey, setAdminKey] = useState<string>(() => sessionStorage.getItem(SESSION_KEY) ?? "");
-  const [tab, setTab] = useState<"consultations" | "inventory" | "escalations" | "aria">("consultations");
+  const [tab, setTab] = useState<"consultations" | "inventory" | "escalations" | "aria" | "continuations">("consultations");
 
   const handleLogout = () => {
     sessionStorage.removeItem(SESSION_KEY);
@@ -692,6 +886,13 @@ export default function Admin() {
               >
                 <Bot className="inline w-4 h-4 mr-2" />Aria
               </button>
+              <button
+                data-testid="tab-continuations"
+                onClick={() => setTab("continuations")}
+                className={`px-4 py-2 text-sm rounded-md transition-colors ${tab === "continuations" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <ClipboardList className="inline w-4 h-4 mr-2" />Continuations
+              </button>
             </nav>
           </div>
           <button
@@ -710,6 +911,7 @@ export default function Admin() {
           {tab === "inventory" && <InventoryTab adminKey={adminKey} />}
           {tab === "escalations" && <EscalationsTab adminKey={adminKey} />}
           {tab === "aria" && <AriaTab adminKey={adminKey} />}
+          {tab === "continuations" && <ContinuationsTab adminKey={adminKey} />}
         </motion.div>
       </div>
     </div>

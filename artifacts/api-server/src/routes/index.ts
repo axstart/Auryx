@@ -4,6 +4,7 @@ import consultationsRouter from "./consultations";
 import inventoryRouter from "./inventory";
 import chatRouter from "./chat/index.js";
 import ariaSettingsRouter from "./ariaSettings.js";
+import protocolContinuationsRouter from "./protocolContinuations.js";
 
 const router: IRouter = Router();
 
@@ -12,5 +13,6 @@ router.use(consultationsRouter);
 router.use(inventoryRouter);
 router.use(chatRouter);
 router.use(ariaSettingsRouter);
+router.use(protocolContinuationsRouter);
 
 export default router;

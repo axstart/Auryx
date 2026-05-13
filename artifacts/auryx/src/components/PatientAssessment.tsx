@@ -27,7 +27,7 @@ function getSequence(answers: Answers): StepKey[] {
 }
 
 function classifyResult(answers: Answers): {
-  type: "consult-required" | "expert-review" | "consult-recommended" | "purchase-path" | "explorer";
+  type: "consult-required" | "expert-review" | "consult-recommended" | "purchase-path" | "explorer" | "intake-eligible";
   headline: string;
   body: string;
   cta: string;
@@ -47,6 +47,14 @@ function classifyResult(answers: Answers): {
   }
 
   if (answers.knowledge === "experienced") {
+    if (answers.protocolIntent === "continue") {
+      return {
+        type: "intake-eligible",
+        headline: "Ready to Make the Switch.",
+        body: "Continuing your current protocol under Auryx takes less than 24 hours. Complete our brief intake form — your current stack, duration, and a quick medical screen — and a physician will approve and dispense within one business day. No lengthy consultation required.",
+        cta: "Begin Protocol Intake",
+      };
+    }
     const wantsChanges = answers.protocolIntent === "changes";
     const hasQuestions = answers.protocolIntent === "questions";
     if (wantsChanges || hasQuestions) {
@@ -209,6 +217,11 @@ function StepProtocolIntent({ stepLabel, onSelect }: { stepLabel: string; onSele
       desc: "Mechanism of action, stacking, labs, side effects — I want expert answers.",
     },
     {
+      value: "continue",
+      label: "Continue my exact protocol under Auryx",
+      desc: "I'm happy with my current stack and just want to source it through Auryx.",
+    },
+    {
       value: "maintaining",
       label: "I'm happy with my current protocol",
       desc: "I'm just exploring what Auryx offers and what's available.",
@@ -340,7 +353,7 @@ function StepMedical({ stepLabel, onSubmit }: { stepLabel: string; onSubmit: (se
   );
 }
 
-function ResultScreen({ answers, onReset, onConsult }: { answers: Answers; onReset: () => void; onConsult: () => void }) {
+function ResultScreen({ answers, onReset, onConsult, onContinueProtocol }: { answers: Answers; onReset: () => void; onConsult: () => void; onContinueProtocol?: () => void }) {
   const result = classifyResult(answers);
   return (
     <motion.div
@@ -373,6 +386,8 @@ function ResultScreen({ answers, onReset, onConsult }: { answers: Answers; onRes
           onClick={() => {
             if (result.type === "explorer") {
               document.getElementById("education")?.scrollIntoView({ behavior: "smooth" });
+            } else if (result.type === "intake-eligible") {
+              onContinueProtocol?.();
             } else {
               onConsult();
             }
@@ -400,7 +415,7 @@ function ResultScreen({ answers, onReset, onConsult }: { answers: Answers; onRes
   );
 }
 
-export function PatientAssessment({ onOpenConsult }: { onOpenConsult: () => void }) {
+export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpenConsult: () => void; onContinueProtocol?: () => void }) {
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [done, setDone] = useState(false);
@@ -484,7 +499,7 @@ export function PatientAssessment({ onOpenConsult }: { onOpenConsult: () => void
                   )}
                 </div>
               ) : (
-                <ResultScreen answers={answers} onReset={reset} onConsult={onOpenConsult} />
+                <ResultScreen answers={answers} onReset={reset} onConsult={onOpenConsult} onContinueProtocol={onContinueProtocol} />
               )}
             </AnimatePresence>
 

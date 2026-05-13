@@ -2,6 +2,7 @@ import { useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Suspense, lazy } from "react";
 import { ConsultationModal } from "@/components/ConsultationModal";
+import { ProtocolContinuationModal } from "@/components/ProtocolContinuationModal";
 const MoleculeDockScene = lazy(() => import("@/components/MoleculeDockScene"));
 import { PatientAssessment } from "@/components/PatientAssessment";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,7 @@ import {
 
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
+  const [continuationOpen, setContinuationOpen] = useState(false);
   const { scrollYProgress } = useScroll();
   const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
@@ -300,7 +302,7 @@ export default function Home() {
               </Button>
               <Button
                 variant="outline"
-                onClick={() => scrollToSection("assessment")}
+                onClick={() => setContinuationOpen(true)}
                 className="border-primary/50 text-primary hover:bg-primary/10 h-14 px-8 text-base tracking-wide"
               >
                 Continue My Protocol
@@ -359,7 +361,7 @@ export default function Home() {
       </section>
 
       <div id="assessment">
-        <PatientAssessment onOpenConsult={() => setModalOpen(true)} />
+        <PatientAssessment onOpenConsult={() => setModalOpen(true)} onContinueProtocol={() => setContinuationOpen(true)} />
       </div>
 
       {/* PROCESS SECTION */}
@@ -692,6 +694,11 @@ export default function Home() {
       </section>
 
       <ConsultationModal open={modalOpen} onOpenChange={setModalOpen} />
+      <ProtocolContinuationModal
+        open={continuationOpen}
+        onOpenChange={setContinuationOpen}
+        onSwitchToConsultation={() => { setContinuationOpen(false); setModalOpen(true); }}
+      />
     </div>
   );
 }
