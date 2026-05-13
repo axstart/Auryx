@@ -12,33 +12,30 @@ const BUSINESS_END   = 20;  // 8 PM Eastern
 
 // ── Business hours helpers ──────────────────────────────────────────────────
 
-function getEasternHour(): number {
-  const now = new Date();
-  const eastern = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
-  return eastern.getHours();
+function getEasternDateTime(): { day: number; hour: number } {
+  const eastern = new Date(
+    new Date().toLocaleString("en-US", { timeZone: "America/New_York" })
+  );
+  return { day: eastern.getDay(), hour: eastern.getHours() };
 }
 
+/** Mon–Fri, 8 AM – 8 PM Eastern. */
 function isWithinBusinessHours(): boolean {
-  const h = getEasternHour();
-  return h >= BUSINESS_START && h < BUSINESS_END;
+  const { day, hour } = getEasternDateTime();
+  return day >= 1 && day <= 5 && hour >= BUSINESS_START && hour < BUSINESS_END;
 }
 
-/** Returns a human-readable label for the next available opening. */
+/** Human-readable label for the next available opening. */
 function nextAvailableLabel(): string {
-  const now = new Date();
-  const eastern = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
-  const day = eastern.getDay(); // 0=Sun, 6=Sat
-  const hour = eastern.getHours();
+  const { day, hour } = getEasternDateTime();
 
-  // If it's before 8am today (weekday), "today at 8 AM ET"
-  if (day >= 1 && day <= 5 && hour < BUSINESS_START) {
-    return "today at 8 AM ET";
-  }
-  // If it's Friday after hours, or weekend → Monday
-  if (day === 5 && hour >= BUSINESS_END) return "Monday at 8 AM ET";
-  if (day === 6) return "Monday at 8 AM ET";
-  if (day === 0) return "tomorrow at 8 AM ET";
-  // Weekday after hours → tomorrow
+  // Before 8 AM on a weekday → later today
+  if (day >= 1 && day <= 5 && hour < BUSINESS_START) return "today at 8 AM ET";
+
+  // Friday after hours, Saturday, or Sunday → Monday
+  if ((day === 5 && hour >= BUSINESS_END) || day === 6 || day === 0) return "Monday at 8 AM ET";
+
+  // Mon–Thu after 8 PM → next weekday morning
   return "tomorrow at 8 AM ET";
 }
 
