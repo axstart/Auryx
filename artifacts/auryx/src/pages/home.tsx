@@ -248,6 +248,8 @@ export default function Home() {
     { q: "Is Auryx right for me?", a: "Auryx is designed for individuals who view their health as their most critical asset and are willing to invest in precision medical optimization rather than reactive healthcare." },
     { q: "How much does treatment cost?", a: "Protocols are priced individually based on your therapeutic plan — the compounds selected, doses, and duration are specific to your biology and goals. Pricing is discussed in full during your private consultation, with no obligation to proceed." },
     { q: "Does Auryx accept insurance?", a: "Peptide therapy is an elective, precision medicine service and is not covered by insurance. All protocols are self-pay. We accept credit and debit cards, Zelle, and Venmo for your convenience." },
+    { q: "Who are Auryx's providers?", a: "Auryx was founded and is led by a licensed MD and a licensed nurse practitioner, both specializing in regenerative and integrative medicine. Every protocol is reviewed, prescribed, and monitored by our clinical team — you are always under direct medical supervision." },
+    { q: "Is Auryx available in my state?", a: "We currently serve patients in select states. Eligibility is confirmed during your private consultation — our team will let you know whether we can work together in your location. If we can't yet, we'll be transparent about it and point you in the right direction." },
   ];
 
   return (
@@ -282,8 +284,11 @@ export default function Home() {
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif leading-[1.1] mb-8 font-light">
               Longevity Is <br/> the New Luxury.
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-12 font-light leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-6 font-light leading-relaxed">
               Elite, medically guided peptide therapy protocols designed for high-performance individuals. Precision science meets complete biological optimization.
+            </p>
+            <p className="text-sm text-primary/70 tracking-wide mb-12 font-light">
+              Founded and led by licensed specialists in regenerative &amp; integrative medicine.
             </p>
             <div className="flex flex-col sm:flex-row gap-6">
               <Button 
@@ -571,6 +576,11 @@ export default function Home() {
                 icon: "✦",
                 title: "99%+ Purity",
                 body: "Purity certificates are available on request. We maintain a 99% minimum purity standard across all compounds in our formulary.",
+              },
+              {
+                icon: "⚕️",
+                title: "Physician-Led",
+                body: "Auryx is founded and led by a licensed MD and a licensed nurse practitioner — both specializing in regenerative and integrative medicine. Every protocol is prescribed and monitored by our clinical team.",
               },
             ].map((item, i) => (
               <motion.div
