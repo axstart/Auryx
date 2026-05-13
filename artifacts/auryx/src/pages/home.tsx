@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { Suspense, lazy } from "react";
 import { ConsultationModal } from "@/components/ConsultationModal";
+const MoleculeDockScene = lazy(() => import("@/components/MoleculeDockScene"));
 import { PatientAssessment } from "@/components/PatientAssessment";
 import { Button } from "@/components/ui/button";
 import {
@@ -256,13 +258,13 @@ export default function Home() {
           className="absolute inset-0 z-0"
           style={{ y: heroY, opacity }}
         >
-          <div className="absolute inset-0 bg-background/60 z-10" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/40 to-background z-10" />
-          <img 
-            src="/hero-bg.png" 
-            alt="Molecular structure" 
-            className="w-full h-full object-cover object-center"
-          />
+          <div className="absolute inset-0 bg-background/55 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background z-10" />
+          <div className="absolute inset-0">
+            <Suspense fallback={null}>
+              <MoleculeDockScene />
+            </Suspense>
+          </div>
         </motion.div>
 
         <div className="container relative z-20 px-6 md:px-12 mx-auto pt-20">
