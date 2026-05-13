@@ -31,28 +31,24 @@ export default function Navbar() {
             : "bg-transparent py-6"
         }`}
       >
-        <div className="container mx-auto px-6 md:px-12 flex items-center">
-          <div className="flex-1">
-            <Link href="/" className="text-2xl font-serif tracking-widest text-primary font-bold">
-              AURYX
-            </Link>
-          </div>
+        <div className="container mx-auto px-6 md:px-12 flex items-center justify-between">
+          <Link href="/" className="text-2xl font-serif tracking-widest text-primary font-bold">
+            AURYX
+          </Link>
 
-          <div className="hidden md:flex items-center gap-10 text-base uppercase tracking-wider font-medium text-foreground/80">
+          <div className="hidden md:flex items-center gap-8 text-base uppercase tracking-wider font-medium text-foreground/80">
             <button onClick={() => scrollToSection("categories")} className="hover:text-primary transition-colors">Protocols</button>
             <button onClick={() => scrollToSection("process")} className="hover:text-primary transition-colors">Methodology</button>
             <button onClick={() => scrollToSection("education")} className="hover:text-primary transition-colors">Science</button>
             <button onClick={() => scrollToSection("about")} className="hover:text-primary transition-colors">Philosophy</button>
           </div>
 
-          <div className="flex-1 flex justify-end">
-            <Button 
-              onClick={() => setModalOpen(true)}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium tracking-wide"
-            >
-              Request Private Consultation
-            </Button>
-          </div>
+          <Button 
+            onClick={() => setModalOpen(true)}
+            className="bg-primary text-primary-foreground hover:bg-primary/90 font-medium tracking-wide"
+          >
+            Request Private Consultation
+          </Button>
         </div>
       </nav>
 
