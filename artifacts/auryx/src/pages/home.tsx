@@ -244,6 +244,7 @@ export default function Home() {
     { q: "Do I need to visit in person?", a: "We offer comprehensive telemedicine consultations and direct-to-door delivery of protocols for eligible patients, though in-person clinical assessments are available." },
     { q: "How are protocols personalized?", a: "Every protocol begins with an exhaustive biomarker panel, medical history review, and lifestyle assessment to engineer a highly specific therapeutic intervention." },
     { q: "Is Auryx right for me?", a: "Auryx is designed for individuals who view their health as their most critical asset and are willing to invest in precision medical optimization rather than reactive healthcare." },
+    { q: "How much does treatment cost?", a: "Protocols are priced individually based on your therapeutic plan — the compounds selected, doses, and duration are specific to your biology and goals. Pricing is discussed in full during your private consultation, with no obligation to proceed." },
   ];
 
   return (
@@ -570,7 +571,7 @@ export default function Home() {
               Your Biology. <br/> Optimized.
             </h2>
             <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto font-light">
-              Membership to our clinical practice is limited to ensure uncompromising care for every patient. Request an introductory consultation today.
+              Membership to our clinical practice is limited to ensure uncompromising care for every patient. Protocols are priced individually based on your therapeutic plan — pricing is discussed during your private consultation, with no obligation to proceed.
             </p>
             <Button 
               onClick={() => setModalOpen(true)}
