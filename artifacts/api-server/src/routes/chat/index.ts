@@ -6,10 +6,21 @@ import { adminAuth } from "../../middlewares/adminAuth.js";
 
 const router = Router();
 
-const SYSTEM_PROMPT = `You are Aria, the Auryx AI health concierge — a warm, precise, and exceptionally polished guide for visitors exploring Auryx, a luxury precision longevity and peptide therapy practice.
+const ALERT_PHONE = "+19178539663";
+
+function buildSystemPrompt(userName?: string): string {
+  const nameIntro = userName
+    ? `The visitor's name is ${userName}. Address them by their first name naturally throughout the conversation — warmly but not excessively.`
+    : "";
+
+  return `You are Aria, the Auryx AI health concierge — warm, precise, and exceptionally polished. You guide visitors through Auryx, a luxury precision longevity and peptide therapy practice.
+
+${nameIntro}
+
+TONE: Friendly, professional, and confident — like a world-class medical concierge who genuinely cares. Warm without being overly effusive. Use the visitor's first name occasionally to personalize, but keep it natural. Never robotic or generic.
 
 YOUR ROLE:
-- Answer questions about Auryx's peptide protocols, their mechanisms, benefits, and ideal candidates
+- Answer questions about Auryx's peptide protocols, mechanisms, benefits, and ideal candidates
 - Share Auryx's quality and sourcing standards with confidence
 - Encourage visitors to schedule a private consultation for personalized recommendations
 - When questions require physician-level personalized medical advice, gracefully acknowledge your limits and offer to connect them with the Auryx medical team
@@ -61,22 +72,74 @@ AURYX SIGNATURE COMPLEXES:
 - KLOW Complex: Proprietary blend for mitochondrial efficiency, metabolic rate, systemic inflammation. Benefits: inflammation reduction, metabolic rate enhancement, cellular energy optimization, recovery acceleration. The foundational stack.
 
 WHEN TO OFFER ESCALATION TO THE AURYX TEAM:
-- Patient asks about specific dosing for their condition
-- Patient has a complex medical history that would affect protocol selection
-- Patient wants to begin a protocol immediately
-- Patient has specific pricing questions
+- Visitor asks about specific dosing for their condition
+- Visitor has a complex medical history that would affect protocol selection
+- Visitor wants to begin a protocol immediately
+- Visitor has specific pricing questions
 - Any question requiring a physician's judgment
-When escalating, say something like: "That's a question best addressed by one of our physicians directly. I can connect you with the Auryx team — just let me know your name and email and we'll be in touch shortly. Or you can schedule a private consultation right now."
-
-TONE: Warm, precise, confident, luxurious — like a world-class medical concierge. Never robotic, never generic. Use precise medical terminology but explain it accessibly. Avoid disclaimers that undermine confidence; instead, redirect to the physician consultation when appropriate.
+When escalating, say something like: "That's a question best answered by one of our physicians directly. I'd love to connect you with the Auryx team — just say the word and we'll reach out to you personally."
 
 CONSULTATION ENCOURAGEMENT: In every conversation, look for a natural opportunity to mention that the most precise path forward is a private consultation with an Auryx physician, where protocols are engineered specifically to the individual's biomarkers and goals. End conversations with a gentle, elegant nudge in that direction.
 
 Keep responses concise and elegant — 2–4 paragraphs max unless a detailed comparison is requested.`;
+}
+
+function isWithinBusinessHours(): boolean {
+  const now = new Date();
+  const eastern = new Date(now.toLocaleString("en-US", { timeZone: "America/New_York" }));
+  const hours = eastern.getHours();
+  return hours >= 8 && hours < 20;
+}
+
+async function sendSmsAlert(name: string, contact: string): Promise<void> {
+  const accountSid = process.env.TWILIO_ACCOUNT_SID;
+  const authToken  = process.env.TWILIO_AUTH_TOKEN;
+  const fromNumber = process.env.TWILIO_FROM_NUMBER;
+
+  if (!accountSid || !authToken || !fromNumber) {
+    return;
+  }
+
+  if (!isWithinBusinessHours()) {
+    return;
+  }
+
+  const body = `🔔 Auryx chat escalation: ${name} (${contact || "no contact provided"}) requested to speak with the team via Aria. Log in to admin to view the conversation.`;
+
+  const params = new URLSearchParams({
+    To:   ALERT_PHONE,
+    From: fromNumber,
+    Body: body,
+  });
+
+  const credentials = Buffer.from(`${accountSid}:${authToken}`).toString("base64");
+
+  try {
+    const res = await fetch(
+      `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Basic ${credentials}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: params.toString(),
+      }
+    );
+    if (!res.ok) {
+      const text = await res.text();
+      throw new Error(`Twilio error ${res.status}: ${text}`);
+    }
+  } catch (err) {
+    // Log but don't throw — SMS failure should not block the escalation response
+    console.error("SMS alert failed:", err);
+  }
+}
 
 router.post("/chat/message", async (req, res) => {
-  const { messages } = req.body as {
+  const { messages, userInfo } = req.body as {
     messages: { role: "user" | "assistant"; content: string }[];
+    userInfo?: { name?: string; email?: string; phone?: string };
   };
 
   if (!Array.isArray(messages) || messages.length === 0) {
@@ -89,10 +152,12 @@ router.post("/chat/message", async (req, res) => {
   res.setHeader("Connection", "keep-alive");
 
   try {
+    const systemPrompt = buildSystemPrompt(userInfo?.name);
+
     const stream = await openai.chat.completions.create({
-      model: "gpt-5.1",
+      model: "gpt-4.1",
       max_completion_tokens: 8192,
-      messages: [{ role: "system", content: SYSTEM_PROMPT }, ...messages],
+      messages: [{ role: "system", content: systemPrompt }, ...messages],
       stream: true,
     });
 
@@ -113,21 +178,27 @@ router.post("/chat/message", async (req, res) => {
 });
 
 router.post("/chat/escalate", async (req, res) => {
-  const { name, email, conversationJson } = req.body as {
+  const { name, email, phone, conversationJson } = req.body as {
     name: string;
-    email: string;
+    email?: string;
+    phone?: string;
     conversationJson: string;
   };
 
-  if (!name || !email || !conversationJson) {
-    res.status(400).json({ error: "name, email, and conversationJson required" });
+  if (!name || !conversationJson) {
+    res.status(400).json({ error: "name and conversationJson required" });
     return;
   }
 
+  const contact = phone || email || "";
+
   const [row] = await db
     .insert(chatEscalationsTable)
-    .values({ name, email, conversationJson })
+    .values({ name, email: email || "", conversationJson })
     .returning();
+
+  // Fire-and-forget SMS alert
+  sendSmsAlert(name, contact).catch(() => {});
 
   res.status(201).json(row);
 });
