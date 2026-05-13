@@ -249,7 +249,7 @@ export default function Home() {
     { q: "How much does treatment cost?", a: "Protocols are priced individually based on your therapeutic plan — the compounds selected, doses, and duration are specific to your biology and goals. Pricing is discussed in full during your private consultation, with no obligation to proceed." },
     { q: "Does Auryx accept insurance?", a: "Peptide therapy is an elective, precision medicine service and is not covered by insurance. All protocols are self-pay. We accept credit and debit cards, Zelle, and Venmo for your convenience." },
     { q: "Who are Auryx's providers?", a: "Auryx was founded and is led by a licensed MD and a licensed nurse practitioner, both specializing in regenerative and integrative medicine. Every protocol is reviewed, prescribed, and monitored by our clinical team — you are always under direct medical supervision." },
-    { q: "Is Auryx available in my state?", a: "We currently serve patients in select states. Eligibility is confirmed during your private consultation — our team will let you know whether we can work together in your location. If we can't yet, we'll be transparent about it and point you in the right direction." },
+    { q: "Is Auryx available in my state?", a: "We currently serve patients in New York, New Jersey, Massachusetts, Virginia, and Florida. If you're outside these states, we'd still love to hear from you — submit a consultation request and you'll be among the first we contact as we expand into new territories." },
   ];
 
   return (
