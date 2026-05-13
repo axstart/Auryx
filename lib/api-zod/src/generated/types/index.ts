@@ -6,4 +6,11 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from "./consultation";
+export * from "./consultationInput";
+export * from "./consultationUpdate";
+export * from "./consultationUpdateStatus";
 export * from "./healthStatus";
+export * from "./inventoryItem";
+export * from "./inventoryItemInput";
+export * from "./inventoryItemUpdate";

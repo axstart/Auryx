@@ -38,3 +38,8 @@ externalPort = 3001
 [[ports]]
 localPort = 25121
 externalPort = 3000
+
+[userenv]
+
+[userenv.shared]
+ADMIN_KEY = "auryx-admin-olawmgskdy"

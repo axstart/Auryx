@@ -10,6 +10,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: consultations
+    description: Consultation request operations
+  - name: inventory
+    description: Inventory management operations
 paths:
   /healthz:
     get:
@@ -24,6 +28,187 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /consultations:
+    post:
+      operationId: createConsultation
+      tags: [consultations]
+      summary: Submit a consultation request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsultationInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Consultation"
+        "400":
+          description: Invalid input
+    get:
+      operationId: listConsultations
+      tags: [consultations]
+      summary: List all consultation requests (admin)
+      parameters:
+        - in: header
+          name: x-admin-key
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of consultations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Consultation"
+        "401":
+          description: Unauthorized
+
+  /consultations/{id}:
+    patch:
+      operationId: updateConsultation
+      tags: [consultations]
+      summary: Update consultation status (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: header
+          name: x-admin-key
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsultationUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Consultation"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+
+  /inventory:
+    get:
+      operationId: listInventory
+      tags: [inventory]
+      summary: List all inventory items (admin)
+      parameters:
+        - in: header
+          name: x-admin-key
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: List of inventory items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InventoryItem"
+        "401":
+          description: Unauthorized
+    post:
+      operationId: createInventoryItem
+      tags: [inventory]
+      summary: Create an inventory item (admin)
+      parameters:
+        - in: header
+          name: x-admin-key
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InventoryItemInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+        "401":
+          description: Unauthorized
+
+  /inventory/{id}:
+    patch:
+      operationId: updateInventoryItem
+      tags: [inventory]
+      summary: Update an inventory item (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: header
+          name: x-admin-key
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InventoryItemUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteInventoryItem
+      tags: [inventory]
+      summary: Delete an inventory item (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+        - in: header
+          name: x-admin-key
+          required: true
+          schema:
+            type: string
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+
 components:
   schemas:
     HealthStatus:
@@ -33,4 +218,117 @@ components:
           type: string
       required:
         - status
+
+    Consultation:
+      type: object
+      required: [id, name, email, interest, status, createdAt, updatedAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        interest:
+          type: string
+        message:
+          type: ["string", "null"]
+        status:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ConsultationInput:
+      type: object
+      required: [name, email, interest]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        interest:
+          type: string
+          minLength: 1
+        message:
+          type: string
+
+    ConsultationUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [new, contacted, complete]
+
+    InventoryItem:
+      type: object
+      required: [id, name, category, stock, unit, lowStockThreshold, updatedAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+        stock:
+          type: integer
+        unit:
+          type: string
+        lowStockThreshold:
+          type: integer
+        notes:
+          type: ["string", "null"]
+        updatedAt:
+          type: string
+          format: date-time
+
+    InventoryItemInput:
+      type: object
+      required: [name, category, stock, unit, lowStockThreshold]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        category:
+          type: string
+          minLength: 1
+        stock:
+          type: integer
+          minimum: 0
+        unit:
+          type: string
+          minLength: 1
+        lowStockThreshold:
+          type: integer
+          minimum: 0
+        notes:
+          type: string
+
+    InventoryItemUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        category:
+          type: string
+        stock:
+          type: integer
+          minimum: 0
+        unit:
+          type: string
+        lowStockThreshold:
+          type: integer
+          minimum: 0
+        notes:
+          type: string
 

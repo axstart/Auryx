@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,6 +27,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useCreateConsultation } from "@workspace/api-client-react";
 
 const formSchema = z.object({
   name: z.string().min(2, "Name is required"),
@@ -41,7 +41,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
   const { toast } = useToast();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const createConsultation = useCreateConsultation();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -55,17 +55,26 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
   });
 
   function onSubmit(values: FormValues) {
-    setIsSubmitting(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsSubmitting(false);
-      onOpenChange(false);
-      form.reset();
-      toast({
-        title: "Request Received",
-        description: "A member of our concierge team will contact you shortly.",
-      });
-    }, 1000);
+    createConsultation.mutate(
+      { data: { name: values.name, email: values.email, phone: values.phone, interest: values.interest, message: values.message } },
+      {
+        onSuccess: () => {
+          onOpenChange(false);
+          form.reset();
+          toast({
+            title: "Request Received",
+            description: "A member of our concierge team will contact you shortly.",
+          });
+        },
+        onError: () => {
+          toast({
+            title: "Submission failed",
+            description: "Please try again or contact us directly.",
+            variant: "destructive",
+          });
+        },
+      }
+    );
   }
 
   return (
@@ -169,8 +178,8 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
             />
 
             <div className="pt-2">
-              <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={isSubmitting}>
-                {isSubmitting ? "Submitting..." : "Submit Request"}
+              <Button type="submit" className="w-full bg-primary text-primary-foreground hover:bg-primary/90" disabled={createConsultation.isPending}>
+                {createConsultation.isPending ? "Submitting..." : "Submit Request"}
               </Button>
             </div>
           </form>

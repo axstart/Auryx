@@ -8,3 +8,78 @@
 export interface HealthStatus {
   status: string;
 }
+
+export interface Consultation {
+  id: number;
+  name: string;
+  email: string;
+  /** @nullable */
+  phone?: string | null;
+  interest: string;
+  /** @nullable */
+  message?: string | null;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ConsultationInput {
+  /** @minLength 1 */
+  name: string;
+  email: string;
+  phone?: string;
+  /** @minLength 1 */
+  interest: string;
+  message?: string;
+}
+
+export type ConsultationUpdateStatus =
+  (typeof ConsultationUpdateStatus)[keyof typeof ConsultationUpdateStatus];
+
+export const ConsultationUpdateStatus = {
+  new: "new",
+  contacted: "contacted",
+  complete: "complete",
+} as const;
+
+export interface ConsultationUpdate {
+  status?: ConsultationUpdateStatus;
+}
+
+export interface InventoryItem {
+  id: number;
+  name: string;
+  category: string;
+  stock: number;
+  unit: string;
+  lowStockThreshold: number;
+  /** @nullable */
+  notes?: string | null;
+  updatedAt: string;
+}
+
+export interface InventoryItemInput {
+  /** @minLength 1 */
+  name: string;
+  /** @minLength 1 */
+  category: string;
+  /** @minimum 0 */
+  stock: number;
+  /** @minLength 1 */
+  unit: string;
+  /** @minimum 0 */
+  lowStockThreshold: number;
+  notes?: string;
+}
+
+export interface InventoryItemUpdate {
+  /** @minLength 1 */
+  name?: string;
+  category?: string;
+  /** @minimum 0 */
+  stock?: number;
+  unit?: string;
+  /** @minimum 0 */
+  lowStockThreshold?: number;
+  notes?: string;
+}

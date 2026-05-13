@@ -14,3 +14,154 @@ import * as zod from "zod";
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
 });
+
+/**
+ * @summary Submit a consultation request
+ */
+
+export const CreateConsultationBody = zod.object({
+  name: zod.string().min(1),
+  email: zod.string().email(),
+  phone: zod.string().optional(),
+  interest: zod.string().min(1),
+  message: zod.string().optional(),
+});
+
+/**
+ * @summary List all consultation requests (admin)
+ */
+export const ListConsultationsHeader = zod.object({
+  "x-admin-key": zod.string(),
+});
+
+export const ListConsultationsResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  interest: zod.string(),
+  message: zod.string().nullish(),
+  status: zod.string(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+});
+export const ListConsultationsResponse = zod.array(
+  ListConsultationsResponseItem,
+);
+
+/**
+ * @summary Update consultation status (admin)
+ */
+export const UpdateConsultationParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateConsultationHeader = zod.object({
+  "x-admin-key": zod.string(),
+});
+
+export const UpdateConsultationBody = zod.object({
+  status: zod.enum(["new", "contacted", "complete"]).optional(),
+});
+
+export const UpdateConsultationResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  email: zod.string(),
+  phone: zod.string().nullish(),
+  interest: zod.string(),
+  message: zod.string().nullish(),
+  status: zod.string(),
+  createdAt: zod.coerce.date(),
+  updatedAt: zod.coerce.date(),
+});
+
+/**
+ * @summary List all inventory items (admin)
+ */
+export const ListInventoryHeader = zod.object({
+  "x-admin-key": zod.string(),
+});
+
+export const ListInventoryResponseItem = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  category: zod.string(),
+  stock: zod.number(),
+  unit: zod.string(),
+  lowStockThreshold: zod.number(),
+  notes: zod.string().nullish(),
+  updatedAt: zod.coerce.date(),
+});
+export const ListInventoryResponse = zod.array(ListInventoryResponseItem);
+
+/**
+ * @summary Create an inventory item (admin)
+ */
+export const CreateInventoryItemHeader = zod.object({
+  "x-admin-key": zod.string(),
+});
+
+export const createInventoryItemBodyStockMin = 0;
+
+export const createInventoryItemBodyLowStockThresholdMin = 0;
+
+export const CreateInventoryItemBody = zod.object({
+  name: zod.string().min(1),
+  category: zod.string().min(1),
+  stock: zod.number().min(createInventoryItemBodyStockMin),
+  unit: zod.string().min(1),
+  lowStockThreshold: zod
+    .number()
+    .min(createInventoryItemBodyLowStockThresholdMin),
+  notes: zod.string().optional(),
+});
+
+/**
+ * @summary Update an inventory item (admin)
+ */
+export const UpdateInventoryItemParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const UpdateInventoryItemHeader = zod.object({
+  "x-admin-key": zod.string(),
+});
+
+export const updateInventoryItemBodyStockMin = 0;
+
+export const updateInventoryItemBodyLowStockThresholdMin = 0;
+
+export const UpdateInventoryItemBody = zod.object({
+  name: zod.string().min(1).optional(),
+  category: zod.string().optional(),
+  stock: zod.number().min(updateInventoryItemBodyStockMin).optional(),
+  unit: zod.string().optional(),
+  lowStockThreshold: zod
+    .number()
+    .min(updateInventoryItemBodyLowStockThresholdMin)
+    .optional(),
+  notes: zod.string().optional(),
+});
+
+export const UpdateInventoryItemResponse = zod.object({
+  id: zod.number(),
+  name: zod.string(),
+  category: zod.string(),
+  stock: zod.number(),
+  unit: zod.string(),
+  lowStockThreshold: zod.number(),
+  notes: zod.string().nullish(),
+  updatedAt: zod.coerce.date(),
+});
+
+/**
+ * @summary Delete an inventory item (admin)
+ */
+export const DeleteInventoryItemParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const DeleteInventoryItemHeader = zod.object({
+  "x-admin-key": zod.string(),
+});
