@@ -247,6 +247,7 @@ export default function Home() {
     { q: "How are protocols personalized?", a: "Every protocol begins with an exhaustive biomarker panel, medical history review, and lifestyle assessment to engineer a highly specific therapeutic intervention." },
     { q: "Is Auryx right for me?", a: "Auryx is designed for individuals who view their health as their most critical asset and are willing to invest in precision medical optimization rather than reactive healthcare." },
     { q: "How much does treatment cost?", a: "Protocols are priced individually based on your therapeutic plan — the compounds selected, doses, and duration are specific to your biology and goals. Pricing is discussed in full during your private consultation, with no obligation to proceed." },
+    { q: "Does Auryx accept insurance?", a: "Peptide therapy is an elective, precision medicine service and is not covered by insurance. All protocols are self-pay. We accept credit and debit cards, Zelle, and Venmo for your convenience." },
   ];
 
   return (
