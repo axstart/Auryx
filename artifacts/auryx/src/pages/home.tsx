@@ -20,8 +20,66 @@ import {
   HeartPulse, 
   ShieldPlus,
   ArrowRight,
-  ChevronRight
+  ChevronRight,
+  ChevronDown
 } from "lucide-react";
+
+interface Peptide {
+  name: string;
+  moa: string;
+  benefits: string[];
+  candidate: string;
+}
+
+function PeptideCard({ pep }: { pep: Peptide }) {
+  const [expanded, setExpanded] = useState(false);
+  return (
+    <div className="bg-card/50 rounded-lg border border-border hover:border-primary/40 transition-colors duration-300 overflow-hidden">
+      <button
+        onClick={() => setExpanded(e => !e)}
+        className="w-full text-left p-7 flex items-start justify-between gap-4 group"
+      >
+        <div className="flex-1 min-w-0">
+          <h4 className="text-xl font-serif text-primary mb-2">{pep.name}</h4>
+          <p className="text-sm text-foreground/75 leading-relaxed border-l-2 border-primary/30 pl-3 italic line-clamp-1">
+            {pep.moa}
+          </p>
+        </div>
+        <ChevronDown
+          className={`w-4 h-4 text-primary/60 shrink-0 mt-1 transition-transform duration-300 ${expanded ? "rotate-180" : ""}`}
+        />
+      </button>
+
+      <motion.div
+        initial={false}
+        animate={{ height: expanded ? "auto" : 0, opacity: expanded ? 1 : 0 }}
+        transition={{ duration: 0.3, ease: "easeInOut" }}
+        className="overflow-hidden"
+      >
+        <div className="px-7 pb-7 space-y-5">
+          <p className="text-sm text-foreground/75 leading-relaxed border-l-2 border-primary/30 pl-3 italic">
+            {pep.moa}
+          </p>
+          <div>
+            <p className="text-sm uppercase tracking-wider text-muted-foreground mb-2">Primary Benefits</p>
+            <ul className="space-y-1.5">
+              {pep.benefits.map((b, j) => (
+                <li key={j} className="flex items-start text-sm text-foreground/85">
+                  <ChevronRight className="w-3.5 h-3.5 text-primary mr-1.5 mt-0.5 shrink-0" />
+                  {b}
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="pt-4 border-t border-border/40">
+            <p className="text-sm uppercase tracking-wider text-muted-foreground mb-1.5">Ideal Candidate</p>
+            <p className="text-sm text-foreground/65 leading-relaxed">{pep.candidate}</p>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
 
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
@@ -456,30 +514,7 @@ export default function Home() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
                   {cat.peptides.map((pep, i) => (
-                    <div
-                      key={i}
-                      className="bg-card/50 p-7 rounded-lg border border-border hover:border-primary/40 transition-colors duration-300"
-                    >
-                      <h4 className="text-xl font-serif text-primary mb-4">{pep.name}</h4>
-                      <p className="text-sm text-foreground/75 mb-5 leading-relaxed border-l-2 border-primary/30 pl-3 italic">
-                        {pep.moa}
-                      </p>
-                      <div className="mb-5">
-                        <p className="text-sm uppercase tracking-wider text-muted-foreground mb-2">Primary Benefits</p>
-                        <ul className="space-y-1.5">
-                          {pep.benefits.map((b, j) => (
-                            <li key={j} className="flex items-start text-sm text-foreground/85">
-                              <ChevronRight className="w-3.5 h-3.5 text-primary mr-1.5 mt-0.5 shrink-0" />
-                              {b}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                      <div className="pt-4 border-t border-border/40">
-                        <p className="text-sm uppercase tracking-wider text-muted-foreground mb-1.5">Ideal Candidate</p>
-                        <p className="text-sm text-foreground/65 leading-relaxed">{pep.candidate}</p>
-                      </div>
-                    </div>
+                    <PeptideCard key={i} pep={pep} />
                   ))}
                 </div>
               </motion.div>
