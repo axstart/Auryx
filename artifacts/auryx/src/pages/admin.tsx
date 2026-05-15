@@ -896,7 +896,23 @@ function AriaTab({ adminKey }: { adminKey: string }) {
                 : <span className="text-emerald-500/60">All changes saved</span>
               }
             </span>
-            <span>{instructions.length.toLocaleString()} characters</span>
+            <span className="flex items-center gap-2">
+              {instructions.length >= 5000 && (
+                <span className="text-red-400/80">Instructions are very long — consider trimming for best results</span>
+              )}
+              {instructions.length >= 3000 && instructions.length < 5000 && (
+                <span className="text-amber-400/70">Long instructions may reduce Aria's response quality</span>
+              )}
+              <span className={
+                instructions.length >= 5000
+                  ? "text-red-400/80"
+                  : instructions.length >= 3000
+                  ? "text-amber-400/80"
+                  : "text-muted-foreground/50"
+              }>
+                {instructions.length.toLocaleString()} characters
+              </span>
+            </span>
           </div>
         </div>
       )}
