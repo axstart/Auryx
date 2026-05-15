@@ -168,7 +168,7 @@ function ConsultationsTab({ adminKey }: { adminKey: string }) {
                     </p>
                   )}
                 </div>
-                <div className="shrink-0">
+                <div className="shrink-0 flex items-center gap-3">
                   <Select value={c.status} onValueChange={(val) => handleStatus(c.id, val)}>
                     <SelectTrigger data-testid={`status-select-${c.id}`} className="w-36 h-9 text-xs bg-background border-border">
                       <SelectValue />
@@ -179,6 +179,12 @@ function ConsultationsTab({ adminKey }: { adminKey: string }) {
                       <SelectItem value="complete">Complete</SelectItem>
                     </SelectContent>
                   </Select>
+                  <a
+                    href={`mailto:${c.email}?subject=Your Auryx Consultation Request&body=Hi ${c.name},%0A%0AThank you for reaching out to Auryx.%0A%0A`}
+                    className="text-xs text-primary hover:underline whitespace-nowrap"
+                  >
+                    Reply →
+                  </a>
                 </div>
               </div>
             </div>
