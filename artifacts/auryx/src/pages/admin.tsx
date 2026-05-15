@@ -908,6 +908,27 @@ export default function Admin() {
   const [adminKey, setAdminKey] = useState<string>(() => sessionStorage.getItem(SESSION_KEY) ?? "");
   const [tab, setTab] = useState<"consultations" | "inventory" | "escalations" | "aria" | "continuations">("consultations");
 
+  const headers = { "x-admin-key": adminKey };
+
+  const { data: consultations = [] } = useQuery({
+    queryKey: getListConsultationsQueryKey(),
+    queryFn: () => listConsultations({ headers }),
+    enabled: !!adminKey,
+  });
+
+  const { data: continuations = [] } = useQuery<ProtocolContinuation[]>({
+    queryKey: ["admin-protocol-continuations"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/protocol-continuations", { headers });
+      if (!res.ok) throw new Error("Failed to fetch");
+      return res.json();
+    },
+    enabled: !!adminKey,
+  });
+
+  const newConsultationsCount = (consultations as Consultation[]).filter(c => c.status === "new").length;
+  const pendingContinuationsCount = continuations.filter(i => i.status === "pending").length;
+
   const handleLogout = () => {
     sessionStorage.removeItem(SESSION_KEY);
     setAdminKey("");
@@ -931,6 +952,9 @@ export default function Admin() {
                 className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${tab === "consultations" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
               >
                 <Users className="hidden sm:inline w-4 h-4 mr-2" />Consultations
+                {newConsultationsCount > 0 && (
+                  <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-[10px] w-4 h-4">{newConsultationsCount}</span>
+                )}
               </button>
               <button
                 data-testid="tab-inventory"
@@ -959,6 +983,9 @@ export default function Admin() {
                 className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${tab === "continuations" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
               >
                 <ClipboardList className="hidden sm:inline w-4 h-4 mr-2" />Continuations
+                {pendingContinuationsCount > 0 && (
+                  <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-[10px] w-4 h-4">{pendingContinuationsCount}</span>
+                )}
               </button>
             </nav>
           </div>
