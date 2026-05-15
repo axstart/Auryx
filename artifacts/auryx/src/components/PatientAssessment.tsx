@@ -437,7 +437,13 @@ export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpe
 
   const goBack = () => { if (stepIndex > 0) setStepIndex(stepIndex - 1); };
 
-  const reset = () => { setStepIndex(0); setAnswers({}); setDone(false); };
+  const reset = () => {
+    setDone(false);
+    setTimeout(() => {
+      setStepIndex(0);
+      setAnswers({});
+    }, 200);
+  };
 
   const progressPct = done ? 100 : (stepIndex / totalSteps) * 100;
   const stepLabel = `Step ${stepIndex + 1} of ${totalSteps}`;
