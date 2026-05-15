@@ -293,7 +293,7 @@ export default function Home() {
             <p className="text-sm text-primary/70 tracking-wide mb-12 font-light">
               Founded and led by licensed specialists in regenerative &amp; integrative medicine.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 flex-wrap">
+            <div className="flex flex-col sm:flex-row gap-4">
               <Button 
                 onClick={() => setModalOpen(true)}
                 className="bg-primary text-primary-foreground hover:bg-primary/90 h-14 px-8 text-base tracking-wide"
@@ -307,14 +307,13 @@ export default function Home() {
               >
                 Continue My Protocol
               </Button>
-              <Button 
-                variant="ghost"
-                onClick={() => scrollToSection("categories")}
-                className="text-muted-foreground hover:text-foreground h-14 px-8 text-base tracking-wide"
-              >
-                Explore Protocols
-              </Button>
             </div>
+            <button
+              onClick={() => scrollToSection("categories")}
+              className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors text-left"
+            >
+              Explore Protocols
+            </button>
           </motion.div>
         </div>
       </section>
