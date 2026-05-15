@@ -163,10 +163,11 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Best Contact Number — SMS or WhatsApp (Optional)</FormLabel>
+                        <FormLabel>Phone / WhatsApp</FormLabel>
                         <FormControl>
                           <Input placeholder="+1 (555) 000-0000" {...field} className="bg-background border-border focus-visible:ring-primary" />
                         </FormControl>
+                        <span className="text-xs text-muted-foreground">(optional)</span>
                         <FormMessage />
                       </FormItem>
                     )}
