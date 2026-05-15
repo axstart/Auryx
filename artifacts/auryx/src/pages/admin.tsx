@@ -863,41 +863,41 @@ export default function Admin() {
           <div className="flex items-center gap-8">
             <span className="text-primary font-serif tracking-widest text-lg">AURYX</span>
             <span className="text-xs text-muted-foreground uppercase tracking-wider">Admin</span>
-            <nav className="flex gap-1">
+            <nav className="flex gap-1 overflow-x-auto">
               <button
                 data-testid="tab-consultations"
                 onClick={() => setTab("consultations")}
-                className={`px-4 py-2 text-sm rounded-md transition-colors ${tab === "consultations" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${tab === "consultations" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
               >
-                <Users className="inline w-4 h-4 mr-2" />Consultations
+                <Users className="hidden sm:inline w-4 h-4 mr-2" />Consultations
               </button>
               <button
                 data-testid="tab-inventory"
                 onClick={() => setTab("inventory")}
-                className={`px-4 py-2 text-sm rounded-md transition-colors ${tab === "inventory" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${tab === "inventory" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
               >
-                <Package className="inline w-4 h-4 mr-2" />Inventory
+                <Package className="hidden sm:inline w-4 h-4 mr-2" />Inventory
               </button>
               <button
                 data-testid="tab-escalations"
                 onClick={() => setTab("escalations")}
-                className={`px-4 py-2 text-sm rounded-md transition-colors ${tab === "escalations" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${tab === "escalations" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
               >
-                <MessageSquare className="inline w-4 h-4 mr-2" />Chat Escalations
+                <MessageSquare className="hidden sm:inline w-4 h-4 mr-2" />Chat Escalations
               </button>
               <button
                 data-testid="tab-aria"
                 onClick={() => setTab("aria")}
-                className={`px-4 py-2 text-sm rounded-md transition-colors ${tab === "aria" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${tab === "aria" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
               >
-                <Bot className="inline w-4 h-4 mr-2" />Aria
+                <Bot className="hidden sm:inline w-4 h-4 mr-2" />Aria
               </button>
               <button
                 data-testid="tab-continuations"
                 onClick={() => setTab("continuations")}
-                className={`px-4 py-2 text-sm rounded-md transition-colors ${tab === "continuations" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+                className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${tab === "continuations" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
               >
-                <ClipboardList className="inline w-4 h-4 mr-2" />Continuations
+                <ClipboardList className="hidden sm:inline w-4 h-4 mr-2" />Continuations
               </button>
             </nav>
           </div>
