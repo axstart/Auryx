@@ -310,7 +310,7 @@ export default function Home() {
     { q: "Does Auryx accept insurance?", a: "Peptide therapy is an elective, precision medicine service and is not covered by insurance. All protocols are self-pay. We accept credit and debit cards, Zelle, and Venmo for your convenience." },
     { q: "Who are Auryx's providers?", a: "Auryx was founded and is led by a licensed MD and a licensed nurse practitioner, both specializing in regenerative and integrative medicine. Every protocol is reviewed, prescribed, and monitored by our clinical team — you are always under direct medical supervision." },
     { q: "I'm already on a protocol from another provider. Can I continue it through Auryx?", a: "Yes — and we've made this as frictionless as possible. If you're already on an established peptide protocol and simply want to continue under Auryx's medical umbrella, you complete a brief intake form covering your current protocol, duration, and a short health screen. A physician reviews and approves within 24 hours, and your compounds are dispensed and delivered directly to you." },
-    { q: "Is Auryx available in my state?", a: "Auryx offers telemedicine consultations and direct-to-door delivery. Reach out and our team will confirm availability and next steps for your location." },
+    { q: "Is Auryx available in my state?", a: "Auryx currently serves patients in Florida, New York, and Massachusetts via telemedicine, with direct-to-door delivery of all protocols. Reach out and our team will confirm availability and next steps for your location." },
   ];
 
   return (
@@ -349,7 +349,7 @@ export default function Home() {
               Elite, medically guided peptide therapy protocols designed for high-performance individuals. Precision science meets complete biological optimization.
             </p>
             <p className="text-sm text-primary/70 tracking-wide mb-12 font-light">
-              Founded and led by licensed specialists in regenerative &amp; integrative medicine.
+              MD-led precision longevity care — serving patients in Florida, New York &amp; Massachusetts.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
@@ -450,7 +450,7 @@ export default function Home() {
                 { step: "01", title: "Choose Your Path", desc: "New to peptides? Start with a private consultation. Already on an established protocol? Our streamlined intake gets you set up within 24 hours — no full consultation required." },
                 { step: "02", title: "Clinical Review & Approval", desc: "A licensed Auryx physician reviews your intake or conducts your consultation — assessing your history, goals, and protocol fit before any compound is dispensed." },
                 { step: "03", title: "Bespoke Protocol & Dispensing", desc: "Your protocol is prescribed, compounded by a US-licensed pharmacy, and delivered directly to your door — pharmaceutical-grade, 3rd-party tested." },
-                { step: "04", title: "Ongoing Optimization", desc: "Continuous monitoring, protocol adjustments, and dedicated concierge support — including Aria, available around the clock — to ensure maximum efficacy." }
+                { step: "04", title: "Ongoing Optimization", desc: "Continuous monitoring, protocol adjustments, and dedicated concierge support — including Aria, available around the clock — to ensure maximum efficacy. Available to patients throughout Florida, New York, and Massachusetts via telemedicine." }
               ].map((item, i) => (
                 <motion.div 
                   key={i}
@@ -711,7 +711,7 @@ export default function Home() {
               <div>
                 <p className="text-foreground font-medium mb-1">Certificates of Analysis available on request</p>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  Ask for the CoA on any compound in your protocol at any time. Transparency is not a feature — it is the standard.
+                  Ask for the CoA on any compound in your protocol at any time. Transparency is not a feature — it is the standard. All protocols are dispensed from US-licensed compounding pharmacies and delivered directly to patients in Florida, New York, and Massachusetts.
                 </p>
               </div>
             </div>
