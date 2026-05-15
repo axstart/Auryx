@@ -615,6 +615,7 @@ function ContinuationsTab({ adminKey }: { adminKey: string }) {
   const queryClient = useQueryClient();
   const { toast } = useToast();
   const [expanded, setExpanded] = useState<number | null>(null);
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "needs-review" | "rejected">("all");
 
   const headers = { "x-admin-key": adminKey };
 
@@ -642,6 +643,15 @@ function ContinuationsTab({ adminKey }: { adminKey: string }) {
   };
 
   const pending = items.filter(i => i.status === "pending").length;
+  const filtered = statusFilter === "all" ? items : items.filter(i => i.status === statusFilter);
+
+  const FILTERS = [
+    { value: "all",          label: "All" },
+    { value: "pending",      label: pending > 0 ? `Pending (${pending})` : "Pending" },
+    { value: "approved",     label: "Approved" },
+    { value: "needs-review", label: "Needs Review" },
+    { value: "rejected",     label: "Rejected" },
+  ] as const;
 
   if (isLoading) {
     return (
@@ -654,7 +664,7 @@ function ContinuationsTab({ adminKey }: { adminKey: string }) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-serif text-foreground mb-1">Protocol Continuations</h2>
           <p className="text-sm text-muted-foreground">
@@ -663,14 +673,34 @@ function ContinuationsTab({ adminKey }: { adminKey: string }) {
         </div>
       </div>
 
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {FILTERS.map(f => (
+          <button
+            key={f.value}
+            onClick={() => setStatusFilter(f.value)}
+            className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
+              statusFilter === f.value
+                ? "bg-primary/15 text-primary border-primary/30"
+                : "border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
       {items.length === 0 ? (
         <div className="text-center py-24 text-muted-foreground">
           <ClipboardList className="w-10 h-10 mx-auto mb-4 opacity-30" />
           <p className="text-sm">No protocol continuations yet.</p>
         </div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-24 text-muted-foreground">
+          <p className="text-sm">No {statusFilter} continuations.</p>
+        </div>
       ) : (
         <div className="space-y-4">
-          {items.map(item => {
+          {filtered.map(item => {
             const flags: string[] = (() => { try { return JSON.parse(item.redFlagsJson); } catch { return []; } })();
             const isOpen = expanded === item.id;
             return (
