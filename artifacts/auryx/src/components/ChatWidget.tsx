@@ -108,11 +108,13 @@ export default function ChatWidget() {
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLInputElement>(null);
 
-  // Fade out the label after 6 s
+  // Reset label and restart the 6 s fade timer every time the chat closes
   useEffect(() => {
+    if (open) return;
+    setLabelVisible(true);
     const t = setTimeout(() => setLabelVisible(false), 6000);
     return () => clearTimeout(t);
-  }, []);
+  }, [open]);
 
   // Fetch business hours when panel first opens
   useEffect(() => {
