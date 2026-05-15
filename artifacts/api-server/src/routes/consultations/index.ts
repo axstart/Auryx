@@ -10,6 +10,16 @@ import {
   UpdateConsultationParams,
   UpdateConsultationResponse,
 } from "@workspace/api-zod";
+import { sendMail } from "../../lib/mailer.js";
+
+const INTEREST_LABELS: Record<string, string> = {
+  "anti-aging": "Anti-Aging & Longevity",
+  "fat-loss": "Fat Loss & Body Composition",
+  "sexual-health": "Sexual Health & Vitality",
+  "recovery": "Recovery & Regeneration",
+  "cognitive": "Cognitive Performance",
+  "energy": "Energy & Vitality",
+};
 
 const router: IRouter = Router();
 
@@ -24,6 +34,22 @@ router.post("/consultations", async (req, res): Promise<void> => {
     .values(parsed.data)
     .returning();
   req.log.info({ id: record.id }, "Consultation request created");
+
+  sendMail({
+    subject: `New Consultation Request — ${record.name}`,
+    text: [
+      `New consultation request submitted on Auryx.`,
+      ``,
+      `Name:     ${record.name}`,
+      `Email:    ${record.email}`,
+      `Phone:    ${record.phone ?? "—"}`,
+      `Interest: ${INTEREST_LABELS[record.interest] ?? record.interest}`,
+      `Message:  ${record.message ?? "—"}`,
+      ``,
+      `Submitted: ${new Date(record.createdAt).toLocaleString("en-US", { timeZone: "America/New_York" })} ET`,
+    ].join("\n"),
+  }).catch(() => {});
+
   res.status(201).json(ListConsultationsResponseItem.parse(record));
 });
 
