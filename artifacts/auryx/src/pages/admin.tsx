@@ -101,6 +101,7 @@ function LoginScreen({ onLogin }: { onLogin: (key: string) => void }) {
 function ConsultationsTab({ adminKey }: { adminKey: string }) {
   const queryClient = useQueryClient();
   const headers = { "x-admin-key": adminKey };
+  const [statusFilter, setStatusFilter] = useState<"all" | "new" | "contacted" | "complete">("all");
 
   const { data: consultations = [], isLoading } = useQuery({
     queryKey: getListConsultationsQueryKey(),
@@ -119,16 +120,42 @@ function ConsultationsTab({ adminKey }: { adminKey: string }) {
   };
 
   const newCount = consultations.filter((c: Consultation) => c.status === "new").length;
+  const filtered = statusFilter === "all"
+    ? [...consultations].reverse()
+    : [...consultations].reverse().filter((c: Consultation) => c.status === statusFilter);
+
+  const FILTERS = [
+    { value: "all",       label: "All" },
+    { value: "new",       label: newCount > 0 ? `New (${newCount})` : "New" },
+    { value: "contacted", label: "Contacted" },
+    { value: "complete",  label: "Complete" },
+  ] as const;
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <h2 className="text-2xl font-serif text-foreground mb-1">Consultation Requests</h2>
           <p className="text-sm text-muted-foreground">
             {consultations.length} total &mdash; {newCount} new
           </p>
         </div>
+      </div>
+
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {FILTERS.map(f => (
+          <button
+            key={f.value}
+            onClick={() => setStatusFilter(f.value)}
+            className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
+              statusFilter === f.value
+                ? "bg-primary/15 text-primary border-primary/30"
+                : "border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
       </div>
 
       {isLoading ? (
@@ -138,9 +165,13 @@ function ConsultationsTab({ adminKey }: { adminKey: string }) {
           <Users className="w-12 h-12 mx-auto mb-4 opacity-30" />
           <p>No consultation requests yet.</p>
         </div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-20 text-muted-foreground">
+          <p className="text-sm">No {statusFilter} consultations.</p>
+        </div>
       ) : (
         <div className="space-y-4">
-          {[...consultations].reverse().map((c: Consultation) => (
+          {filtered.map((c: Consultation) => (
             <div
               key={c.id}
               data-testid={`consultation-row-${c.id}`}
