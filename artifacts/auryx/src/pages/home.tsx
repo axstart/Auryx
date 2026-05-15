@@ -548,6 +548,59 @@ export default function Home() {
         </div>
       </section>
 
+      {/* TESTIMONIALS SECTION */}
+      <section className="py-32 px-6 md:px-12 bg-background relative z-20">
+        <div className="container mx-auto max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-16"
+          >
+            <span className="text-primary tracking-[0.2em] text-sm uppercase mb-4 block">Patient Outcomes</span>
+            <h2 className="text-4xl md:text-5xl font-serif mb-6">Results That Speak</h2>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {[
+              {
+                quote: "I've tried every biohacking protocol out there. Nothing moved the needle like Auryx. Three months in, my IGF-1 is up, my body fat is down, and I sleep like I'm 25 again.",
+                name: "Michael R.",
+                label: "Body Composition Protocol",
+              },
+              {
+                quote: "The intake process was seamless. My physician actually read my history and tailored everything. This is what concierge medicine should feel like.",
+                name: "Sarah K.",
+                label: "Anti-Aging Protocol",
+              },
+              {
+                quote: "I was already on a protocol from another provider. Switching to Auryx took less than 24 hours. The continuity of care is unmatched.",
+                name: "Daniel F.",
+                label: "Protocol Continuation",
+              },
+            ].map((t, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.12 }}
+                className="bg-card border border-border rounded-xl p-8 flex flex-col"
+              >
+                <span className="text-primary font-serif text-5xl leading-none mb-4 select-none">&ldquo;</span>
+                <p className="text-foreground/80 italic leading-relaxed text-base flex-1 mb-8">
+                  {t.quote}
+                </p>
+                <div className="border-t border-border/50 pt-5">
+                  <p className="text-foreground font-medium text-sm">{t.name}</p>
+                  <p className="text-primary/70 text-xs tracking-wider uppercase mt-0.5">{t.label}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* QUALITY & STANDARDS SECTION */}
       <section className="py-24 px-6 md:px-12 bg-background relative z-20 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(201,168,68,0.06),transparent_60%)]" />
