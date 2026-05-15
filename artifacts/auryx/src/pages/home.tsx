@@ -301,16 +301,16 @@ export default function Home() {
   ];
 
   const faqs = [
-    { q: "Are peptides safe?", a: "When prescribed by a licensed medical professional and sourced from regulated compounding pharmacies, peptide therapy has a high safety profile. Our protocols are meticulously monitored." },
-    { q: "How quickly will I see results?", a: "While responses vary based on individual biology and the specific peptide used, many patients report improvements in sleep and energy within weeks, with structural changes visible in 1-3 months." },
-    { q: "Do I need to visit in person?", a: "We offer comprehensive telemedicine consultations and direct-to-door delivery of protocols for eligible patients, though in-person clinical assessments are available." },
-    { q: "How are protocols personalized?", a: "Every protocol begins with an exhaustive biomarker panel, medical history review, and lifestyle assessment to engineer a highly specific therapeutic intervention." },
-    { q: "Is Auryx right for me?", a: "Auryx is designed for individuals who view their health as their most critical asset and are willing to invest in precision medical optimization rather than reactive healthcare." },
-    { q: "How much does treatment cost?", a: "Protocols are priced individually based on your therapeutic plan — the compounds selected, doses, and duration are specific to your biology and goals. Pricing is discussed in full during your private consultation, with no obligation to proceed." },
-    { q: "Does Auryx accept insurance?", a: "Peptide therapy is an elective, precision medicine service and is not covered by insurance. All protocols are self-pay. We accept credit and debit cards, Zelle, and Venmo for your convenience." },
-    { q: "Who are Auryx's providers?", a: "Auryx was founded and is led by a licensed MD and a licensed nurse practitioner, both specializing in regenerative and integrative medicine. Every protocol is reviewed, prescribed, and monitored by our clinical team — you are always under direct medical supervision." },
-    { q: "I'm already on a protocol from another provider. Can I continue it through Auryx?", a: "Yes — and we've made this as frictionless as possible. If you're already on an established peptide protocol and simply want to continue under Auryx's medical umbrella, you complete a brief intake form covering your current protocol, duration, and a short health screen. A physician reviews and approves within 24 hours, and your compounds are dispensed and delivered directly to you." },
-    { q: "Is Auryx available in my state?", a: "Auryx currently serves patients in Florida, New York, and Massachusetts via telemedicine, with direct-to-door delivery of all protocols. Reach out and our team will confirm availability and next steps for your location." },
+    { q: "Are peptides safe?", a: "Peptide therapy is safe when prescribed by a licensed MD and sourced from regulated US compounding pharmacies. All Auryx protocols are physician-prescribed, 3rd-party tested, and monitored throughout treatment." },
+    { q: "How quickly will I see results?", a: "Most patients notice improvements in sleep and energy within the first 2–4 weeks. Body composition and structural changes typically become visible within 1–3 months, depending on the protocol and individual biology." },
+    { q: "Do I need to visit in person?", a: "No in-person visit is required. Auryx offers full telemedicine consultations and direct-to-door protocol delivery for eligible patients in Florida, New York, and Massachusetts." },
+    { q: "How are protocols personalized?", a: "Every protocol starts with a comprehensive biomarker panel, full medical history review, and lifestyle assessment — conducted by a licensed MD — to design a therapeutic intervention specific to your biology and goals." },
+    { q: "Is Auryx right for me?", a: "Auryx is designed for individuals who treat their health as a high-performance asset and want precision medical optimization — not reactive healthcare. If that's you, we're the right fit." },
+    { q: "How much does treatment cost?", a: "Protocol pricing depends on the compounds selected, dosing, and duration — all tailored to your biology. Full pricing is discussed during your private consultation with no obligation to proceed." },
+    { q: "Does Auryx accept insurance?", a: "Auryx does not accept insurance. Peptide therapy is an elective precision medicine service and is self-pay only. We accept credit and debit cards, Zelle, and Venmo." },
+    { q: "Who are Auryx's providers?", a: "Auryx was founded and is led by a licensed MD specializing in regenerative and integrative medicine. Every protocol is prescribed, reviewed, and monitored by our clinical team — you are always under direct medical supervision." },
+    { q: "I'm already on a protocol from another provider. Can I continue it through Auryx?", a: "Yes — and it takes less than 24 hours. Complete a brief intake form covering your current protocol and a short medical screen. A licensed MD reviews and approves, and your compounds are delivered directly to you." },
+    { q: "Is Auryx available in my state?", a: "Auryx currently serves patients in Florida, New York, and Massachusetts via telemedicine with direct-to-door delivery. Reach out and our team will confirm availability for your location." },
   ];
 
   return (
