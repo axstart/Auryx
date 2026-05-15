@@ -367,7 +367,7 @@ export function ProtocolContinuationModal({
               <div className="flex gap-3 pt-1">
                 <Button
                   variant="outline"
-                  onClick={() => { setStep("screening"); setScreeningIndex(SCREENING_QUESTIONS.length - 1); }}
+                  onClick={() => { setStep("screening"); setScreeningIndex(0); }}
                   className="border-border/60 text-muted-foreground hover:text-foreground shrink-0"
                 >
                   <ChevronLeft className="w-4 h-4 mr-1" /> Back
