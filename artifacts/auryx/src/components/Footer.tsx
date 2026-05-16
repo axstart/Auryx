@@ -43,7 +43,13 @@ export default function Footer() {
         </div>
 
         <div className="pt-8 border-t border-border flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-muted-foreground/60">
-          <p>© {new Date().getFullYear()} Auryx Medical. All rights reserved.</p>
+          <div className="flex flex-col md:flex-row items-center gap-4">
+            <p>© {new Date().getFullYear()} AURYX LLC. All rights reserved.</p>
+            <div className="flex gap-4">
+              <Link href="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
+              <Link href="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
+            </div>
+          </div>
           <p className="max-w-2xl text-center md:text-right">
             Disclaimer: The information provided is for educational purposes only. Peptide therapy should only be undertaken under the direct supervision of a licensed medical professional. Results may vary.
           </p>

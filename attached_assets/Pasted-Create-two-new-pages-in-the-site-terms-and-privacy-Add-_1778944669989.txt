@@ -1,0 +1,86 @@
+Create two new pages in the site: /terms and /privacy. Add routes for both in the app router. Each page should match the existing Auryx dark luxury aesthetic — dark background, gold accents, serif headings, same Navbar and Footer as the homepage.
+For the /terms page, use this content:
+Terms of Service
+Effective Date: May 16, 2026
+1. Acceptance of Terms
+By accessing or using the Auryx website at auryxlife.com ("Site") or any services offered by AURYX LLC ("Auryx," "we," "us," or "our"), you agree to be bound by these Terms of Service. If you do not agree, please do not use our Site or services.
+2. About Auryx
+AURYX LLC is a Florida Limited Liability Company. Auryx provides medically supervised peptide therapy protocols via telemedicine to eligible patients in Florida, New Jersey, New York, Massachusetts, and West Virginia. All protocols are prescribed and monitored by licensed medical professionals.
+3. Not a Substitute for Medical Advice
+The content on this Site is for informational purposes only and does not constitute medical advice, diagnosis, or treatment. Always consult a qualified healthcare provider before beginning any new therapy. Auryx's services are available only to individuals who have completed our medical intake process and received approval from a licensed Auryx physician.
+4. Eligibility
+You must be at least 18 years of age and a resident of a state in which Auryx is licensed to operate to use our services. By requesting a consultation or protocol, you represent that you meet these requirements.
+5. Telehealth Services
+Auryx provides telehealth consultations conducted by licensed medical professionals. These consultations are subject to the laws and regulations of the state in which you reside. You consent to the use of electronic communications for the delivery of telehealth services.
+6. Self-Pay Services
+All Auryx services are elective and self-pay. We do not bill insurance. Payment is due at the time of service. We accept credit and debit cards, Zelle, and Venmo. All sales are final unless otherwise stated.
+7. Compounded Medications
+Peptide therapies offered by Auryx are compounded medications prepared by FDA-registered US compounding pharmacies. Compounded medications are not FDA-approved. Results may vary. Auryx makes no guarantee of specific outcomes.
+8. Intellectual Property
+All content on this Site, including text, graphics, logos, and design, is the property of AURYX LLC and protected by applicable intellectual property laws. You may not reproduce, distribute, or create derivative works without our express written consent.
+9. Limitation of Liability
+To the fullest extent permitted by law, AURYX LLC, its members, physicians, and staff shall not be liable for any indirect, incidental, special, or consequential damages arising from your use of our services or Site.
+10. Indemnification
+You agree to indemnify and hold harmless AURYX LLC and its members, officers, physicians, and employees from any claims, damages, or expenses arising from your use of our services or violation of these Terms.
+11. Governing Law
+These Terms shall be governed by the laws of the State of Florida, without regard to its conflict of law provisions. Any disputes shall be resolved in the courts of Broward County, Florida.
+12. Changes to Terms
+We reserve the right to update these Terms at any time. Continued use of the Site after changes constitutes acceptance of the updated Terms.
+13. Contact
+For questions about these Terms, contact us at info@auryxlife.com.
+
+For the /privacy page, use this content:
+Privacy Policy
+Effective Date: May 16, 2026
+1. Introduction
+AURYX LLC ("Auryx," "we," "us," or "our") is committed to protecting your privacy. This Privacy Policy explains how we collect, use, and protect your personal information when you use our website at auryxlife.com or our telehealth services.
+2. Information We Collect
+We collect the following types of information:
+
+Personal identifiers: Name, email address, phone number
+Health information: Medical history, current medications, health goals, and screening responses provided during our intake process
+Payment information: Transaction data processed through our payment partners (we do not store full payment card details)
+Usage data: IP address, browser type, pages visited, and interaction data collected via analytics tools
+
+3. How We Use Your Information
+We use your information to:
+
+Process consultation and protocol requests
+Facilitate physician review and approval of your protocol
+Communicate with you about your care
+Send administrative and operational notifications
+Improve our services and website
+Comply with legal and regulatory obligations
+
+4. Health Information & HIPAA
+Health information you provide during our intake process is treated as sensitive and confidential. We implement administrative, technical, and physical safeguards to protect your health information in accordance with applicable law. We do not sell your health information to third parties.
+5. Sharing of Information
+We do not sell your personal information. We may share your information with:
+
+Licensed physicians and medical staff involved in your care
+FDA-registered compounding pharmacies fulfilling your prescription
+Payment processors facilitating your transaction
+Technology service providers operating our platform under confidentiality agreements
+Law enforcement or regulatory authorities when required by law
+
+6. Data Retention
+We retain your personal and health information for as long as necessary to provide services and comply with legal obligations, typically a minimum of 7 years for medical records in accordance with Florida law.
+7. Your Rights
+You have the right to:
+
+Access the personal information we hold about you
+Request correction of inaccurate information
+Request deletion of your information, subject to legal retention requirements
+Opt out of marketing communications at any time
+
+To exercise these rights, contact us at info@auryxlife.com.
+8. Cookies & Analytics
+Our Site uses cookies and analytics tools to understand how visitors interact with our content. You may disable cookies in your browser settings, though some features may not function properly.
+9. Third-Party Links
+Our Site may contain links to third-party websites. We are not responsible for the privacy practices of those sites and encourage you to review their policies.
+10. Children's Privacy
+Our services are not directed to individuals under the age of 18. We do not knowingly collect personal information from minors.
+11. Changes to This Policy
+We may update this Privacy Policy from time to time. We will notify you of material changes by posting the updated policy on our Site with a new effective date.
+12. Contact
+For privacy-related questions or requests, contact us at info@auryxlife.com.
