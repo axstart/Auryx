@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Package, Users, AlertTriangle, Plus, Trash2, Pencil, Check, X, MessageSquare, ChevronDown, ChevronUp, Bot, Loader2, ClipboardList } from "lucide-react";
+import { LogOut, Package, Users, AlertTriangle, Plus, Trash2, Pencil, Check, X, MessageSquare, ChevronDown, ChevronUp, Bot, Loader2, ClipboardList, Download } from "lucide-react";
 
 const SESSION_KEY = "auryx_admin_key";
 
@@ -124,6 +124,32 @@ function ConsultationsTab({ adminKey }: { adminKey: string }) {
     ? [...consultations].reverse()
     : [...consultations].reverse().filter((c: Consultation) => c.status === statusFilter);
 
+  const exportCSV = () => {
+    const cols = ["ID", "Date", "Name", "Email", "Phone", "Interest", "Message", "Status"];
+    const escape = (v: string | number | null | undefined) => {
+      const s = v == null ? "" : String(v);
+      return `"${s.replace(/"/g, '""')}"`;
+    };
+    const rows = [...consultations].reverse().map((c: Consultation) => [
+      escape(c.id),
+      escape(new Date(c.createdAt).toLocaleString("en-US")),
+      escape(c.name),
+      escape(c.email),
+      escape(c.phone ?? ""),
+      escape(interestLabel(c.interest)),
+      escape(c.message ?? ""),
+      escape(c.status),
+    ].join(","));
+    const csv = [cols.map(h => `"${h}"`).join(","), ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `auryx-consultations-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const FILTERS = [
     { value: "all",       label: "All" },
     { value: "new",       label: newCount > 0 ? `New (${newCount})` : "New" },
@@ -133,13 +159,23 @@ function ConsultationsTab({ adminKey }: { adminKey: string }) {
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div>
           <h2 className="text-2xl font-serif text-foreground mb-1">Consultation Requests</h2>
           <p className="text-sm text-muted-foreground">
             {consultations.length} total &mdash; {newCount} new
           </p>
         </div>
+        {consultations.length > 0 && (
+          <Button
+            data-testid="button-export-csv"
+            onClick={exportCSV}
+            variant="outline"
+            className="h-9 text-sm border-border/60 hover:border-primary/40 hover:text-primary"
+          >
+            <Download className="w-4 h-4 mr-2" /> Export CSV
+          </Button>
+        )}
       </div>
 
       <div className="flex gap-2 mb-6 flex-wrap">
