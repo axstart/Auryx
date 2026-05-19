@@ -449,7 +449,7 @@ export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpe
   const stepLabel = `Step ${stepIndex + 1} of ${totalSteps}`;
 
   return (
-    <section id="assessment" className="py-32 px-6 md:px-12 bg-card relative z-20">
+    <section id="assessment" className="pt-16 pb-32 px-6 md:px-12 bg-card relative z-20">
       <div className="container mx-auto max-w-7xl">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
