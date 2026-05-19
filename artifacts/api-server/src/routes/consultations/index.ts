@@ -48,7 +48,7 @@ router.post("/consultations", async (req, res): Promise<void> => {
       ``,
       `Submitted: ${new Date(record.createdAt).toLocaleString("en-US", { timeZone: "America/New_York" })} ET`,
     ].join("\n"),
-  }).catch(() => {});
+  }).catch((err) => req.log.error({ err }, "Consultation email notification failed"));
 
   res.status(201).json(ListConsultationsResponseItem.parse(record));
 });

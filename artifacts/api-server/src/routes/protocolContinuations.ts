@@ -69,7 +69,7 @@ router.post("/protocol-continuations", async (req, res) => {
       ``,
       `Submitted: ${new Date(row.createdAt).toLocaleString("en-US", { timeZone: "America/New_York" })} ET`,
     ].filter(Boolean).join("\n"),
-  }).catch(() => {});
+  }).catch((err) => req.log.error({ err }, "Continuation email notification failed"));
 
   res.status(201).json(row);
 });
