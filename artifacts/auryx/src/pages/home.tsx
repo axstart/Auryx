@@ -345,23 +345,23 @@ export default function Home() {
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif leading-[1.1] mb-8 font-light">
               Longevity Is <br/> the New Luxury.
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-6 font-light leading-relaxed">
+            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8 font-light leading-relaxed">
               Elite, medically guided peptide therapy protocols designed for high-performance individuals. Precision science meets complete biological optimization.
             </p>
-            <p className="text-sm text-primary/70 tracking-wide mb-12 font-light">
+            <p className="text-sm text-primary/70 tracking-wide mb-10 font-light">
               MD-led precision longevity care — serving patients nationwide across the United States.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 mb-8">
               <Button 
                 onClick={() => setModalOpen(true)}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 h-14 px-8 text-base tracking-wide"
+                className="bg-primary text-primary-foreground hover:bg-primary/90 h-14 px-8 text-base tracking-wide w-full sm:w-auto"
               >
                 Book a Consultation
               </Button>
               <Button
                 variant="outline"
                 onClick={() => setContinuationOpen(true)}
-                className="border-primary/50 text-primary hover:bg-primary/10 h-14 px-8 text-base tracking-wide"
+                className="border-primary/50 text-primary hover:bg-primary/10 h-14 px-8 text-base tracking-wide w-full sm:w-auto"
               >
                 Continue My Protocol
               </Button>
@@ -391,7 +391,7 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
             {categories.map((cat, i) => (
               <motion.div
                 key={i}
@@ -399,15 +399,15 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="group p-10 bg-card border border-card-border hover:border-primary/50 transition-all duration-500 rounded-lg relative overflow-hidden"
+                className="group p-10 bg-card border border-card-border hover:border-primary/50 transition-all duration-500 rounded-xl relative overflow-hidden"
               >
                 <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                 <div className="relative z-10">
-                  <div className="mb-6 p-4 bg-background/50 rounded-full inline-block">
+                  <div className="mb-6 p-4 bg-background/50 rounded-full inline-flex items-center justify-center">
                     {cat.icon}
                   </div>
-                  <h3 className="text-2xl font-serif mb-4 text-foreground">{cat.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed">
+                  <h3 className="text-xl font-serif mb-3 text-foreground">{cat.title}</h3>
+                  <p className="text-muted-foreground leading-relaxed text-sm line-clamp-2">
                     {cat.desc}
                   </p>
                 </div>
@@ -417,7 +417,7 @@ export default function Home() {
         </div>
       </section>
 
-      <div id="assessment">
+      <div id="assessment" className="border-y border-primary/20 bg-card/60">
         <PatientAssessment onOpenConsult={() => setModalOpen(true)} onContinueProtocol={() => setContinuationOpen(true)} />
       </div>
 
@@ -443,14 +443,14 @@ export default function Home() {
               </Button>
             </motion.div>
 
-            <div className="space-y-12 relative">
-              <div className="absolute left-[23px] top-4 bottom-4 w-[1px] bg-border hidden md:block" />
+            <div className="space-y-16 relative">
+              <div className="absolute left-[27px] top-6 bottom-6 w-[1px] bg-border/60 hidden md:block" />
               
               {[
-                { step: "01", title: "Choose Your Path", desc: "New to peptides? Start with a private consultation. Already on an established protocol? Our streamlined intake gets you set up within 24 hours — no full consultation required." },
-                { step: "02", title: "Clinical Review & Approval", desc: "A licensed Auryx physician reviews your intake or conducts your consultation — assessing your history, goals, and protocol fit before any compound is dispensed." },
-                { step: "03", title: "Bespoke Protocol & Dispensing", desc: "Your protocol is prescribed, compounded by a US-licensed pharmacy, and delivered directly to your door — pharmaceutical-grade, 3rd-party tested." },
-                { step: "04", title: "Ongoing Optimization", desc: "Continuous monitoring, protocol adjustments, and dedicated concierge support — including Aria, available around the clock — to ensure maximum efficacy. Available to patients nationwide across the United States via telemedicine." }
+                { step: "01", title: "Choose Your Path", lead: "New to peptides? Start with a private consultation.", rest: "Already on an established protocol? Our streamlined intake gets you set up within 24 hours — no full consultation required." },
+                { step: "02", title: "Clinical Review & Approval", lead: "A licensed Auryx physician reviews your intake or conducts your consultation.", rest: "Assessing your history, goals, and protocol fit before any compound is dispensed." },
+                { step: "03", title: "Bespoke Protocol & Dispensing", lead: "Your protocol is prescribed, compounded by a US-licensed pharmacy, and delivered directly to your door.", rest: "Pharmaceutical-grade, 3rd-party tested — no grey-market sourcing, ever." },
+                { step: "04", title: "Ongoing Optimization", lead: "Continuous monitoring, protocol adjustments, and dedicated concierge support.", rest: "Including Aria, available around the clock — to ensure maximum efficacy for patients nationwide across the United States via telemedicine." }
               ].map((item, i) => (
                 <motion.div 
                   key={i}
@@ -460,12 +460,13 @@ export default function Home() {
                   transition={{ delay: i * 0.15 }}
                   className="flex gap-8 relative z-10"
                 >
-                  <div className="w-12 h-12 rounded-full bg-background border border-primary flex items-center justify-center shrink-0 text-primary font-serif">
+                  <div className="w-14 h-14 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center shrink-0 text-primary font-serif text-lg font-bold">
                     {item.step}
                   </div>
-                  <div>
-                    <h4 className="text-2xl font-serif mb-2 text-foreground">{item.title}</h4>
-                    <p className="text-muted-foreground leading-relaxed">{item.desc}</p>
+                  <div className="pt-1">
+                    <h4 className="text-2xl font-serif mb-3 text-foreground font-semibold">{item.title}</h4>
+                    <p className="text-foreground/85 leading-relaxed mb-1 font-medium">{item.lead}</p>
+                    <p className="text-muted-foreground leading-relaxed text-sm">{item.rest}</p>
                   </div>
                 </motion.div>
               ))}
@@ -490,7 +491,7 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="space-y-20">
+          <div className="space-y-28">
             {peptideCategories.map((cat, ci) => (
               <motion.div
                 key={ci}
@@ -499,12 +500,12 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ delay: ci * 0.05 }}
               >
-                <div className="mb-8">
-                  <div className="flex items-center gap-4 mb-3">
-                    <div className="h-[1px] w-8 bg-primary/60" />
-                    <h3 className="text-2xl md:text-3xl font-serif text-foreground">{cat.category}</h3>
+                <div className="mb-10">
+                  <div className="mb-4">
+                    <h3 className="text-2xl md:text-4xl font-serif text-foreground mb-3">{cat.category}</h3>
+                    <div className="h-[2px] w-14 bg-primary rounded-full" />
                   </div>
-                  <p className="text-muted-foreground text-base leading-relaxed max-w-3xl mb-4">{cat.description}</p>
+                  <p className="text-muted-foreground text-base leading-relaxed max-w-3xl mb-5">{cat.description}</p>
                   {"note" in cat && cat.note && (
                     <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-2">
                       <p className="text-sm uppercase tracking-wider text-primary mb-2">Physician's Note — Protocol Selection</p>
@@ -620,7 +621,7 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.12 }}
-                className="bg-card border border-border rounded-xl p-8 flex flex-col"
+                className="bg-card border border-border hover:border-primary/40 transition-colors duration-300 rounded-xl p-8 flex flex-col"
               >
                 <span className="text-primary font-serif text-5xl leading-none mb-4 select-none">&ldquo;</span>
                 <p className="text-foreground/80 italic leading-relaxed text-base flex-1 mb-8">

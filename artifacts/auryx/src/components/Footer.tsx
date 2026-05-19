@@ -35,7 +35,7 @@ export default function Footer() {
           <div>
             <h4 className="font-serif text-lg text-foreground mb-4">Contact</h4>
             <ul className="space-y-2 text-muted-foreground text-sm">
-              <li><a href="mailto:info@auryxlife.com" className="hover:text-primary transition-colors">info@auryxlife.com</a></li>
+              <li><a href="mailto:admin@auryxlife.com" className="hover:text-primary transition-colors">admin@auryxlife.com</a></li>
               <li className="pt-2">Nationwide Telehealth — United States</li>
             </ul>
           </div>

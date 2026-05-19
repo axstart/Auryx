@@ -1,0 +1,11 @@
+Please do a comprehensive UX/UI improvement pass on the entire website. Here are all the changes needed:
+1. Hero Section: Remove any remaining text mentioning specific states and replace with 'nationwide'. Redesign the two CTA buttons so they are side by side on desktop and stacked on mobile. Add more vertical breathing room between the headline, subtext, and buttons.
+2. Therapeutic Domains Grid: Shorten each domain description to one line maximum. Make all icons consistent in size and style. Add more spacing between cards.
+3. Find Your Protocol Quiz: Remove the excessive empty space above and below this section. Add a subtle background treatment (slightly lighter dark or a thin gold border) to visually frame the quiz and separate it from surrounding sections.
+4. Auryx Methodology Section: Increase spacing between each step. Break up the dense text by making the first sentence of each step larger or bolder. Make the step numbers more visually prominent.
+5. Molecules of Mastery Section: Convert the peptide listings into clean cards with a subtle border and consistent padding. Make category headers (GLP-1 & Metabolic Peptides, Growth Hormone Secretagogues, etc.) larger and more visually distinct — consider a gold accent line underneath each. Improve spacing between categories.
+6. Testimonials: If testimonials were removed, add a placeholder testimonials section with 3 dummy testimonials in a card carousel format, consistent with the dark gold aesthetic. We will replace with real ones later.
+7. Footer: Make sure there is a proper footer with: Auryx logo, tagline, navigation links, contact email (admin@auryxlife.com), legal links (Privacy Policy, Terms of Service), and copyright notice '© 2026 Auryx. All rights reserved.'
+8. Global Spacing & Typography: Increase overall section padding so the page breathes more. Make sure H1, H2, H3 sizes are clearly distinct. Ensure all body text is at least 16px for readability.
+9. Mobile Optimization: Make sure all sections stack cleanly on mobile. Cards should be full width on mobile. Text should never overflow or get cut off. Buttons should be full width on mobile.
+10. Performance: Remove any excessive empty/blank space anywhere on the page that doesn't serve a design purpose.
