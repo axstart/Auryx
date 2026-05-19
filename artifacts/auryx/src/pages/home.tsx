@@ -21,7 +21,12 @@ import {
   ShieldPlus,
   ArrowRight,
   ChevronRight,
-  ChevronDown
+  ChevronDown,
+  MapPin,
+  FlaskConical,
+  Microscope,
+  Gem,
+  Stethoscope,
 } from "lucide-react";
 
 interface Peptide {
@@ -81,9 +86,20 @@ function PeptideCard({ pep }: { pep: Peptide }) {
   );
 }
 
+const TAB_LABELS = [
+  "GLP-1 & Metabolic",
+  "Growth Hormone",
+  "Recovery & Regen",
+  "Sexual Health",
+  "Immune & Longevity",
+  "Cognitive",
+  "Signature",
+];
+
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const [continuationOpen, setContinuationOpen] = useState(false);
+  const [activeCategory, setActiveCategory] = useState(0);
   const { scrollYProgress } = useScroll();
   const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
   const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
@@ -156,7 +172,7 @@ export default function Home() {
     {
       category: "Growth Hormone Secretagogues",
       description: "GH secretagogues stimulate the pituitary gland to release endogenous growth hormone in natural pulsatile rhythms — restoring youthful GH levels without the risks of exogenous HGH. Protocol selection depends on your goals, IGF-1 levels, and desired pulse characteristics.",
-      note: "Choosing the right secretagogue matters. CJC-1295 + Ipamorelin is the versatile entry point — broad anti-aging benefits with a clean side-effect profile. Tesamorelin is more targeted, with the strongest clinical evidence for visceral fat reduction and is preferred when body composition is the primary goal. The Tesamorelin + Ipamorelin combination layers fat-burning specificity with deeper sleep and recovery enhancement, making it the premium choice for athletes and executives seeking both physique and performance outcomes.",
+      note: "CJC-1295 + Ipamorelin is the versatile entry point — broad anti-aging and GH restoration with a clean side-effect profile. Tesamorelin has the strongest clinical evidence for visceral fat reduction and is preferred when body composition is the primary goal. Tesamorelin + Ipamorelin is the premium stack, combining targeted fat reduction with superior sleep and recovery.",
       peptides: [
         {
           name: "CJC-1295 + Ipamorelin",
@@ -377,7 +393,7 @@ export default function Home() {
       </section>
 
       {/* CATEGORIES SECTION */}
-      <section id="categories" className="py-32 px-6 md:px-12 bg-background relative z-20">
+      <section id="categories" className="pt-20 pb-12 px-6 md:px-12 bg-background relative z-20">
         <div className="container mx-auto max-w-7xl">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -417,12 +433,12 @@ export default function Home() {
         </div>
       </section>
 
-      <div id="assessment" className="border-y border-primary/20 bg-card/60">
+      <div id="assessment" className="border-y border-primary/20 bg-card/60 -mt-1">
         <PatientAssessment onOpenConsult={() => setModalOpen(true)} onContinueProtocol={() => setContinuationOpen(true)} />
       </div>
 
       {/* PROCESS SECTION */}
-      <section id="process" className="py-32 px-6 md:px-12 bg-card relative z-20">
+      <section id="process" className="pt-20 pb-12 px-6 md:px-12 bg-card relative z-20">
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <motion.div
@@ -476,13 +492,13 @@ export default function Home() {
       </section>
 
       {/* EDUCATION SECTION */}
-      <section id="education" className="py-32 px-6 md:px-12 bg-background relative z-20">
+      <section id="education" className="py-20 px-6 md:px-12 bg-background relative z-20">
         <div className="container mx-auto max-w-7xl">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-20 text-center"
+            className="mb-10 text-center"
           >
             <span className="text-primary tracking-[0.2em] text-sm uppercase mb-4 block">Peptide Science</span>
             <h2 className="text-4xl md:text-5xl font-serif mb-6">Molecules of Mastery</h2>
@@ -491,38 +507,57 @@ export default function Home() {
             </p>
           </motion.div>
 
-          <div className="space-y-28">
-            {peptideCategories.map((cat, ci) => (
-              <motion.div
+          {/* Tab bar */}
+          <div className="flex gap-1 overflow-x-auto pb-0 mb-10 border-b border-border scrollbar-none">
+            {TAB_LABELS.map((label, ci) => (
+              <button
                 key={ci}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: ci * 0.05 }}
+                onClick={() => setActiveCategory(ci)}
+                className={`shrink-0 px-4 py-3 text-sm font-medium tracking-wide transition-colors border-b-2 -mb-px whitespace-nowrap ${
+                  activeCategory === ci
+                    ? "border-primary text-primary"
+                    : "border-transparent text-muted-foreground hover:text-foreground"
+                }`}
               >
-                <div className="mb-10">
+                {label}
+              </button>
+            ))}
+          </div>
+
+          {/* Active category */}
+          {(() => {
+            const cat = peptideCategories[activeCategory];
+            const isSignature = cat.category === "Auryx Signature Complexes";
+            return (
+              <motion.div
+                key={activeCategory}
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.25 }}
+              >
+                <div className="mb-8">
                   <div className="mb-4">
-                    <h3 className="text-2xl md:text-4xl font-serif text-foreground mb-3">{cat.category}</h3>
+                    <h3 className="text-2xl md:text-3xl font-serif text-foreground mb-3">{cat.category}</h3>
                     <div className="h-[2px] w-14 bg-primary rounded-full" />
                   </div>
                   <p className="text-muted-foreground text-base leading-relaxed max-w-3xl mb-5">{cat.description}</p>
                   {"note" in cat && cat.note && (
-                    <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-2">
+                    <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-4">
                       <p className="text-sm uppercase tracking-wider text-primary mb-2">Physician's Note — Protocol Selection</p>
-                      <p className="text-base text-foreground/80 leading-relaxed italic">{cat.note}</p>
+                      <p className="text-sm text-foreground/80 leading-relaxed italic">{cat.note}</p>
                     </div>
                   )}
                 </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+                <div className={`grid gap-5 ${isSignature ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"}`}>
                   {cat.peptides.map((pep, i) => (
                     <PeptideCard key={i} pep={pep} />
                   ))}
                 </div>
               </motion.div>
-            ))}
-          </div>
+            );
+          })()}
 
-          <div className="mt-16 text-center">
+          <div className="mt-12 text-center">
             <p className="text-muted-foreground text-sm italic max-w-2xl mx-auto">
               Our formulary includes dozens of additional specialized compounds. Protocols are synthesized specifically for your bio-individual needs.
             </p>
@@ -531,7 +566,7 @@ export default function Home() {
       </section>
 
       {/* ABOUT / PHILOSOPHY SECTION */}
-      <section id="about" className="py-32 px-6 md:px-12 bg-card relative z-20 overflow-hidden">
+      <section id="about" className="py-20 px-6 md:px-12 bg-card relative z-20 overflow-hidden">
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
             <motion.div
@@ -585,7 +620,7 @@ export default function Home() {
       </section>
 
       {/* TESTIMONIALS SECTION */}
-      <section className="py-32 px-6 md:px-12 bg-background relative z-20">
+      <section className="py-20 px-6 md:px-12 bg-background relative z-20">
         <div className="container mx-auto max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -638,7 +673,7 @@ export default function Home() {
       </section>
 
       {/* QUALITY & STANDARDS SECTION */}
-      <section className="py-24 px-6 md:px-12 bg-background relative z-20 overflow-hidden">
+      <section className="py-16 px-6 md:px-12 bg-background relative z-20 overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(201,168,68,0.06),transparent_60%)]" />
         <div className="container mx-auto max-w-7xl relative">
           <motion.div
@@ -658,27 +693,27 @@ export default function Home() {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-14">
             {[
               {
-                icon: "🇺🇸",
+                icon: <MapPin className="w-6 h-6 text-primary" />,
                 title: "US-Sourced",
                 body: "All peptides are compounded exclusively by FDA-registered US pharmacies operating under strict cGMP manufacturing standards.",
               },
               {
-                icon: "⚗️",
+                icon: <FlaskConical className="w-6 h-6 text-primary" />,
                 title: "Pharmaceutical Grade",
                 body: "We work only with licensed compounding pharmacies — not research-grade or grey-market suppliers. Medical quality, full stop.",
               },
               {
-                icon: "🔬",
+                icon: <Microscope className="w-6 h-6 text-primary" />,
                 title: "3rd Party Tested",
                 body: "Every batch is independently verified by accredited third-party laboratories before it reaches a single patient.",
               },
               {
-                icon: "✦",
+                icon: <Gem className="w-6 h-6 text-primary" />,
                 title: "99%+ Purity",
                 body: "Purity certificates are available on request. We maintain a 99% minimum purity standard across all compounds in our formulary.",
               },
               {
-                icon: "⚕️",
+                icon: <Stethoscope className="w-6 h-6 text-primary" />,
                 title: "Physician-Led",
                 body: "Auryx is founded and led by a licensed MD and a licensed nurse practitioner — both specializing in regenerative and integrative medicine. Every protocol is prescribed and monitored by our clinical team.",
               },
@@ -691,7 +726,7 @@ export default function Home() {
                 transition={{ duration: 0.5, delay: i * 0.1 }}
                 className="bg-card border border-border hover:border-primary/30 transition-colors rounded-xl p-7"
               >
-                <div className="text-3xl mb-5">{item.icon}</div>
+                <div className="mb-5 p-2.5 bg-primary/10 rounded-lg inline-flex">{item.icon}</div>
                 <h3 className="text-lg font-serif text-foreground mb-3">{item.title}</h3>
                 <p className="text-muted-foreground text-sm leading-relaxed">{item.body}</p>
               </motion.div>
@@ -728,7 +763,7 @@ export default function Home() {
       </section>
 
       {/* FAQ SECTION */}
-      <section id="faq" className="py-32 px-6 md:px-12 bg-background relative z-20">
+      <section id="faq" className="py-20 px-6 md:px-12 bg-background relative z-20">
         <div className="container mx-auto max-w-3xl">
           <motion.div 
             initial={{ opacity: 0, y: 20 }}
@@ -756,7 +791,7 @@ export default function Home() {
       </section>
 
       {/* CTA SECTION */}
-      <section className="py-40 px-6 md:px-12 bg-card relative z-20 text-center overflow-hidden">
+      <section className="py-24 px-6 md:px-12 bg-card relative z-20 text-center overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
         <div className="container mx-auto max-w-4xl relative z-10">
           <motion.div
