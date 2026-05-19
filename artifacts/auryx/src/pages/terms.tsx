@@ -22,7 +22,7 @@ export default function Terms() {
           <section>
             <h2 className="font-serif text-xl text-foreground mb-3 font-normal">2. About Auryx</h2>
             <p>
-              AURYX LLC is a Florida Limited Liability Company. Auryx provides medically supervised peptide therapy protocols via telemedicine to eligible patients in Florida, New Jersey, New York, Massachusetts, and West Virginia. All protocols are prescribed and monitored by licensed medical professionals.
+              AURYX LLC is a Florida Limited Liability Company. Auryx provides medically supervised peptide therapy protocols via telemedicine to eligible patients nationwide across the United States. All protocols are prescribed and monitored by licensed medical professionals.
             </p>
           </section>
 

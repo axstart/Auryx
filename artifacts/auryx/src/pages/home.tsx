@@ -303,14 +303,14 @@ export default function Home() {
   const faqs = [
     { q: "Are peptides safe?", a: "Peptide therapy is safe when prescribed by a licensed MD and sourced from regulated US compounding pharmacies. All Auryx protocols are physician-prescribed, 3rd-party tested, and monitored throughout treatment." },
     { q: "How quickly will I see results?", a: "Most patients notice improvements in sleep and energy within the first 2–4 weeks. Body composition and structural changes typically become visible within 1–3 months, depending on the protocol and individual biology." },
-    { q: "Do I need to visit in person?", a: "No in-person visit is required. Auryx offers full telemedicine consultations and direct-to-door protocol delivery for eligible patients in Florida, New York, and Massachusetts." },
+    { q: "Do I need to visit in person?", a: "No in-person visit is required. Auryx offers full telemedicine consultations and direct-to-door protocol delivery for eligible patients nationwide across the United States." },
     { q: "How are protocols personalized?", a: "Every protocol starts with a comprehensive biomarker panel, full medical history review, and lifestyle assessment — conducted by a licensed MD — to design a therapeutic intervention specific to your biology and goals." },
     { q: "Is Auryx right for me?", a: "Auryx is designed for individuals who treat their health as a high-performance asset and want precision medical optimization — not reactive healthcare. If that's you, we're the right fit." },
     { q: "How much does treatment cost?", a: "Protocol pricing depends on the compounds selected, dosing, and duration — all tailored to your biology. Full pricing is discussed during your private consultation with no obligation to proceed." },
     { q: "Does Auryx accept insurance?", a: "Auryx does not accept insurance. Peptide therapy is an elective precision medicine service and is self-pay only. We accept credit and debit cards, Zelle, and Venmo." },
     { q: "Who are Auryx's providers?", a: "Auryx was founded and is led by a licensed MD specializing in regenerative and integrative medicine. Every protocol is prescribed, reviewed, and monitored by our clinical team — you are always under direct medical supervision." },
     { q: "I'm already on a protocol from another provider. Can I continue it through Auryx?", a: "Yes — and it takes less than 24 hours. Complete a brief intake form covering your current protocol and a short medical screen. A licensed MD reviews and approves, and your compounds are delivered directly to you." },
-    { q: "Is Auryx available in my state?", a: "Auryx currently serves patients in Florida, New Jersey, New York, Massachusetts, and West Virginia via telemedicine with direct-to-door delivery. Reach out and our team will confirm availability for your location." },
+    { q: "Is Auryx available in my state?", a: "Auryx serves patients nationwide across the United States via telemedicine with direct-to-door delivery. Reach out and our team will confirm availability for your location." },
   ];
 
   return (
@@ -349,7 +349,7 @@ export default function Home() {
               Elite, medically guided peptide therapy protocols designed for high-performance individuals. Precision science meets complete biological optimization.
             </p>
             <p className="text-sm text-primary/70 tracking-wide mb-12 font-light">
-              MD-led precision longevity care — serving patients in Florida, New Jersey, New York, Massachusetts &amp; West Virginia.
+              MD-led precision longevity care — serving patients nationwide across the United States.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
               <Button 
@@ -450,7 +450,7 @@ export default function Home() {
                 { step: "01", title: "Choose Your Path", desc: "New to peptides? Start with a private consultation. Already on an established protocol? Our streamlined intake gets you set up within 24 hours — no full consultation required." },
                 { step: "02", title: "Clinical Review & Approval", desc: "A licensed Auryx physician reviews your intake or conducts your consultation — assessing your history, goals, and protocol fit before any compound is dispensed." },
                 { step: "03", title: "Bespoke Protocol & Dispensing", desc: "Your protocol is prescribed, compounded by a US-licensed pharmacy, and delivered directly to your door — pharmaceutical-grade, 3rd-party tested." },
-                { step: "04", title: "Ongoing Optimization", desc: "Continuous monitoring, protocol adjustments, and dedicated concierge support — including Aria, available around the clock — to ensure maximum efficacy. Available to patients throughout Florida, New Jersey, New York, Massachusetts, and West Virginia via telemedicine." }
+                { step: "04", title: "Ongoing Optimization", desc: "Continuous monitoring, protocol adjustments, and dedicated concierge support — including Aria, available around the clock — to ensure maximum efficacy. Available to patients nationwide across the United States via telemedicine." }
               ].map((item, i) => (
                 <motion.div 
                   key={i}
@@ -711,7 +711,7 @@ export default function Home() {
               <div>
                 <p className="text-foreground font-medium mb-1">Certificates of Analysis available on request</p>
                 <p className="text-muted-foreground text-sm leading-relaxed">
-                  Ask for the CoA on any compound in your protocol at any time. Transparency is not a feature — it is the standard. All protocols are dispensed from US-licensed compounding pharmacies and delivered directly to patients in Florida, New Jersey, New York, Massachusetts, and West Virginia.
+                  Ask for the CoA on any compound in your protocol at any time. Transparency is not a feature — it is the standard. All protocols are dispensed from US-licensed compounding pharmacies and delivered directly to patients nationwide across the United States.
                 </p>
               </div>
             </div>
