@@ -40,6 +40,7 @@ const SOURCE_LABELS: Record<string, string> = {
   "instagram": "Instagram",
   "google": "Google Search",
   "referral": "Referral from a Friend",
+  "ai-search": "AI Search (ChatGPT, Gemini, Claude, etc.)",
   "tiktok": "TikTok",
   "other": "Other",
 };

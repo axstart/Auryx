@@ -472,7 +472,7 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                                   <SelectItem value="instagram">Instagram</SelectItem>
                                   <SelectItem value="google">Google Search</SelectItem>
                                   <SelectItem value="referral">Referral from a Friend</SelectItem>
-                                  <SelectItem value="tiktok">TikTok</SelectItem>
+                                  <SelectItem value="ai-search">AI Search (ChatGPT, Gemini, Claude, etc.)</SelectItem>
                                   <SelectItem value="other">Other</SelectItem>
                                 </SelectContent>
                               </Select>
