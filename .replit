@@ -47,7 +47,7 @@ externalPort = 3000
 
 [userenv.shared]
 ADMIN_KEY = "auryx-admin-olawmgskdy"
-NOTIFY_PHONE_NUMBER = "+17867565699"
+NOTIFY_PHONE_NUMBER = "+12147104882"
 
 [nix]
 channel = "stable-25_05"
