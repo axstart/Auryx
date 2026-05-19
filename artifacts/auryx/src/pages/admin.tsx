@@ -921,6 +921,14 @@ function AriaTab({ adminKey }: { adminKey: string }) {
 }
 
 export default function Admin() {
+  useEffect(() => {
+    const meta = document.createElement("meta");
+    meta.name = "robots";
+    meta.content = "noindex, nofollow";
+    document.head.appendChild(meta);
+    return () => { document.head.removeChild(meta); };
+  }, []);
+
   const [adminKey, setAdminKey] = useState<string>(() => sessionStorage.getItem(SESSION_KEY) ?? "");
   const [tab, setTab] = useState<"consultations" | "inventory" | "escalations" | "aria" | "continuations">("consultations");
 
