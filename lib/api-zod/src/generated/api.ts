@@ -25,7 +25,7 @@ export const CreateConsultationBody = zod.object({
   name: zod.string().min(1),
   email: zod.string().email(),
   phone: zod.string().optional(),
-  interest: zod.string().min(1),
+  interest: zod.array(zod.string()).min(1),
   message: zod.string().optional(),
   state: zod.string().min(1),
   instagramHandle: zod.string().optional(),

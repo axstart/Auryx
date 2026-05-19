@@ -13,11 +13,16 @@ import {
 import { sendMail } from "../../lib/mailer.js";
 
 const INTEREST_LABELS: Record<string, string> = {
-  "anti-aging": "Anti-Aging & Longevity",
   "fat-loss": "Fat Loss & Body Composition",
+  "anti-aging": "Anti-Aging & Longevity",
+  "performance": "Performance & Strength",
+  "energy-focus": "Energy & Focus",
+  "recovery": "Recovery & Injury Healing",
+  "hormonal": "Hormonal Balance",
   "sexual-health": "Sexual Health & Vitality",
-  "recovery": "Recovery & Regeneration",
+  "sleep": "Sleep Optimization",
   "cognitive": "Cognitive Performance",
+  "other": "Other",
   "energy": "Energy & Vitality",
 };
 
@@ -47,11 +52,19 @@ router.post("/consultations", async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
+  const interestStr = Array.isArray(parsed.data.interest)
+    ? parsed.data.interest.join(",")
+    : parsed.data.interest as string;
   const [record] = await db
     .insert(consultationRequestsTable)
-    .values(parsed.data)
+    .values({ ...parsed.data, interest: interestStr })
     .returning();
   req.log.info({ id: record.id }, "Consultation request created");
+
+  const interestDisplay = record.interest
+    .split(",")
+    .map((i) => INTEREST_LABELS[i.trim()] ?? i.trim())
+    .join(", ");
 
   sendMail({
     subject: `New Consultation Request — ${record.name}`,
@@ -65,7 +78,7 @@ router.post("/consultations", async (req, res): Promise<void> => {
       `State:              ${record.state || "—"}`,
       `Instagram:          ${record.instagramHandle ?? "—"}`,
       ``,
-      `Interest:           ${INTEREST_LABELS[record.interest] ?? record.interest}`,
+      `Interest:           ${interestDisplay}`,
       `Primary Goal:       ${GOAL_LABELS[record.primaryGoal] ?? record.primaryGoal}`,
       `Used Peptides:      ${record.usedPeptidesBefore === "yes" ? "Yes" : record.usedPeptidesBefore === "no" ? "No" : "—"}`,
       `How They Found Us:  ${SOURCE_LABELS[record.hearAboutUs] ?? record.hearAboutUs}`,

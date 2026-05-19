@@ -43,8 +43,8 @@ export interface ConsultationInput {
   name: string;
   email: string;
   phone?: string;
-  /** @minLength 1 */
-  interest: string;
+  /** @minItems 1 */
+  interest: string[];
   message?: string;
   /** @minLength 1 */
   state: string;

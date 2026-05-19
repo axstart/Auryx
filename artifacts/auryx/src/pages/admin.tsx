@@ -34,21 +34,26 @@ function statusColor(status: string) {
   return "bg-border text-muted-foreground";
 }
 
+const INTEREST_MAP: Record<string, string> = {
+  "fat-loss": "Fat Loss & Body Composition",
+  "anti-aging": "Anti-Aging & Longevity",
+  "performance": "Performance & Strength",
+  "energy-focus": "Energy & Focus",
+  "recovery": "Recovery & Injury Healing",
+  "hormonal": "Hormonal Balance",
+  "sexual-health": "Sexual Health & Vitality",
+  "sleep": "Sleep Optimization",
+  "cognitive": "Cognitive Performance",
+  "other": "Other",
+  "energy": "Energy & Vitality",
+};
+
 function interestLabel(val: string) {
-  const map: Record<string, string> = {
-    "fat-loss": "Fat Loss & Body Composition",
-    "anti-aging": "Anti-Aging & Longevity",
-    "performance": "Performance & Strength",
-    "energy-focus": "Energy & Focus",
-    "recovery": "Recovery & Injury Healing",
-    "hormonal": "Hormonal Balance",
-    "sexual-health": "Sexual Health & Vitality",
-    "sleep": "Sleep Optimization",
-    "cognitive": "Cognitive Performance",
-    "other": "Other",
-    "energy": "Energy & Vitality",
-  };
-  return map[val] ?? val;
+  if (!val) return "—";
+  return val
+    .split(",")
+    .map((v) => INTEREST_MAP[v.trim()] ?? v.trim())
+    .join(", ");
 }
 
 function goalLabel(val: string) {

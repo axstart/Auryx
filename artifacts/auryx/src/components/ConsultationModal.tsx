@@ -32,6 +32,18 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useCreateConsultation } from "@workspace/api-client-react";
 
+const INTEREST_OPTIONS = [
+  { value: "fat-loss",      label: "Fat Loss & Body Composition" },
+  { value: "anti-aging",    label: "Anti-Aging & Longevity" },
+  { value: "performance",   label: "Performance & Strength" },
+  { value: "energy-focus",  label: "Energy & Focus" },
+  { value: "recovery",      label: "Recovery & Injury Healing" },
+  { value: "hormonal",      label: "Hormonal Balance" },
+  { value: "sexual-health", label: "Sexual Health & Vitality" },
+  { value: "sleep",         label: "Sleep Optimization" },
+  { value: "cognitive",     label: "Cognitive Performance" },
+];
+
 const US_STATES = [
   "Alabama", "Alaska", "Arizona", "Arkansas", "California",
   "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
@@ -63,7 +75,7 @@ const formSchema = z.object({
   phone: z.string().optional(),
   state: z.string().min(1, "Please select your state"),
   age: z.coerce.number({ invalid_type_error: "Age is required" }).int().min(18, "Must be at least 18").max(120, "Invalid age"),
-  interest: z.string().min(1, "Please select an area of interest"),
+  interest: z.array(z.string()).min(1, "Please select at least one area of interest"),
   usedPeptidesBefore: z.enum(["yes", "no"], { message: "Please select one" }),
   hearAboutUs: z.string().min(1, "Please select how you heard about us"),
   instagramHandle: z.string().optional(),
@@ -135,7 +147,7 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
       phone: "",
       state: "",
       age: undefined as unknown as number,
-      interest: "",
+      interest: [],
       usedPeptidesBefore: undefined as unknown as "yes" | "no",
       hearAboutUs: "",
       instagramHandle: "",
@@ -355,26 +367,40 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                           name="interest"
                           render={({ field }) => (
                             <FormItem>
-                              <FormLabel>Primary Area of Interest</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl>
-                                  <SelectTrigger className={inputClass}>
-                                    <SelectValue placeholder="Select a protocol focus" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="fat-loss">Fat Loss & Body Composition</SelectItem>
-                                  <SelectItem value="anti-aging">Anti-Aging & Longevity</SelectItem>
-                                  <SelectItem value="performance">Performance & Strength</SelectItem>
-                                  <SelectItem value="energy-focus">Energy & Focus</SelectItem>
-                                  <SelectItem value="recovery">Recovery & Injury Healing</SelectItem>
-                                  <SelectItem value="hormonal">Hormonal Balance</SelectItem>
-                                  <SelectItem value="sexual-health">Sexual Health & Vitality</SelectItem>
-                                  <SelectItem value="sleep">Sleep Optimization</SelectItem>
-                                  <SelectItem value="cognitive">Cognitive Performance</SelectItem>
-                                  <SelectItem value="other">Other</SelectItem>
-                                </SelectContent>
-                              </Select>
+                              <FormLabel>Areas of Interest <span className="text-muted-foreground font-normal text-xs">(select all that apply)</span></FormLabel>
+                              <FormControl>
+                                <div className="grid grid-cols-2 gap-2 pt-1">
+                                  {INTEREST_OPTIONS.map((opt) => {
+                                    const checked = (field.value as string[]).includes(opt.value);
+                                    return (
+                                      <button
+                                        key={opt.value}
+                                        type="button"
+                                        onClick={() => {
+                                          const current = field.value as string[];
+                                          field.onChange(
+                                            checked
+                                              ? current.filter((v) => v !== opt.value)
+                                              : [...current, opt.value]
+                                          );
+                                        }}
+                                        className={`flex items-center gap-2 text-left px-3 py-2.5 rounded-md border text-sm transition-colors ${
+                                          checked
+                                            ? "border-primary bg-primary/10 text-primary"
+                                            : "border-border/60 bg-background text-muted-foreground hover:text-foreground hover:border-border"
+                                        }`}
+                                      >
+                                        <span className={`w-3.5 h-3.5 shrink-0 rounded-sm border flex items-center justify-center transition-colors ${
+                                          checked ? "bg-primary border-primary" : "border-border/60"
+                                        }`}>
+                                          {checked && <Check className="w-2.5 h-2.5 text-primary-foreground" />}
+                                        </span>
+                                        <span className="leading-tight">{opt.label}</span>
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                              </FormControl>
                               <FormMessage />
                             </FormItem>
                           )}
