@@ -438,7 +438,7 @@ export default function Home() {
       </div>
 
       {/* PROCESS SECTION */}
-      <section id="process" className="pt-20 pb-12 px-6 md:px-12 bg-card relative z-20">
+      <section id="process" className="pt-20 pb-2 px-6 md:px-12 bg-card relative z-20">
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <motion.div
