@@ -7,7 +7,6 @@ import { getAriaInstructions } from "./instructionsCache.js";
 
 const router = Router();
 
-const ALERT_PHONE = "+19178539663";
 const BUSINESS_START = 8;   // 8 AM Eastern
 const BUSINESS_END   = 20;  // 8 PM Eastern
 
@@ -74,20 +73,19 @@ ${instructions}`;
 async function sendSmsAlert(
   name: string,
   contact: string,
-  preferredContact?: string
 ): Promise<void> {
-  const accountSid = process.env.TWILIO_ACCOUNT_SID;
-  const authToken  = process.env.TWILIO_AUTH_TOKEN;
-  const fromNumber = process.env.TWILIO_FROM_NUMBER;
+  const accountSid  = process.env.TWILIO_ACCOUNT_SID;
+  const authToken   = process.env.TWILIO_AUTH_TOKEN;
+  const fromNumber  = process.env.TWILIO_FROM_NUMBER;
+  const toNumber    = process.env.NOTIFY_PHONE_NUMBER;
 
-  if (!accountSid || !authToken || !fromNumber) return;
-  if (!isWithinBusinessHours()) return;
+  if (!accountSid || !authToken || !fromNumber || !toNumber) return;
 
-  const preferNote = preferredContact ? ` Preferred contact: ${preferredContact}.` : "";
-  const body = `🔔 Auryx chat escalation: ${name} (${contact || "no contact"}) requested a team member via Aria.${preferNote} Log in to admin to view the conversation.`;
+  const nameContact = contact ? `${name} (${contact})` : name;
+  const body = `New Auryx chat escalation from ${nameContact}. Check admin dashboard: auryxlife.com/admin`;
 
   const params = new URLSearchParams({
-    To:   ALERT_PHONE,
+    To:   toNumber,
     From: fromNumber,
     Body: body,
   });
@@ -194,7 +192,7 @@ router.post("/chat/escalate", async (req, res) => {
     })
     .returning();
 
-  sendSmsAlert(name, contact, preferredContact).catch(() => {});
+  sendSmsAlert(name, contact).catch(() => {});
 
   res.status(201).json(row);
 });
