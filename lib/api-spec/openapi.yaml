@@ -265,7 +265,7 @@ components:
 
     Consultation:
       type: object
-      required: [id, name, email, interest, status, createdAt, updatedAt]
+      required: [id, name, email, interest, status, createdAt, updatedAt, state, age, primaryGoal, usedPeptidesBefore, hearAboutUs]
       properties:
         id:
           type: integer
@@ -281,6 +281,18 @@ components:
           type: ["string", "null"]
         status:
           type: string
+        state:
+          type: string
+        instagramHandle:
+          type: ["string", "null"]
+        age:
+          type: integer
+        primaryGoal:
+          type: string
+        usedPeptidesBefore:
+          type: string
+        hearAboutUs:
+          type: string
         createdAt:
           type: string
           format: date-time
@@ -290,7 +302,7 @@ components:
 
     ConsultationInput:
       type: object
-      required: [name, email, interest]
+      required: [name, email, interest, state, age, primaryGoal, usedPeptidesBefore, hearAboutUs]
       properties:
         name:
           type: string
@@ -305,6 +317,23 @@ components:
           minLength: 1
         message:
           type: string
+        state:
+          type: string
+          minLength: 1
+        instagramHandle:
+          type: string
+        age:
+          type: integer
+          minimum: 18
+        primaryGoal:
+          type: string
+          minLength: 1
+        usedPeptidesBefore:
+          type: string
+          enum: [yes, no]
+        hearAboutUs:
+          type: string
+          minLength: 1
 
     ConsultationUpdate:
       type: object

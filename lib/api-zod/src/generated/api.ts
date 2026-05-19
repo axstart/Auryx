@@ -19,12 +19,20 @@ export const HealthCheckResponse = zod.object({
  * @summary Submit a consultation request
  */
 
+export const createConsultationBodyAgeMin = 18;
+
 export const CreateConsultationBody = zod.object({
   name: zod.string().min(1),
   email: zod.string().email(),
   phone: zod.string().optional(),
   interest: zod.string().min(1),
   message: zod.string().optional(),
+  state: zod.string().min(1),
+  instagramHandle: zod.string().optional(),
+  age: zod.number().min(createConsultationBodyAgeMin),
+  primaryGoal: zod.string().min(1),
+  usedPeptidesBefore: zod.enum(["yes", "no"]),
+  hearAboutUs: zod.string().min(1),
 });
 
 /**
@@ -42,6 +50,12 @@ export const ListConsultationsResponseItem = zod.object({
   interest: zod.string(),
   message: zod.string().nullish(),
   status: zod.string(),
+  state: zod.string(),
+  instagramHandle: zod.string().nullish(),
+  age: zod.number(),
+  primaryGoal: zod.string(),
+  usedPeptidesBefore: zod.string(),
+  hearAboutUs: zod.string(),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
 });
@@ -72,6 +86,12 @@ export const UpdateConsultationResponse = zod.object({
   interest: zod.string(),
   message: zod.string().nullish(),
   status: zod.string(),
+  state: zod.string(),
+  instagramHandle: zod.string().nullish(),
+  age: zod.number(),
+  primaryGoal: zod.string(),
+  usedPeptidesBefore: zod.string(),
+  hearAboutUs: zod.string(),
   createdAt: zod.coerce.date(),
   updatedAt: zod.coerce.date(),
 });

@@ -32,11 +32,30 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { useCreateConsultation } from "@workspace/api-client-react";
 
+const US_STATES = [
+  "Alabama", "Alaska", "Arizona", "Arkansas", "California",
+  "Colorado", "Connecticut", "Delaware", "Florida", "Georgia",
+  "Hawaii", "Idaho", "Illinois", "Indiana", "Iowa",
+  "Kansas", "Kentucky", "Louisiana", "Maine", "Maryland",
+  "Massachusetts", "Michigan", "Minnesota", "Mississippi", "Missouri",
+  "Montana", "Nebraska", "Nevada", "New Hampshire", "New Jersey",
+  "New Mexico", "New York", "North Carolina", "North Dakota", "Ohio",
+  "Oklahoma", "Oregon", "Pennsylvania", "Rhode Island", "South Carolina",
+  "South Dakota", "Tennessee", "Texas", "Utah", "Vermont",
+  "Virginia", "Washington", "West Virginia", "Wisconsin", "Wyoming",
+];
+
 const formSchema = z.object({
   name: z.string().min(2, "Name is required"),
   email: z.string().email("Valid email is required"),
   phone: z.string().optional(),
+  state: z.string().min(1, "Please select your state"),
+  age: z.coerce.number({ invalid_type_error: "Age is required" }).int().min(18, "Must be at least 18").max(120, "Invalid age"),
   interest: z.string().min(1, "Please select an area of interest"),
+  primaryGoal: z.string().min(1, "Please select your primary goal"),
+  usedPeptidesBefore: z.enum(["yes", "no"], { message: "Please select one" }),
+  hearAboutUs: z.string().min(1, "Please select how you heard about us"),
+  instagramHandle: z.string().optional(),
   message: z.string().optional(),
 });
 
@@ -53,14 +72,34 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
       name: "",
       email: "",
       phone: "",
+      state: "",
+      age: undefined as unknown as number,
       interest: "",
+      primaryGoal: "",
+      usedPeptidesBefore: undefined as unknown as "yes" | "no",
+      hearAboutUs: "",
+      instagramHandle: "",
       message: "",
     },
   });
 
   function onSubmit(values: FormValues) {
     createConsultation.mutate(
-      { data: { name: values.name, email: values.email, phone: values.phone, interest: values.interest, message: values.message } },
+      {
+        data: {
+          name: values.name,
+          email: values.email,
+          phone: values.phone,
+          state: values.state,
+          age: values.age,
+          interest: values.interest,
+          primaryGoal: values.primaryGoal,
+          usedPeptidesBefore: values.usedPeptidesBefore,
+          hearAboutUs: values.hearAboutUs,
+          instagramHandle: values.instagramHandle || undefined,
+          message: values.message,
+        },
+      },
       {
         onSuccess: () => {
           setSuccessEmail(values.email);
@@ -86,7 +125,7 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[500px] bg-card border-border">
+      <DialogContent className="sm:max-w-[580px] bg-card border-border max-h-[90vh] overflow-y-auto">
         {successEmail ? (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -128,7 +167,8 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
             </DialogHeader>
 
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 pt-4">
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 pt-4">
+
                 <FormField
                   control={form.control}
                   name="name"
@@ -163,11 +203,57 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                     name="phone"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Phone / WhatsApp</FormLabel>
+                        <FormLabel>Phone <span className="text-muted-foreground font-normal">(optional)</span></FormLabel>
                         <FormControl>
                           <Input placeholder="+1 (555) 000-0000" {...field} className="bg-background border-border focus-visible:ring-primary" />
                         </FormControl>
-                        <span className="text-xs text-muted-foreground">(optional)</span>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <FormField
+                    control={form.control}
+                    name="age"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Age</FormLabel>
+                        <FormControl>
+                          <Input
+                            type="number"
+                            min="18"
+                            max="120"
+                            placeholder="e.g. 34"
+                            {...field}
+                            value={field.value ?? ""}
+                            className="bg-background border-border focus-visible:ring-primary"
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <FormField
+                    control={form.control}
+                    name="state"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>State</FormLabel>
+                        <Select onValueChange={field.onChange} value={field.value}>
+                          <FormControl>
+                            <SelectTrigger className="bg-background border-border focus-visible:ring-primary">
+                              <SelectValue placeholder="Select state" />
+                            </SelectTrigger>
+                          </FormControl>
+                          <SelectContent className="max-h-60">
+                            {US_STATES.map((s) => (
+                              <SelectItem key={s} value={s}>{s}</SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                         <FormMessage />
                       </FormItem>
                     )}
@@ -180,7 +266,7 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Primary Area of Interest</FormLabel>
-                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                      <Select onValueChange={field.onChange} value={field.value}>
                         <FormControl>
                           <SelectTrigger className="bg-background border-border focus-visible:ring-primary">
                             <SelectValue placeholder="Select a protocol focus" />
@@ -202,14 +288,109 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
 
                 <FormField
                   control={form.control}
+                  name="primaryGoal"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Primary Goal</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-background border-border focus-visible:ring-primary">
+                            <SelectValue placeholder="Select your primary goal" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="weight-loss">Weight Loss</SelectItem>
+                          <SelectItem value="anti-aging">Anti-Aging</SelectItem>
+                          <SelectItem value="performance">Performance & Strength</SelectItem>
+                          <SelectItem value="energy-focus">Energy & Focus</SelectItem>
+                          <SelectItem value="recovery">Recovery</SelectItem>
+                          <SelectItem value="hormonal">Hormonal Balance</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="usedPeptidesBefore"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Have you used peptides before?</FormLabel>
+                      <FormControl>
+                        <div className="flex gap-3">
+                          {(["yes", "no"] as const).map((val) => (
+                            <button
+                              key={val}
+                              type="button"
+                              onClick={() => field.onChange(val)}
+                              className={`flex-1 h-10 rounded-md border text-sm font-medium transition-colors ${
+                                field.value === val
+                                  ? "border-primary bg-primary/10 text-primary"
+                                  : "border-border bg-background text-muted-foreground hover:text-foreground hover:border-border/80"
+                              }`}
+                            >
+                              {val === "yes" ? "Yes" : "No"}
+                            </button>
+                          ))}
+                        </div>
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="hearAboutUs"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>How did you hear about us?</FormLabel>
+                      <Select onValueChange={field.onChange} value={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-background border-border focus-visible:ring-primary">
+                            <SelectValue placeholder="Select an option" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="instagram">Instagram</SelectItem>
+                          <SelectItem value="google">Google Search</SelectItem>
+                          <SelectItem value="referral">Referral from a Friend</SelectItem>
+                          <SelectItem value="tiktok">TikTok</SelectItem>
+                          <SelectItem value="other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
+                  name="instagramHandle"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Instagram Handle <span className="text-muted-foreground font-normal">(optional)</span></FormLabel>
+                      <FormControl>
+                        <Input placeholder="@yourhandle" {...field} className="bg-background border-border focus-visible:ring-primary" />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                <FormField
+                  control={form.control}
                   name="message"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Additional Context (Optional)</FormLabel>
+                      <FormLabel>Additional Context <span className="text-muted-foreground font-normal">(optional)</span></FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Briefly describe your goals or current protocols..."
-                          className="resize-none bg-background border-border focus-visible:ring-primary h-24"
+                          className="resize-none bg-background border-border focus-visible:ring-primary h-20"
                           {...field}
                         />
                       </FormControl>

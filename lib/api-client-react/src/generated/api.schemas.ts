@@ -19,9 +19,24 @@ export interface Consultation {
   /** @nullable */
   message?: string | null;
   status: string;
+  state: string;
+  /** @nullable */
+  instagramHandle?: string | null;
+  age: number;
+  primaryGoal: string;
+  usedPeptidesBefore: string;
+  hearAboutUs: string;
   createdAt: string;
   updatedAt: string;
 }
+
+export type ConsultationInputUsedPeptidesBefore =
+  (typeof ConsultationInputUsedPeptidesBefore)[keyof typeof ConsultationInputUsedPeptidesBefore];
+
+export const ConsultationInputUsedPeptidesBefore = {
+  yes: "yes",
+  no: "no",
+} as const;
 
 export interface ConsultationInput {
   /** @minLength 1 */
@@ -31,6 +46,16 @@ export interface ConsultationInput {
   /** @minLength 1 */
   interest: string;
   message?: string;
+  /** @minLength 1 */
+  state: string;
+  instagramHandle?: string;
+  /** @minimum 18 */
+  age: number;
+  /** @minLength 1 */
+  primaryGoal: string;
+  usedPeptidesBefore: ConsultationInputUsedPeptidesBefore;
+  /** @minLength 1 */
+  hearAboutUs: string;
 }
 
 export type ConsultationUpdateStatus =

@@ -16,6 +16,13 @@ export interface Consultation {
   /** @nullable */
   message?: string | null;
   status: string;
+  state: string;
+  /** @nullable */
+  instagramHandle?: string | null;
+  age: number;
+  primaryGoal: string;
+  usedPeptidesBefore: string;
+  hearAboutUs: string;
   createdAt: Date;
   updatedAt: Date;
 }

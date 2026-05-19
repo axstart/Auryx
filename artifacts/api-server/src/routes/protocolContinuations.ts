@@ -83,7 +83,7 @@ router.get("/admin/protocol-continuations", adminAuth, async (_req, res) => {
 });
 
 router.patch("/admin/protocol-continuations/:id", adminAuth, async (req, res) => {
-  const id = parseInt(req.params.id);
+  const id = parseInt(req.params.id as string);
   const { status } = req.body as { status: string };
 
   if (!["pending", "approved", "needs-review", "rejected"].includes(status)) {

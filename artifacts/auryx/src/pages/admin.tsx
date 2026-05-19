@@ -46,6 +46,30 @@ function interestLabel(val: string) {
   return map[val] ?? val;
 }
 
+function goalLabel(val: string) {
+  const map: Record<string, string> = {
+    "weight-loss": "Weight Loss",
+    "anti-aging": "Anti-Aging",
+    "performance": "Performance & Strength",
+    "energy-focus": "Energy & Focus",
+    "recovery": "Recovery",
+    "hormonal": "Hormonal Balance",
+    "other": "Other",
+  };
+  return map[val] ?? val;
+}
+
+function sourceLabel(val: string) {
+  const map: Record<string, string> = {
+    "instagram": "Instagram",
+    "google": "Google Search",
+    "referral": "Referral from a Friend",
+    "tiktok": "TikTok",
+    "other": "Other",
+  };
+  return map[val] ?? val;
+}
+
 function LoginScreen({ onLogin }: { onLogin: (key: string) => void }) {
   const [key, setKey] = useState("");
   const [error, setError] = useState("");
@@ -125,7 +149,7 @@ function ConsultationsTab({ adminKey }: { adminKey: string }) {
     : [...consultations].reverse().filter((c: Consultation) => c.status === statusFilter);
 
   const exportCSV = () => {
-    const cols = ["ID", "Date", "Name", "Email", "Phone", "Interest", "Message", "Status"];
+    const cols = ["ID", "Date", "Name", "Email", "Phone", "State", "Age", "Instagram", "Interest", "Primary Goal", "Used Peptides Before", "How They Found Us", "Message", "Status"];
     const escape = (v: string | number | null | undefined) => {
       const s = v == null ? "" : String(v);
       return `"${s.replace(/"/g, '""')}"`;
@@ -136,7 +160,13 @@ function ConsultationsTab({ adminKey }: { adminKey: string }) {
       escape(c.name),
       escape(c.email),
       escape(c.phone ?? ""),
+      escape(c.state ?? ""),
+      escape(c.age ?? ""),
+      escape(c.instagramHandle ?? ""),
       escape(interestLabel(c.interest)),
+      escape(goalLabel(c.primaryGoal ?? "")),
+      escape(c.usedPeptidesBefore === "yes" ? "Yes" : c.usedPeptidesBefore === "no" ? "No" : ""),
+      escape(sourceLabel(c.hearAboutUs ?? "")),
       escape(c.message ?? ""),
       escape(c.status),
     ].join(","));
@@ -224,10 +254,18 @@ function ConsultationsTab({ adminKey }: { adminKey: string }) {
                       {new Date(c.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}
                     </span>
                   </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-sm text-muted-foreground mb-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-sm text-muted-foreground mb-2">
                     <span>{c.email}</span>
                     {c.phone && <span>{c.phone}</span>}
-                    <span className="text-primary/80">{interestLabel(c.interest)}</span>
+                    {c.age ? <span>Age {c.age}</span> : null}
+                    {c.state && <span>{c.state}</span>}
+                    {c.instagramHandle && <span className="text-primary/60">{c.instagramHandle}</span>}
+                  </div>
+                  <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground mb-3">
+                    <span><span className="text-foreground/50">Interest:</span> {interestLabel(c.interest)}</span>
+                    {c.primaryGoal && <span><span className="text-foreground/50">Goal:</span> {goalLabel(c.primaryGoal)}</span>}
+                    {c.usedPeptidesBefore && <span><span className="text-foreground/50">Used peptides:</span> {c.usedPeptidesBefore === "yes" ? "Yes" : "No"}</span>}
+                    {c.hearAboutUs && <span><span className="text-foreground/50">Found us via:</span> {sourceLabel(c.hearAboutUs)}</span>}
                   </div>
                   {c.message && (
                     <p className="text-sm text-foreground/70 bg-background/40 rounded p-3 border border-border/40 italic">

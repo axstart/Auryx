@@ -21,6 +21,24 @@ const INTEREST_LABELS: Record<string, string> = {
   "energy": "Energy & Vitality",
 };
 
+const GOAL_LABELS: Record<string, string> = {
+  "weight-loss": "Weight Loss",
+  "anti-aging": "Anti-Aging",
+  "performance": "Performance & Strength",
+  "energy-focus": "Energy & Focus",
+  "recovery": "Recovery",
+  "hormonal": "Hormonal Balance",
+  "other": "Other",
+};
+
+const SOURCE_LABELS: Record<string, string> = {
+  "instagram": "Instagram",
+  "google": "Google Search",
+  "referral": "Referral from a Friend",
+  "tiktok": "TikTok",
+  "other": "Other",
+};
+
 const router: IRouter = Router();
 
 router.post("/consultations", async (req, res): Promise<void> => {
@@ -40,10 +58,18 @@ router.post("/consultations", async (req, res): Promise<void> => {
     text: [
       `New consultation request submitted on Auryx.`,
       ``,
-      `Name:     ${record.name}`,
-      `Email:    ${record.email}`,
-      `Phone:    ${record.phone ?? "—"}`,
-      `Interest: ${INTEREST_LABELS[record.interest] ?? record.interest}`,
+      `Name:               ${record.name}`,
+      `Email:              ${record.email}`,
+      `Phone:              ${record.phone ?? "—"}`,
+      `Age:                ${record.age || "—"}`,
+      `State:              ${record.state || "—"}`,
+      `Instagram:          ${record.instagramHandle ?? "—"}`,
+      ``,
+      `Interest:           ${INTEREST_LABELS[record.interest] ?? record.interest}`,
+      `Primary Goal:       ${GOAL_LABELS[record.primaryGoal] ?? record.primaryGoal}`,
+      `Used Peptides:      ${record.usedPeptidesBefore === "yes" ? "Yes" : record.usedPeptidesBefore === "no" ? "No" : "—"}`,
+      `How They Found Us:  ${SOURCE_LABELS[record.hearAboutUs] ?? record.hearAboutUs}`,
+      ``,
       `Message:  ${record.message ?? "—"}`,
       ``,
       `Submitted: ${new Date(record.createdAt).toLocaleString("en-US", { timeZone: "America/New_York" })} ET`,

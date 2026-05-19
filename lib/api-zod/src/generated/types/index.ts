@@ -10,6 +10,7 @@ export * from "./chatEscalateInput";
 export * from "./chatEscalation";
 export * from "./consultation";
 export * from "./consultationInput";
+export * from "./consultationInputUsedPeptidesBefore";
 export * from "./consultationUpdate";
 export * from "./consultationUpdateStatus";
 export * from "./healthStatus";

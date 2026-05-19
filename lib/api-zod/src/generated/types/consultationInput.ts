@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { ConsultationInputUsedPeptidesBefore } from "./consultationInputUsedPeptidesBefore";
 
 export interface ConsultationInput {
   /** @minLength 1 */
@@ -14,4 +15,14 @@ export interface ConsultationInput {
   /** @minLength 1 */
   interest: string;
   message?: string;
+  /** @minLength 1 */
+  state: string;
+  instagramHandle?: string;
+  /** @minimum 18 */
+  age: number;
+  /** @minLength 1 */
+  primaryGoal: string;
+  usedPeptidesBefore: ConsultationInputUsedPeptidesBefore;
+  /** @minLength 1 */
+  hearAboutUs: string;
 }
