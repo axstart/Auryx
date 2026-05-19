@@ -36,11 +36,16 @@ function statusColor(status: string) {
 
 function interestLabel(val: string) {
   const map: Record<string, string> = {
-    "anti-aging": "Anti-Aging & Longevity",
     "fat-loss": "Fat Loss & Body Composition",
+    "anti-aging": "Anti-Aging & Longevity",
+    "performance": "Performance & Strength",
+    "energy-focus": "Energy & Focus",
+    "recovery": "Recovery & Injury Healing",
+    "hormonal": "Hormonal Balance",
     "sexual-health": "Sexual Health & Vitality",
-    "recovery": "Recovery & Regeneration",
+    "sleep": "Sleep Optimization",
     "cognitive": "Cognitive Performance",
+    "other": "Other",
     "energy": "Energy & Vitality",
   };
   return map[val] ?? val;

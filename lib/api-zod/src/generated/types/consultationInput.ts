@@ -21,7 +21,7 @@ export interface ConsultationInput {
   /** @minimum 18 */
   age: number;
   /** @minLength 1 */
-  primaryGoal: string;
+  primaryGoal?: string;
   usedPeptidesBefore: ConsultationInputUsedPeptidesBefore;
   /** @minLength 1 */
   hearAboutUs: string;

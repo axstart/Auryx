@@ -302,7 +302,7 @@ components:
 
     ConsultationInput:
       type: object
-      required: [name, email, interest, state, age, primaryGoal, usedPeptidesBefore, hearAboutUs]
+      required: [name, email, interest, state, age, usedPeptidesBefore, hearAboutUs]
       properties:
         name:
           type: string

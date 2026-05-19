@@ -30,7 +30,7 @@ export const CreateConsultationBody = zod.object({
   state: zod.string().min(1),
   instagramHandle: zod.string().optional(),
   age: zod.number().min(createConsultationBodyAgeMin),
-  primaryGoal: zod.string().min(1),
+  primaryGoal: zod.string().min(1).optional(),
   usedPeptidesBefore: zod.enum(["yes", "no"]),
   hearAboutUs: zod.string().min(1),
 });

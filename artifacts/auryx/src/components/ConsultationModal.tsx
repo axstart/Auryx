@@ -53,7 +53,7 @@ const STEPS = [
 
 const STEP_FIELDS: Record<number, (keyof FormValues)[]> = {
   1: ["name", "email", "age", "state"],
-  2: ["interest", "primaryGoal", "usedPeptidesBefore"],
+  2: ["interest", "usedPeptidesBefore"],
   3: ["hearAboutUs"],
 };
 
@@ -64,7 +64,6 @@ const formSchema = z.object({
   state: z.string().min(1, "Please select your state"),
   age: z.coerce.number({ invalid_type_error: "Age is required" }).int().min(18, "Must be at least 18").max(120, "Invalid age"),
   interest: z.string().min(1, "Please select an area of interest"),
-  primaryGoal: z.string().min(1, "Please select your primary goal"),
   usedPeptidesBefore: z.enum(["yes", "no"], { message: "Please select one" }),
   hearAboutUs: z.string().min(1, "Please select how you heard about us"),
   instagramHandle: z.string().optional(),
@@ -137,7 +136,6 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
       state: "",
       age: undefined as unknown as number,
       interest: "",
-      primaryGoal: "",
       usedPeptidesBefore: undefined as unknown as "yes" | "no",
       hearAboutUs: "",
       instagramHandle: "",
@@ -167,7 +165,6 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
           state: values.state,
           age: values.age,
           interest: values.interest,
-          primaryGoal: values.primaryGoal,
           usedPeptidesBefore: values.usedPeptidesBefore,
           hearAboutUs: values.hearAboutUs,
           instagramHandle: values.instagramHandle || undefined,
@@ -366,38 +363,15 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                                   </SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                  <SelectItem value="anti-aging">Anti-Aging & Longevity</SelectItem>
                                   <SelectItem value="fat-loss">Fat Loss & Body Composition</SelectItem>
-                                  <SelectItem value="sexual-health">Sexual Health & Vitality</SelectItem>
-                                  <SelectItem value="recovery">Recovery & Regeneration</SelectItem>
-                                  <SelectItem value="cognitive">Cognitive Performance</SelectItem>
-                                  <SelectItem value="energy">Energy & Vitality</SelectItem>
-                                </SelectContent>
-                              </Select>
-                              <FormMessage />
-                            </FormItem>
-                          )}
-                        />
-
-                        <FormField
-                          control={form.control}
-                          name="primaryGoal"
-                          render={({ field }) => (
-                            <FormItem>
-                              <FormLabel>Primary Goal</FormLabel>
-                              <Select onValueChange={field.onChange} value={field.value}>
-                                <FormControl>
-                                  <SelectTrigger className={inputClass}>
-                                    <SelectValue placeholder="Select your primary goal" />
-                                  </SelectTrigger>
-                                </FormControl>
-                                <SelectContent>
-                                  <SelectItem value="weight-loss">Weight Loss</SelectItem>
-                                  <SelectItem value="anti-aging">Anti-Aging</SelectItem>
+                                  <SelectItem value="anti-aging">Anti-Aging & Longevity</SelectItem>
                                   <SelectItem value="performance">Performance & Strength</SelectItem>
                                   <SelectItem value="energy-focus">Energy & Focus</SelectItem>
-                                  <SelectItem value="recovery">Recovery</SelectItem>
+                                  <SelectItem value="recovery">Recovery & Injury Healing</SelectItem>
                                   <SelectItem value="hormonal">Hormonal Balance</SelectItem>
+                                  <SelectItem value="sexual-health">Sexual Health & Vitality</SelectItem>
+                                  <SelectItem value="sleep">Sleep Optimization</SelectItem>
+                                  <SelectItem value="cognitive">Cognitive Performance</SelectItem>
                                   <SelectItem value="other">Other</SelectItem>
                                 </SelectContent>
                               </Select>
