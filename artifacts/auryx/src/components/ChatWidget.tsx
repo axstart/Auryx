@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import {
   MessageCircle, X, Send, ChevronRight, ArrowRight,
-  Loader2, User, Phone, Mail, MessageSquare as SmsIcon, Clock,
+  Loader2, User, Mail, Clock,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -29,12 +29,7 @@ const SUGGESTED = [
   "What's the best anti-aging protocol?",
 ];
 
-const CONTACT_OPTIONS = [
-  { value: "call",  label: "Phone call",    icon: Phone,          desc: "We'll call you back" },
-  { value: "email", label: "Email",         icon: Mail,           desc: "We'll email you" },
-  { value: "text",  label: "Text message",  icon: SmsIcon,        desc: "We'll text you" },
-  { value: "other", label: "Other",         icon: MessageCircle,  desc: "Your own message" },
-];
+const SUPPORT_EMAIL = "admin@auryxlife.com";
 
 function IntakeForm({ onSubmit }: { onSubmit: (info: UserInfo) => void }) {
   const [form, setForm] = useState<UserInfo>({ name: "", email: "", phone: "" });
@@ -98,8 +93,6 @@ export default function ChatWidget() {
   const [input, setInput]                   = useState("");
   const [loading, setLoading]               = useState(false);
   const [showEscalate, setShowEscalate]     = useState(false);
-  const [preferredContact, setPreferredContact] = useState<string | null>(null);
-  const [otherNote, setOtherNote]           = useState("");
   const [escalated, setEscalated]           = useState(false);
   const [escLoading, setEscLoading]         = useState(false);
   const [showSuggested, setShowSuggested]   = useState(true);
@@ -230,12 +223,8 @@ export default function ChatWidget() {
     }
   };
 
-  const handleEscalate = async (contact?: string) => {
+  const handleEscalate = async () => {
     if (!userInfo) return;
-    const chosen = contact ?? preferredContact ?? undefined;
-    const resolvedContact = chosen === "other" && otherNote.trim()
-      ? `other: ${otherNote.trim()}`
-      : chosen;
     setEscLoading(true);
     try {
       await fetch("/api/chat/escalate", {
@@ -245,33 +234,18 @@ export default function ChatWidget() {
           name: userInfo.name,
           email: userInfo.email,
           phone: userInfo.phone,
-          preferredContact: resolvedContact,
+          preferredContact: "email",
           conversationJson: JSON.stringify(messages),
         }),
       });
       setEscalated(true);
       setShowEscalate(false);
 
-      const firstName  = userInfo.name.split(" ")[0];
-      const available  = hours?.available ?? true;
-      const next       = hours?.nextAvailable ?? "the next business day";
-      const contactStr = userInfo.phone || userInfo.email || "you";
-
-      let confirmMsg: string;
-      if (available) {
-        confirmMsg = `Thank you, ${firstName}. A member of the Auryx team will be in touch with ${contactStr} shortly — they're available now. Is there anything else I can help you with in the meantime?`;
-      } else {
-        const methodNote = chosen === "call"
-          ? "They'll give you a call"
-          : chosen === "text"
-          ? "They'll send you a text"
-          : chosen === "other"
-          ? "They'll review your note and reach out to you"
-          : "They'll reach out by email";
-        confirmMsg = `You're all set, ${firstName}. ${methodNote} ${next}. Your conversation has been saved and you'll be a priority first thing. In the meantime, feel free to keep asking me anything.`;
-      }
-
-      setMessages(prev => [...prev, { role: "assistant", content: confirmMsg }]);
+      const firstName = userInfo.name.split(" ")[0];
+      setMessages(prev => [...prev, {
+        role: "assistant",
+        content: `Got it, ${firstName} — your conversation has been flagged for the team. You'll hear back at ${SUPPORT_EMAIL} as soon as possible. Is there anything else I can help you with in the meantime?`,
+      }]);
     } catch {
       /* silently fail */
     } finally {
@@ -383,113 +357,35 @@ export default function ChatWidget() {
                 {/* Escalation prompt */}
                 {showEscalate && !escalated && (
                   <div className="bg-primary/5 border border-primary/20 rounded-xl p-4 space-y-3">
-                    {teamAvailable ? (
-                      /* ── Team IS available ── */
-                      <>
-                        <p className="text-xs text-foreground/80 leading-relaxed">
-                          Would you like a member of the Auryx team to reach out to you directly?
-                        </p>
-                        <div className="flex gap-2">
-                          <Button
-                            onClick={() => handleEscalate()}
-                            disabled={escLoading}
-                            size="sm"
-                            className="flex-1 bg-primary text-primary-foreground h-8 text-xs"
-                          >
-                            {escLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Yes, connect me"}
-                          </Button>
-                          <Button
-                            onClick={() => setShowEscalate(false)}
-                            size="sm"
-                            variant="outline"
-                            className="h-8 text-xs border-border/60"
-                          >
-                            Not now
-                          </Button>
-                        </div>
-                      </>
-                    ) : (
-                      /* ── Team is OUT of hours ── */
-                      <>
-                        <div className="flex items-center gap-2 mb-1">
-                          <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                          <p className="text-xs font-medium text-foreground/90">
-                            Our team is currently offline
-                          </p>
-                        </div>
-                        <p className="text-xs text-muted-foreground leading-relaxed">
-                          Available Mon–Fri, 8 AM – 8 PM ET. How would you prefer to be contacted
-                          {hours?.nextAvailable ? ` ${hours.nextAvailable}` : " on the next business day"}?
-                        </p>
-                        <div className="space-y-2 pt-1">
-                          {CONTACT_OPTIONS.map(opt => {
-                            const Icon = opt.icon;
-                            const selected = preferredContact === opt.value;
-                            return (
-                              <div key={opt.value}>
-                                <button
-                                  onClick={() => {
-                                    setPreferredContact(selected ? null : opt.value);
-                                    if (selected) setOtherNote("");
-                                  }}
-                                  className={`w-full flex items-center gap-3 rounded-lg px-3 py-2.5 text-xs transition-colors border ${
-                                    selected
-                                      ? "border-primary/50 bg-primary/10 text-primary"
-                                      : "border-border/60 hover:border-primary/30 text-foreground/70"
-                                  }`}
-                                >
-                                  <Icon className="w-3.5 h-3.5 shrink-0" />
-                                  <span className="font-medium">{opt.label}</span>
-                                  <span className="ml-auto text-muted-foreground text-[10px]">{opt.desc}</span>
-                                </button>
-                                {selected && opt.value === "other" && (
-                                  <div className="mt-1.5">
-                                    <input
-                                      autoFocus
-                                      maxLength={100}
-                                      value={otherNote}
-                                      onChange={e => setOtherNote(e.target.value)}
-                                      placeholder="Let us know how to reach you or what you need…"
-                                      className="w-full bg-background border border-primary/30 rounded-lg px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/60 transition-colors"
-                                    />
-                                    <p className="text-right text-[10px] text-muted-foreground/40 mt-0.5">
-                                      {otherNote.length}/100
-                                    </p>
-                                  </div>
-                                )}
-                              </div>
-                            );
-                          })}
-                        </div>
-                        <div className="flex gap-2 pt-1">
-                          <Button
-                            onClick={() => handleEscalate(preferredContact ?? undefined)}
-                            disabled={
-                              escLoading ||
-                              !preferredContact ||
-                              (preferredContact === "other" && !otherNote.trim())
-                            }
-                            size="sm"
-                            className="flex-1 bg-primary text-primary-foreground h-8 text-xs disabled:opacity-40"
-                          >
-                            {escLoading
-                              ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                              : preferredContact && !(preferredContact === "other" && !otherNote.trim())
-                              ? `Confirm — ${CONTACT_OPTIONS.find(o => o.value === preferredContact)?.label}`
-                              : "Select a preference above"
-                            }
-                          </Button>
-                          <Button
-                            onClick={() => setShowEscalate(false)}
-                            size="sm"
-                            variant="outline"
-                            className="h-8 text-xs border-border/60"
-                          >
-                            Cancel
-                          </Button>
-                        </div>
-                      </>
+                    {!teamAvailable && (
+                      <div className="flex items-center gap-2">
+                        <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                        <p className="text-xs font-medium text-foreground/90">Our team is currently offline</p>
+                      </div>
                     )}
+                    <p className="text-xs text-foreground/80 leading-relaxed">
+                      {teamAvailable
+                        ? "Want to connect with the Auryx team directly?"
+                        : `Available Mon–Fri, 8 AM – 8 PM ET. Email us and we'll respond${hours?.nextAvailable ? ` ${hours.nextAvailable}` : " first thing next business day"}.`}
+                    </p>
+                    <a
+                      href={`mailto:${SUPPORT_EMAIL}`}
+                      onClick={() => handleEscalate()}
+                      className="flex items-center gap-2.5 w-full rounded-lg border border-primary/40 bg-primary/10 hover:bg-primary/20 px-3 py-2.5 text-xs text-primary font-medium transition-colors"
+                    >
+                      <Mail className="w-3.5 h-3.5 shrink-0" />
+                      {escLoading
+                        ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        : <span>Email us — {SUPPORT_EMAIL}</span>}
+                    </a>
+                    <Button
+                      onClick={() => setShowEscalate(false)}
+                      size="sm"
+                      variant="outline"
+                      className="w-full h-8 text-xs border-border/60"
+                    >
+                      Continue chatting with Aria
+                    </Button>
                   </div>
                 )}
 
@@ -516,8 +412,8 @@ export default function ChatWidget() {
                     onClick={() => setShowEscalate(true)}
                     className="w-full text-[10px] text-muted-foreground/50 hover:text-primary/60 transition-colors py-1 flex items-center justify-center gap-1"
                   >
-                    <MessageCircle className="w-3 h-3" />
-                    {teamAvailable ? "Connect with the team" : "Arrange a next-business-day callback"}
+                    <Mail className="w-3 h-3" />
+                    Contact the Auryx team
                   </button>
                 </div>
               )}

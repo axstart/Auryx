@@ -51,11 +51,7 @@ async function buildSystemPrompt(
 
   const availabilityBlock = teamAvailable
     ? `TEAM AVAILABILITY: The Auryx team is currently available (business hours: 8 AM – 8 PM ET). When a visitor needs escalation, you can offer to connect them right away.`
-    : `TEAM AVAILABILITY: The Auryx team is currently outside business hours (available Mon–Fri 8 AM – 8 PM ET). When escalation is needed, do NOT say you can connect them "right away." Instead, warmly acknowledge this and proactively offer three contact options for the next business day:
-  1. A phone callback — "We can have someone call you first thing tomorrow morning."
-  2. An email follow-up — "We can reach out by email — whatever is most convenient for you."
-  3. A text message — "If you prefer, we can send you a text when the team is back."
-  Ask the visitor which they prefer and reassure them their message has been received and will be prioritized first thing next business day. Make this feel attentive and premium, not like a voicemail.`;
+    : `TEAM AVAILABILITY: The Auryx team is currently outside business hours (available Mon–Fri 8 AM – 8 PM ET). When escalation is needed, do NOT say you can connect them "right away." Instead, warmly acknowledge this and direct them to email admin@auryxlife.com — reassure them the team will respond first thing next business day. Make this feel attentive and premium, not like a voicemail.`;
 
   const instructions = await getAriaInstructions();
 
