@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { ConsultationModal } from "./ConsultationModal";
-import { Button } from "@/components/ui/button";
-import { ShoppingBag } from "lucide-react";
+import { ShoppingBag, Menu, X } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   const [modalOpen, setModalOpen] = useState(false);
   const { totalItems, openCart } = useCart();
   const [location] = useLocation();
@@ -17,93 +17,109 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) element.scrollIntoView({ behavior: "smooth" });
-  };
+  const isCheckout = location.startsWith("/checkout");
+  const light = isCheckout;
 
-  const isHome = location === "/" || location === "";
-  const isShopSection = location.startsWith("/checkout");
+  const navBg = light
+    ? "bg-white border-[#E8E8E4] shadow-sm"
+    : scrolled
+      ? "bg-[#0A0A0A]/90 backdrop-blur-md border-white/8"
+      : "bg-transparent border-transparent";
 
-  const lightNav = isShopSection;
+  const logoColor = light ? "text-[#B8962E]" : "text-[#C9A844]";
+  const iconColor = light ? "text-[#0A0A0A]/60 hover:text-[#B8962E]" : "text-white/65 hover:text-[#C9A844]";
 
   return (
     <>
-      <nav
-        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${
-          lightNav
-            ? scrolled
-              ? "bg-white border-[#E8E8E4] py-4 shadow-sm"
-              : "bg-white border-[#E8E8E4] py-5"
-            : scrolled
-              ? "bg-[#0A0A0A]/85 backdrop-blur-md border-white/10 py-4"
-              : "bg-transparent border-transparent py-6"
-        }`}
-      >
-        <div className="container mx-auto px-6 md:px-12 flex items-center justify-between">
-          <Link
-            href="/"
-            className={`text-2xl font-serif tracking-widest font-bold transition-colors ${
-              lightNav ? "text-[#B8962E]" : "text-[#C9A844]"
-            }`}
-          >
-            AURYX
-          </Link>
+      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${navBg} py-4 md:py-5`}>
+        {/* 3-column grid: left | center | right */}
+        <div className="grid grid-cols-3 items-center px-5 md:px-10">
 
-          <div
-            className={`hidden md:flex items-center gap-6 text-sm uppercase tracking-wide font-medium transition-colors ${
-              lightNav ? "text-[#0A0A0A]/70" : "text-white/80"
-            }`}
-          >
-            <Link
-              href="/shop"
-              className={`transition-colors ${
-                lightNav
-                  ? "text-[#0A0A0A] hover:text-[#B8962E]"
-                  : "hover:text-[#C9A844]"
-              } ${location.startsWith("/shop") ? (lightNav ? "text-[#B8962E]" : "text-[#C9A844]") : ""}`}
+          {/* Left: hamburger (mobile) | nav links (desktop) */}
+          <div className="flex items-center gap-6">
+            <button
+              onClick={() => setMenuOpen(m => !m)}
+              className={`md:hidden p-1.5 ${iconColor} transition-colors`}
+              aria-label="Toggle menu"
             >
-              Shop
-            </Link>
-            {isHome && (
-              <>
-                <button onClick={() => scrollToSection("categories")} className="hover:text-[#C9A844] transition-colors whitespace-nowrap">Protocols</button>
-                <button onClick={() => scrollToSection("process")} className="hover:text-[#C9A844] transition-colors whitespace-nowrap">Methodology</button>
-                <button onClick={() => scrollToSection("about")} className="hover:text-[#C9A844] transition-colors whitespace-nowrap">Philosophy</button>
-              </>
-            )}
+              {menuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </button>
+            {/* Desktop nav links */}
+            <div className="hidden md:flex items-center gap-6">
+              <Link href="/shop" className={`text-[11px] uppercase tracking-[0.18em] font-medium transition-colors ${light ? "text-[#0A0A0A]/65 hover:text-[#B8962E]" : "text-white/60 hover:text-[#C9A844]"} ${location.startsWith("/shop") ? (light ? "text-[#B8962E]" : "text-[#C9A844]") : ""}`}>
+                Shop
+              </Link>
+              <Link href="/protocol-finder" className={`text-[11px] uppercase tracking-[0.18em] font-medium transition-colors ${light ? "text-[#0A0A0A]/65 hover:text-[#B8962E]" : "text-white/60 hover:text-[#C9A844]"}`}>
+                Our Method
+              </Link>
+              <Link href="/#education" className={`text-[11px] uppercase tracking-[0.18em] font-medium transition-colors ${light ? "text-[#0A0A0A]/65 hover:text-[#B8962E]" : "text-white/60 hover:text-[#C9A844]"}`}>
+                Learn
+              </Link>
+            </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          {/* Center: AURYX wordmark */}
+          <div className="flex justify-center">
+            <Link href="/" className={`text-xl md:text-2xl font-serif tracking-[0.28em] font-bold transition-colors ${logoColor}`}>
+              AURYX
+            </Link>
+          </div>
+
+          {/* Right: cart icon */}
+          <div className="flex items-center justify-end gap-3">
             <button
               onClick={openCart}
-              className={`relative p-2 transition-colors ${
-                lightNav
-                  ? "text-[#0A0A0A]/60 hover:text-[#B8962E]"
-                  : "text-white/70 hover:text-[#C9A844]"
-              }`}
+              className={`relative p-1.5 transition-colors ${iconColor}`}
               aria-label="Open cart"
             >
               <ShoppingBag className="w-5 h-5" />
               {totalItems > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 bg-[#B8962E] text-white text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold leading-none">
+                <span className="absolute -top-0.5 -right-0.5 bg-[#C9A844] text-[#0A0A0A] text-[9px] rounded-full w-4 h-4 flex items-center justify-center font-bold leading-none">
                   {totalItems > 9 ? "9+" : totalItems}
                 </span>
               )}
             </button>
-            <Button
+            {/* Consult button — desktop only */}
+            <button
               onClick={() => setModalOpen(true)}
-              className={`font-medium tracking-wide shrink-0 text-sm transition-colors ${
-                lightNav
-                  ? "bg-[#0A0A0A] text-white hover:bg-[#0A0A0A]/85"
-                  : "bg-[#C9A844] text-[#0A0A0A] hover:bg-[#C9A844]/90"
-              }`}
+              className="hidden md:inline-flex items-center gap-1.5 text-[11px] uppercase tracking-[0.18em] font-bold px-4 py-2 rounded-lg transition-colors bg-[#C9A844] text-[#0A0A0A] hover:bg-[#D4B050]"
             >
               Consult
-            </Button>
+            </button>
           </div>
         </div>
       </nav>
+
+      {/* Mobile menu drawer */}
+      {menuOpen && (
+        <div className="fixed inset-0 z-40 flex flex-col pt-20" style={{ backgroundColor: "#0A0A0A" }}>
+          <nav className="flex flex-col gap-1 px-8 py-8">
+            {[
+              { label: "Shop", href: "/shop" },
+              { label: "Protocol Finder", href: "/protocol-finder" },
+              { label: "Learn", href: "/#education" },
+              { label: "About", href: "/#philosophy" },
+            ].map(l => (
+              <Link
+                key={l.label}
+                href={l.href}
+                onClick={() => setMenuOpen(false)}
+                className="font-serif text-4xl text-white/80 hover:text-[#C9A844] transition-colors py-3 border-b border-white/8"
+              >
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+          <div className="px-8 mt-auto pb-12">
+            <button
+              onClick={() => { setMenuOpen(false); setModalOpen(true); }}
+              className="w-full flex items-center justify-center bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.15em] text-sm uppercase py-4 rounded-xl"
+            >
+              Book Consultation
+            </button>
+          </div>
+        </div>
+      )}
 
       <ConsultationModal open={modalOpen} onOpenChange={setModalOpen} />
     </>

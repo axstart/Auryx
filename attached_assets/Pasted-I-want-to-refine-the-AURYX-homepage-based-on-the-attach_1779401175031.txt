@@ -1,0 +1,206 @@
+I want to refine the AURYX homepage based on the attached visual mockup.
+
+Please rebuild/refine the current homepage UI to match this direction as closely as possible, while keeping the existing site structure, routes, shop functionality, cart logic, product data, and footer links intact.
+
+Goal:
+AURYX should feel like a luxury precision wellness and peptide brand. The homepage should look modern, premium, healthy, lifestyle-oriented, and conversion-focused. It should not feel like a generic supplement store, cheap peptide catalog, bodybuilding site, or overly clinical lab site.
+
+Visual direction:
+Use the attached mockup as the main visual reference.
+
+Design style:
+- Obsidian black / deep charcoal background
+- Warm ivory sections for contrast
+- Champagne gold accents
+- Elegant editorial serif headlines
+- Clean modern sans-serif body text
+- Premium cards with soft borders
+- Fluid section transitions
+- Subtle gold particles, molecular/orbital lines, gradients, or wave details
+- More immersive imagery
+- More visible peptide vial/product visuals
+- Strong mobile-first UX/UI
+
+Important UX/UI direction:
+- Keep the page easy to scan.
+- Improve spacing and hierarchy.
+- Make CTAs clear and consistent.
+- Avoid overcrowded sections.
+- Make the homepage feel like a guided premium experience, not just a product list.
+- Make the product/peptide section visible enough so users immediately understand this is a peptide commerce site.
+- Keep the shopping flow accessible, but make “Find My Protocol” feel like the primary guided action.
+
+Homepage structure to implement:
+
+1. Header
+Create a refined dark header:
+- Left: menu icon
+- Center: AURYX logo/wordmark
+- Right: cart icon
+Keep it minimal and premium.
+
+2. Hero section
+Create a luxury hero section inspired by the mockup:
+Headline:
+“Precision wellness, delivered with intention.”
+
+Subheadline:
+“Evidence-informed peptides and protocols for longevity, performance, and everyday vitality.”
+
+Primary CTA:
+“Find My Protocol”
+
+Secondary CTA:
+“Explore Collections”
+
+Visual:
+Use a premium wellness/lifestyle image blended into the dark background, with subtle gold orbital/molecular particles. The image should feel fluid and editorial, not like a generic gym stock photo.
+
+3. Protocol Collections
+Create six premium cards:
+- Metabolic Support
+- Recovery & Resilience
+- Skin & Healthy Aging
+- Energy & Vitality
+- Cognitive Performance
+- Sleep & Restoration
+
+Each card should include:
+- Gold line icon
+- Short support-focused description
+- Small arrow indicator
+- Subtle hover state
+
+Keep copy concise and compliant. Avoid medical claims.
+
+4. Concierge Protocol Finder
+Create a luxury quiz-style section:
+Title:
+“Your path is personal. Let’s find what fits.”
+
+Include 4 small question cards:
+- What is your primary goal?
+- How would you rate your energy?
+- How is your sleep quality?
+- What’s your experience level?
+
+CTA:
+“Start My Protocol”
+
+Supporting text:
+“Takes less than 60 seconds”
+
+This section should feel like a premium guided intake, not a basic form.
+
+5. Peptide Collection Section
+Add a warm ivory section with visible branded peptide vials.
+
+Title:
+“Curated. Pure. Purpose. Backed by science.”
+
+Include a “View All Peptides” link.
+
+Show 4 featured peptide/product cards or a horizontal product strip:
+- CJC-1295 NO DAC
+- BPC-157
+- TB-500
+- NAD+
+
+Each product should include:
+- Elegant vial visual or product image
+- Product name
+- Collection tag such as Recovery, Mobility, Energy, or Longevity
+- Very short support-focused description
+- “Learn More” or subtle CTA
+
+Important:
+Do not make it look like a cheap product grid. It should feel curated, editorial, and premium.
+
+6. The AURYX Standard
+Create four trust pillars:
+- Science-Backed
+- Purity & Quality
+- Purpose-Driven
+- Concierge Guidance
+
+Use gold icons, clean spacing, and short descriptions.
+
+7. Lifestyle Philosophy
+Create a split editorial section:
+Headline:
+“Longevity is a lifestyle, not a shortcut.”
+
+Body:
+“We believe in consistent choices, disciplined routines, and support that helps you thrive for the long run.”
+
+Use a fluid lifestyle image of healthy adults, recovery, refined training, sauna, morning ritual, or premium wellness setting.
+
+8. Results / Testimonials
+Create three elegant testimonial cards.
+Use cautious, realistic language. Avoid medical or guaranteed-result claims.
+
+Examples:
+“I feel more focused, sleep better, and recover faster.”
+“My energy and clarity have never been better.”
+“Clean, effective, and tailored. AURYX fits seamlessly into my life.”
+
+9. Final CTA
+Create a premium final CTA with a close-up peptide vial/product image.
+
+Headline:
+“Your best, supported.”
+
+Body:
+“Guided protocols. Premium peptides. Personalized for you.”
+
+CTA:
+“Find My Protocol”
+
+10. Footer
+Keep the footer premium and compliant.
+Include:
+- Shop
+- Our Method
+- Learn
+- About
+- Account
+- Privacy
+- Terms
+- Disclaimer
+
+Footer disclaimer:
+“These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease. This website is for educational purposes only and does not provide medical advice. Consult a licensed healthcare provider before starting any protocol.”
+
+Compliance rules:
+Do not use words like:
+- cure
+- treat
+- heal
+- reverse aging
+- burn fat
+- guaranteed results
+- injury repair
+- disease
+- medical treatment
+
+Use support-oriented language instead:
+- supports
+- designed to support
+- may support
+- wellness rhythm
+- recovery support
+- healthy aging support
+- vitality
+- longevity
+- performance
+- restoration
+
+Implementation instructions:
+- First inspect the current homepage, components, product card components, footer, and styles.
+- Reuse existing components where appropriate, but improve the UI significantly.
+- Do not break routing, cart, product data, or checkout.
+- If real product images are not available, create elegant temporary vial visuals using CSS/SVG or existing assets, but structure the code so real images can easily replace them later.
+- Make the layout fully responsive, especially mobile.
+- Prioritize mobile first, but desktop should also look premium.
+- After implementing, run the app/build check and show me the changed files.
+- Then provide a screenshot of the updated homepage.

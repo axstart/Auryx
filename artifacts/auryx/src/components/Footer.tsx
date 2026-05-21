@@ -1,114 +1,73 @@
 import { Link } from "wouter";
+import { Instagram, Mail, ShoppingBag } from "lucide-react";
 
 export default function Footer() {
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
-  };
-
   return (
-    <footer className="bg-background border-t border-border/50 pt-16 pb-10 px-6 md:px-16">
-      <div className="container mx-auto max-w-7xl">
+    <footer style={{ backgroundColor: "#0A0A0A" }} className="border-t border-white/8">
 
-        {/* Top grid */}
-        <div className="grid grid-cols-1 md:grid-cols-5 gap-12 mb-14">
+      {/* Main footer */}
+      <div className="container mx-auto max-w-7xl px-6 md:px-14 lg:px-20 pt-14 pb-8">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-8 mb-10">
 
-          {/* Brand */}
-          <div className="md:col-span-2">
-            <Link href="/" className="text-2xl font-serif tracking-widest text-primary font-bold block mb-4">
-              AURYX
+          {/* Logo */}
+          <Link href="/" className="text-2xl font-serif tracking-[0.28em] text-[#C9A844] font-bold">
+            AURYX
+          </Link>
+
+          {/* Nav links */}
+          <nav className="flex flex-wrap items-center gap-x-7 gap-y-3">
+            {[
+              { label: "Shop", href: "/shop" },
+              { label: "Our Method", href: "/protocol-finder" },
+              { label: "Learn", href: "/#education" },
+              { label: "About", href: "/#philosophy" },
+              { label: "Account", href: "/admin" },
+            ].map(l => (
+              <Link key={l.label} href={l.href} className="text-[11px] uppercase tracking-[0.2em] text-white/40 hover:text-[#C9A844] transition-colors font-medium">
+                {l.label}
+              </Link>
+            ))}
+          </nav>
+
+          {/* Social / contact icons */}
+          <div className="flex items-center gap-4">
+            <a href="https://instagram.com" aria-label="Instagram"
+              className="w-8 h-8 rounded-full border border-white/15 flex items-center justify-center text-white/40 hover:text-[#C9A844] hover:border-[#C9A844]/40 transition-colors">
+              <Instagram className="w-3.5 h-3.5" />
+            </a>
+            <a href="mailto:admin@auryxlife.com" aria-label="Email"
+              className="w-8 h-8 rounded-full border border-white/15 flex items-center justify-center text-white/40 hover:text-[#C9A844] hover:border-[#C9A844]/40 transition-colors">
+              <Mail className="w-3.5 h-3.5" />
+            </a>
+            <Link href="/shop" aria-label="Shop"
+              className="w-8 h-8 rounded-full border border-white/15 flex items-center justify-center text-white/40 hover:text-[#C9A844] hover:border-[#C9A844]/40 transition-colors">
+              <ShoppingBag className="w-3.5 h-3.5" />
             </Link>
-            <p className="text-foreground/40 text-sm leading-relaxed max-w-xs mb-6">
-              A precision wellness and peptide education platform built for people who want to feel sharper, move better, and age with strategy.
-            </p>
-            <p className="text-xs text-foreground/30 leading-relaxed max-w-xs">
-              Nationwide Telehealth · United States
-            </p>
-          </div>
-
-          {/* Explore */}
-          <div>
-            <h4 className="text-xs uppercase tracking-[0.25em] text-foreground/35 font-medium mb-5">Explore</h4>
-            <ul className="space-y-3">
-              {[
-                { label: "About", action: () => scrollTo("about") },
-                { label: "Protocols", href: "/shop" },
-                { label: "Education", action: () => scrollTo("education") },
-                { label: "Methodology", action: () => scrollTo("process") },
-                { label: "FAQ", action: () => scrollTo("faq") },
-              ].map((item) => (
-                <li key={item.label}>
-                  {item.href ? (
-                    <Link href={item.href} className="text-sm text-foreground/45 hover:text-primary transition-colors">
-                      {item.label}
-                    </Link>
-                  ) : (
-                    <button onClick={item.action} className="text-sm text-foreground/45 hover:text-primary transition-colors text-left">
-                      {item.label}
-                    </button>
-                  )}
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Protocol categories */}
-          <div>
-            <h4 className="text-xs uppercase tracking-[0.25em] text-foreground/35 font-medium mb-5">Protocols</h4>
-            <ul className="space-y-3">
-              {[
-                "Metabolic Support",
-                "Recovery & Resilience",
-                "Skin & Healthy Aging",
-                "Energy & Vitality",
-                "Cognitive Performance",
-                "Sleep & Restoration",
-              ].map(cat => (
-                <li key={cat}>
-                  <Link href="/shop" className="text-sm text-foreground/45 hover:text-primary transition-colors">
-                    {cat}
-                  </Link>
-                </li>
-              ))}
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h4 className="text-xs uppercase tracking-[0.25em] text-foreground/35 font-medium mb-5">Contact</h4>
-            <ul className="space-y-3">
-              <li>
-                <a href="mailto:admin@auryxlife.com" className="text-sm text-foreground/45 hover:text-primary transition-colors">
-                  admin@auryxlife.com
-                </a>
-              </li>
-              <li className="text-sm text-foreground/30">Telehealth — All 50 States</li>
-            </ul>
           </div>
         </div>
 
         {/* Disclaimer */}
-        <div className="border-t border-border/40 pt-8 mb-6">
-          <p className="text-xs text-foreground/30 leading-relaxed max-w-4xl">
-            <strong className="text-foreground/40 font-medium">Disclaimer:</strong> This website is for educational purposes only and does not constitute medical advice. The products and information presented are not intended to diagnose, treat, cure, or prevent any disease or medical condition. Individual results vary and are not guaranteed. Always consult a licensed healthcare provider before beginning any new wellness protocol. Peptide protocols should only be used under the supervision of a qualified medical professional.
+        <div className="border-t border-white/8 pt-8 mb-6">
+          <p className="text-[11px] text-white/28 leading-relaxed max-w-4xl">
+            These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease. This website is for educational purposes only and does not provide medical advice. Consult a licensed healthcare provider before starting any protocol.
           </p>
         </div>
 
         {/* Bottom bar */}
-        <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-xs text-foreground/25">© 2026 Auryx. All rights reserved.</p>
-          <div className="flex items-center gap-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
+          <p className="text-[11px] text-white/22">© 2025 AURYX. All rights reserved.</p>
+          <div className="flex items-center gap-5">
             {[
-              { label: "Privacy Policy", href: "/privacy" },
-              { label: "Terms of Service", href: "/terms" },
+              { label: "Privacy", href: "/privacy" },
+              { label: "Terms", href: "/terms" },
               { label: "Disclaimer", href: "/disclaimer" },
             ].map(l => (
-              <Link key={l.label} href={l.href} className="text-xs text-foreground/25 hover:text-primary transition-colors">
+              <Link key={l.label} href={l.href} className="text-[11px] text-white/28 hover:text-[#C9A844] transition-colors">
                 {l.label}
               </Link>
             ))}
           </div>
         </div>
-
       </div>
     </footer>
   );
