@@ -1,0 +1,116 @@
+Great progress on the AURYX homepage. Now refine the rebuild so it feels more luxurious, less generic, and more like a premium longevity/lifestyle brand.
+
+Please make the following strategic improvements:
+
+1. Fix the primary CTA logic
+The “Find Your Protocol” CTA should not go directly to /shop.
+Update it to route to a dedicated protocol finder experience if it exists, such as /protocol-finder or /assessment.
+If that page does not exist yet, create a placeholder route/page for it with a premium concierge-style intake concept.
+The shop should remain secondary, not the first destination.
+
+2. Make the homepage more editorial and less crowded
+Reduce the feeling of a long stacked landing page.
+Increase vertical spacing.
+Use fewer but stronger sections.
+Make the homepage feel more like a luxury wellness brand than a supplement store.
+Prioritize elegance, clarity, and emotional desire.
+
+3. Improve the product presentation
+The product cards should not feel like a generic peptide catalog.
+Rename the product preview section from “Featured Protocols” to something more premium, such as:
+“Protocol Collections”
+or
+“Explore the AURYX Collections”
+
+Each product card should show:
+- Product name
+- Collection/category
+- Short support-focused description
+- “Learn more” instead of aggressive purchase language
+
+Avoid making products look like direct medical solutions.
+Do not use claims like heal, cure, burn fat, reverse aging, treat injuries, or guaranteed results.
+
+4. Create stronger protocol collections
+Instead of only showing individual products, create collection-level cards:
+- Metabolic Support
+- Recovery & Resilience
+- Skin & Healthy Aging
+- Energy & Vitality
+- Cognitive Performance
+- Sleep & Restoration
+
+Each collection should feel like a lifestyle goal, not a medical category.
+
+5. Upgrade imagery direction
+Avoid generic fitness, bodybuilding, cheap supplement, or overly clinical visuals.
+Use luxury wellness imagery:
+- morning rituals
+- refined gym / private training
+- sauna / recovery
+- elegant bathroom counter
+- skincare and skin health
+- hydration
+- mature healthy adults
+- quiet luxury lifestyle
+- abstract premium molecular/light visuals
+
+If using placeholder images, structure the layout so they can be easily replaced later.
+
+6. Refine the tone of voice
+The voice should be calm, premium, intelligent, and lifestyle-oriented.
+Avoid hype.
+Avoid sounding like a clinic.
+Avoid sounding like a supplement store.
+Use phrases like:
+- “support”
+- “designed to support”
+- “part of a broader wellness rhythm”
+- “education-first”
+- “intentional optimization”
+- “modern longevity”
+- “recovery, rhythm, and resilience”
+
+7. Simplify the homepage structure to this preferred order:
+
+Hero:
+“Precision wellness, delivered with intention.”
+
+Protocol Collections:
+Six collection cards.
+
+Concierge Protocol Finder:
+A premium intake/quiz section.
+
+The AURYX Standard:
+Four trust pillars.
+
+Lifestyle Philosophy:
+“Optimization is not a shortcut. It is a standard.”
+
+Education Preview:
+Three or four educational article cards.
+
+Final CTA:
+“Build your protocol with intention.”
+
+Footer:
+Keep the compliance disclaimer, privacy, terms, and disclaimer links.
+
+8. Make the design feel more premium
+Use:
+- Larger typography
+- More whitespace
+- Subtle champagne gold accents
+- Soft borders
+- Warm ivory sections
+- Editorial image layouts
+- Less text inside cards
+- More elegant CTA buttons
+- Fewer visual gimmicks
+
+9. Keep compliance-conscious language
+Do not include medical claims, disease claims, treatment claims, or guaranteed results.
+Keep the footer disclaimer visible and professional.
+
+After updating, show me a screenshot of the full homepage and confirm which files were changed.
