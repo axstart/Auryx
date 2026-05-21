@@ -1,0 +1,43 @@
+Great choice — dark homepage, light shop. Here's the full prompt to send to the Replit Agent:
+
+"Completely redesign the shop section of the Auryx website with a premium editorial marketplace feel — inspired by Net-a-Porter and Athletic Greens/AG1. Here's exactly what I want:
+1. Shop page (/shop) — light background:
+- White/off-white background (#FAFAF8) for the entire shop section
+- Large editorial hero banner at the top: full-width, dark background, bold headline like 'Precision. Delivered.' with a 'Browse Protocols' CTA that scrolls down
+- Category filter pills below the hero — minimal, clean, black text on white with a black border, active state fills black
+- Product grid: 3 columns desktop, 2 columns tablet, 1 column mobile
+- Each product card: clean white card with subtle shadow, peptide name in bold serif font, one benefit-driven tagline (e.g. 'Sleep deeper. Recover faster.'), category label in small caps, price, and two buttons — 'Learn More' (outlined) and 'Add to Cart' (solid black)
+- On hover: card lifts with a deeper shadow and a thin gold border appears
+- No scrollbars visible anywhere
+2. Product detail pages (/shop/[slug]) — light background:
+- Split layout: left side has a large clean product visual (styled vial/peptide graphic in gold and white tones), right side has all the product info
+- Product name in large bold serif
+- Benefit pills at the top (e.g. 'Fat Loss', 'Muscle Preservation', 'Metabolic Health')
+- Price prominently displayed
+- Quantity selector + Add to Cart button (large, full width, black)
+- Expandable sections below: Description, Clinical Notes, Dosing Protocol, Physician's Note
+- Trust badges row: US-Sourced, Pharmaceutical Grade, 3rd Party Tested, Physician-Supervised
+3. Cart drawer — dark background:
+- Slides in from the right
+- Dark background matching the homepage (#0A0A0A)
+- Gold accents for totals and CTA button
+- Clean item rows with quantity controls and remove button
+- Subtotal and 'Proceed to Checkout' gold button at bottom
+4. Checkout page — light background:
+- Clean two-column layout: order summary on right, form on left
+- Minimal form fields: name, email, shipping address, payment
+- Stripe Elements styled to match — clean, minimal, no default Stripe blue
+- 'Complete Order' button full width, black
+5. Navigation — update for marketplace:
+- Add 'Shop' as a prominent nav link
+- Cart icon with item count badge in gold
+- Keep 'Consult' button on the right
+- On shop/product pages, navbar goes white with dark text
+- On homepage, navbar stays dark with gold/white text
+6. Typography and colors for shop:
+- Background: #FAFAF8
+- Text: #0A0A0A
+- Accent: #B8962E (gold)
+- Cards: #FFFFFF with subtle shadow
+- Buttons: #0A0A0A with white text, hover darkens slightly
+- Keep the same serif font as the rest of the site for headings
