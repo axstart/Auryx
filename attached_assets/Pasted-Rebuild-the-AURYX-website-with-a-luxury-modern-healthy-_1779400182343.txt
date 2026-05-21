@@ -1,0 +1,133 @@
+Rebuild the AURYX website with a luxury, modern, healthy lifestyle-oriented aesthetic.
+
+Brand direction:
+AURYX is a premium precision wellness and peptide education brand. The site should feel like a luxury longevity, recovery, vitality, and lifestyle optimization platform, not a generic supplement store or research chemical catalog.
+
+Visual style:
+Use an elegant editorial design with generous spacing, refined typography, and a premium color palette:
+- Obsidian black / deep charcoal as the primary background
+- Warm ivory / soft stone for light sections
+- Champagne gold as the accent color
+- Optional muted sage, olive, or warm taupe as secondary lifestyle accents
+
+Typography:
+Use an elegant serif font for headlines, such as Playfair Display, Cormorant Garamond, or a similar refined editorial serif.
+Use a clean modern sans-serif for body copy, such as Inter, Satoshi, or Helvetica-style typography.
+Headlines should feel luxurious and calm, not aggressive.
+
+Design improvements:
+- Remove the generic product-grid feeling from the homepage.
+- Avoid repeating the same vial image across all product cards.
+- Use larger editorial lifestyle imagery.
+- Use soft gradients, subtle borders, premium cards, and spacious layouts.
+- Make the site feel like a high-end wellness destination.
+- Avoid clutter, tiny text, overpacked cards, and overly dark unreadable sections.
+- Mobile design must feel premium and easy to read.
+
+Homepage structure:
+
+1. Hero section
+Headline:
+“Precision wellness, delivered with intention.”
+
+Subheadline:
+“AURYX offers education-first peptide protocols designed to support performance, recovery, vitality, skin health, and healthy aging. Built for people who want to feel sharper, move better, and age with strategy.”
+
+Primary CTA:
+“Find Your Protocol”
+
+Secondary CTA:
+“Explore Protocols”
+
+Small supporting line:
+“No hype. No shortcuts. Just modern wellness, clear guidance, and a more intentional way to optimize.”
+
+Hero visual:
+Use an editorial luxury wellness image or abstract premium visual with soft gold particles, subtle motion, and clean composition. Avoid aggressive gym/bodybuilding imagery.
+
+2. Protocol categories section
+Title:
+“Choose your area of focus.”
+
+Create six elegant cards:
+- Metabolic Support
+- Recovery & Resilience
+- Skin & Healthy Aging
+- Energy & Vitality
+- Cognitive Performance
+- Sleep & Restoration
+
+Each card should have a short, compliance-conscious description using “support” language, not medical claims.
+
+3. Concierge quiz section
+Title:
+“Your protocol starts with your rhythm.”
+
+Body:
+“Answer a few questions about your goals, lifestyle, and current routine. We’ll guide you toward the AURYX protocol category that best matches your priorities.”
+
+CTA:
+“Start the Protocol Finder”
+
+Make this look like a premium concierge intake experience, not a basic form.
+
+4. The AURYX Standard
+Create four pillars:
+- Quality-vetted sourcing
+- Education before action
+- Lifestyle-first optimization
+- Discreet, elevated experience
+
+Use refined iconography, thin lines, and premium spacing.
+
+5. Lifestyle section
+Title:
+“Optimization is not a shortcut. It is a standard.”
+
+Body:
+“Peptides are only one part of the equation. The AURYX philosophy connects modern wellness with daily rhythm: training, sleep, nutrition, recovery, and consistency.”
+
+Use a luxury lifestyle image: sauna, morning routine, refined gym, skin care, recovery, or modern wellness environment.
+
+6. Product preview section
+Title:
+“Explore the protocol collections.”
+
+Show selected product cards, but make them feel editorial. Each card should include:
+- Product name
+- Protocol category
+- Short support-focused description
+- “Explore product” button
+
+Do not use strong medical claims, disease claims, guaranteed outcomes, or before-and-after language.
+
+7. Education section
+Title:
+“Learn before you optimize.”
+
+Create article cards:
+- “What are peptide protocols?”
+- “How recovery shapes long-term performance”
+- “Why healthy aging starts with rhythm”
+- “The difference between support and shortcuts”
+
+8. Final CTA
+Headline:
+“Build your protocol with intention.”
+
+Body:
+“Start with your goals. Understand your options. Choose a more elevated path to modern wellness.”
+
+CTA:
+“Find Your Protocol”
+
+Footer:
+Include links for About, Protocols, Education, Contact, Terms, Privacy, Disclaimer.
+
+Compliance:
+Add a clear disclaimer in the footer:
+“This website is for educational purposes only and does not provide medical advice. Products and information are not intended to diagnose, treat, cure, or prevent any disease. Consult a licensed healthcare provider before starting any protocol.”
+
+Tone:
+Luxury, calm, intelligent, modern, trustworthy, lifestyle-oriented.
+Avoid hype, aggressive sales copy, medical promises, or cheap supplement language.

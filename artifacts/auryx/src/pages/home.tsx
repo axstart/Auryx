@@ -5,341 +5,177 @@ import { ConsultationModal } from "@/components/ConsultationModal";
 import { ProtocolContinuationModal } from "@/components/ProtocolContinuationModal";
 const MoleculeDockScene = lazy(() => import("@/components/MoleculeDockScene"));
 import { PatientAssessment } from "@/components/PatientAssessment";
-import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
 import {
   Accordion,
   AccordionContent,
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { 
-  Activity, 
-  Brain, 
-  Dna, 
-  Flame, 
-  HeartPulse, 
-  ShieldPlus,
+import {
   ArrowRight,
+  Flame,
+  ShieldPlus,
+  Sparkles,
+  Zap,
+  Brain,
+  Moon,
+  CheckCircle2,
   ChevronRight,
-  ChevronDown,
-  MapPin,
-  FlaskConical,
-  Microscope,
-  Gem,
-  Stethoscope,
 } from "lucide-react";
 
-interface Peptide {
-  name: string;
-  moa: string;
-  benefits: string[];
-  candidate: string;
-}
+/* ─── Data ─────────────────────────────────────────────────────────── */
 
-function PeptideCard({ pep }: { pep: Peptide }) {
-  const [expanded, setExpanded] = useState(false);
-  return (
-    <div className="bg-card/50 rounded-lg border border-border hover:border-primary/40 transition-colors duration-300 overflow-hidden">
-      <button
-        onClick={() => setExpanded(e => !e)}
-        className="w-full text-left p-7 flex items-start justify-between gap-4 group"
-      >
-        <div className="flex-1 min-w-0">
-          <h4 className="text-xl font-serif text-primary mb-2">{pep.name}</h4>
-          <p className="text-sm text-foreground/75 leading-relaxed border-l-2 border-primary/30 pl-3 italic line-clamp-1">
-            {pep.moa}
-          </p>
-        </div>
-        <ChevronDown
-          className={`w-4 h-4 text-primary/60 shrink-0 mt-1 transition-transform duration-300 ${expanded ? "rotate-180" : ""}`}
-        />
-      </button>
-
-      <motion.div
-        initial={false}
-        animate={{ height: expanded ? "auto" : 0, opacity: expanded ? 1 : 0 }}
-        transition={{ duration: 0.3, ease: "easeInOut" }}
-        className="overflow-hidden"
-      >
-        <div className="px-7 pb-7 space-y-5">
-          <p className="text-sm text-foreground/75 leading-relaxed border-l-2 border-primary/30 pl-3 italic">
-            {pep.moa}
-          </p>
-          <div>
-            <p className="text-sm uppercase tracking-wider text-muted-foreground mb-2">Primary Benefits</p>
-            <ul className="space-y-1.5">
-              {pep.benefits.map((b, j) => (
-                <li key={j} className="flex items-start text-sm text-foreground/85">
-                  <ChevronRight className="w-3.5 h-3.5 text-primary mr-1.5 mt-0.5 shrink-0" />
-                  {b}
-                </li>
-              ))}
-            </ul>
-          </div>
-          <div className="pt-4 border-t border-border/40">
-            <p className="text-sm uppercase tracking-wider text-muted-foreground mb-1.5">Ideal Candidate</p>
-            <p className="text-sm text-foreground/65 leading-relaxed">{pep.candidate}</p>
-          </div>
-        </div>
-      </motion.div>
-    </div>
-  );
-}
-
-const TAB_LABELS = [
-  "GLP-1 & Metabolic",
-  "Growth Hormone",
-  "Recovery & Regen",
-  "Sexual Health",
-  "Immune & Longevity",
-  "Cognitive",
-  "Signature",
+const FOCUS_AREAS = [
+  {
+    icon: <Flame className="w-5 h-5" />,
+    title: "Metabolic Support",
+    desc: "Support healthy body composition, metabolic function, and appetite regulation through evidence-informed wellness protocols.",
+    accent: "#B8962E",
+    slug: "GLP-1 & Metabolic",
+  },
+  {
+    icon: <ShieldPlus className="w-5 h-5" />,
+    title: "Recovery & Resilience",
+    desc: "Support tissue repair, reduce recovery time, and help your body respond better to physical training and daily demands.",
+    accent: "#0D9488",
+    slug: "Recovery & Regeneration",
+  },
+  {
+    icon: <Sparkles className="w-5 h-5" />,
+    title: "Skin & Healthy Aging",
+    desc: "Support collagen synthesis, skin elasticity, and the cellular processes that contribute to a more youthful appearance over time.",
+    accent: "#B8962E",
+    slug: "Auryx Signature Complexes",
+  },
+  {
+    icon: <Zap className="w-5 h-5" />,
+    title: "Energy & Vitality",
+    desc: "Support mitochondrial health, hormone optimization, and the cellular energy systems that drive how you feel day to day.",
+    accent: "#0D9488",
+    slug: "Immune & Longevity",
+  },
+  {
+    icon: <Brain className="w-5 h-5" />,
+    title: "Cognitive Performance",
+    desc: "Support focus, memory, and neuroprotection through protocols designed to maintain clarity and mental sharpness over time.",
+    accent: "#B8962E",
+    slug: "Cognitive & Neuroprotective",
+  },
+  {
+    icon: <Moon className="w-5 h-5" />,
+    title: "Sleep & Restoration",
+    desc: "Support deeper sleep, circadian rhythm, and the overnight repair processes central to long-term health and performance.",
+    accent: "#0D9488",
+    slug: "Growth Hormone",
+  },
 ];
+
+const STANDARD_PILLARS = [
+  {
+    num: "01",
+    title: "Quality-vetted sourcing",
+    desc: "Every protocol is compounded at US-licensed pharmacies. Third-party tested, pharmaceutical-grade — nothing less.",
+  },
+  {
+    num: "02",
+    title: "Education before action",
+    desc: "We believe you should understand what you're putting in your body before you begin. Clarity is the foundation of trust.",
+  },
+  {
+    num: "03",
+    title: "Lifestyle-first optimization",
+    desc: "Peptides are one layer of a broader strategy. We connect modern wellness science with sleep, training, nutrition, and recovery.",
+  },
+  {
+    num: "04",
+    title: "Discreet, elevated experience",
+    desc: "From consultation to doorstep, the Auryx experience is seamless, private, and designed to reflect the premium nature of what you're doing.",
+  },
+];
+
+const EDUCATION_ARTICLES = [
+  {
+    num: "01",
+    title: "What are peptide protocols?",
+    desc: "An accessible introduction to what peptides are, how they work in the body, and what makes them different from conventional supplements.",
+  },
+  {
+    num: "02",
+    title: "How recovery shapes long-term performance",
+    desc: "Why the recovery phase of any routine matters more than most people realise — and how supporting it changes your baseline over time.",
+  },
+  {
+    num: "03",
+    title: "Why healthy aging starts with rhythm",
+    desc: "The science connecting circadian biology, sleep quality, and daily lifestyle patterns to how we age at the cellular level.",
+  },
+  {
+    num: "04",
+    title: "The difference between support and shortcuts",
+    desc: "Why the Auryx approach is built around sustainable optimization, not quick fixes — and how that shapes every protocol we offer.",
+  },
+];
+
+const FEATURED_PROTOCOLS = [
+  {
+    name: "CJC-1295 + Ipamorelin",
+    category: "Growth Hormone",
+    desc: "Support deep sleep, lean tissue maintenance, and recovery through natural growth hormone optimization.",
+    slug: "cjc-ipamorelin",
+  },
+  {
+    name: "BPC-157",
+    category: "Recovery & Regeneration",
+    desc: "Support tissue repair and gut health with one of the most studied recovery-focused peptide protocols.",
+    slug: "bpc-157",
+  },
+  {
+    name: "Semax",
+    category: "Cognitive Performance",
+    desc: "Support focus, memory, and mental resilience with a neuroprotective protocol for high-demand lifestyles.",
+    slug: "semax",
+  },
+  {
+    name: "GLOW Complex",
+    category: "Skin & Healthy Aging",
+    desc: "An Auryx-curated formulation designed to support skin elasticity, collagen synthesis, and connective tissue over time.",
+    slug: "glow-complex",
+  },
+];
+
+const FAQS = [
+  { q: "Are peptide protocols safe?", a: "Peptide wellness protocols are designed to be used thoughtfully, with proper guidance. All Auryx protocols are physician-reviewed, sourced from US-licensed compounding pharmacies, and third-party tested for purity and potency. We recommend consulting a licensed healthcare provider before starting any protocol." },
+  { q: "How quickly might I notice changes?", a: "Individual results vary depending on the protocol, your starting baseline, and lifestyle factors. Some people notice changes in sleep quality and daily energy within the first few weeks. Other outcomes may take longer to observe and are always influenced by nutrition, training, and recovery habits." },
+  { q: "Do I need an in-person appointment?", a: "No. Auryx provides full telemedicine consultations and ships directly to your door for eligible individuals across the United States. Our team is available to guide you through the process from start to finish." },
+  { q: "How are protocols personalized?", a: "Each protocol recommendation starts with understanding your goals, lifestyle, and health history. A licensed Auryx physician reviews your profile before any protocol is dispensed. We don't believe in one-size-fits-all approaches." },
+  { q: "What makes Auryx different from other wellness providers?", a: "Auryx is built on three principles: quality sourcing, education-first guidance, and a lifestyle-centered approach. We're not a supplement store or a research catalog. We're a precision wellness destination designed for people who take their long-term health seriously." },
+  { q: "How much do protocols cost?", a: "Protocol pricing varies based on the compounds selected, duration, and individual needs. All pricing is discussed transparently during your consultation — no obligations, no surprises." },
+  { q: "Does Auryx accept insurance?", a: "Auryx does not accept insurance. Our services are self-pay, designed to sit outside the limitations of conventional healthcare. We accept all major credit and debit cards." },
+  { q: "Can I continue a protocol I started elsewhere?", a: "Yes. If you're already on an established protocol from another provider, our streamlined intake process can often get you set up within 24 hours — subject to physician review." },
+];
+
+/* ─── Page component ────────────────────────────────────────────────── */
 
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const [continuationOpen, setContinuationOpen] = useState(false);
-  const [activeCategory, setActiveCategory] = useState(0);
   const { scrollYProgress } = useScroll();
-  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
-  const opacity = useTransform(scrollYProgress, [0, 0.2], [1, 0]);
+  const heroY = useTransform(scrollYProgress, [0, 1], ["0%", "40%"]);
+  const heroOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
 
-  const scrollToSection = (id: string) => {
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
-    }
+  const scrollTo = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
   };
-
-  const categories = [
-    {
-      title: "Anti-Aging & Longevity",
-      icon: <Dna className="w-8 h-8 text-primary" />,
-      desc: "Cellular rejuvenation, telomere support, and endogenous growth hormone optimization to slow biological aging."
-    },
-    {
-      title: "Fat Loss & Body Composition",
-      icon: <Flame className="w-8 h-8 text-primary" />,
-      desc: "Metabolic acceleration and lean mass preservation for a sculpted, high-performance physique."
-    },
-    {
-      title: "Sexual Health & Vitality",
-      icon: <HeartPulse className="w-8 h-8 text-primary" />,
-      desc: "Restoration of libido, hormonal balance, and sexual performance through targeted peptide interventions."
-    },
-    {
-      title: "Recovery & Regeneration",
-      icon: <ShieldPlus className="w-8 h-8 text-primary" />,
-      desc: "Accelerated tissue repair, injury healing, and post-exertion recovery for elite athletes and executives."
-    },
-    {
-      title: "Cognitive Performance",
-      icon: <Brain className="w-8 h-8 text-primary" />,
-      desc: "Neuroprotection, enhanced focus, memory retention, and induced neuroplasticity for mental clarity."
-    },
-    {
-      title: "Energy & Vitality",
-      icon: <Activity className="w-8 h-8 text-primary" />,
-      desc: "Mitochondrial optimization and sustained stamina to eliminate fatigue and operate at peak capacity."
-    }
-  ];
-
-  const peptideCategories = [
-    {
-      category: "GLP-1 & Metabolic Peptides",
-      description: "Next-generation weight management and metabolic optimization compounds. Each agent targets distinct receptor pathways — your physician will select based on your metabolic profile, weight loss goals, and cardiovascular risk factors.",
-      peptides: [
-        {
-          name: "Semaglutide",
-          moa: "Selective GLP-1 receptor agonist that suppresses appetite centers in the hypothalamus and slows gastric emptying, producing profound caloric reduction without hunger.",
-          benefits: ["Sustained fat loss", "Improved insulin sensitivity", "Cardiovascular risk reduction", "Appetite normalization"],
-          candidate: "Ideal for those with significant metabolic dysfunction or a BMI requiring meaningful body recomposition."
-        },
-        {
-          name: "Tirzepatide",
-          moa: "Dual GLP-1 and GIP receptor agonist delivering superior weight reduction versus GLP-1 monotherapy, with enhanced effects on glucose metabolism and adipose tissue.",
-          benefits: ["Greater fat loss than semaglutide alone", "Improved lean mass preservation", "Superior glycemic control", "Enhanced lipid profile"],
-          candidate: "Patients seeking maximum metabolic impact, particularly those with insulin resistance or type 2 diabetes."
-        },
-        {
-          name: "Retatrutide",
-          moa: "Triple agonist targeting GLP-1, GIP, and glucagon receptors simultaneously — the most potent metabolic signaling compound available, driving energy expenditure alongside appetite suppression.",
-          benefits: ["Unprecedented fat reduction potential", "Accelerated metabolic rate", "Visceral fat targeting", "Liver fat reduction"],
-          candidate: "High-performance individuals seeking the frontier of metabolic optimization and body composition transformation."
-        }
-      ]
-    },
-    {
-      category: "Growth Hormone Secretagogues",
-      description: "GH secretagogues stimulate the pituitary gland to release endogenous growth hormone in natural pulsatile rhythms — restoring youthful GH levels without the risks of exogenous HGH. Protocol selection depends on your goals, IGF-1 levels, and desired pulse characteristics.",
-      note: "CJC-1295 + Ipamorelin is the versatile entry point — broad anti-aging and GH restoration with a clean side-effect profile. Tesamorelin has the strongest clinical evidence for visceral fat reduction and is preferred when body composition is the primary goal. Tesamorelin + Ipamorelin is the premium stack, combining targeted fat reduction with superior sleep and recovery.",
-      peptides: [
-        {
-          name: "CJC-1295 + Ipamorelin",
-          moa: "CJC-1295 extends the GHRH signal while Ipamorelin mimics ghrelin at the pituitary — together producing amplified, sustained GH pulses without cortisol or prolactin elevation.",
-          benefits: ["Deep sleep restoration", "Lean muscle accretion", "Skin elasticity and collagen synthesis", "Fat metabolism improvement", "Broad anti-aging effects"],
-          candidate: "The foundational anti-aging secretagogue stack. Ideal for those new to GH optimization seeking comprehensive restoration."
-        },
-        {
-          name: "Tesamorelin",
-          moa: "A stabilized GHRH analogue with the strongest clinical evidence base of any secretagogue — specifically proven to reduce visceral adipose tissue while elevating IGF-1 and preserving lean mass.",
-          benefits: ["Clinically proven visceral fat reduction", "Enhanced IGF-1 elevation", "Improved lipid profile", "Cognitive function support", "Cardiovascular protection"],
-          candidate: "Those prioritizing targeted abdominal fat loss, metabolic health, and evidence-backed GH optimization."
-        },
-        {
-          name: "Tesamorelin + Ipamorelin",
-          moa: "A precision-engineered combination that pairs Tesamorelin's visceral fat targeting with Ipamorelin's clean GH pulse amplification — layering metabolic specificity with recovery and sleep enhancement.",
-          benefits: ["Visceral fat reduction with enhanced GH amplitude", "Superior sleep architecture", "Accelerated injury recovery", "Lean mass preservation", "Synergistic anti-aging effect"],
-          candidate: "Athletes, executives, and longevity-focused individuals seeking the most comprehensive GH secretagogue protocol available."
-        }
-      ]
-    },
-    {
-      category: "Recovery & Regeneration",
-      description: "Precision peptides that accelerate the body's innate healing machinery — reducing downtime, resolving chronic injury, and restoring structural integrity at the cellular level.",
-      peptides: [
-        {
-          name: "BPC-157",
-          moa: "Body Protection Compound-157 accelerates angiogenesis, upregulates growth hormone receptors in injured tissue, and modulates the nitric oxide system to orchestrate comprehensive repair.",
-          benefits: ["Rapid tendon and ligament healing", "Gut lining restoration", "Joint inflammation resolution", "Nerve repair support", "Systemic anti-inflammatory action"],
-          candidate: "Individuals with chronic musculoskeletal injuries, post-surgical recovery needs, or gut permeability issues."
-        },
-        {
-          name: "TB-500 (Thymosin Beta-4)",
-          moa: "Regulates actin — a protein critical to cell structure — enabling accelerated cell migration to injury sites and promoting angiogenesis and muscle satellite cell activation.",
-          benefits: ["Systemic injury recovery", "Flexible tissue healing", "Reduced inflammation and scar formation", "Enhanced cardiovascular tissue repair", "Neurological recovery support"],
-          candidate: "Competitive athletes, post-surgical patients, and those with systemic or difficult-to-reach injuries."
-        },
-        {
-          name: "KPV",
-          moa: "A tripeptide derived from alpha-MSH that potently inhibits pro-inflammatory cytokine pathways — delivering targeted anti-inflammatory and wound-healing effects with exceptional tolerability.",
-          benefits: ["Potent anti-inflammatory action", "Accelerated wound and tissue healing", "Gut mucosal protection", "Immune modulation", "Skin barrier restoration"],
-          candidate: "Those managing inflammatory conditions, gut disorders, skin issues, or seeking a gentle but effective healing support peptide."
-        }
-      ]
-    },
-    {
-      category: "Sexual Health & Vitality",
-      description: "Targeted interventions that address the neurological, vascular, and hormonal drivers of sexual function — restoring desire, performance, and intimacy with clinical precision.",
-      peptides: [
-        {
-          name: "PT-141 (Bremelanotide)",
-          moa: "Melanocortin receptor agonist acting directly on the central nervous system to initiate desire — addressing the neurological root of sexual dysfunction independent of hormonal or vascular pathways.",
-          benefits: ["Increased sexual desire in men and women", "Improved arousal and sensitivity", "Enhanced erectile function", "Centrally driven — works even with hormonal deficiency"],
-          candidate: "Men and women experiencing low libido, arousal difficulties, or sexual dysfunction unresponsive to conventional therapies."
-        },
-        {
-          name: "Kisspeptin",
-          moa: "Master regulator of the hypothalamic-pituitary-gonadal axis — kisspeptin directly stimulates GnRH release, driving upstream hormonal cascades that govern reproduction, desire, and sexual behavior.",
-          benefits: ["Natural testosterone and estrogen optimization", "Libido enhancement via hormonal axis", "Improved mood and emotional intimacy", "Fertility support", "Complementary to PT-141 for comprehensive sexual health"],
-          candidate: "Individuals with hormonal root causes of sexual dysfunction, or those seeking a more physiological approach to desire restoration."
-        }
-      ]
-    },
-    {
-      category: "Immune & Longevity",
-      description: "Compounds that operate at the deepest levels of biological aging — modulating immunity, extending telomere length, and activating the mitochondrial pathways that govern how long and how well we live.",
-      peptides: [
-        {
-          name: "Thymosin Alpha-1",
-          moa: "Thymic peptide that stimulates T-cell maturation, enhances dendritic cell function, and downregulates pathological inflammatory signaling — rebuilding immune surveillance from the ground up.",
-          benefits: ["Immune system fortification", "Enhanced pathogen resistance", "Autoimmune modulation", "Antiviral and antibacterial resilience", "Cancer immune surveillance support"],
-          candidate: "Executives navigating high-stress environments, frequent travelers, or those with immune dysregulation."
-        },
-        {
-          name: "Epithalon",
-          moa: "Tetrapeptide that activates telomerase — the enzyme responsible for maintaining telomere length — while regulating the pineal gland and circadian melatonin secretion for comprehensive longevity signaling.",
-          benefits: ["Telomere length preservation", "Enhanced melatonin production", "Circadian rhythm restoration", "Cellular senescence reduction", "Antioxidant upregulation"],
-          candidate: "Longevity-focused individuals seeking to address biological aging at the chromosomal level."
-        },
-        {
-          name: "Pinealon",
-          moa: "A tripeptide derived from the pineal gland that penetrates the blood-brain barrier, reducing oxidative stress in neural tissue, regulating circadian biology, and demonstrating neuroprotective and pro-longevity properties.",
-          benefits: ["Deep neuroprotection", "Circadian and sleep optimization", "Antioxidant neural defense", "Cognitive preservation with aging", "Longevity signaling synergy with Epithalon"],
-          candidate: "Those with sleep dysregulation, cognitive aging concerns, or seeking to stack longevity peptides for comprehensive effect."
-        },
-        {
-          name: "MOTS-c",
-          moa: "A mitochondrial-derived peptide that translocates to the nucleus under metabolic stress, activating AMPK pathways and SIRT1 — the same longevity switches activated by caloric restriction and exercise.",
-          benefits: ["Mitochondrial biogenesis", "Enhanced metabolic flexibility", "Insulin sensitivity improvement", "Exercise mimetic effects", "Longevity pathway activation"],
-          candidate: "High-performance individuals seeking cellular energy optimization and metabolic anti-aging at the mitochondrial level."
-        }
-      ]
-    },
-    {
-      category: "Cognitive & Neuroprotective",
-      description: "Precision neuropeptides that enhance neurotransmitter dynamics, protect against neurodegeneration, and promote the neuroplasticity that underlies peak cognitive performance.",
-      peptides: [
-        {
-          name: "Semax",
-          moa: "Synthetic analogue of ACTH that increases BDNF expression, enhances dopaminergic and serotonergic neurotransmission, and promotes cerebral blood flow for acute and sustained cognitive enhancement.",
-          benefits: ["Elevated BDNF and neuroplasticity", "Enhanced focus and working memory", "Neuroprotection under stress", "Mood stabilization", "Stroke and cognitive injury recovery"],
-          candidate: "High-performers seeking a reliable cognitive edge, or those recovering from neurological events."
-        },
-        {
-          name: "Selank",
-          moa: "Anxiolytic neuropeptide analogue of tuftsin that modulates GABA, serotonin, and enkephalin systems — delivering calm, focused clarity without sedation or dependency.",
-          benefits: ["Anxiety reduction without impairment", "Enhanced learning and memory consolidation", "Stable mood and emotional regulation", "Immune modulation", "Anti-fatigue effects"],
-          candidate: "Individuals managing high cognitive load with anxiety or stress, seeking clarity without pharmaceutical sedation."
-        },
-        {
-          name: "Cerebrolysin",
-          moa: "A purified mixture of low-molecular-weight neuropeptides and amino acids that mimics endogenous neurotrophic factors — directly nourishing neural circuitry and reversing markers of neurodegeneration.",
-          benefits: ["Robust neuroprotection", "Alzheimer's and cognitive decline prevention", "Post-stroke neural repair", "Enhanced memory and executive function", "Neurotrophin-level brain support"],
-          candidate: "Those with family history of neurodegeneration, cognitive aging concerns, or seeking the most potent neuroprotective intervention available."
-        },
-        {
-          name: "NAD+",
-          moa: "Essential coenzyme at the center of cellular energy metabolism, DNA repair, and sirtuin (longevity gene) activation — levels decline 50% by age 50, making restoration one of the highest-leverage longevity interventions.",
-          benefits: ["Cellular energy restoration", "DNA damage repair acceleration", "Sirtuin and longevity pathway activation", "Improved metabolic function", "Enhanced mental clarity and resilience"],
-          candidate: "Any adult seeking foundational longevity support. Particularly impactful for those experiencing energy decline, brain fog, or accelerated biological aging."
-        }
-      ]
-    },
-    {
-      category: "Auryx Signature Complexes",
-      description: "Proprietary Auryx compounded formulations — physician-curated peptide blends engineered for specific outcomes that no single agent can achieve alone.",
-      peptides: [
-        {
-          name: "GLOW Complex",
-          moa: "An Auryx-formulated blend targeting the biological drivers of skin luminosity, hair density, and connective tissue integrity — combining collagen-stimulating, antioxidant, and dermal repair peptides.",
-          benefits: ["Skin radiance and elasticity restoration", "Hair follicle regeneration", "Collagen and elastin synthesis", "Dermal inflammation reduction", "Nail and connective tissue strengthening"],
-          candidate: "Those prioritizing aesthetic longevity — the visible expression of deep biological health and cellular renewal."
-        },
-        {
-          name: "KLOW Complex",
-          moa: "An Auryx-curated cellular optimization blend targeting mitochondrial efficiency, metabolic rate, and inflammation at the systemic level — the foundational stack for total-body performance.",
-          benefits: ["Systemic inflammation reduction", "Metabolic rate enhancement", "Cellular energy optimization", "Recovery acceleration", "Whole-body performance baseline elevation"],
-          candidate: "High-performance individuals seeking a comprehensive cellular foundation protocol before or alongside targeted therapeutic peptides."
-        }
-      ]
-    }
-  ];
-
-  const faqs = [
-    { q: "Are peptides safe?", a: "Peptide therapy is safe when prescribed by a licensed MD and sourced from regulated US compounding pharmacies. All Auryx protocols are physician-prescribed, 3rd-party tested, and monitored throughout treatment." },
-    { q: "How quickly will I see results?", a: "Most patients notice improvements in sleep and energy within the first 2–4 weeks. Body composition and structural changes typically become visible within 1–3 months, depending on the protocol and individual biology." },
-    { q: "Do I need to visit in person?", a: "No in-person visit is required. Auryx offers full telemedicine consultations and direct-to-door protocol delivery for eligible patients nationwide across the United States." },
-    { q: "How are protocols personalized?", a: "Every protocol starts with a comprehensive biomarker panel, full medical history review, and lifestyle assessment — conducted by a licensed MD — to design a therapeutic intervention specific to your biology and goals." },
-    { q: "Is Auryx right for me?", a: "Auryx is designed for individuals who treat their health as a high-performance asset and want precision medical optimization — not reactive healthcare. If that's you, we're the right fit." },
-    { q: "How much does treatment cost?", a: "Protocol pricing depends on the compounds selected, dosing, and duration — all tailored to your biology. Full pricing is discussed during your private consultation with no obligation to proceed." },
-    { q: "Does Auryx accept insurance?", a: "Auryx does not accept insurance. Peptide therapy is an elective precision medicine service and is self-pay only. We accept credit and debit cards, Zelle, and Venmo." },
-    { q: "Who are Auryx's providers?", a: "Auryx was founded and is led by a licensed MD specializing in regenerative and integrative medicine. Every protocol is prescribed, reviewed, and monitored by our clinical team — you are always under direct medical supervision." },
-    { q: "I'm already on a protocol from another provider. Can I continue it through Auryx?", a: "Yes — and it takes less than 24 hours. Complete a brief intake form covering your current protocol and a short medical screen. A licensed MD reviews and approves, and your compounds are delivered directly to you." },
-    { q: "Is Auryx available in my state?", a: "Auryx serves patients nationwide across the United States via telemedicine with direct-to-door delivery. Reach out and our team will confirm availability for your location." },
-  ];
 
   return (
     <div className="w-full bg-background text-foreground overflow-x-hidden">
-      
-      {/* HERO SECTION */}
-      <section className="relative w-full h-[100dvh] flex items-center overflow-hidden">
-        <motion.div 
-          className="absolute inset-0 z-0"
-          style={{ y: heroY, opacity }}
-        >
-          <div className="absolute inset-0 bg-background/55 z-10" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/30 to-background z-10" />
+
+      {/* ── 1. HERO ── */}
+      <section className="relative w-full min-h-[100dvh] flex items-center overflow-hidden">
+        <motion.div className="absolute inset-0 z-0" style={{ y: heroY, opacity: heroOpacity }}>
+          <div className="absolute inset-0 bg-background/50 z-10" />
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-background/20 to-background z-10" />
           <div className="absolute inset-0">
             <Suspense fallback={null}>
               <MoleculeDockScene />
@@ -347,85 +183,180 @@ export default function Home() {
           </div>
         </motion.div>
 
-        <div className="container relative z-20 px-6 md:px-12 mx-auto pt-20">
-          <motion.div 
-            initial={{ opacity: 0, y: 30 }}
+        <div className="container relative z-20 px-6 md:px-16 mx-auto pt-24 pb-20">
+          <motion.div
+            initial={{ opacity: 0, y: 32 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.2 }}
-            className="max-w-4xl"
+            transition={{ duration: 1, delay: 0.15 }}
+            className="max-w-3xl"
           >
-            <div className="flex items-center gap-4 mb-6">
-              <div className="h-[1px] w-12 bg-primary"></div>
-              <span className="text-primary tracking-[0.3em] text-sm font-medium uppercase">Precision Longevity</span>
+            <div className="flex items-center gap-4 mb-8">
+              <div className="h-px w-10 bg-primary" />
+              <span className="text-primary tracking-[0.3em] text-xs font-medium uppercase">Precision Wellness</span>
             </div>
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif leading-[1.1] mb-8 font-light">
-              Your Protocol. <br/> Delivered.
+
+            <h1 className="text-5xl md:text-7xl font-serif leading-[1.08] mb-8 font-light">
+              Precision wellness,<br />
+              <em className="not-italic text-foreground/75">delivered with intention.</em>
             </h1>
-            <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8 font-light leading-relaxed">
-              Pharmaceutical-grade peptides. Physician-reviewed before every shipment. Direct to your door, nationwide.
+
+            <p className="text-base md:text-lg text-foreground/60 max-w-xl mb-6 font-light leading-relaxed">
+              AURYX offers education-first peptide protocols designed to support performance, recovery, vitality, skin health, and healthy aging. Built for people who want to feel sharper, move better, and age with strategy.
             </p>
-            <p className="text-sm text-primary/70 tracking-wide mb-10 font-light">
-              MD-led precision longevity care — serving patients nationwide across the United States.
+
+            <p className="text-xs text-primary/60 tracking-wide mb-10 max-w-md leading-relaxed">
+              No hype. No shortcuts. Just modern wellness, clear guidance, and a more intentional way to optimize.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <Button
-                asChild
-                className="bg-primary text-primary-foreground hover:bg-primary/90 h-14 px-8 text-base tracking-wide w-full sm:w-auto"
+
+            <div className="flex flex-col sm:flex-row gap-3 mb-8">
+              <Link
+                href="/shop"
+                className="inline-flex items-center justify-center gap-2 bg-primary text-[#0A0A0A] font-semibold tracking-wide px-8 h-13 py-3.5 rounded-lg hover:bg-primary/90 transition-colors text-sm"
               >
-                <a href="/shop">Shop Protocols</a>
-              </Button>
-              <Button 
-                variant="outline"
-                onClick={() => setModalOpen(true)}
-                className="border-primary/50 text-primary hover:bg-primary/10 h-14 px-8 text-base tracking-wide w-full sm:w-auto"
+                Find Your Protocol <ArrowRight className="w-4 h-4" />
+              </Link>
+              <button
+                onClick={() => scrollTo("focus")}
+                className="inline-flex items-center justify-center gap-2 border border-white/20 text-foreground/70 hover:text-foreground hover:border-white/40 px-8 h-13 py-3.5 rounded-lg transition-colors text-sm tracking-wide"
               >
-                Book a Consultation
-              </Button>
+                Explore Protocols
+              </button>
             </div>
-            <button
-              onClick={() => scrollToSection("categories")}
-              className="text-sm text-muted-foreground underline underline-offset-4 hover:text-foreground transition-colors text-left"
-            >
-              Explore Protocols
-            </button>
           </motion.div>
         </div>
+
+        <button
+          onClick={() => scrollTo("focus")}
+          className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 text-white/25 hover:text-white/50 transition-colors"
+        >
+          <span className="text-[10px] tracking-[0.3em] uppercase">Discover</span>
+          <motion.div
+            animate={{ y: [0, 6, 0] }}
+            transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
+          >
+            <ChevronRight className="w-4 h-4 rotate-90" />
+          </motion.div>
+        </button>
       </section>
 
-      {/* CATEGORIES SECTION */}
-      <section id="categories" className="pt-20 pb-12 px-6 md:px-12 bg-background relative z-20">
+      {/* ── 2. FOCUS AREAS ── */}
+      <section id="focus" className="py-24 md:py-32 px-6 md:px-16 bg-background">
         <div className="container mx-auto max-w-7xl">
-          <motion.div 
+          <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-20 text-center"
+            className="mb-16 md:mb-20"
           >
-            <h2 className="text-4xl md:text-5xl font-serif mb-6 text-foreground">Therapeutic Domains</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              Targeted biological optimization across six core pillars of human performance.
-            </p>
+            <p className="text-xs uppercase tracking-[0.3em] text-primary mb-4">Protocol Collections</p>
+            <h2 className="text-4xl md:text-5xl font-serif text-foreground max-w-xl leading-tight">
+              Choose your area of focus.
+            </h2>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-            {categories.map((cat, i) => (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {FOCUS_AREAS.map((area, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 30 }}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.07 }}
+              >
+                <Link
+                  href={`/shop?category=${encodeURIComponent(area.slug)}`}
+                  className="group block p-8 bg-card border border-border hover:border-primary/40 rounded-2xl transition-all duration-400 relative overflow-hidden h-full"
+                >
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    style={{ background: `radial-gradient(ellipse at 0% 0%, ${area.accent}0d 0%, transparent 60%)` }}
+                  />
+                  <div className="relative z-10">
+                    <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl border border-border bg-background/50 mb-5"
+                      style={{ color: area.accent }}>
+                      {area.icon}
+                    </div>
+                    <h3 className="text-lg font-serif text-foreground mb-3">{area.title}</h3>
+                    <p className="text-sm text-foreground/55 leading-relaxed mb-5">{area.desc}</p>
+                    <span className="inline-flex items-center gap-1 text-xs text-primary/60 group-hover:text-primary transition-colors font-medium tracking-wide uppercase">
+                      View Protocols <ChevronRight className="w-3 h-3" />
+                    </span>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 3. PROTOCOL FINDER / CONCIERGE QUIZ ── */}
+      <section id="finder" className="py-24 md:py-32 px-6 md:px-16 bg-card/40 border-y border-border/40">
+        <div className="container mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            <motion.div
+              initial={{ opacity: 0, x: -24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+            >
+              <p className="text-xs uppercase tracking-[0.3em] text-primary mb-5">Protocol Finder</p>
+              <h2 className="text-4xl md:text-5xl font-serif leading-tight mb-6">
+                Your protocol starts<br />with your rhythm.
+              </h2>
+              <p className="text-foreground/55 leading-relaxed text-base mb-8 max-w-md">
+                Answer a few questions about your goals, lifestyle, and current routine. We'll guide you toward the AURYX protocol category that best matches your priorities.
+              </p>
+              <div className="space-y-3.5">
+                {["Goals-aligned, not generic", "Built around your lifestyle", "Education included, always"].map(pt => (
+                  <div key={pt} className="flex items-center gap-3">
+                    <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                    <span className="text-sm text-foreground/65">{pt}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, x: 24 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.1 }}
+              className="bg-card border border-border rounded-2xl overflow-hidden"
+            >
+              <PatientAssessment onOpenConsult={() => setModalOpen(true)} onContinueProtocol={() => setContinuationOpen(true)} />
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 4. THE AURYX STANDARD ── */}
+      <section id="standard" className="py-24 md:py-32 px-6 md:px-16 bg-background">
+        <div className="container mx-auto max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-16 md:mb-20 text-center"
+          >
+            <p className="text-xs uppercase tracking-[0.3em] text-primary mb-4">Our Commitment</p>
+            <h2 className="text-4xl md:text-5xl font-serif text-foreground">The AURYX Standard</h2>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+            {STANDARD_PILLARS.map((p, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 24 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="group p-10 bg-card border border-card-border hover:border-primary/50 transition-all duration-500 rounded-xl relative overflow-hidden"
+                className="flex flex-col gap-5"
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <div className="relative z-10">
-                  <div className="mb-6 p-4 bg-background/50 rounded-full inline-flex items-center justify-center">
-                    {cat.icon}
-                  </div>
-                  <h3 className="text-xl font-serif mb-3 text-foreground">{cat.title}</h3>
-                  <p className="text-muted-foreground leading-relaxed text-sm line-clamp-2">
-                    {cat.desc}
-                  </p>
+                <div className="flex items-end gap-3">
+                  <span className="font-serif text-4xl text-primary/20 leading-none">{p.num}</span>
+                  <div className="h-px flex-1 bg-border/60 mb-1.5" />
+                </div>
+                <div>
+                  <h3 className="font-serif text-lg text-foreground mb-3">{p.title}</h3>
+                  <p className="text-sm text-foreground/50 leading-relaxed">{p.desc}</p>
                 </div>
               </motion.div>
             ))}
@@ -433,56 +364,222 @@ export default function Home() {
         </div>
       </section>
 
-      <div id="assessment" className="border-y border-primary/20 bg-card/60 -mt-1">
-        <PatientAssessment onOpenConsult={() => setModalOpen(true)} onContinueProtocol={() => setContinuationOpen(true)} />
-      </div>
+      {/* ── 5. LIFESTYLE SECTION ── */}
+      <section id="about" className="py-24 md:py-32 px-6 md:px-16 overflow-hidden bg-card/30">
+        <div className="container mx-auto max-w-7xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+            {/* Visual panel */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8 }}
+              className="relative h-[480px] md:h-[560px] rounded-2xl overflow-hidden order-2 lg:order-1"
+              style={{ background: "linear-gradient(135deg, #0D0D0D 0%, #141414 40%, #0A1A19 100%)" }}
+            >
+              <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 60% at 60% 40%, rgba(184,150,46,0.18) 0%, transparent 55%)" }} />
+              <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 50% at 20% 70%, rgba(13,148,136,0.12) 0%, transparent 50%)" }} />
+              {/* Abstract lifestyle composition */}
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="text-center px-10">
+                  <p className="font-serif text-3xl md:text-4xl text-white/20 leading-snug italic">
+                    "The ultimate luxury is<br />the mastery over one's own<br />physical and cognitive capacity."
+                  </p>
+                </div>
+              </div>
+              {/* Decorative particles */}
+              {[
+                { top: "15%", left: "10%", size: 6, opacity: 0.3 },
+                { top: "25%", right: "15%", size: 4, opacity: 0.2 },
+                { bottom: "20%", left: "20%", size: 3, opacity: 0.15 },
+                { bottom: "30%", right: "10%", size: 5, opacity: 0.25 },
+                { top: "60%", left: "5%", size: 2, opacity: 0.2 },
+              ].map((dot, i) => (
+                <div key={i} className="absolute rounded-full bg-[#C9A844]"
+                  style={{ width: dot.size, height: dot.size, opacity: dot.opacity, ...dot }} />
+              ))}
+            </motion.div>
 
-      {/* PROCESS SECTION */}
-      <section id="process" className="pt-20 pb-2 px-6 md:px-12 bg-card relative z-20">
+            {/* Text */}
+            <motion.div
+              initial={{ opacity: 0, x: 30 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              className="order-1 lg:order-2"
+            >
+              <p className="text-xs uppercase tracking-[0.3em] text-primary mb-5">Our Philosophy</p>
+              <h2 className="text-4xl md:text-5xl font-serif leading-tight mb-8">
+                Optimization is not<br />a shortcut.{" "}
+                <span className="text-foreground/40">It is a standard.</span>
+              </h2>
+              <div className="space-y-5 text-foreground/55 leading-relaxed text-base mb-10">
+                <p>
+                  Peptides are only one part of the equation. The AURYX philosophy connects modern wellness with daily rhythm: training, sleep, nutrition, recovery, and consistency.
+                </p>
+                <p>
+                  We believe in understanding your biology before acting on it. That means education, honest guidance, and protocols designed for long-term benefit — not quick transformations.
+                </p>
+                <p>
+                  Most medicine is designed to keep you from declining. AURYX is designed to help you thrive.
+                </p>
+              </div>
+              <button
+                onClick={() => setModalOpen(true)}
+                className="inline-flex items-center gap-2 text-sm text-primary font-medium hover:gap-3 transition-all group"
+              >
+                Book a private consultation <ArrowRight className="w-4 h-4" />
+              </button>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* ── 6. PRODUCT PREVIEW ── */}
+      <section id="protocols" className="py-24 md:py-32 px-6 md:px-16 bg-background">
+        <div className="container mx-auto max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-16"
+          >
+            <div>
+              <p className="text-xs uppercase tracking-[0.3em] text-primary mb-4">Featured Protocols</p>
+              <h2 className="text-4xl md:text-5xl font-serif max-w-md leading-tight">
+                Explore the protocol collections.
+              </h2>
+            </div>
+            <Link
+              href="/shop"
+              className="inline-flex items-center gap-2 text-sm text-primary/70 hover:text-primary transition-colors font-medium shrink-0"
+            >
+              View all protocols <ArrowRight className="w-4 h-4" />
+            </Link>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {FEATURED_PROTOCOLS.map((p, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+              >
+                <Link
+                  href={`/shop/${p.slug}`}
+                  className="group block bg-card border border-border hover:border-primary/35 rounded-2xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-lg"
+                >
+                  {/* Product visual */}
+                  <div className="h-36 relative flex items-center justify-center overflow-hidden"
+                    style={{ background: "linear-gradient(135deg, #F5F0E8 0%, #EDE6D3 100%)" }}
+                  >
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                      style={{ background: "radial-gradient(ellipse at 60% 40%, rgba(201,168,68,0.2) 0%, transparent 65%)" }} />
+                    <svg width="52" height="78" viewBox="0 0 52 78" fill="none" className="drop-shadow-sm group-hover:scale-105 group-hover:-translate-y-1 transition-transform duration-500">
+                      <rect x="19" y="2" width="14" height="8" rx="3" fill="#C9A844" opacity="0.8" />
+                      <rect x="16" y="9" width="20" height="4" rx="1" fill="#C9A844" opacity="0.5" />
+                      <rect x="12" y="12" width="28" height="56" rx="6" fill="white" opacity="0.92" stroke="#C9A844" strokeWidth="1" strokeOpacity="0.3" />
+                      <rect x="16" y="17" width="20" height="28" rx="3" fill="#C9A844" opacity="0.07" />
+                      <rect x="14" y="16" width="8" height="50" rx="3" fill="white" opacity="0.5" />
+                      <text x="26" y="49" textAnchor="middle" fontSize="4.5" fill="#C9A844" opacity="0.8" fontFamily="Georgia, serif" letterSpacing="1">AURYX</text>
+                    </svg>
+                  </div>
+                  <div className="p-5">
+                    <span className="text-[9px] uppercase tracking-[0.2em] text-primary/60 font-medium">{p.category}</span>
+                    <h3 className="font-serif text-foreground text-base mt-1 mb-2">{p.name}</h3>
+                    <p className="text-xs text-foreground/45 leading-relaxed mb-4">{p.desc}</p>
+                    <span className="inline-flex items-center gap-1 text-[10px] text-primary/60 group-hover:text-primary transition-colors font-medium tracking-widest uppercase">
+                      Explore protocol <ChevronRight className="w-3 h-3" />
+                    </span>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 7. EDUCATION ── */}
+      <section id="education" className="py-24 md:py-32 px-6 md:px-16 bg-card/30 border-y border-border/40">
+        <div className="container mx-auto max-w-7xl">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="mb-16 md:mb-20"
+          >
+            <p className="text-xs uppercase tracking-[0.3em] text-primary mb-4">Resources</p>
+            <h2 className="text-4xl md:text-5xl font-serif max-w-md leading-tight">
+              Learn before you optimize.
+            </h2>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+            {EDUCATION_ARTICLES.map((a, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                className="group border border-border hover:border-primary/30 rounded-2xl p-7 bg-card/50 hover:bg-card transition-all duration-300 cursor-pointer"
+              >
+                <span className="font-serif text-4xl text-primary/15 leading-none block mb-5">{a.num}</span>
+                <h3 className="font-serif text-foreground text-base mb-3 leading-snug">{a.title}</h3>
+                <p className="text-xs text-foreground/45 leading-relaxed">{a.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ── 8. METHODOLOGY ── */}
+      <section id="process" className="py-24 md:py-32 px-6 md:px-16 bg-background">
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-20 items-center">
             <motion.div
-              initial={{ opacity: 0, x: -30 }}
+              initial={{ opacity: 0, x: -24 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
             >
-              <h2 className="text-4xl md:text-6xl font-serif mb-8 leading-tight">The Auryx <br/> Methodology</h2>
-              <p className="text-lg text-muted-foreground mb-10 leading-relaxed max-w-lg">
-                We do not guess. We measure, architect, and optimize. Our framework is rooted in rigorous clinical data and tailored exclusively to your unique physiological landscape.
+              <p className="text-xs uppercase tracking-[0.3em] text-primary mb-5">How It Works</p>
+              <h2 className="text-4xl md:text-5xl font-serif mb-6 leading-tight">
+                The Auryx<br />Methodology
+              </h2>
+              <p className="text-foreground/50 leading-relaxed max-w-sm mb-8">
+                We do not guess. We listen, educate, and build a protocol designed around who you are and where you want to go.
               </p>
-              <Button 
+              <button
                 onClick={() => setModalOpen(true)}
-                variant="link" 
-                className="text-primary p-0 h-auto text-lg group"
+                className="inline-flex items-center gap-2 text-sm text-primary font-medium hover:gap-3 transition-all"
               >
-                Initiate Your Process <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
+                Begin your consultation <ArrowRight className="w-4 h-4" />
+              </button>
             </motion.div>
 
-            <div className="space-y-16 relative">
-              <div className="absolute left-[27px] top-6 bottom-6 w-[1px] bg-border/60 hidden md:block" />
-              
+            <div className="space-y-10 relative">
+              <div className="absolute left-7 top-8 bottom-8 w-px bg-border/50 hidden md:block" />
               {[
-                { step: "01", title: "Choose Your Path", lead: "New to peptides? Start with a private consultation.", rest: "Already on an established protocol? Our streamlined intake gets you set up within 24 hours — no full consultation required." },
-                { step: "02", title: "Clinical Review & Approval", lead: "A licensed Auryx physician reviews your intake or conducts your consultation.", rest: "Assessing your history, goals, and protocol fit before any compound is dispensed." },
-                { step: "03", title: "Bespoke Protocol & Dispensing", lead: "Your protocol is prescribed, compounded by a US-licensed pharmacy, and delivered directly to your door.", rest: "Pharmaceutical-grade, 3rd-party tested — no grey-market sourcing, ever." },
-                { step: "04", title: "Ongoing Optimization", lead: "Continuous monitoring, protocol adjustments, and dedicated concierge support.", rest: "Including Aria, available around the clock — to ensure maximum efficacy for patients nationwide across the United States via telemedicine." }
-              ].map((item, i) => (
-                <motion.div 
+                { step: "01", title: "Find Your Focus", body: "Start by exploring our protocol categories or take the Protocol Finder quiz. New to peptides? We'll explain every step before anything else." },
+                { step: "02", title: "Physician Review", body: "A licensed Auryx physician reviews your intake and health history before any protocol is dispensed. Your safety and suitability come first." },
+                { step: "03", title: "Precision Dispensing", body: "Your protocol is compounded at a US-licensed pharmacy, third-party tested, and shipped directly to your door in discreet packaging." },
+                { step: "04", title: "Ongoing Support", body: "Aria, our AI wellness concierge, is available around the clock. Protocol adjustments, questions, and continuity — we're with you throughout." },
+              ].map((s, i) => (
+                <motion.div
                   key={i}
-                  initial={{ opacity: 0, y: 20 }}
+                  initial={{ opacity: 0, y: 16 }}
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
-                  transition={{ delay: i * 0.15 }}
-                  className="flex gap-8 relative z-10"
+                  transition={{ delay: i * 0.12 }}
+                  className="flex gap-7 relative z-10"
                 >
-                  <div className="w-14 h-14 rounded-full bg-primary/10 border-2 border-primary flex items-center justify-center shrink-0 text-primary font-serif text-lg font-bold">
-                    {item.step}
+                  <div className="w-14 h-14 rounded-full bg-background border-2 border-primary/30 flex items-center justify-center shrink-0 font-serif text-sm text-primary font-semibold">
+                    {s.step}
                   </div>
-                  <div className="pt-1">
-                    <h4 className="text-2xl font-serif mb-3 text-foreground font-semibold">{item.title}</h4>
-                    <p className="text-foreground/85 leading-relaxed mb-1 font-medium">{item.lead}</p>
-                    <p className="text-muted-foreground leading-relaxed text-sm">{item.rest}</p>
+                  <div className="pt-1.5">
+                    <h4 className="font-serif text-xl text-foreground mb-2">{s.title}</h4>
+                    <p className="text-sm text-foreground/50 leading-relaxed">{s.body}</p>
                   </div>
                 </motion.div>
               ))}
@@ -491,224 +588,26 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ABOUT / PHILOSOPHY SECTION */}
-      <section id="about" className="py-20 px-6 md:px-12 bg-card relative z-20 overflow-hidden">
-        <div className="container mx-auto max-w-7xl">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="relative h-[600px] rounded-lg overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent z-10" />
-              <img 
-                src="/about-bg.png" 
-                alt="Auryx consultation room" 
-                className="w-full h-full object-cover"
-              />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="lg:pl-10"
-            >
-              <h3 className="text-primary tracking-[0.2em] text-sm uppercase mb-4">Our Philosophy</h3>
-              <h2 className="text-4xl md:text-5xl font-serif mb-8 leading-tight">
-                Age is a variable. <br/> <span className="text-muted-foreground">Optimization is a choice.</span>
-              </h2>
-              
-              <div className="space-y-6 text-lg text-foreground/80 font-light leading-relaxed mb-10">
-                <p>
-                  Most medicine is designed to keep you from dying. Auryx is designed to redefine how you live. We believe that physiological decline is not an inevitability to be accepted, but an engineering problem to be solved.
-                </p>
-                <p>
-                  You demand excellence in your career, your relationships, and your environment. Your biology should be no exception. We provide world-class, discreet, and bespoke therapeutic protocols to those who refuse to leave their potential on the table.
-                </p>
-                <p className="text-primary font-medium italic border-l-2 border-primary pl-6 py-2">
-                  "The ultimate luxury is the mastery over one's own physical and cognitive capacity."
-                </p>
-              </div>
-
-              <Button 
-                onClick={() => setModalOpen(true)}
-                className="bg-primary text-primary-foreground hover:bg-primary/90 h-14 px-8 text-base tracking-wide"
-              >
-                Begin Your Protocol
-              </Button>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* TESTIMONIALS SECTION */}
-      <section className="py-20 px-6 md:px-12 bg-background relative z-20">
-        <div className="container mx-auto max-w-7xl">
+      {/* ── 9. FAQ ── */}
+      <section id="faq" className="py-24 md:py-32 px-6 md:px-16 bg-card/30 border-t border-border/40">
+        <div className="container mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="mb-14 text-center"
           >
-            <span className="text-primary tracking-[0.2em] text-sm uppercase mb-4 block">Patient Outcomes</span>
-            <h2 className="text-4xl md:text-5xl font-serif mb-6">Results That Speak</h2>
+            <p className="text-xs uppercase tracking-[0.3em] text-primary mb-4">Common Questions</p>
+            <h2 className="text-4xl md:text-5xl font-serif">Questions & Answers</h2>
           </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {[
-              {
-                quote: "I've tried every biohacking protocol out there. Nothing moved the needle like Auryx. Three months in, my IGF-1 is up, my body fat is down, and I sleep like I'm 25 again.",
-                name: "Michael R.",
-                label: "Body Composition Protocol",
-              },
-              {
-                quote: "The intake process was seamless. My physician actually read my history and tailored everything. This is what concierge medicine should feel like.",
-                name: "Sarah K.",
-                label: "Anti-Aging Protocol",
-              },
-              {
-                quote: "I was already on a protocol from another provider. Switching to Auryx took less than 24 hours. The continuity of care is unmatched.",
-                name: "Daniel F.",
-                label: "Protocol Continuation",
-              },
-            ].map((t, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 24 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.12 }}
-                className="bg-card border border-border hover:border-primary/40 transition-colors duration-300 rounded-xl p-8 flex flex-col"
-              >
-                <span className="text-primary font-serif text-5xl leading-none mb-4 select-none">&ldquo;</span>
-                <p className="text-foreground/80 italic leading-relaxed text-base flex-1 mb-8">
-                  {t.quote}
-                </p>
-                <div className="border-t border-border/50 pt-5">
-                  <p className="text-foreground font-medium text-sm">{t.name}</p>
-                  <p className="text-primary/70 text-xs tracking-wider uppercase mt-0.5">{t.label}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* QUALITY & STANDARDS SECTION */}
-      <section className="py-16 px-6 md:px-12 bg-background relative z-20 overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(201,168,68,0.06),transparent_60%)]" />
-        <div className="container mx-auto max-w-7xl relative">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.7 }}
-            className="text-center mb-16"
-          >
-            <p className="text-primary tracking-[0.2em] text-sm uppercase mb-4">Pharmaceutical Excellence</p>
-            <h2 className="text-4xl md:text-5xl font-serif mb-5">No Compromises. No Shortcuts.</h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto leading-relaxed">
-              Every compound in every Auryx protocol is held to the same standard: pharmaceutical-grade purity, sourced on American soil, and verified by independent science.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-14">
-            {[
-              {
-                icon: <MapPin className="w-6 h-6 text-primary" />,
-                title: "US-Sourced",
-                body: "All peptides are compounded exclusively by FDA-registered US pharmacies operating under strict cGMP manufacturing standards.",
-              },
-              {
-                icon: <FlaskConical className="w-6 h-6 text-primary" />,
-                title: "Pharmaceutical Grade",
-                body: "We work only with licensed compounding pharmacies — not research-grade or grey-market suppliers. Medical quality, full stop.",
-              },
-              {
-                icon: <Microscope className="w-6 h-6 text-primary" />,
-                title: "3rd Party Tested",
-                body: "Every batch is independently verified by accredited third-party laboratories before it reaches a single patient.",
-              },
-              {
-                icon: <Gem className="w-6 h-6 text-primary" />,
-                title: "99%+ Purity",
-                body: "Purity certificates are available on request. We maintain a 99% minimum purity standard across all compounds in our formulary.",
-              },
-              {
-                icon: <Stethoscope className="w-6 h-6 text-primary" />,
-                title: "Physician-Led",
-                body: "Auryx is founded and led by a licensed MD and a licensed nurse practitioner — both specializing in regenerative and integrative medicine. Every protocol is prescribed and monitored by our clinical team.",
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 16 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                className="bg-card border border-border hover:border-primary/30 transition-colors rounded-xl p-7"
-              >
-                <div className="mb-5 p-2.5 bg-primary/10 rounded-lg inline-flex">{item.icon}</div>
-                <h3 className="text-lg font-serif text-foreground mb-3">{item.title}</h3>
-                <p className="text-muted-foreground text-sm leading-relaxed">{item.body}</p>
-              </motion.div>
-            ))}
-          </div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="bg-primary/5 border border-primary/25 rounded-xl px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-6"
-          >
-            <div className="flex items-start gap-4">
-              <div className="w-10 h-10 rounded-full border border-primary/30 bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
-                <span className="text-primary text-lg">✓</span>
-              </div>
-              <div>
-                <p className="text-foreground font-medium mb-1">Certificates of Analysis available on request</p>
-                <p className="text-muted-foreground text-sm leading-relaxed">
-                  Ask for the CoA on any compound in your protocol at any time. Transparency is not a feature — it is the standard. All protocols are dispensed from US-licensed compounding pharmacies and delivered directly to patients nationwide across the United States.
-                </p>
-              </div>
-            </div>
-            <Button
-              onClick={() => setModalOpen(true)}
-              variant="outline"
-              className="border-primary/40 text-primary hover:bg-primary/10 whitespace-nowrap shrink-0 px-7"
-            >
-              Request a CoA
-            </Button>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* FAQ SECTION */}
-      <section id="faq" className="py-20 px-6 md:px-12 bg-background relative z-20">
-        <div className="container mx-auto max-w-3xl">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-16 text-center"
-          >
-            <h2 className="text-4xl md:text-5xl font-serif mb-6">Inquiries</h2>
-            <p className="text-muted-foreground">Clarity before commitment.</p>
-          </motion.div>
-
-          <Accordion type="single" collapsible className="w-full">
-            {faqs.map((faq, i) => (
-              <AccordionItem key={i} value={`item-${i}`} className="border-b border-border py-2">
-                <AccordionTrigger className="text-left font-serif text-xl hover:text-primary transition-colors hover:no-underline">
-                  {faq.q}
+          <Accordion type="single" collapsible className="space-y-3">
+            {FAQS.map((f, i) => (
+              <AccordionItem key={i} value={`faq-${i}`} className="border border-border/60 rounded-xl px-6 bg-card/40">
+                <AccordionTrigger className="text-base font-serif text-foreground/90 py-5 hover:text-primary transition-colors text-left">
+                  {f.q}
                 </AccordionTrigger>
-                <AccordionContent className="text-muted-foreground leading-relaxed text-base">
-                  {faq.a}
+                <AccordionContent className="text-sm text-foreground/55 leading-relaxed pb-5">
+                  {f.a}
                 </AccordionContent>
               </AccordionItem>
             ))}
@@ -716,38 +615,43 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA SECTION */}
-      <section className="py-24 px-6 md:px-12 bg-card relative z-20 text-center overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-primary/10 via-background to-background" />
-        <div className="container mx-auto max-w-4xl relative z-10">
+      {/* ── 10. FINAL CTA ── */}
+      <section className="py-32 md:py-40 px-6 md:px-16 bg-background text-center">
+        <div className="container mx-auto max-w-3xl">
           <motion.div
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
           >
-            <h2 className="text-5xl md:text-7xl font-serif mb-8 leading-tight font-light">
-              Your Biology. <br/> Optimized.
+            <div className="h-px w-16 bg-primary/40 mx-auto mb-10" />
+            <p className="text-xs uppercase tracking-[0.3em] text-primary mb-6">Start Here</p>
+            <h2 className="text-4xl md:text-6xl font-serif leading-tight mb-8">
+              Build your protocol<br />
+              <span className="text-foreground/40">with intention.</span>
             </h2>
-            <p className="text-xl text-muted-foreground mb-12 max-w-2xl mx-auto font-light">
-              Membership to our clinical practice is limited to ensure uncompromising care for every patient. Protocols are priced individually based on your therapeutic plan — pricing is discussed during your private consultation, with no obligation to proceed.
+            <p className="text-foreground/45 text-base leading-relaxed max-w-xl mx-auto mb-12">
+              Start with your goals. Understand your options. Choose a more elevated path to modern wellness.
             </p>
-            <Button 
-              onClick={() => setModalOpen(true)}
-              className="bg-primary text-primary-foreground hover:bg-primary/90 h-16 px-12 text-lg tracking-widest uppercase font-medium shadow-2xl shadow-primary/20"
-            >
-              Request Private Consultation
-            </Button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link
+                href="/shop"
+                className="inline-flex items-center gap-2 bg-primary text-[#0A0A0A] font-semibold tracking-wide px-8 py-3.5 rounded-lg hover:bg-primary/90 transition-colors text-sm"
+              >
+                Find Your Protocol <ArrowRight className="w-4 h-4" />
+              </Link>
+              <button
+                onClick={() => setModalOpen(true)}
+                className="inline-flex items-center gap-2 border border-border text-foreground/60 hover:text-foreground hover:border-border/80 px-8 py-3.5 rounded-lg transition-colors text-sm tracking-wide"
+              >
+                Book a Consultation
+              </button>
+            </div>
           </motion.div>
         </div>
       </section>
 
       <ConsultationModal open={modalOpen} onOpenChange={setModalOpen} />
-      <ProtocolContinuationModal
-        open={continuationOpen}
-        onOpenChange={setContinuationOpen}
-        onSwitchToConsultation={() => { setContinuationOpen(false); setModalOpen(true); }}
-      />
+      <ProtocolContinuationModal open={continuationOpen} onOpenChange={setContinuationOpen} />
     </div>
   );
 }
