@@ -23,7 +23,7 @@ export default function Navbar() {
   };
 
   const isHome = location === "/" || location === "";
-  const isShopSection = location.startsWith("/shop") || location.startsWith("/checkout");
+  const isShopSection = location.startsWith("/checkout");
 
   const lightNav = isShopSection;
 
