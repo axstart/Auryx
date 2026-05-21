@@ -359,27 +359,27 @@ export default function Home() {
               <span className="text-primary tracking-[0.3em] text-sm font-medium uppercase">Precision Longevity</span>
             </div>
             <h1 className="text-5xl md:text-7xl lg:text-8xl font-serif leading-[1.1] mb-8 font-light">
-              Longevity Is <br/> the New Luxury.
+              Your Protocol. <br/> Delivered.
             </h1>
             <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mb-8 font-light leading-relaxed">
-              Elite, medically guided peptide therapy protocols designed for high-performance individuals. Precision science meets complete biological optimization.
+              Pharmaceutical-grade peptides. Physician-reviewed before every shipment. Direct to your door, nationwide.
             </p>
             <p className="text-sm text-primary/70 tracking-wide mb-10 font-light">
               MD-led precision longevity care — serving patients nationwide across the United States.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 mb-8">
-              <Button 
-                onClick={() => setModalOpen(true)}
+              <Button
+                asChild
                 className="bg-primary text-primary-foreground hover:bg-primary/90 h-14 px-8 text-base tracking-wide w-full sm:w-auto"
               >
-                Book a Consultation
+                <a href="/shop">Shop Protocols</a>
               </Button>
-              <Button
+              <Button 
                 variant="outline"
-                onClick={() => setContinuationOpen(true)}
+                onClick={() => setModalOpen(true)}
                 className="border-primary/50 text-primary hover:bg-primary/10 h-14 px-8 text-base tracking-wide w-full sm:w-auto"
               >
-                Continue My Protocol
+                Book a Consultation
               </Button>
             </div>
             <button
@@ -487,80 +487,6 @@ export default function Home() {
                 </motion.div>
               ))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* EDUCATION SECTION */}
-      <section id="education" className="py-20 px-6 md:px-12 bg-background relative z-20">
-        <div className="container mx-auto max-w-7xl">
-          <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="mb-10 text-center"
-          >
-            <span className="text-primary tracking-[0.2em] text-sm uppercase mb-4 block">Peptide Science</span>
-            <h2 className="text-4xl md:text-5xl font-serif mb-6">Molecules of Mastery</h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto text-lg">
-              Peptides are short chains of amino acids that serve as highly specific signaling molecules, instructing the body to repair, regenerate, and optimize itself.
-            </p>
-          </motion.div>
-
-          {/* Tab bar */}
-          <div className="flex gap-1 overflow-x-auto pb-0 mb-10 border-b border-border scrollbar-none">
-            {TAB_LABELS.map((label, ci) => (
-              <button
-                key={ci}
-                onClick={() => setActiveCategory(ci)}
-                className={`shrink-0 px-4 py-3 text-sm font-medium tracking-wide transition-colors border-b-2 -mb-px whitespace-nowrap ${
-                  activeCategory === ci
-                    ? "border-primary text-primary"
-                    : "border-transparent text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {/* Active category */}
-          {(() => {
-            const cat = peptideCategories[activeCategory];
-            const isSignature = cat.category === "Auryx Signature Complexes";
-            return (
-              <motion.div
-                key={activeCategory}
-                initial={{ opacity: 0, y: 16 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.25 }}
-              >
-                <div className="mb-8">
-                  <div className="mb-4">
-                    <h3 className="text-2xl md:text-3xl font-serif text-foreground mb-3">{cat.category}</h3>
-                    <div className="h-[2px] w-14 bg-primary rounded-full" />
-                  </div>
-                  <p className="text-muted-foreground text-base leading-relaxed max-w-3xl mb-5">{cat.description}</p>
-                  {"note" in cat && cat.note && (
-                    <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-4">
-                      <p className="text-sm uppercase tracking-wider text-primary mb-2">Physician's Note — Protocol Selection</p>
-                      <p className="text-sm text-foreground/80 leading-relaxed italic">{cat.note}</p>
-                    </div>
-                  )}
-                </div>
-                <div className={`grid gap-5 ${isSignature ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1 md:grid-cols-2 xl:grid-cols-3"}`}>
-                  {cat.peptides.map((pep, i) => (
-                    <PeptideCard key={i} pep={pep} />
-                  ))}
-                </div>
-              </motion.div>
-            );
-          })()}
-
-          <div className="mt-12 text-center">
-            <p className="text-muted-foreground text-sm italic max-w-2xl mx-auto">
-              Our formulary includes dozens of additional specialized compounds. Protocols are synthesized specifically for your bio-individual needs.
-            </p>
           </div>
         </div>
       </section>

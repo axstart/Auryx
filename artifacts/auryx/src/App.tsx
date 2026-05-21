@@ -7,9 +7,15 @@ import Home from "@/pages/home";
 import Admin from "@/pages/admin";
 import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
+import ShopPage from "@/pages/shop";
+import ProductPage from "@/pages/product";
+import CheckoutPage from "@/pages/checkout";
+import CheckoutSuccessPage from "@/pages/checkout-success";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
+import CartDrawer from "@/components/CartDrawer";
+import { CartProvider } from "@/context/CartContext";
 
 const queryClient = new QueryClient();
 
@@ -23,6 +29,10 @@ function Router() {
           <main className="flex-1">
             <Switch>
               <Route path="/" component={Home} />
+              <Route path="/shop" component={ShopPage} />
+              <Route path="/shop/:slug" component={ProductPage} />
+              <Route path="/checkout/success" component={CheckoutSuccessPage} />
+              <Route path="/checkout" component={CheckoutPage} />
               <Route path="/terms" component={Terms} />
               <Route path="/privacy" component={Privacy} />
               <Route component={NotFound} />
@@ -31,6 +41,7 @@ function Router() {
           <Footer />
         </div>
         <ChatWidget />
+        <CartDrawer />
       </Route>
     </Switch>
   );
@@ -40,10 +51,12 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-          <Router />
-        </WouterRouter>
-        <Toaster />
+        <CartProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+            <Router />
+          </WouterRouter>
+          <Toaster />
+        </CartProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

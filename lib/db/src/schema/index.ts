@@ -22,3 +22,4 @@ export * from "./inventory";
 export * from "./chatEscalations";
 export * from "./ariaSettings";
 export * from "./protocolContinuations";
+export * from "./orders";

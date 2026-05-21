@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Package, Users, AlertTriangle, Plus, Trash2, Pencil, Check, X, MessageSquare, ChevronDown, ChevronUp, Bot, Loader2, ClipboardList, Download } from "lucide-react";
+import { LogOut, Package, Users, AlertTriangle, Plus, Trash2, Pencil, Check, X, MessageSquare, ChevronDown, ChevronUp, Bot, Loader2, ClipboardList, Download, ShoppingBag } from "lucide-react";
 
 const SESSION_KEY = "auryx_admin_key";
 
@@ -529,6 +529,198 @@ function InventoryTab({ adminKey }: { adminKey: string }) {
   );
 }
 
+interface AdminOrder {
+  id: number;
+  customerName: string;
+  email: string;
+  phone: string | null;
+  shippingAddress: { street: string; city: string; state: string; zip: string; country: string };
+  items: { slug: string; name: string; quantity: number; priceCents: number }[];
+  totalCents: number;
+  status: string;
+  stripePaymentIntentId: string | null;
+  requiresConsultation: boolean;
+  createdAt: string;
+}
+
+function orderStatusColor(status: string) {
+  if (status === "pending") return "bg-amber-500/20 text-amber-300 border-amber-500/30";
+  if (status === "approved") return "bg-blue-500/20 text-blue-300 border-blue-500/30";
+  if (status === "shipped") return "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
+  return "bg-border text-muted-foreground";
+}
+
+function OrdersTab({ adminKey }: { adminKey: string }) {
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const headers = { "x-admin-key": adminKey };
+  const [expandedId, setExpandedId] = useState<number | null>(null);
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "shipped">("all");
+
+  const { data: orders = [], isLoading } = useQuery<AdminOrder[]>({
+    queryKey: ["admin-orders"],
+    queryFn: async () => {
+      const res = await fetch("/api/orders", { headers });
+      if (!res.ok) throw new Error("Failed to fetch orders");
+      return res.json();
+    },
+    refetchInterval: 30000,
+  });
+
+  const handleStatus = async (id: number, status: string) => {
+    try {
+      const res = await fetch(`/api/orders/${id}`, {
+        method: "PATCH",
+        headers: { ...headers, "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      if (!res.ok) throw new Error();
+      queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
+    } catch {
+      toast({ title: "Failed to update status", variant: "destructive" });
+    }
+  };
+
+  const pending = orders.filter(o => o.status === "pending").length;
+  const filtered = statusFilter === "all" ? [...orders].reverse() : [...orders].reverse().filter(o => o.status === statusFilter);
+  const totalRevenue = orders.reduce((s, o) => s + o.totalCents, 0);
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
+        <div>
+          <h2 className="text-2xl font-serif text-foreground mb-1">Orders</h2>
+          <p className="text-sm text-muted-foreground">
+            {orders.length} total &mdash; ${(totalRevenue / 100).toFixed(2)} revenue
+          </p>
+        </div>
+      </div>
+
+      <div className="flex gap-2 mb-6 flex-wrap">
+        {([
+          { value: "all", label: "All" },
+          { value: "pending", label: pending > 0 ? `Pending (${pending})` : "Pending" },
+          { value: "approved", label: "Approved" },
+          { value: "shipped", label: "Shipped" },
+        ] as const).map(f => (
+          <button
+            key={f.value}
+            onClick={() => setStatusFilter(f.value)}
+            className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
+              statusFilter === f.value
+                ? "bg-primary/15 text-primary border-primary/30"
+                : "border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
+
+      {isLoading ? (
+        <div className="flex items-center justify-center py-24">
+          <Loader2 className="w-6 h-6 animate-spin text-primary mr-3" />
+          <span className="text-muted-foreground text-sm">Loading orders…</span>
+        </div>
+      ) : orders.length === 0 ? (
+        <div className="text-center py-20 text-muted-foreground">
+          <ShoppingBag className="w-12 h-12 mx-auto mb-4 opacity-30" />
+          <p>No orders yet.</p>
+        </div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-16 text-muted-foreground">
+          <p className="text-sm">No {statusFilter} orders.</p>
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map((o: AdminOrder) => {
+            const isExpanded = expandedId === o.id;
+            return (
+              <div key={o.id} className="bg-card/50 border border-border/60 hover:border-primary/20 transition-colors rounded-lg overflow-hidden">
+                <div
+                  className="flex items-center justify-between px-6 py-4 cursor-pointer"
+                  onClick={() => setExpandedId(isExpanded ? null : o.id)}
+                >
+                  <div className="flex items-center gap-4 flex-1 min-w-0">
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-3 mb-0.5 flex-wrap">
+                        <span className="font-medium text-foreground text-sm">#{o.id} — {o.customerName}</span>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${orderStatusColor(o.status)}`}>{o.status}</span>
+                        {o.requiresConsultation && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full border bg-amber-500/10 text-amber-300 border-amber-500/30">
+                            <AlertTriangle className="inline w-2.5 h-2.5 mr-1" />consult required
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground">{o.email}{o.phone ? ` · ${o.phone}` : ""}</p>
+                    </div>
+                    <span className="ml-auto mr-4 text-primary font-medium text-sm shrink-0">${(o.totalCents / 100).toFixed(2)}</span>
+                    <span className="text-xs text-muted-foreground shrink-0">
+                      {new Date(o.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
+                    </span>
+                  </div>
+                  <div className="ml-4 flex items-center gap-3 shrink-0">
+                    <Select value={o.status} onValueChange={v => { handleStatus(o.id, v); }}>
+                      <SelectTrigger className="h-7 text-xs w-28 bg-background/50 border-border/60" onClick={e => e.stopPropagation()}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="approved">Approved</SelectItem>
+                        <SelectItem value="shipped">Shipped</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                  </div>
+                </div>
+
+                {isExpanded && (
+                  <div className="border-t border-border/40 px-6 py-5 bg-background/30 space-y-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
+                      <div>
+                        <p className="text-muted-foreground uppercase tracking-wider mb-2">Items Ordered</p>
+                        <div className="space-y-1">
+                          {o.items.map((item, i) => (
+                            <div key={i} className="flex justify-between text-foreground/80">
+                              <span>{item.name} ×{item.quantity}</span>
+                              <span className="text-primary">${((item.priceCents * item.quantity) / 100).toFixed(2)}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground uppercase tracking-wider mb-2">Shipping Address</p>
+                        <p className="text-foreground/80 leading-relaxed">
+                          {o.shippingAddress.street}<br/>
+                          {o.shippingAddress.city}, {o.shippingAddress.state} {o.shippingAddress.zip}
+                        </p>
+                      </div>
+                      {o.stripePaymentIntentId && (
+                        <div>
+                          <p className="text-muted-foreground uppercase tracking-wider mb-1">Stripe Payment</p>
+                          <p className="text-foreground/60 font-mono text-[10px] break-all">{o.stripePaymentIntentId}</p>
+                        </div>
+                      )}
+                    </div>
+                    <div className="pt-3 border-t border-border/30 flex justify-end">
+                      <a
+                        href={`mailto:${o.email}?subject=Your Auryx Order #${o.id}&body=Hi ${o.customerName},%0A%0A`}
+                        className="text-xs text-primary hover:underline"
+                      >
+                        Email customer →
+                      </a>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
+
 interface ChatEscalation {
   id: number;
   name: string;
@@ -1015,7 +1207,7 @@ export default function Admin() {
   }, []);
 
   const [adminKey, setAdminKey] = useState<string>(() => sessionStorage.getItem(SESSION_KEY) ?? "");
-  const [tab, setTab] = useState<"consultations" | "inventory" | "escalations" | "aria" | "continuations">("consultations");
+  const [tab, setTab] = useState<"consultations" | "inventory" | "escalations" | "aria" | "continuations" | "orders">("consultations");
 
   const headers = { "x-admin-key": adminKey };
 
@@ -1096,6 +1288,13 @@ export default function Admin() {
                   <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-[10px] w-4 h-4">{pendingContinuationsCount}</span>
                 )}
               </button>
+              <button
+                data-testid="tab-orders"
+                onClick={() => setTab("orders")}
+                className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${tab === "orders" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <ShoppingBag className="hidden sm:inline w-4 h-4 mr-2" />Orders
+              </button>
             </nav>
           </div>
           <button
@@ -1115,6 +1314,7 @@ export default function Admin() {
           {tab === "escalations" && <EscalationsTab adminKey={adminKey} />}
           {tab === "aria" && <AriaTab adminKey={adminKey} />}
           {tab === "continuations" && <ContinuationsTab adminKey={adminKey} />}
+          {tab === "orders" && <OrdersTab adminKey={adminKey} />}
         </motion.div>
       </div>
     </div>
