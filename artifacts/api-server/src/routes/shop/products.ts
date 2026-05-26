@@ -68,7 +68,80 @@ export const PRODUCTS: Product[] = [
     priceCents: 19900,
   },
 
+  {
+    slug: "tesofensine",
+    name: "Tesofensine",
+    category: "GLP-1 & Metabolic",
+    shortDescription: "Triple monoamine reuptake inhibitor for aggressive fat loss and appetite suppression.",
+    fullDescription:
+      "Tesofensine inhibits the reuptake of serotonin, dopamine, and norepinephrine simultaneously, producing powerful appetite suppression and a significant increase in resting metabolic rate. Clinical trials demonstrate weight loss of 10–14% over 24 weeks — superior to many single-mechanism agents — with added benefits of improved energy and mood.",
+    benefits: [
+      "Potent appetite suppression via triple monoamine inhibition",
+      "10–14% weight reduction in clinical trials",
+      "Elevated resting metabolic rate",
+      "Improved energy levels and mood",
+    ],
+    dosingInfo:
+      "0.25–0.5 mg oral daily, taken in the morning. Titrate from 0.25 mg over 4 weeks. Protocol duration: 12–24 weeks.",
+    requiresConsultation: false,
+    priceCents: 18900,
+  },
+  {
+    slug: "tesofensine-ipamorelin",
+    name: "Tesofensine + Ipamorelin",
+    category: "GLP-1 & Metabolic",
+    shortDescription: "Fat loss stack: appetite suppression combined with GH pulse amplification.",
+    fullDescription:
+      "This precision stack pairs Tesofensine's appetite suppression and metabolic boost with Ipamorelin's growth hormone stimulation and lean mass preservation. The combination attacks fat loss from two distinct pathways — reducing intake while simultaneously increasing GH-driven lipolysis and muscle retention — making it ideal for body recomposition.",
+    benefits: [
+      "Dual-pathway fat loss via appetite suppression and GH lipolysis",
+      "Preserved lean muscle mass during caloric restriction",
+      "Elevated GH pulsatility and IGF-1",
+      "Enhanced recovery and sleep quality",
+    ],
+    dosingInfo:
+      "Tesofensine 0.25–0.5 mg oral morning + Ipamorelin 200 mcg subcutaneous nightly. Protocol duration: 12–24 weeks.",
+    requiresConsultation: false,
+    priceCents: 24900,
+  },
+  {
+    slug: "aod-9604",
+    name: "AOD-9604",
+    category: "GLP-1 & Metabolic",
+    shortDescription: "GH fragment for targeted fat burning without glucose or IGF-1 disruption.",
+    fullDescription:
+      "AOD-9604 is a modified fragment of the human growth hormone molecule (amino acids 176–191) that retains GH's fat-burning properties without raising IGF-1 or affecting blood glucose. It stimulates lipolysis — particularly in visceral and abdominal fat depots — and inhibits lipogenesis, making it the cleanest fat-targeting peptide available for patients who cannot use full GH secretagogues.",
+    benefits: [
+      "Targeted lipolysis without IGF-1 elevation",
+      "No impact on blood glucose or insulin",
+      "Visceral and abdominal fat reduction",
+      "Safe for patients with insulin resistance or diabetes",
+    ],
+    dosingInfo:
+      "300–600 mcg subcutaneous injection daily, ideally 30 minutes before exercise or upon waking on an empty stomach. Protocol duration: 12–24 weeks.",
+    requiresConsultation: false,
+    priceCents: 17900,
+  },
+
   // ── Growth Hormone ─────────────────────────────────────────────────────────
+  {
+    slug: "ipamorelin",
+    name: "Ipamorelin",
+    category: "Growth Hormone",
+    shortDescription: "Clean, selective GH pulse amplification with superior sleep and recovery.",
+    fullDescription:
+      "Ipamorelin is a highly selective growth hormone secretagogue that stimulates pulsatile GH release with minimal effect on cortisol or prolactin — making it the cleanest GH peptide available. Its selective mechanism preserves the natural GH feedback loop, making it safe for extended cycles and ideal for patients prioritising sleep quality, recovery, and lean mass gains without hormonal disruption.",
+    benefits: [
+      "Selective GH pulse amplification without cortisol spike",
+      "Deep sleep enhancement and overnight recovery",
+      "Lean muscle growth and fat metabolism support",
+      "Safe for long-term cycles — minimal hormonal disruption",
+    ],
+    dosingInfo:
+      "200–300 mcg subcutaneous injection 5 nights per week, administered before sleep. Can be stacked with CJC-1295 for amplified GH release. Protocol duration: 12–24 weeks.",
+    requiresConsultation: false,
+    priceCents: 16900,
+  },
   {
     slug: "cjc-1295-ipamorelin",
     name: "CJC-1295 + Ipamorelin",
@@ -392,6 +465,25 @@ export const PRODUCTS: Product[] = [
       "250–500 mg IV infusion over 2–4 hours, 1–3 times per week during loading phase; 250 mg subcutaneous weekly for maintenance. Administer slowly to minimize discomfort.",
     requiresConsultation: false,
     priceCents: 19900,
+  },
+
+  {
+    slug: "cortagen",
+    name: "Cortagen",
+    category: "Cognitive & Neuroprotective",
+    shortDescription: "Cardiac and vascular peptide bioregulator for heart function and longevity.",
+    fullDescription:
+      "Cortagen is a tetrapeptide bioregulator derived from cardiac tissue that supports the functional health of the heart and vascular system. It promotes cardiomyocyte regeneration, improves myocardial contractility, and exerts protective effects against oxidative stress in cardiac tissue — making it a cornerstone longevity compound for patients concerned with cardiovascular aging.",
+    benefits: [
+      "Cardiomyocyte regeneration and cardiac tissue repair",
+      "Improved myocardial contractility and heart rate variability",
+      "Vascular protection and reduced oxidative stress",
+      "Longevity-focused cardiovascular maintenance",
+    ],
+    dosingInfo:
+      "10 mg subcutaneous injection daily for 10-day cycles, 2–3 times per year. For preventive cardiac longevity protocols.",
+    requiresConsultation: false,
+    priceCents: 14900,
   },
 
   // ── Auryx Signature Complexes ──────────────────────────────────────────────
