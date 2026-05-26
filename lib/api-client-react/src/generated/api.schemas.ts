@@ -135,11 +135,16 @@ export interface ProtocolRecommendationInput {
   protocolIntent?: string;
 }
 
-export interface ProtocolRecommendation {
+export interface ProtocolItem {
   protocol: string;
   tagline: string;
   why: string;
   peptides: string[];
+}
+
+export interface ProtocolRecommendation {
+  summary: string;
+  protocols: ProtocolItem[];
   nextStep: string;
   disclaimer: string;
 }

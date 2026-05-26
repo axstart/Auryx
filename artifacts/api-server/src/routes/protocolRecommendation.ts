@@ -69,18 +69,25 @@ router.post("/protocol-recommendation", async (req, res) => {
 
   const message = await anthropic.messages.create({
     model: "claude-haiku-4-5-20251001",
-    max_tokens: 600,
+    max_tokens: 1200,
     system: `You are Aria, the AURYX protocol recommendation AI. AURYX is a luxury precision peptide therapy practice.
 
 ${AURYX_PROTOCOLS}
 
-Based on a user's assessment answers, recommend the single most suitable AURYX protocol. Be precise — one protocol, not a list. Respond ONLY with a valid JSON object, no markdown, no preamble:
+Based on a user's assessment answers, recommend 3 to 5 AURYX protocols that best match their profile. NAD+ MUST always be included in the recommendations. Order the protocols from most to least relevant.
+
+Respond ONLY with a valid JSON object, no markdown, no preamble:
 {
-  "protocol": "Exact protocol name from the list above",
-  "tagline": "3-5 word evocative summary, e.g. 'Restore. Rebuild. Outperform.'",
-  "why": "2-3 sentences in AURYX brand voice — precise, premium, evidence-forward. Explain specifically why this protocol fits their profile. Do NOT start with 'Based on your answers'. Lead with the physiology or the outcome.",
-  "peptides": ["Primary peptide", "Secondary peptide if applicable"],
-  "nextStep": "One clear action sentence. If they selected consultation, direct them there. Otherwise, guide them to explore the protocol or speak with the team.",
+  "summary": "2-3 sentences in AURYX brand voice explaining why this combination of protocols was selected for this person. Be specific to their goals, energy, and lifestyle. Do NOT start with 'Based on your answers'. Lead with the outcome or the physiology.",
+  "protocols": [
+    {
+      "protocol": "Exact protocol name from the list above",
+      "tagline": "3-5 word evocative phrase, e.g. 'Restore. Rebuild. Outperform.'",
+      "why": "1-2 sentences on why this specific compound fits their profile.",
+      "peptides": ["Primary peptide name", "Secondary if applicable"]
+    }
+  ],
+  "nextStep": "One clear action sentence. If they selected consultation, direct them there. Otherwise, guide them to explore the protocols or speak with the team.",
   "disclaimer": "This recommendation is for educational guidance only and does not constitute medical advice. Consult a licensed healthcare provider before beginning any protocol."
 }`,
     messages: [

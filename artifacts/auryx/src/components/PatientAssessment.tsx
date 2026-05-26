@@ -500,9 +500,9 @@ function AIResultScreen({
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
-      className="max-w-2xl mx-auto"
     >
-      <div className="flex items-center justify-center gap-3 mb-8">
+      {/* Header */}
+      <div className="flex items-center justify-center gap-3 mb-6">
         <div className="h-[1px] flex-1 bg-primary/20" />
         <span className="text-primary text-xs tracking-[0.25em] uppercase flex items-center gap-2">
           <Sparkles className="w-3.5 h-3.5" /> Aria's Recommendation
@@ -510,39 +510,55 @@ function AIResultScreen({
         <div className="h-[1px] flex-1 bg-primary/20" />
       </div>
 
-      <div className="border border-primary/20 rounded-xl bg-primary/5 p-7 md:p-9 mb-6 text-center">
-        <p className="text-xs uppercase tracking-[0.3em] text-primary/70 mb-2">Recommended Protocol</p>
-        <h3 className="text-3xl md:text-4xl font-serif text-foreground mb-2">{result.protocol}</h3>
-        <p className="text-primary text-sm tracking-wide italic">{result.tagline}</p>
-      </div>
+      {/* Summary */}
+      <p className="text-foreground/70 leading-relaxed text-sm mb-6 text-center max-w-xl mx-auto">
+        {result.summary}
+      </p>
 
-      <p className="text-foreground/75 leading-relaxed text-base mb-6">{result.why}</p>
-
-      {result.peptides.length > 0 && (
-        <div className="mb-8">
-          <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-3">Key Compounds</p>
-          <div className="flex flex-wrap gap-2">
-            {result.peptides.map((p) => (
-              <span
-                key={p}
-                className="px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-xs text-primary tracking-wide"
-              >
-                {p}
-              </span>
-            ))}
+      {/* Protocol cards */}
+      <div className="grid gap-3 mb-6">
+        {result.protocols.map((item, i) => (
+          <div
+            key={item.protocol}
+            className="border border-[#C9A844]/20 bg-[#161510] rounded-xl px-5 py-4"
+          >
+            <div className="flex items-start gap-4">
+              <div className="w-6 h-6 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0 mt-0.5">
+                <span className="text-[10px] font-bold text-primary">{i + 1}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-wrap items-baseline gap-2 mb-1">
+                  <h4 className="font-serif text-lg text-foreground">{item.protocol}</h4>
+                  <span className="text-xs text-primary/70 italic tracking-wide">{item.tagline}</span>
+                </div>
+                <p className="text-xs text-foreground/55 leading-relaxed mb-2">{item.why}</p>
+                <div className="flex flex-wrap gap-1.5">
+                  {item.peptides.map((p) => (
+                    <span
+                      key={p}
+                      className="px-2.5 py-0.5 rounded-full border border-primary/25 bg-primary/5 text-[10px] text-primary tracking-wide"
+                    >
+                      {p}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            </div>
           </div>
-        </div>
-      )}
-
-      <div className="bg-card/50 border border-border/40 rounded-lg px-5 py-4 mb-8">
-        <p className="text-sm text-foreground/80 leading-relaxed">{result.nextStep}</p>
+        ))}
       </div>
 
-      <div className="flex flex-col sm:flex-row gap-4">
+      {/* Next step */}
+      <div className="bg-card/50 border border-border/40 rounded-lg px-5 py-3.5 mb-6">
+        <p className="text-sm text-foreground/75 leading-relaxed">{result.nextStep}</p>
+      </div>
+
+      {/* CTAs */}
+      <div className="flex flex-col sm:flex-row gap-3">
         <Button
           data-testid="result-primary-cta"
           onClick={onConsult}
-          className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base tracking-wide"
+          className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 h-11 text-sm tracking-wide"
         >
           Book a Private Consultation <ArrowRight className="ml-2 w-4 h-4" />
         </Button>
@@ -550,13 +566,13 @@ function AIResultScreen({
           data-testid="result-reset"
           variant="outline"
           onClick={onReset}
-          className="border-border/60 text-muted-foreground hover:border-primary/40 h-12 px-6"
+          className="border-border/60 text-muted-foreground hover:border-primary/40 h-11 px-6"
         >
           <RotateCcw className="w-4 h-4 mr-2" /> Start Over
         </Button>
       </div>
 
-      <p className="mt-8 text-xs text-muted-foreground/40 text-center leading-relaxed max-w-lg mx-auto">
+      <p className="mt-6 text-[11px] text-muted-foreground/35 text-center leading-relaxed max-w-lg mx-auto">
         {result.disclaimer}
       </p>
     </motion.div>

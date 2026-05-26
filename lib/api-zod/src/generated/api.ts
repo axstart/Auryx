@@ -211,10 +211,15 @@ export const GetProtocolRecommendationBody = zod.object({
 });
 
 export const GetProtocolRecommendationResponse = zod.object({
-  protocol: zod.string(),
-  tagline: zod.string(),
-  why: zod.string(),
-  peptides: zod.array(zod.string()),
+  summary: zod.string(),
+  protocols: zod.array(
+    zod.object({
+      protocol: zod.string(),
+      tagline: zod.string(),
+      why: zod.string(),
+      peptides: zod.array(zod.string()),
+    }),
+  ),
   nextStep: zod.string(),
   disclaimer: zod.string(),
 });

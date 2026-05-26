@@ -5,12 +5,11 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { ProtocolItem } from "./protocolItem";
 
 export interface ProtocolRecommendation {
-  protocol: string;
-  tagline: string;
-  why: string;
-  peptides: string[];
+  summary: string;
+  protocols: ProtocolItem[];
   nextStep: string;
   disclaimer: string;
 }
