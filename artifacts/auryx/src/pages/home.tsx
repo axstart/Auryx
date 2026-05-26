@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { ConsultationModal } from "@/components/ConsultationModal";
@@ -7,7 +7,7 @@ import { ArrowRight, CheckCircle } from "lucide-react";
 
 /* ─── Gold SVG Icons ───────────────────────────────────────────────── */
 const IconMetabolic = () => (
-  <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
     <circle cx="16" cy="16" r="3.5" stroke="#C9A844" strokeWidth="1.5"/>
     <circle cx="6" cy="10" r="2.5" stroke="#C9A844" strokeWidth="1.5"/>
     <circle cx="26" cy="10" r="2.5" stroke="#C9A844" strokeWidth="1.5"/>
@@ -21,7 +21,7 @@ const IconMetabolic = () => (
 );
 
 const IconRecovery = () => (
-  <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
     <path d="M16 4 L26 8.5 V16.5 C26 21.5 21.5 26 16 28 C10.5 26 6 21.5 6 16.5 V8.5 Z" stroke="#C9A844" strokeWidth="1.5" fill="none" strokeLinejoin="round"/>
     <line x1="16" y1="11" x2="16" y2="21" stroke="#C9A844" strokeWidth="1.5" strokeLinecap="round"/>
     <line x1="11" y1="16" x2="21" y2="16" stroke="#C9A844" strokeWidth="1.5" strokeLinecap="round"/>
@@ -29,29 +29,27 @@ const IconRecovery = () => (
 );
 
 const IconSkin = () => (
-  <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
     <path d="M16 5 C16 5 22 11 22 18 C22 21.3 19.3 24 16 24 C12.7 24 10 21.3 10 18 C10 11 16 5 16 5Z" stroke="#C9A844" strokeWidth="1.5" fill="none" strokeLinejoin="round"/>
     <path d="M16 17 C16 17 14 15 14 13" stroke="#C9A844" strokeWidth="1.2" strokeLinecap="round" opacity="0.6"/>
   </svg>
 );
 
 const IconEnergy = () => (
-  <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
     <path d="M18 4 L10 18 H16 L14 28 L24 14 H18 Z" stroke="#C9A844" strokeWidth="1.5" fill="none" strokeLinejoin="round" strokeLinecap="round"/>
   </svg>
 );
 
 const IconCognitive = () => (
-  <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
     <path d="M11 8 C8 8 6 10.5 6 13 C6 14.8 7 16.3 8.5 17.1 C8.2 17.7 8 18.3 8 19 C8 21.2 9.8 23 12 23 L12 24 C12 25.1 12.9 26 14 26 H18 C19.1 26 20 25.1 20 24 L20 23 C22.2 23 24 21.2 24 19 C24 18.3 23.8 17.7 23.5 17.1 C25 16.3 26 14.8 26 13 C26 10.5 24 8 21 8 C20.1 8 19.2 8.3 18.5 8.8 C17.7 8.3 16.9 8 16 8 C15.1 8 14.3 8.3 13.5 8.8 C12.8 8.3 11.9 8 11 8Z" stroke="#C9A844" strokeWidth="1.4" fill="none"/>
     <line x1="16" y1="13" x2="16" y2="20" stroke="#C9A844" strokeWidth="1.2" strokeLinecap="round" opacity="0.5"/>
   </svg>
 );
 
 const IconSleep = () => (
-  <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-    <path d="M20 7 C17 7 14.4 8.7 13 11.2 C12.1 10.9 11.1 10.7 10 10.7 C6.7 10.7 4 13.4 4 16.7 C4 20 6.7 22.7 10 22.7 H22 C25.3 22.7 28 20 28 16.7 C28 13.6 25.7 11.1 22.6 10.8 C22.4 8.7 21.4 7 20 7Z" stroke="#C9A844" strokeWidth="1.4" fill="none" strokeLinejoin="round" opacity="0.4"/>
-    <path d="M20 6 C16.5 6 13.7 8.4 12.8 11.6 C14.1 11.2 15.5 11 17 11 C22 11 26.2 14.4 27.2 19 C28.8 17.9 30 16 30 13.9 C30 10.1 26.4 7 22 7 C21.3 7 20.6 7.1 20 7.2" stroke="#C9A844" strokeWidth="0" fill="none"/>
+  <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
     <path d="M17 5 C14 8 14 12 17 15 C14 15 10 13 10 9.5 C10 6.5 13 4 17 5Z" stroke="#C9A844" strokeWidth="1.4" fill="none" strokeLinejoin="round"/>
     <circle cx="22" cy="8" r="1.5" fill="#C9A844" opacity="0.7"/>
     <circle cx="26" cy="12" r="1" fill="#C9A844" opacity="0.5"/>
@@ -59,9 +57,8 @@ const IconSleep = () => (
   </svg>
 );
 
-/* Gold icons for standard pillars */
 const IconFlask = () => (
-  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+  <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
     <path d="M10 4 L10 14 L4 22 C3 23.5 4 26 6 26 H22 C24 26 25 23.5 24 22 L18 14 L18 4" stroke="#C9A844" strokeWidth="1.4" fill="none" strokeLinejoin="round"/>
     <line x1="8" y1="4" x2="20" y2="4" stroke="#C9A844" strokeWidth="1.4" strokeLinecap="round"/>
     <circle cx="11" cy="20" r="1.5" fill="#C9A844" opacity="0.6"/>
@@ -70,14 +67,14 @@ const IconFlask = () => (
 );
 
 const IconShieldCheck = () => (
-  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+  <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
     <path d="M14 3 L24 7 V14 C24 19.5 19.5 24.5 14 26 C8.5 24.5 4 19.5 4 14 V7 Z" stroke="#C9A844" strokeWidth="1.4" fill="none" strokeLinejoin="round"/>
     <path d="M9.5 14 L12.5 17 L18.5 11" stroke="#C9A844" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
   </svg>
 );
 
 const IconTarget = () => (
-  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+  <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
     <circle cx="14" cy="14" r="10" stroke="#C9A844" strokeWidth="1.4"/>
     <circle cx="14" cy="14" r="6" stroke="#C9A844" strokeWidth="1.2"/>
     <circle cx="14" cy="14" r="2.5" fill="#C9A844"/>
@@ -89,48 +86,16 @@ const IconTarget = () => (
 );
 
 const IconPerson = () => (
-  <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+  <svg width="26" height="26" viewBox="0 0 28 28" fill="none">
     <circle cx="14" cy="9" r="4" stroke="#C9A844" strokeWidth="1.4" fill="none"/>
     <path d="M5 24 C5 19.6 9 16 14 16 C19 16 23 19.6 23 24" stroke="#C9A844" strokeWidth="1.4" fill="none" strokeLinecap="round"/>
   </svg>
 );
 
-/* ─── Gold orbital SVG for hero right panel ─────────────────────────── */
-const HeroOrbital = () => (
-  <svg className="w-full h-full" viewBox="0 0 500 600" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <defs>
-      <radialGradient id="heroGlow" cx="60%" cy="45%" r="50%">
-        <stop offset="0%" stopColor="#C9A844" stopOpacity="0.18"/>
-        <stop offset="60%" stopColor="#C9A844" stopOpacity="0.04"/>
-        <stop offset="100%" stopColor="#C9A844" stopOpacity="0"/>
-      </radialGradient>
-    </defs>
-    <ellipse cx="280" cy="280" rx="210" ry="210" stroke="#C9A844" strokeWidth="0.6" strokeOpacity="0.18"/>
-    <ellipse cx="280" cy="280" rx="150" ry="150" stroke="#C9A844" strokeWidth="0.5" strokeOpacity="0.15"/>
-    <ellipse cx="280" cy="280" rx="90" ry="90" stroke="#C9A844" strokeWidth="0.5" strokeOpacity="0.12"/>
-    <ellipse cx="280" cy="270" rx="245" ry="180" stroke="#C9A844" strokeWidth="0.5" strokeOpacity="0.1" transform="rotate(-20 280 270)"/>
-    <circle cx="280" cy="70" r="4" fill="#C9A844" fillOpacity="0.7"/>
-    <circle cx="490" cy="220" r="3.5" fill="#C9A844" fillOpacity="0.55"/>
-    <circle cx="440" cy="450" r="3" fill="#C9A844" fillOpacity="0.5"/>
-    <circle cx="130" cy="390" r="2.5" fill="#C9A844" fillOpacity="0.45"/>
-    <circle cx="80" cy="160" r="2" fill="#C9A844" fillOpacity="0.4"/>
-    <circle cx="380" cy="140" r="2" fill="#C9A844" fillOpacity="0.35"/>
-    <circle cx="350" cy="480" r="1.5" fill="#C9A844" fillOpacity="0.4"/>
-    <circle cx="165" cy="70" r="1.5" fill="#C9A844" fillOpacity="0.35"/>
-    <circle cx="200" cy="520" r="2" fill="#C9A844" fillOpacity="0.3"/>
-    <circle cx="460" cy="330" r="1.5" fill="#C9A844" fillOpacity="0.35"/>
-    <circle cx="70" cy="300" r="1" fill="#C9A844" fillOpacity="0.3"/>
-    <circle cx="320" cy="30" r="1" fill="#C9A844" fillOpacity="0.3"/>
-    <ellipse cx="280" cy="280" rx="245" ry="245" fill="url(#heroGlow)"/>
-    {/* Figure silhouette suggestion */}
-    <ellipse cx="280" cy="300" rx="60" ry="120" fill="#C9A844" fillOpacity="0.025"/>
-  </svg>
-);
-
-/* ─── Gold wave background for dark sections ────────────────────────── */
+/* ─── Gold wave background decoration ───────────────────────────────── */
 const GoldWave = () => (
   <div className="absolute inset-0 overflow-hidden pointer-events-none">
-    <svg className="absolute bottom-0 right-0 w-full h-full opacity-30" viewBox="0 0 800 500" preserveAspectRatio="xMaxYMax slice" fill="none">
+    <svg className="absolute bottom-0 right-0 w-full h-full opacity-25" viewBox="0 0 800 500" preserveAspectRatio="xMaxYMax slice" fill="none">
       <defs>
         <linearGradient id="waveGrad" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#C9A844" stopOpacity="0"/>
@@ -139,17 +104,32 @@ const GoldWave = () => (
         </linearGradient>
       </defs>
       <path d="M600 500 Q550 350 650 250 Q720 170 750 50 Q770 0 800 0 L800 500Z" fill="url(#waveGrad)" opacity="0.4"/>
-      <path d="M650 500 Q580 380 700 270 Q760 200 780 80 Q790 30 800 0 L800 500Z" fill="url(#waveGrad)" opacity="0.25"/>
-      <path d="M500 500 Q480 400 560 310 Q630 230 700 100 Q740 40 780 10 L800 0 L800 500Z" fill="#C9A844" fillOpacity="0.04"/>
+      <path d="M650 500 Q580 380 700 270 Q760 200 780 80 Q790 30 800 0 L800 500Z" fill="url(#waveGrad)" opacity="0.2"/>
       {[
-        [640, 450], [700, 380], [740, 300], [760, 220], [775, 150], [785, 80],
-        [660, 420], [710, 350], [745, 270], [765, 190], [778, 110],
-        [680, 460], [720, 390], [755, 310], [770, 240], [782, 160],
+        [640, 450], [700, 380], [740, 300], [760, 220], [775, 150],
+        [660, 420], [710, 350], [745, 270], [765, 190],
       ].map(([cx, cy], i) => (
-        <circle key={i} cx={cx} cy={cy} r={1.5} fill="#C9A844" opacity={0.3 + (i % 4) * 0.1}/>
+        <circle key={i} cx={cx} cy={cy} r={1.5} fill="#C9A844" opacity={0.25 + (i % 4) * 0.08}/>
       ))}
     </svg>
   </div>
+);
+
+/* ─── Orbital accent for hero ────────────────────────────────────────── */
+const HeroOrbitalAccent = () => (
+  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 700" fill="none" preserveAspectRatio="xMidYMid slice">
+    <ellipse cx="320" cy="340" rx="260" ry="260" stroke="#C9A844" strokeWidth="0.5" strokeOpacity="0.14"/>
+    <ellipse cx="320" cy="340" rx="180" ry="180" stroke="#C9A844" strokeWidth="0.5" strokeOpacity="0.11"/>
+    <ellipse cx="320" cy="340" rx="100" ry="100" stroke="#C9A844" strokeWidth="0.5" strokeOpacity="0.09"/>
+    <ellipse cx="310" cy="330" rx="300" ry="210" stroke="#C9A844" strokeWidth="0.4" strokeOpacity="0.09" transform="rotate(-18 310 330)"/>
+    <circle cx="320" cy="80" r="3.5" fill="#C9A844" fillOpacity="0.55"/>
+    <circle cx="580" cy="200" r="3" fill="#C9A844" fillOpacity="0.45"/>
+    <circle cx="530" cy="490" r="2.5" fill="#C9A844" fillOpacity="0.4"/>
+    <circle cx="100" cy="420" r="2" fill="#C9A844" fillOpacity="0.35"/>
+    <circle cx="65" cy="170" r="2" fill="#C9A844" fillOpacity="0.3"/>
+    <circle cx="440" cy="130" r="1.5" fill="#C9A844" fillOpacity="0.35"/>
+    <circle cx="180" cy="600" r="1.5" fill="#C9A844" fillOpacity="0.3"/>
+  </svg>
 );
 
 /* ─── Vial SVG ──────────────────────────────────────────────────────── */
@@ -169,14 +149,10 @@ function VialSVG({ name, tag }: { name: string; tag: string }) {
           <stop offset="100%" stopColor="rgba(255,255,255,0.25)"/>
         </linearGradient>
       </defs>
-      {/* Cap */}
       <rect x="38" y="6" width="34" height="18" rx="4" fill={`url(#cap-${name})`}/>
       <rect x="34" y="21" width="42" height="6" rx="2" fill={`url(#cap-${name})`} opacity="0.8"/>
-      {/* Glass body */}
       <rect x="26" y="26" width="58" height="120" rx="12" fill={`url(#glass-${name})`} stroke="rgba(201,168,68,0.2)" strokeWidth="1"/>
-      {/* Highlight */}
       <rect x="30" y="30" width="14" height="112" rx="7" fill="white" opacity="0.45"/>
-      {/* Label */}
       <rect x="29" y="42" width="52" height="78" rx="5" fill="white" opacity="0.97"/>
       <text x="55" y="63" textAnchor="middle" fontSize="7.5" fill="#C9A844" fontFamily="Georgia,serif" letterSpacing="3" fontWeight="400">AURYX</text>
       <line x1="35" y1="68" x2="75" y2="68" stroke="#C9A844" strokeWidth="0.5" strokeOpacity="0.4"/>
@@ -186,7 +162,6 @@ function VialSVG({ name, tag }: { name: string; tag: string }) {
       )}
       <line x1="35" y1="102" x2="75" y2="102" stroke="#C9A844" strokeWidth="0.5" strokeOpacity="0.3"/>
       <text x="55" y="114" textAnchor="middle" fontSize="5.5" fill="#C9A844" letterSpacing="2" fontFamily="Arial,sans-serif">PEPTIDE</text>
-      {/* Bottom of glass */}
       <rect x="26" y="138" width="58" height="8" rx="0" fill="white" opacity="0.15"/>
     </svg>
   );
@@ -195,31 +170,31 @@ function VialSVG({ name, tag }: { name: string; tag: string }) {
 /* ─── Data ──────────────────────────────────────────────────────────── */
 const COLLECTIONS = [
   { icon: <IconMetabolic/>, title: "Metabolic Support", desc: "Support healthy metabolism and body composition." },
-  { icon: <IconRecovery/>, title: "Recovery & Resilience", desc: "Optimize recovery and build stress resilience." },
+  { icon: <IconRecovery/>, title: "Recovery & Resilience", desc: "Optimize recovery and build long-term resilience." },
   { icon: <IconSkin/>, title: "Skin & Healthy Aging", desc: "Support skin health and healthy aging at the cellular level." },
   { icon: <IconEnergy/>, title: "Energy & Vitality", desc: "Sustain energy and daily mind-body vitality." },
-  { icon: <IconCognitive/>, title: "Cognitive Performance", desc: "Support focus, memory, and mental performance." },
+  { icon: <IconCognitive/>, title: "Cognitive Performance", desc: "Support focus, memory, and mental clarity." },
   { icon: <IconSleep/>, title: "Sleep & Restoration", desc: "Deeper sleep and daily restorative support." },
 ];
 
 const PEPTIDES = [
-  { name: "CJC-1295 NO DAC", desc: "Growth hormone support peptide.", tag: "RECOVERY", slug: "cjc-ipamorelin" },
+  { name: "Sermorelin", desc: "Supports natural growth hormone release and recovery.", tag: "RECOVERY", slug: "cjc-ipamorelin" },
   { name: "BPC-157", desc: "Supports recovery and tissue health.", tag: "RECOVERY", slug: "bpc-157" },
-  { name: "TB-500", desc: "Supports mobility and tissue recovery.", tag: "MOBILITY", slug: "tb-500" },
-  { name: "NAD+", desc: "Supports cellular energy and longevity.", tag: "ENERGY", slug: "nad-plus" },
+  { name: "NAD+", desc: "Supports cellular energy and healthy aging.", tag: "ENERGY", slug: "nad-plus" },
+  { name: "CJC-1295 / Ipamorelin", desc: "Supports growth hormone and metabolic vitality.", tag: "VITALITY", slug: "cjc-ipamorelin" },
 ];
 
-const STANDARD = [
-  { icon: <IconFlask/>, title: "Science-Backed", desc: "Formulations rooted in research and data." },
-  { icon: <IconShieldCheck/>, title: "Purity & Quality", desc: "Third-party tested. Made in the USA." },
-  { icon: <IconTarget/>, title: "Purpose-Driven", desc: "Every protocol is built with intention." },
-  { icon: <IconPerson/>, title: "Concierge Guidance", desc: "Personal support at every step." },
+const METHODOLOGY = [
+  { n: "01", title: "Goal Mapping", desc: "We begin by understanding your specific wellness priorities — recovery, vitality, cognitive performance, or healthy aging." },
+  { n: "02", title: "Lifestyle Review", desc: "Your daily rhythm, sleep patterns, nutrition, and activity inform which peptide protocols may best support your goals." },
+  { n: "03", title: "Protocol Matching", desc: "We align your profile with AURYX's curated collection of evidence-informed peptide protocols." },
+  { n: "04", title: "Ongoing Rhythm", desc: "Longevity is a practice. We provide concierge support as your routine and goals evolve over time." },
 ];
 
 const TESTIMONIALS = [
   { quote: "I feel more focused, sleep better, and recover faster.", name: "Jason R.", label: "Verified Customer" },
-  { quote: "My energy and clarity have never been better.", name: "Sophia L.", label: "Verified Customer" },
-  { quote: "Clean, effective, and tailored. AURYX fits seamlessly into my life.", name: "Michael B.", label: "Verified Customer" },
+  { quote: "My energy and clarity feel more consistent.", name: "Sophia L.", label: "Verified Customer" },
+  { quote: "AURYX fits seamlessly into my wellness routine.", name: "Michael B.", label: "Verified Customer" },
 ];
 
 /* ─── Page ──────────────────────────────────────────────────────────── */
@@ -232,53 +207,73 @@ export default function Home() {
 
       {/* ═══ 1. HERO ════════════════════════════════════════════════════ */}
       <section className="relative w-full min-h-[100dvh] flex items-center overflow-hidden">
-        {/* Right atmospheric visual */}
-        <div className="absolute right-0 top-0 bottom-0 w-1/2 z-0 hidden md:block">
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 80% 80% at 60% 45%, rgba(201,168,68,0.12) 0%, transparent 65%)" }}/>
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 60% at 65% 55%, rgba(201,168,68,0.07) 0%, transparent 55%)" }}/>
-          <HeroOrbital/>
-        </div>
-        {/* Left gradient mask */}
-        <div className="absolute inset-0 z-0" style={{ background: "linear-gradient(to right, #0A0A0A 55%, rgba(10,10,10,0.6) 75%, rgba(10,10,10,0.2) 100%)" }}/>
 
-        <div className="container relative z-10 mx-auto px-6 md:px-14 lg:px-20 pt-28 pb-24">
+        {/* Hero image — right side */}
+        <div className="absolute right-0 top-0 bottom-0 w-[55%] z-0 hidden md:block">
+          <img
+            src="/hero-bg.png"
+            alt="Precision wellness"
+            className="absolute inset-0 w-full h-full object-cover object-top"
+            style={{ objectPosition: "70% center" }}
+          />
+          {/* Fade image into dark background on left */}
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.7) 20%, rgba(10,10,10,0.15) 55%, transparent 100%)" }}/>
+          {/* Subtle bottom fade */}
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, #0A0A0A 0%, transparent 25%)" }}/>
+          {/* Gold glow behind subject */}
+          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 70% at 62% 45%, rgba(201,168,68,0.1) 0%, transparent 60%)" }}/>
+          {/* Orbital accent lines overlay */}
+          <HeroOrbitalAccent/>
+        </div>
+
+        {/* Subtle atmospheric gradient overall */}
+        <div className="absolute inset-0 z-0" style={{ background: "linear-gradient(135deg, #0A0A0A 0%, rgba(10,10,10,0.95) 40%, transparent 100%)" }}/>
+
+        {/* Mobile bg */}
+        <div className="absolute inset-0 z-0 md:hidden" style={{ background: "linear-gradient(to bottom, #0A0A0A 40%, rgba(10,10,10,0.85) 100%)" }}/>
+
+        <div className="container relative z-10 mx-auto px-6 md:px-14 lg:px-20 pt-32 pb-24 md:pt-36 md:pb-28">
           <motion.div
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
-            className="max-w-lg md:max-w-xl"
+            className="max-w-lg md:max-w-[540px]"
           >
-            <p className="text-[11px] uppercase tracking-[0.35em] text-[#C9A844] mb-7">Precision Peptides</p>
-            <h1 className="font-serif text-5xl md:text-6xl lg:text-7xl leading-[1.08] mb-7 font-light">
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-7 font-medium">Precision Peptides</p>
+            <h1 className="font-serif text-5xl md:text-6xl lg:text-[5.5rem] leading-[1.04] mb-7 font-light">
               Precision wellness,{" "}
               delivered with{" "}
               <em className="not-italic text-[#C9A844]">intention.</em>
             </h1>
-            <p className="text-white/55 text-base md:text-lg leading-relaxed mb-12 max-w-md">
-              Evidence-informed peptides and protocols for longevity, performance, and everyday vitality.
+            <p className="text-white/55 text-base md:text-lg leading-relaxed mb-10 max-w-md">
+              Evidence-informed peptide protocols designed to support recovery, vitality, performance, and modern longevity.
             </p>
-            <div className="flex flex-col gap-3 max-w-xs">
+            <div className="flex flex-col gap-3 max-w-[300px]">
               <Link
                 href="/protocol-finder"
-                className="flex items-center justify-center gap-2 bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.12em] text-xs uppercase px-8 py-4 rounded-lg hover:bg-[#D4B050] transition-colors"
+                className="flex items-center justify-center gap-2 bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.14em] text-[11px] uppercase px-8 py-4 rounded-lg hover:bg-[#D4B050] transition-colors"
               >
                 Find My Protocol
               </Link>
               <Link
                 href="/shop"
-                className="flex items-center justify-center gap-2 border border-white/25 text-white/70 font-medium tracking-[0.12em] text-xs uppercase px-8 py-4 rounded-lg hover:border-white/50 hover:text-white transition-colors"
+                className="flex items-center justify-center gap-2 border border-white/20 text-white/65 font-medium tracking-[0.14em] text-[11px] uppercase px-8 py-4 rounded-lg hover:border-[#C9A844]/50 hover:text-white/90 transition-colors"
               >
                 Explore Collections
               </Link>
             </div>
+            {/* Trust line */}
+            <p className="mt-7 text-[10px] text-white/30 tracking-[0.12em] uppercase">
+              Third-party tested · Discreet shipping · Concierge guidance
+            </p>
           </motion.div>
         </div>
       </section>
 
       {/* ═══ 2. PROTOCOL COLLECTIONS ════════════════════════════════════ */}
       <section id="collections" className="relative py-20 md:py-28 px-6 md:px-14 lg:px-20 overflow-hidden" style={{ backgroundColor: "#0D0D0D" }}>
-        {/* Orbital decoration top right */}
-        <div className="absolute top-0 right-0 w-64 h-64 pointer-events-none opacity-40">
+        {/* Orbital top-right decoration */}
+        <div className="absolute top-0 right-0 w-56 h-56 pointer-events-none opacity-35">
           <svg viewBox="0 0 256 256" fill="none">
             <circle cx="200" cy="56" r="90" stroke="#C9A844" strokeWidth="0.8" strokeOpacity="0.4"/>
             <circle cx="200" cy="56" r="55" stroke="#C9A844" strokeWidth="0.6" strokeOpacity="0.3"/>
@@ -286,7 +281,6 @@ export default function Home() {
             <circle cx="200" cy="-34" r="3.5" fill="#C9A844" fillOpacity="0.7"/>
             <circle cx="290" cy="70" r="3" fill="#C9A844" fillOpacity="0.6"/>
             <circle cx="255" cy="145" r="2" fill="#C9A844" fillOpacity="0.45"/>
-            <circle cx="110" cy="80" r="2" fill="#C9A844" fillOpacity="0.4"/>
           </svg>
         </div>
 
@@ -295,17 +289,17 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="mb-12 md:mb-14"
+            className="mb-12 md:mb-16"
           >
-            <p className="text-[11px] uppercase tracking-[0.35em] text-[#C9A844] mb-5">Protocol Collections</p>
-            <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl leading-tight max-w-2xl">
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-5 font-medium">Protocol Collections</p>
+            <h2 className="font-serif text-4xl md:text-5xl lg:text-[3.5rem] leading-[1.1] max-w-2xl font-light">
               Targeted support for{" "}
               <em className="not-italic text-[#C9A844]">every dimension</em>{" "}
               of you.
             </h2>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
             {COLLECTIONS.map((c, i) => (
               <motion.div
                 key={i}
@@ -315,17 +309,18 @@ export default function Home() {
                 transition={{ delay: i * 0.07 }}
               >
                 <Link href="/shop"
-                  className="group flex flex-col gap-4 p-7 rounded-2xl border border-white/8 hover:border-[#C9A844]/35 transition-all duration-300 h-full"
-                  style={{ backgroundColor: "rgba(255,255,255,0.03)" }}
+                  className="group flex flex-col gap-5 p-7 rounded-2xl border border-white/[0.07] hover:border-[#C9A844]/40 bg-white/[0.025] hover:bg-white/[0.04] transition-all duration-300 h-full"
                 >
-                  <div className="text-[#C9A844]">{c.icon}</div>
+                  <div className="flex items-start justify-between">
+                    <div className="text-[#C9A844]">{c.icon}</div>
+                    <span className="text-[#C9A844]/40 text-base group-hover:text-[#C9A844]/70 group-hover:translate-x-0.5 inline-block transition-all duration-300">→</span>
+                  </div>
                   <div>
-                    <h3 className="font-serif text-xl text-white mb-2">{c.title}</h3>
-                    <p className="text-sm text-white/50 leading-relaxed">{c.desc}</p>
+                    <h3 className="font-serif text-lg text-white mb-2 leading-snug">{c.title}</h3>
+                    <p className="text-[13px] text-white/45 leading-relaxed">{c.desc}</p>
                   </div>
-                  <div className="mt-auto pt-2">
-                    <span className="text-[#C9A844] text-lg group-hover:translate-x-1 inline-block transition-transform">→</span>
-                  </div>
+                  {/* Subtle gold line on hover */}
+                  <div className="h-px w-0 group-hover:w-8 bg-[#C9A844]/40 transition-all duration-500 mt-auto"/>
                 </Link>
               </motion.div>
             ))}
@@ -333,78 +328,25 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 3. CONCIERGE PROTOCOL FINDER ══════════════════════════════ */}
-      <section id="finder" className="relative py-20 md:py-28 px-6 md:px-14 lg:px-20 overflow-hidden" style={{ backgroundColor: "#0A0A0A" }}>
-        <GoldWave/>
-
-        <div className="container mx-auto max-w-5xl relative z-10">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
-            <p className="text-[11px] uppercase tracking-[0.35em] text-[#C9A844] mb-6">Concierge Protocol Finder</p>
-            <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl leading-tight mb-12">
-              Your path is personal.{" "}
-              <br className="hidden md:block"/>
-              Let's find what{" "}
-              <em className="not-italic text-[#C9A844]">fits.</em>
-            </h2>
-
-            {/* 4 mini question cards */}
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
-              {[
-                { q: "What is your primary goal?", icon: "◎" },
-                { q: "How would you rate your energy?", icon: "⚡" },
-                { q: "How is your sleep quality?", icon: "☽" },
-                { q: "What's your experience level?", icon: "▪" },
-              ].map((item, i) => (
-                <motion.div
-                  key={i}
-                  initial={{ opacity: 0, y: 14 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.08 }}
-                  className="flex flex-col gap-4 p-6 rounded-2xl border border-white/10 hover:border-[#C9A844]/30 transition-colors cursor-pointer"
-                  style={{ backgroundColor: "rgba(255,255,255,0.04)" }}
-                >
-                  <span className="text-[#C9A844] text-xl opacity-70">{item.icon}</span>
-                  <div className="h-px w-8 bg-[#C9A844]/30" />
-                  <p className="text-sm text-white/65 leading-snug">{item.q}</p>
-                  <span className="text-[#C9A844] text-sm opacity-60">→</span>
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="text-center">
-              <Link
-                href="/protocol-finder"
-                className="inline-flex items-center justify-center bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.15em] text-sm uppercase px-14 py-4 rounded-xl hover:bg-[#D4B050] transition-colors w-full max-w-md"
-              >
-                Start My Protocol
-              </Link>
-              <p className="text-white/30 text-xs mt-3 tracking-wide">Takes less than 60 seconds</p>
-            </div>
-          </motion.div>
-        </div>
-      </section>
-
-      {/* ═══ 4. PEPTIDE COLLECTION ══════════════════════════════════════ */}
-      <section id="peptides" className="py-20 md:py-28 px-6 md:px-14 lg:px-20" style={{ backgroundColor: "#F2E9DC", color: "#1a1a1a" }}>
+      {/* ═══ 3. PEPTIDE COLLECTION ══════════════════════════════════════ */}
+      <section id="peptides" className="py-20 md:py-28 px-6 md:px-14 lg:px-20" style={{ backgroundColor: "#F5EEE4", color: "#1a1a1a" }}>
         <div className="container mx-auto max-w-7xl">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="flex items-start justify-between mb-10 md:mb-12"
+            className="flex items-end justify-between mb-12 md:mb-14 flex-wrap gap-5"
           >
             <div>
-              <p className="text-[11px] uppercase tracking-[0.35em] text-[#B8962E] mb-5">Peptide Collection</p>
-              <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl text-[#111] leading-[1.1]">
-                Curated. Pure. Purpose.<br />Backed by science.
+              <p className="text-[10px] uppercase tracking-[0.4em] text-[#B8962E] mb-5 font-medium">Peptide Collection</p>
+              <h2 className="font-serif text-4xl md:text-5xl text-[#111] leading-[1.1] font-light max-w-lg">
+                Curated peptide protocols<br className="hidden md:block"/> for your next standard.
               </h2>
+              <p className="text-[#111]/50 text-sm md:text-base leading-relaxed mt-5 max-w-md">
+                Explore targeted support for recovery, vitality, cognitive performance, skin health, and healthy aging.
+              </p>
             </div>
-            <Link href="/shop" className="hidden md:inline-flex items-center gap-2 text-xs font-semibold text-[#111] tracking-[0.15em] uppercase border-b border-[#111] pb-0.5 hover:text-[#B8962E] hover:border-[#B8962E] transition-colors shrink-0 mt-2">
+            <Link href="/shop" className="hidden md:inline-flex items-center gap-2 text-[11px] font-semibold text-[#111] tracking-[0.18em] uppercase border-b border-[#111]/50 pb-0.5 hover:text-[#B8962E] hover:border-[#B8962E] transition-colors shrink-0">
               View All Peptides →
             </Link>
           </motion.div>
@@ -420,19 +362,20 @@ export default function Home() {
                 transition={{ delay: i * 0.08 }}
               >
                 <Link href={`/shop/${p.slug}`}
-                  className="group block bg-white rounded-2xl overflow-hidden border border-[#1a1a1a]/8 hover:border-[#C9A844]/40 hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-md"
+                  className="group block bg-white rounded-2xl overflow-hidden border border-[#1a1a1a]/6 hover:border-[#C9A844]/35 hover:-translate-y-1.5 transition-all duration-300 shadow-sm hover:shadow-md"
                 >
-                  {/* Vial area */}
-                  <div className="h-44 md:h-52 flex items-center justify-center py-4 px-6">
+                  <div className="h-44 md:h-52 flex items-center justify-center py-5 px-6 bg-gradient-to-b from-[#fafaf8] to-white">
                     <VialSVG name={p.name} tag={p.tag}/>
                   </div>
-                  {/* Info */}
-                  <div className="px-5 pb-5 pt-3 border-t border-[#1a1a1a]/6">
-                    <h3 className="font-serif text-[#111] text-sm md:text-base mb-1.5 leading-snug">{p.name}</h3>
-                    <p className="text-[#1a1a1a]/50 text-xs leading-relaxed mb-3">{p.desc}</p>
-                    <span className="inline-block text-[9px] font-bold tracking-[0.18em] border border-[#1a1a1a]/25 text-[#1a1a1a]/60 px-2.5 py-1 rounded uppercase">
-                      {p.tag}
-                    </span>
+                  <div className="px-5 pb-5 pt-4 border-t border-[#1a1a1a]/5">
+                    <h3 className="font-serif text-[#111] text-sm md:text-base mb-2 leading-snug">{p.name}</h3>
+                    <p className="text-[#1a1a1a]/45 text-xs leading-relaxed mb-4">{p.desc}</p>
+                    <div className="flex items-center justify-between">
+                      <span className="inline-block text-[9px] font-bold tracking-[0.2em] border border-[#1a1a1a]/20 text-[#1a1a1a]/55 px-2.5 py-1 rounded uppercase">
+                        {p.tag}
+                      </span>
+                      <span className="text-[10px] font-semibold tracking-[0.15em] text-[#B8962E] uppercase group-hover:underline">Learn More →</span>
+                    </div>
                   </div>
                 </Link>
               </motion.div>
@@ -441,115 +384,225 @@ export default function Home() {
 
           <div className="text-center mb-12">
             <Link href="/shop"
-              className="inline-flex items-center justify-center bg-[#111] text-white font-bold tracking-[0.15em] text-xs uppercase px-12 py-4 rounded-xl hover:bg-[#222] transition-colors w-full max-w-sm"
+              className="inline-flex items-center justify-center bg-[#111] text-white font-bold tracking-[0.15em] text-[11px] uppercase px-12 py-4 rounded-xl hover:bg-[#222] transition-colors w-full max-w-sm"
             >
               Explore All Peptides →
             </Link>
           </div>
 
           {/* Trust badges */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 pt-8 border-t border-[#1a1a1a]/10">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-5 pt-8 border-t border-[#1a1a1a]/8">
             {[
               { icon: <IconShieldCheck/>, label: "Science-backed formulations" },
-              { icon: <IconSkin/>, label: "Purity & quality third-party tested" },
-              { icon: <IconFlask/>, label: "Purpose-driven every peptide has a role" },
-              { icon: <IconPerson/>, label: "Concierge guidance every step" },
+              { icon: <IconSkin/>, label: "Third-party tested for purity" },
+              { icon: <IconFlask/>, label: "US-sourced, pharma-grade" },
+              { icon: <IconPerson/>, label: "Concierge guidance, every step" },
             ].map((b, i) => (
               <div key={i} className="flex items-start gap-3">
-                <div className="shrink-0 mt-0.5" style={{ filter: "brightness(0.7)" }}>{b.icon}</div>
-                <p className="text-xs text-[#1a1a1a]/55 leading-snug">{b.label}</p>
+                <div className="shrink-0 mt-0.5" style={{ filter: "brightness(0.65)" }}>{b.icon}</div>
+                <p className="text-xs text-[#1a1a1a]/50 leading-snug">{b.label}</p>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* ═══ 5. AURYX STANDARD ══════════════════════════════════════════ */}
-      <section id="standard" className="relative py-20 md:py-28 px-6 md:px-14 lg:px-20 overflow-hidden" style={{ backgroundColor: "#0D0D0D" }}>
+      {/* ═══ 4. PROTOCOL FINDER ═════════════════════════════════════════ */}
+      <section id="finder" className="relative py-20 md:py-28 px-6 md:px-14 lg:px-20 overflow-hidden" style={{ backgroundColor: "#0A0A0A" }}>
+        <GoldWave/>
+
+        <div className="container mx-auto max-w-5xl relative z-10">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+          >
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-6 font-medium">Concierge Protocol Finder</p>
+            <h2 className="font-serif text-4xl md:text-5xl lg:text-[3.5rem] leading-[1.1] mb-5 font-light">
+              Your protocol starts<br className="hidden md:block"/>
+              with your{" "}
+              <em className="not-italic text-[#C9A844]">rhythm.</em>
+            </h2>
+            <p className="text-white/45 text-base leading-relaxed mb-12 max-w-md">
+              Answer a few questions about your goals, lifestyle, and current routine. We'll guide you toward the AURYX collection that best matches your priorities.
+            </p>
+
+            {/* Question preview tiles */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
+              {[
+                { q: "What is your primary goal?", icon: <IconTarget/> },
+                { q: "How would you rate your energy?", icon: <IconEnergy/> },
+                { q: "How is your sleep quality?", icon: <IconSleep/> },
+                { q: "What's your experience level?", icon: <IconPerson/> },
+              ].map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  className="flex flex-col gap-5 p-6 rounded-2xl border border-white/[0.08] hover:border-[#C9A844]/30 bg-white/[0.03] hover:bg-white/[0.05] transition-all duration-300 cursor-pointer"
+                >
+                  <div className="text-[#C9A844]">{item.icon}</div>
+                  <div className="h-px w-6 bg-[#C9A844]/25" />
+                  <p className="text-[13px] text-white/55 leading-snug">{item.q}</p>
+                  <span className="text-[#C9A844]/50 text-sm">→</span>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Step indicator */}
+            <div className="flex items-center gap-2 mb-8 justify-center">
+              {[1, 2, 3, 4].map(n => (
+                <div key={n} className="flex items-center gap-2">
+                  <div className={`rounded-full flex items-center justify-center text-[9px] font-bold ${n === 1 ? "w-5 h-5 bg-[#C9A844] text-[#0A0A0A]" : "w-5 h-5 border border-white/15 text-white/25"}`}>{n}</div>
+                  {n < 4 && <div className="w-6 h-px bg-white/10"/>}
+                </div>
+              ))}
+            </div>
+
+            <div className="text-center">
+              <Link
+                href="/protocol-finder"
+                className="inline-flex items-center justify-center bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.15em] text-[11px] uppercase px-14 py-4 rounded-xl hover:bg-[#D4B050] transition-colors w-full max-w-md"
+              >
+                Start My Protocol
+              </Link>
+              <p className="text-white/25 text-[11px] mt-4 tracking-wide">Takes less than 60 seconds</p>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* ═══ 5. AURYX METHODOLOGY ═══════════════════════════════════════ */}
+      <section id="methodology" className="relative py-20 md:py-28 px-6 md:px-14 lg:px-20 overflow-hidden" style={{ backgroundColor: "#0D0D0D" }}>
         <GoldWave/>
         <div className="container mx-auto max-w-5xl relative z-10">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-14 md:mb-16"
+            className="text-center mb-16 md:mb-20"
           >
-            <p className="text-[11px] uppercase tracking-[0.35em] text-[#C9A844] mb-5">The AURYX Standard</p>
-            <h2 className="font-serif text-4xl md:text-5xl leading-tight">
-              Precision by design.<br/>Trust by standard.
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-5 font-medium">The AURYX Methodology</p>
+            <h2 className="font-serif text-4xl md:text-5xl leading-tight font-light">
+              Precision by design.<br/>
+              <em className="not-italic text-[#C9A844]">Trust</em> by standard.
             </h2>
           </motion.div>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10">
-            {STANDARD.map((s, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 18 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="flex flex-col items-center md:items-start text-center md:text-left gap-3"
-              >
-                {s.icon}
-                <h3 className="font-medium text-sm text-[#C9A844] tracking-wide">{s.title}</h3>
-                <p className="text-xs text-white/45 leading-relaxed">{s.desc}</p>
-              </motion.div>
-            ))}
+
+          {/* Editorial numbered layout */}
+          <div className="relative">
+            {/* Vertical connector line */}
+            <div className="absolute left-[19px] md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[#C9A844]/30 via-[#C9A844]/15 to-transparent hidden md:block" style={{ transform: "translateX(-50%)" }}/>
+
+            <div className="space-y-10 md:space-y-0">
+              {METHODOLOGY.map((m, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.1 }}
+                  className={`relative md:grid md:grid-cols-2 md:gap-16 md:mb-14 ${i % 2 === 0 ? "" : "md:direction-rtl"}`}
+                >
+                  {i % 2 === 0 ? (
+                    <>
+                      {/* Left: content */}
+                      <div className={`flex gap-6 items-start md:justify-end md:text-right pl-12 md:pl-0`}>
+                        <div className="flex flex-col gap-3 max-w-sm">
+                          <h3 className="font-serif text-2xl text-white leading-snug">{m.title}</h3>
+                          <p className="text-[13px] text-white/45 leading-relaxed">{m.desc}</p>
+                        </div>
+                      </div>
+                      {/* Right: number node */}
+                      <div className="hidden md:flex items-start gap-6">
+                        <div className="relative flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-full border border-[#C9A844]/40 bg-[#0D0D0D] flex items-center justify-center -ml-5">
+                            <span className="font-serif text-sm text-[#C9A844] leading-none">{m.n}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Left: number node */}
+                      <div className="hidden md:flex items-start justify-end gap-6">
+                        <div className="relative flex items-center justify-center">
+                          <div className="w-10 h-10 rounded-full border border-[#C9A844]/40 bg-[#0D0D0D] flex items-center justify-center -mr-5">
+                            <span className="font-serif text-sm text-[#C9A844] leading-none">{m.n}</span>
+                          </div>
+                        </div>
+                      </div>
+                      {/* Right: content */}
+                      <div className="flex gap-6 items-start pl-12 md:pl-6">
+                        <div className="flex flex-col gap-3 max-w-sm">
+                          <h3 className="font-serif text-2xl text-white leading-snug">{m.title}</h3>
+                          <p className="text-[13px] text-white/45 leading-relaxed">{m.desc}</p>
+                        </div>
+                      </div>
+                    </>
+                  )}
+                  {/* Mobile number */}
+                  <div className="absolute left-0 top-0 md:hidden">
+                    <div className="w-10 h-10 rounded-full border border-[#C9A844]/40 bg-[#0D0D0D] flex items-center justify-center">
+                      <span className="font-serif text-sm text-[#C9A844] leading-none">{m.n}</span>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
       {/* ═══ 6. LIFESTYLE PHILOSOPHY ════════════════════════════════════ */}
-      <section id="philosophy" className="py-20 md:py-28 overflow-hidden" style={{ backgroundColor: "#0A0A0A" }}>
-        <div className="container mx-auto max-w-7xl px-6 md:px-14 lg:px-20">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0">
+      <section id="philosophy" className="py-20 md:py-0 overflow-hidden" style={{ backgroundColor: "#0A0A0A" }}>
+        <div className="container mx-auto max-w-7xl px-6 md:px-14 lg:px-20 md:px-0">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-0 lg:min-h-[560px]">
             {/* Text */}
             <motion.div
               initial={{ opacity: 0, x: -24 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="flex flex-col justify-center py-12 md:py-16 lg:pr-16"
+              className="flex flex-col justify-center py-12 md:py-20 lg:py-24 lg:pl-20 lg:pr-16"
             >
-              <p className="text-[11px] uppercase tracking-[0.35em] text-[#C9A844] mb-6">Live With Intention</p>
-              <h2 className="font-serif text-4xl md:text-5xl lg:text-6xl leading-[1.1] mb-8">
+              <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-6 font-medium">Live With Intention</p>
+              <h2 className="font-serif text-4xl md:text-5xl lg:text-[3.2rem] leading-[1.1] mb-8 font-light">
                 Longevity is a{" "}
-                <em className="not-italic text-[#C9A844]">lifestyle</em>,{" "}
-                not a shortcut.
+                <em className="not-italic text-[#C9A844]">lifestyle</em>,
+                <br/>not a shortcut.
               </h2>
               <p className="text-white/50 text-base leading-relaxed mb-10 max-w-md">
                 We believe in consistent choices, disciplined routines, and support that helps you thrive for the long run.
               </p>
               <button
                 onClick={() => setModalOpen(true)}
-                className="inline-flex items-center gap-2 text-xs text-[#C9A844] font-semibold tracking-[0.2em] uppercase hover:gap-3 transition-all"
+                className="inline-flex items-center gap-2 text-[11px] text-[#C9A844] font-semibold tracking-[0.22em] uppercase hover:gap-3 transition-all self-start"
               >
                 Our Philosophy <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </motion.div>
 
-            {/* Atmospheric visual */}
+            {/* Image panel */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.97 }}
+              initial={{ opacity: 0, scale: 0.98 }}
               whileInView={{ opacity: 1, scale: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 0.9 }}
-              className="relative min-h-[380px] md:min-h-[480px] rounded-2xl overflow-hidden lg:rounded-none lg:rounded-r-none"
-              style={{ background: "linear-gradient(135deg, #141008 0%, #1a1206 40%, #0D1810 100%)" }}
+              className="relative min-h-[380px] md:min-h-[480px] lg:min-h-0 overflow-hidden"
             >
-              <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 60% at 55% 40%, rgba(201,168,68,0.18) 0%, transparent 60%)" }}/>
-              <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 50% at 20% 70%, rgba(13,148,136,0.08) 0%, transparent 50%)" }}/>
-              {/* Warm golden atmospheric feel */}
-              <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 40%, rgba(10,8,4,0.7) 100%)" }}/>
-              {/* Ambient particles */}
-              {[[25, 20, 4, 0.6], [75, 40, 3, 0.4], [60, 70, 2.5, 0.5], [15, 60, 2, 0.35], [85, 75, 3, 0.45], [45, 15, 1.5, 0.3], [90, 30, 2, 0.4]].map(([l, t, r, o], i) => (
-                <div key={i} className="absolute rounded-full bg-[#C9A844]"
-                  style={{ left: `${l}%`, top: `${t}%`, width: r, height: r, opacity: o }} />
-              ))}
-              <div className="absolute bottom-10 left-10">
-                <div className="w-10 h-px bg-[#C9A844]/40 mb-4" />
-                <p className="font-serif text-xl text-white/20 italic max-w-[220px] leading-snug">
-                  "Consistent rhythm.<br />Intentional support.<br />Long-term vitality."
-                </p>
-              </div>
+              <img
+                src="/about-bg.png"
+                alt="Longevity lifestyle"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ objectPosition: "center 30%" }}
+              />
+              {/* Overlay to blend into dark bg */}
+              <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.2) 15%, transparent 50%)" }}/>
+              <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, transparent 60%, rgba(10,10,10,0.7) 100%)" }}/>
+              {/* Gold tint overlay */}
+              <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 60% at 60% 40%, rgba(201,168,68,0.06) 0%, transparent 70%)" }}/>
             </motion.div>
           </div>
         </div>
@@ -563,10 +616,10 @@ export default function Home() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-12 md:mb-14"
+            className="text-center mb-14 md:mb-16"
           >
-            <p className="text-[11px] uppercase tracking-[0.35em] text-[#C9A844] mb-4">Results That Speak</p>
-            <h2 className="font-serif text-4xl md:text-5xl">
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-4 font-medium">Results That Speak</p>
+            <h2 className="font-serif text-4xl md:text-5xl font-light">
               Real people.{" "}
               <em className="not-italic text-[#C9A844]">Real results.</em>
             </h2>
@@ -580,24 +633,24 @@ export default function Home() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="flex flex-col gap-5 p-8 rounded-2xl border border-white/8"
-                style={{ backgroundColor: "rgba(255,255,255,0.04)" }}
+                className="flex flex-col gap-6 p-8 md:p-10 rounded-2xl border border-white/[0.08] bg-white/[0.03] hover:border-[#C9A844]/25 transition-colors duration-300"
               >
-                <span className="font-serif text-4xl text-[#C9A844] leading-none opacity-70">"</span>
-                <p className="text-white/75 text-base leading-relaxed font-light">{t.quote}</p>
-                <div className="h-px bg-white/10 w-full"/>
+                {/* Large quotation mark */}
+                <span className="font-serif text-6xl text-[#C9A844] leading-none opacity-60 select-none">"</span>
+                <p className="text-white/75 text-base md:text-lg leading-relaxed font-light -mt-4">{t.quote}</p>
+                <div className="h-px bg-white/[0.08] w-full"/>
                 <div className="flex items-center gap-3">
-                  <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center">
-                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
-                      <circle cx="8" cy="5.5" r="2.5" stroke="rgba(255,255,255,0.4)" strokeWidth="1.2"/>
-                      <path d="M3 13.5C3 11 5.2 9 8 9C10.8 9 13 11 13 13.5" stroke="rgba(255,255,255,0.4)" strokeWidth="1.2" strokeLinecap="round"/>
+                  <div className="w-9 h-9 rounded-full border border-white/15 flex items-center justify-center flex-shrink-0">
+                    <svg width="17" height="17" viewBox="0 0 16 16" fill="none">
+                      <circle cx="8" cy="5.5" r="2.5" stroke="rgba(255,255,255,0.35)" strokeWidth="1.2"/>
+                      <path d="M3 13.5C3 11 5.2 9 8 9C10.8 9 13 11 13 13.5" stroke="rgba(255,255,255,0.35)" strokeWidth="1.2" strokeLinecap="round"/>
                     </svg>
                   </div>
                   <div>
                     <p className="text-sm text-white/80 font-medium">— {t.name}</p>
-                    <div className="flex items-center gap-1">
-                      <p className="text-xs text-white/35">{t.label}</p>
-                      <CheckCircle className="w-3 h-3 text-[#C9A844] opacity-70"/>
+                    <div className="flex items-center gap-1.5 mt-0.5">
+                      <p className="text-xs text-white/30">{t.label}</p>
+                      <CheckCircle className="w-3 h-3 text-[#C9A844] opacity-65"/>
                     </div>
                   </div>
                 </div>
@@ -608,14 +661,14 @@ export default function Home() {
           {/* Dot indicator */}
           <div className="flex items-center justify-center gap-2 mt-10">
             {[0, 1, 2, 3, 4].map(i => (
-              <div key={i} className={`rounded-full transition-all ${i === 0 ? "w-5 h-1.5 bg-[#C9A844]" : "w-1.5 h-1.5 bg-white/20"}`} />
+              <div key={i} className={`rounded-full transition-all ${i === 0 ? "w-6 h-1.5 bg-[#C9A844]" : "w-1.5 h-1.5 bg-white/15"}`} />
             ))}
           </div>
         </div>
       </section>
 
       {/* ═══ 8. FINAL CTA ═══════════════════════════════════════════════ */}
-      <section id="cta" className="relative overflow-hidden" style={{ backgroundColor: "#F2E9DC", color: "#111" }}>
+      <section id="cta" className="relative overflow-hidden" style={{ backgroundColor: "#F5EEE4", color: "#111" }}>
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-0">
             {/* Text */}
@@ -623,54 +676,60 @@ export default function Home() {
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
-              className="flex flex-col justify-center py-20 md:py-24 px-8 md:px-14 lg:px-20"
+              className="flex flex-col justify-center py-20 md:py-28 px-8 md:px-14 lg:px-20"
             >
-              <p className="text-[11px] uppercase tracking-[0.35em] text-[#B8962E] mb-5">Ready To Begin?</p>
-              <h2 className="font-serif text-5xl md:text-6xl leading-tight mb-6">
+              <p className="text-[10px] uppercase tracking-[0.4em] text-[#B8962E] mb-5 font-medium">Ready To Begin?</p>
+              <h2 className="font-serif text-5xl md:text-6xl leading-[1.08] mb-6 font-light">
                 Your best,{" "}
                 <em className="not-italic text-[#B8962E]">supported.</em>
               </h2>
-              <p className="text-[#111]/55 text-base leading-relaxed mb-10">
-                Guided protocols. Premium peptides.<br/>Personalized for you.
+              <p className="text-[#111]/50 text-base leading-relaxed mb-10 max-w-sm">
+                Guided protocols. Premium peptides.<br/>Personalized for your rhythm.
               </p>
               <div>
                 <Link
                   href="/protocol-finder"
-                  className="inline-flex items-center justify-center bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.15em] text-xs uppercase px-10 py-4 rounded-xl hover:bg-[#D4B050] transition-colors"
+                  className="inline-flex items-center justify-center bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.15em] text-[11px] uppercase px-10 py-4 rounded-xl hover:bg-[#D4B050] transition-colors"
                 >
                   Find My Protocol
                 </Link>
               </div>
             </motion.div>
 
-            {/* Vial visual */}
+            {/* Dark vial panel */}
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ duration: 1 }}
-              className="relative min-h-[320px] md:min-h-0 flex items-center justify-center overflow-hidden"
-              style={{ background: "linear-gradient(135deg, #1a1008 0%, #201508 50%, #0D1208 100%)" }}
+              className="relative min-h-[340px] md:min-h-0 flex items-center justify-center overflow-hidden"
+              style={{ background: "linear-gradient(135deg, #100c04 0%, #1c1405 50%, #0a0e08 100%)" }}
             >
-              <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 70% at 45% 50%, rgba(201,168,68,0.22) 0%, transparent 65%)" }}/>
-              <div className="relative z-10 flex items-center gap-6">
-                {/* Large featured vial */}
-                <div className="h-48 md:h-56">
-                  <VialSVG name="AURYX Precision" tag="PEPTIDE"/>
-                </div>
-              </div>
-              {/* Gold particles */}
-              {[[20, 15, 4, 0.5], [80, 30, 3, 0.4], [65, 75, 2.5, 0.45], [10, 65, 2, 0.35], [90, 80, 3, 0.4]].map(([l, t, r, o], i) => (
+              <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 75% 75% at 50% 50%, rgba(201,168,68,0.2) 0%, transparent 65%)" }}/>
+              {/* Gold particle scatter */}
+              {[[18, 18, 4, 0.45], [82, 25, 3, 0.38], [68, 78, 2.5, 0.42], [12, 68, 2, 0.32], [88, 82, 3, 0.38], [50, 12, 2, 0.3], [35, 88, 2.5, 0.35]].map(([l, t, r, o], i) => (
                 <div key={i} className="absolute rounded-full bg-[#C9A844]"
                   style={{ left: `${l}%`, top: `${t}%`, width: r, height: r, opacity: o }} />
               ))}
+              <div className="relative z-10 flex items-end gap-4">
+                {/* Clustered vials */}
+                <div className="h-40 opacity-65 -rotate-6 translate-y-4">
+                  <VialSVG name="BPC-157" tag="RECOVERY"/>
+                </div>
+                <div className="h-52 z-10">
+                  <VialSVG name="AURYX Precision" tag="PEPTIDE"/>
+                </div>
+                <div className="h-40 opacity-65 rotate-6 translate-y-4">
+                  <VialSVG name="NAD+" tag="ENERGY"/>
+                </div>
+              </div>
             </motion.div>
           </div>
         </div>
       </section>
 
       <ConsultationModal open={modalOpen} onOpenChange={setModalOpen} />
-      <ProtocolContinuationModal open={continuationOpen} onOpenChange={setContinuationOpen} />
+      <ProtocolContinuationModal open={continuationOpen} onOpenChange={setContinuationOpen} onSwitchToConsultation={() => { setContinuationOpen(false); setModalOpen(true); }} />
     </div>
   );
 }

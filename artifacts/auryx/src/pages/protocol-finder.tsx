@@ -73,7 +73,7 @@ export default function ProtocolFinder() {
       </div>
 
       <ConsultationModal open={modalOpen} onOpenChange={setModalOpen} />
-      <ProtocolContinuationModal open={continuationOpen} onOpenChange={setContinuationOpen} />
+      <ProtocolContinuationModal open={continuationOpen} onOpenChange={setContinuationOpen} onSwitchToConsultation={() => { setContinuationOpen(false); setModalOpen(true); }} />
     </div>
   );
 }
