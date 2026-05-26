@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ChevronRight, ChevronLeft, ShieldAlert, CheckCircle2, ArrowRight, Sparkles, RotateCcw } from "lucide-react";
+import { ChevronRight, ChevronLeft, ShieldAlert, CheckCircle2, ArrowRight, Sparkles, RotateCcw, X } from "lucide-react";
 import { useGetProtocolRecommendation } from "@workspace/api-client-react";
 import type { ProtocolRecommendation } from "@workspace/api-client-react";
 
@@ -435,53 +436,171 @@ function LoadingScreen() {
   );
 }
 
-function MedicalResultScreen({ onReset, onConsult }: { onReset: () => void; onConsult: () => void }) {
+function WaiverModal({ onAccept, onClose }: { onAccept: () => void; onClose: () => void }) {
+  const [agreed, setAgreed] = useState(false);
   return (
-    <motion.div
-      key="medical-result"
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="text-center max-w-2xl mx-auto"
-    >
-      <div className="flex justify-center mb-6">
-        <div className="w-16 h-16 rounded-full flex items-center justify-center border bg-amber-500/10 border-amber-500/30">
-          <ShieldAlert className="w-8 h-8 text-amber-400" />
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
+        exit={{ opacity: 0, scale: 0.96, y: 16 }}
+        transition={{ duration: 0.25 }}
+        className="relative bg-[#0f0f0f] border border-[#C9A844]/20 rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+      >
+        <div className="sticky top-0 bg-[#0f0f0f] border-b border-white/[0.06] px-6 py-4 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <ShieldAlert className="w-4 h-4 text-amber-400" />
+            <span className="text-xs uppercase tracking-[0.25em] text-amber-400">Informed Consent & Waiver</span>
+          </div>
+          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
+            <X className="w-4 h-4" />
+          </button>
         </div>
-      </div>
-      <div className="flex items-center justify-center gap-3 mb-4">
-        <div className="h-[1px] w-8 bg-primary/40" />
-        <span className="text-primary text-xs tracking-[0.25em] uppercase">Physician Review Required</span>
-        <div className="h-[1px] w-8 bg-primary/40" />
-      </div>
-      <h3 className="text-3xl md:text-4xl font-serif mb-6 text-foreground">Physician Review Required</h3>
-      <p className="text-muted-foreground leading-relaxed mb-10 text-base">
-        Based on your medical history, a direct consultation with one of our physicians is required before any protocol can be considered.
-        This is not a barrier — it is the standard of care we hold for every patient. Our team will review your case with complete
-        discretion, expertise, and compassion. Many patients with complex histories find that peptide therapy is still an excellent
-        fit under appropriate medical supervision.
-      </p>
-      <div className="flex flex-col sm:flex-row gap-4 justify-center">
-        <Button
-          data-testid="result-primary-cta"
-          onClick={onConsult}
-          className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 text-base tracking-wide"
+
+        <div className="px-6 py-6">
+          <h3 className="font-serif text-xl text-foreground mb-1">Self-Directed Protocol Waiver</h3>
+          <p className="text-xs text-muted-foreground mb-5">Please read carefully before proceeding.</p>
+
+          <div className="space-y-4 text-sm text-foreground/65 leading-relaxed">
+            <div>
+              <p className="text-foreground/90 font-medium mb-1">1. No Medical Supervision</p>
+              <p>You are choosing to purchase AURYX peptide products without prior review or clearance by a licensed physician. AURYX strongly advises against self-directed peptide use by individuals with complex medical histories. By proceeding, you acknowledge this recommendation and waive it of your own free will.</p>
+            </div>
+            <div>
+              <p className="text-foreground/90 font-medium mb-1">2. Educational Use Only</p>
+              <p>All product information, protocol guidance, and AI-generated content provided by AURYX is for educational and informational purposes only. Nothing on this site constitutes medical advice, diagnosis, or treatment.</p>
+            </div>
+            <div>
+              <p className="text-foreground/90 font-medium mb-1">3. Voluntary Assumption of Risk</p>
+              <p>You voluntarily and knowingly assume all risks associated with self-directed peptide use, including but not limited to adverse reactions, contraindications with existing medications or conditions, and any outcomes arising from unsupervised administration.</p>
+            </div>
+            <div>
+              <p className="text-foreground/90 font-medium mb-1">4. Release of Liability</p>
+              <p>AURYX, its parent entities, affiliates, physicians, consultants, and staff bear no responsibility or liability for any health outcomes, adverse events, complications, or consequences arising from your decision to proceed without obtaining a physician consultation first.</p>
+            </div>
+            <div>
+              <p className="text-foreground/90 font-medium mb-1">5. Regulatory Compliance</p>
+              <p>Peptide compounds are research-grade substances. Laws governing their purchase, possession, and use vary by jurisdiction. You are solely responsible for ensuring compliance with all applicable local, state, and federal regulations in your location.</p>
+            </div>
+            <div>
+              <p className="text-foreground/90 font-medium mb-1">6. Consultation Remains Available</p>
+              <p>A private physician consultation through AURYX remains available to you at any time. We sincerely encourage you to reconsider and speak with our clinical team before beginning any protocol — particularly given the health history you have disclosed.</p>
+            </div>
+          </div>
+
+          <div className="mt-6 border-t border-white/[0.06] pt-5">
+            <label className="flex items-start gap-3 cursor-pointer mb-5">
+              <div
+                onClick={() => setAgreed(!agreed)}
+                className={`w-4 h-4 rounded border shrink-0 mt-0.5 flex items-center justify-center transition-colors ${
+                  agreed ? "bg-primary border-primary" : "border-white/25 bg-transparent"
+                }`}
+              >
+                {agreed && (
+                  <svg className="w-2.5 h-2.5" viewBox="0 0 10 10" fill="none">
+                    <path d="M2 5l2.5 2.5 3.5-4" stroke="#0A0A0A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                  </svg>
+                )}
+              </div>
+              <span className="text-xs text-muted-foreground leading-relaxed">
+                I have read and understood this waiver in full. I am making this decision voluntarily and accept complete personal responsibility for the risks involved. I release AURYX from any liability arising from my self-directed use of its products.
+              </span>
+            </label>
+
+            <div className="flex flex-col sm:flex-row gap-3">
+              <Button
+                disabled={!agreed}
+                onClick={onAccept}
+                className="flex-1 bg-primary text-[#0A0A0A] hover:bg-primary/90 h-11 text-sm font-bold tracking-wide disabled:opacity-30"
+              >
+                I Understand — Take Me to the Shop <ArrowRight className="ml-2 w-4 h-4" />
+              </Button>
+              <Button
+                variant="outline"
+                onClick={onClose}
+                className="border-border/60 text-muted-foreground hover:border-primary/40 h-11 px-5"
+              >
+                Cancel
+              </Button>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
+function MedicalResultScreen({ onReset, onConsult }: { onReset: () => void; onConsult: () => void }) {
+  const [showWaiver, setShowWaiver] = useState(false);
+  const [, navigate] = useLocation();
+
+  return (
+    <>
+      {showWaiver && (
+        <AnimatePresence>
+          <WaiverModal
+            onClose={() => setShowWaiver(false)}
+            onAccept={() => { setShowWaiver(false); navigate("/shop"); }}
+          />
+        </AnimatePresence>
+      )}
+
+      <motion.div
+        key="medical-result"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="text-center max-w-2xl mx-auto"
+      >
+        <div className="flex justify-center mb-6">
+          <div className="w-16 h-16 rounded-full flex items-center justify-center border bg-amber-500/10 border-amber-500/30">
+            <ShieldAlert className="w-8 h-8 text-amber-400" />
+          </div>
+        </div>
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="h-[1px] w-8 bg-primary/40" />
+          <span className="text-primary text-xs tracking-[0.25em] uppercase">Physician Review Required</span>
+          <div className="h-[1px] w-8 bg-primary/40" />
+        </div>
+        <h3 className="text-3xl md:text-4xl font-serif mb-6 text-foreground">Physician Review Required</h3>
+        <p className="text-muted-foreground leading-relaxed mb-8 text-base">
+          Based on your medical history, a direct consultation with one of our physicians is required before any protocol can be considered.
+          This is not a barrier — it is the standard of care we hold for every patient. Our team will review your case with complete
+          discretion, expertise, and compassion. Many patients with complex histories find that peptide therapy is still an excellent
+          fit under appropriate medical supervision.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
+          <Button
+            data-testid="result-primary-cta"
+            onClick={onConsult}
+            className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 text-base tracking-wide"
+          >
+            Request a Physician Consultation <ArrowRight className="ml-2 w-4 h-4" />
+          </Button>
+          <Button
+            data-testid="result-reset"
+            variant="outline"
+            onClick={onReset}
+            className="border-border/60 text-muted-foreground hover:border-primary/40 h-12 px-8"
+          >
+            Start Over
+          </Button>
+        </div>
+
+        <button
+          data-testid="self-order-risk"
+          onClick={() => setShowWaiver(true)}
+          className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors underline underline-offset-4 decoration-muted-foreground/25"
         >
-          Request a Physician Consultation <ArrowRight className="ml-2 w-4 h-4" />
-        </Button>
-        <Button
-          data-testid="result-reset"
-          variant="outline"
-          onClick={onReset}
-          className="border-border/60 text-muted-foreground hover:border-primary/40 h-12 px-8"
-        >
-          Start Over
-        </Button>
-      </div>
-      <p className="mt-8 text-xs text-muted-foreground/60 max-w-lg mx-auto">
-        All information shared is protected under strict medical privacy standards. Our physicians approach every case without judgment and with your wellbeing as the sole priority.
-      </p>
-    </motion.div>
+          I'll take a risk and order on my own
+        </button>
+
+        <p className="mt-6 text-xs text-muted-foreground/50 max-w-lg mx-auto">
+          All information shared is protected under strict medical privacy standards. Our physicians approach every case without judgment and with your wellbeing as the sole priority.
+        </p>
+      </motion.div>
+    </>
   );
 }
 
