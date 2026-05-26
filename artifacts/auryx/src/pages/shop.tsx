@@ -210,32 +210,39 @@ function ProductCard({
         transition-all duration-300"
       style={{ background: "linear-gradient(135deg, #F9F5EC 0%, #F3EBD8 50%, #EDE3CC 100%)" }}
     >
-      {/* ── Image zone ── */}
+      {/* ── Image zone — narrow vertical rectangle ── */}
       <div
-        className={`relative shrink-0 flex items-center justify-center overflow-hidden ${featured ? "w-[38%]" : "w-[34%]"}`}
+        className={`relative shrink-0 flex items-center justify-center overflow-hidden self-stretch ${featured ? "w-[26%]" : "w-[22%]"}`}
+        style={{ background: "linear-gradient(180deg, #F5F0E5 0%, #EDE3CC 100%)" }}
       >
+        {/* Permanent soft base glow */}
         <div
-          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 80% 70% at 50% 50%, rgba(201,168,68,0.24) 0%, transparent 70%)" }}
+          className="absolute inset-0 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse 90% 65% at 50% 55%, rgba(201,168,68,0.18) 0%, transparent 72%)" }}
+        />
+        {/* Stronger hover glow */}
+        <div
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-600 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse 85% 60% at 50% 55%, rgba(201,168,68,0.38) 0%, transparent 68%)" }}
         />
         {productImage ? (
           <img
             src={productImage}
             alt={product.name}
-            className={`relative z-10 object-contain group-hover:scale-[1.06] group-hover:-translate-y-0.5 transition-transform duration-500 drop-shadow-md ${featured ? "h-36 w-auto" : "h-28 w-auto"}`}
+            className={`relative z-10 object-contain group-hover:scale-[1.07] group-hover:-translate-y-0.5 transition-transform duration-500 drop-shadow-lg ${featured ? "h-32 w-auto max-w-[90%]" : "h-[5.5rem] w-auto max-w-[85%]"}`}
           />
         ) : (
-          <div className="relative z-10 group-hover:scale-[1.06] transition-transform duration-500">
+          <div className="relative z-10 group-hover:scale-[1.07] transition-transform duration-500 scale-75">
             <CardVial />
           </div>
         )}
       </div>
 
       {/* ── Divider ── */}
-      <div className="w-px bg-[#C9A844]/22 my-5 shrink-0" />
+      <div className="w-px bg-[#C9A844]/20 my-4 shrink-0" />
 
       {/* ── Content ── */}
-      <div className="flex-1 px-5 py-4 flex flex-col justify-between min-w-0">
+      <div className="flex-1 px-4 py-4 flex flex-col justify-between min-w-0">
         <div>
           <div className="flex items-start justify-between gap-2 mb-1">
             <span className="text-[9px] uppercase tracking-[0.18em] font-semibold text-[#B8962E] leading-none mt-0.5">
@@ -252,7 +259,7 @@ function ProductCard({
             className="text-[#0A0A0A] leading-[1.0] mb-2 truncate"
             style={{
               fontFamily: "'Bebas Neue', sans-serif",
-              fontSize: featured ? "clamp(1.6rem, 2.4vw, 2.2rem)" : "clamp(1.4rem, 2vw, 1.9rem)",
+              fontSize: featured ? "clamp(1.6rem, 2.4vw, 2.2rem)" : "clamp(1.3rem, 1.9vw, 1.8rem)",
               letterSpacing: "0.02em",
             }}
           >
@@ -270,7 +277,7 @@ function ProductCard({
           </span>
           <Link
             href={`/shop/${product.slug}`}
-            className="h-8 px-3 rounded-lg border border-[#0A0A0A]/15 text-[#0A0A0A]/55 text-[10px] font-medium tracking-widest uppercase flex items-center gap-1 hover:border-[#B8962E]/55 hover:text-[#B8962E] transition-all whitespace-nowrap"
+            className="h-8 px-3 rounded-lg bg-white/70 border border-[#D8CEB8] text-[#6B5A3A] text-[10px] font-medium tracking-widest uppercase flex items-center gap-1 hover:bg-white hover:border-[#B8962E]/60 hover:text-[#B8962E] transition-all whitespace-nowrap shadow-sm"
           >
             More <ChevronRight className="w-2.5 h-2.5" />
           </Link>

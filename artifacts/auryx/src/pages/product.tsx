@@ -7,6 +7,36 @@ import { Link } from "wouter";
 import { useState } from "react";
 import type { Product } from "@/types/shop";
 
+const PRODUCT_IMAGES: Record<string, string> = {
+  "semaglutide": "/products/semaglutide.png",
+  "tirzepatide": "/products/tirzepatide.png",
+  "retatrutide": "/products/retatrutide.png",
+  "sermorelin": "/products/sermorelin.png",
+  "tesamorelin": "/products/tesamorelin.png",
+  "tesamorelin-ipamorelin": "/products/ipamorelin.png",
+  "ipamorelin": "/products/ipamorelin.png",
+  "cjc-1295-ipamorelin": "/products/cjc-1295-ipamorelin.png",
+  "tesofensine": "/products/tesofensine.png",
+  "tesofensine-ipamorelin": "/products/tesofensine-ipamorelin.png",
+  "bpc-157": "/products/bpc-157.png",
+  "tb-500": "/products/tb-500.png",
+  "kpv": "/products/kpv.png",
+  "pt-141": "/products/pt-141.png",
+  "kisspeptin": "/products/kisspeptin.png",
+  "thymosin-alpha-1": "/products/thymosin-alpha-1.png",
+  "epithalon": "/products/epithalon.png",
+  "pinealon": "/products/pinealon.png",
+  "mots-c": "/products/mots-c.png",
+  "semax": "/products/semax.png",
+  "selank": "/products/selank.png",
+  "cortagen": "/products/cortagen.png",
+  "nad-plus": "/products/nad-plus.png",
+  "glow-complex": "/products/glow-complex.png",
+  "klow-complex": "/products/klow-complex.png",
+  "cerebrolysin": "/products/cerebrolysin.png",
+  "aod-9604": "/products/aod-9604.png",
+};
+
 async function fetchProduct(slug: string): Promise<Product> {
   const res = await fetch(`/api/products/${slug}`);
   if (!res.ok) throw new Error("Product not found");
@@ -136,8 +166,27 @@ export default function ProductPage() {
               transition={{ duration: 0.5 }}
               className="lg:sticky lg:top-28 self-start"
             >
-              <div className="bg-gradient-to-br from-[#F5F0E8] to-[#EDE8DC] rounded-3xl overflow-hidden" style={{ minHeight: 440 }}>
-                <PeptideVial category={product.category} />
+              <div
+                className="relative rounded-3xl overflow-hidden flex items-center justify-center"
+                style={{
+                  minHeight: 440,
+                  background: "linear-gradient(160deg, #F9F5EC 0%, #F2EAD6 55%, #EDE2CB 100%)",
+                }}
+              >
+                {/* Permanent base glow */}
+                <div
+                  className="absolute inset-0 pointer-events-none"
+                  style={{ background: "radial-gradient(ellipse 65% 55% at 50% 52%, rgba(201,168,68,0.22) 0%, transparent 68%)" }}
+                />
+                {PRODUCT_IMAGES[product.slug] ? (
+                  <img
+                    src={PRODUCT_IMAGES[product.slug]}
+                    alt={product.name}
+                    className="relative z-10 h-72 w-auto object-contain drop-shadow-2xl"
+                  />
+                ) : (
+                  <PeptideVial category={product.category} />
+                )}
               </div>
 
               {/* Trust Badges */}
