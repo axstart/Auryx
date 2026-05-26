@@ -96,25 +96,62 @@ function StepKnowledge({ stepLabel, onSelect }: { stepLabel: string; onSelect: (
   );
 }
 
+const PEPTIDE_OPTIONS = [
+  "BPC-157", "TB-500", "CJC-1295", "Ipamorelin", "GHK-Cu", "Epithalon",
+  "AOD-9604", "Semax", "Selank", "PT-141", "MOTS-c", "Thymosin Alpha-1",
+  "Kisspeptin", "Tesamorelin", "Sermorelin", "Tirzepatide", "Semaglutide",
+  "NAD+", "IGF-1 LR3", "Hexarelin", "GHRP-2", "GHRP-6",
+];
+
 function StepCurrentPeptides({ stepLabel, onNext }: { stepLabel: string; onNext: (v: string) => void }) {
-  const [value, setValue] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
+  const [custom, setCustom] = useState("");
+
+  const toggle = (p: string) =>
+    setSelected((prev) => prev.includes(p) ? prev.filter((x) => x !== p) : [...prev, p]);
+
+  const handleContinue = () => {
+    const all = [...selected];
+    if (custom.trim()) all.push(custom.trim());
+    onNext(all.length ? all.join(", ") : "Not specified");
+  };
+
   return (
     <StepShell
       label={stepLabel}
       headline="What peptides are you currently using?"
-      sub="List the compounds in your current protocol — doses and frequency are optional but helpful. This allows our physicians to review your stack before any conversation."
+      sub="Select all that apply. You can add custom compounds below — doses and frequency are optional."
     >
-      <Textarea
-        data-testid="input-current-peptides"
-        placeholder="e.g. BPC-157 250mcg daily, CJC-1295 + Ipamorelin 300mcg 5 nights/week, Epithalon 10mg per cycle..."
-        className="bg-card/30 border-border/60 min-h-[140px] text-sm resize-none mb-6 focus:border-primary/50"
-        value={value}
-        onChange={(e) => setValue(e.target.value)}
+      <div className="flex flex-wrap gap-2 mb-4">
+        {PEPTIDE_OPTIONS.map((p) => {
+          const active = selected.includes(p);
+          return (
+            <button
+              key={p}
+              onClick={() => toggle(p)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 ${
+                active
+                  ? "bg-primary text-[#0A0A0A] border-primary"
+                  : "border-[#C9A844]/20 bg-[#161510] text-foreground/60 hover:border-[#C9A844]/50 hover:text-foreground"
+              }`}
+            >
+              {active && <span className="mr-1">✓</span>}{p}
+            </button>
+          );
+        })}
+      </div>
+      <input
+        data-testid="input-custom-peptides"
+        type="text"
+        placeholder="Other compounds (e.g. Epithalon 10mg, Kisspeptin 10mcg...)"
+        value={custom}
+        onChange={(e) => setCustom(e.target.value)}
+        className="w-full mb-5 px-4 py-2.5 rounded-lg bg-[#161510] border border-[#C9A844]/20 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/60 transition-colors"
       />
       <Button
         data-testid="current-peptides-next"
-        onClick={() => onNext(value.trim() || "Not specified")}
-        className="w-full bg-primary text-primary-foreground h-12 text-base tracking-wide"
+        onClick={handleContinue}
+        className="w-full bg-primary text-primary-foreground h-11 text-sm tracking-wide"
       >
         Continue <ChevronRight className="ml-2 w-4 h-4" />
       </Button>
@@ -166,7 +203,8 @@ function StepProtocolIntent({ stepLabel, onSelect }: { stepLabel: string; onSele
   );
 }
 
-function StepGoal({ stepLabel, onSelect }: { stepLabel: string; onSelect: (v: string) => void }) {
+function StepGoal({ stepLabel, onSubmit }: { stepLabel: string; onSubmit: (v: string) => void }) {
+  const [selected, setSelected] = useState<string[]>([]);
   const options = [
     { value: "antiaging", label: "Anti-Aging & Longevity", desc: "Slow biological aging, improve cellular health, look and feel younger." },
     { value: "fatloss", label: "Fat Loss & Body Composition", desc: "Metabolic acceleration, weight reduction, lean mass preservation." },
@@ -176,17 +214,57 @@ function StepGoal({ stepLabel, onSelect }: { stepLabel: string; onSelect: (v: st
     { value: "energy", label: "Energy & Vitality", desc: "Eliminate fatigue, optimize mitochondria, sustain peak output." },
     { value: "unsure", label: "Not sure yet", desc: "I'd like guidance on what's most relevant for my situation." },
   ];
+
+  const toggle = (v: string) =>
+    setSelected((prev) => prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]);
+
   return (
     <StepShell
       label={stepLabel}
-      headline="What is your primary area of focus?"
-      sub="Select the goal that matters most to you right now. A complete protocol can address multiple areas."
+      headline="What are your areas of focus?"
+      sub="Select all that apply. Your protocol can address multiple goals simultaneously."
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {options.map((o) => (
-          <OptionCard key={o.value} label={o.label} desc={o.desc} onClick={() => onSelect(o.value)} />
-        ))}
+      <div className="grid gap-2 mb-5">
+        {options.map((o) => {
+          const active = selected.includes(o.value);
+          return (
+            <button
+              key={o.value}
+              data-testid={`option-${o.value}`}
+              onClick={() => toggle(o.value)}
+              className={`w-full text-left px-4 py-3 rounded-lg border transition-all duration-200 group ${
+                active
+                  ? "border-primary bg-primary/10"
+                  : "border-[#C9A844]/20 bg-[#161510] hover:border-[#C9A844]/60 hover:bg-[#1e1a0a]"
+              }`}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <div>
+                  <p className="font-medium text-sm text-foreground mb-0.5">{o.label}</p>
+                  <p className="text-xs text-muted-foreground leading-snug">{o.desc}</p>
+                </div>
+                <div className={`w-4 h-4 rounded border shrink-0 flex items-center justify-center transition-colors ${
+                  active ? "bg-primary border-primary" : "border-white/20"
+                }`}>
+                  {active && (
+                    <svg className="w-2.5 h-2.5" viewBox="0 0 10 10" fill="none">
+                      <path d="M2 5l2.5 2.5 3.5-4" stroke="#0A0A0A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+            </button>
+          );
+        })}
       </div>
+      <Button
+        data-testid="goal-next"
+        disabled={selected.length === 0}
+        onClick={() => onSubmit(selected.join(", "))}
+        className="w-full bg-primary text-primary-foreground h-11 text-sm tracking-wide disabled:opacity-40"
+      >
+        Continue <ChevronRight className="ml-2 w-4 h-4" />
+      </Button>
     </StepShell>
   );
 }
@@ -660,7 +738,7 @@ export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpe
                     <StepProtocolIntent stepLabel={stepLabel} onSelect={(v) => advance("protocolIntent", v)} />
                   )}
                   {currentKey === "goal" && (
-                    <StepGoal stepLabel={stepLabel} onSelect={(v) => advance("goal", v)} />
+                    <StepGoal stepLabel={stepLabel} onSubmit={(v) => advance("goal", v)} />
                   )}
                   {currentKey === "energySleep" && (
                     <StepEnergySleep stepLabel={stepLabel} onSelect={(v) => advance("energySleep", v)} />
