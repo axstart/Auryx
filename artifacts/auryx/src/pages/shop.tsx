@@ -6,6 +6,19 @@ import { useCart } from "@/context/CartContext";
 import { Link } from "wouter";
 import type { ProductSummary } from "@/types/shop";
 
+const PRODUCT_IMAGES: Record<string, string> = {
+  "sermorelin": "/products/sermorelin.png",
+  "tesamorelin": "/products/tesamorelin.png",
+  "tesamorelin-ipamorelin": "/products/ipamorelin.png",
+  "cjc-1295-ipamorelin": "/products/cjc-1295-ipamorelin.png",
+  "bpc-157": "/products/bpc-157.png",
+  "tb-500": "/products/tb-500.png",
+  "kpv": "/products/kpv.png",
+  "nad-plus": "/products/nad-plus.png",
+  "pt-141": "/products/pt-141.png",
+  "kisspeptin": "/products/kisspeptin.png",
+};
+
 const CATEGORIES = [
   "All",
   "GLP-1 & Metabolic",
@@ -143,6 +156,7 @@ function CardVial() {
 function ProductCard({ product, index }: { product: ProductSummary; index: number }) {
   const { addToCart } = useCart();
   const [adding, setAdding] = useState(false);
+  const productImage = PRODUCT_IMAGES[product.slug];
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -157,34 +171,48 @@ function ProductCard({ product, index }: { product: ProductSummary; index: numbe
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.04 }}
-      className="group bg-white rounded-2xl overflow-hidden flex flex-col transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_10px_40px_rgba(0,0,0,0.12)] hover:-translate-y-1.5 hover:ring-1 hover:ring-[#B8962E]/40"
+      className="group bg-white rounded-2xl overflow-hidden flex flex-col transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] hover:-translate-y-1.5 hover:ring-1 hover:ring-[#B8962E]/40"
     >
       {/* Visual area */}
-      <div className="relative h-52 flex items-center justify-center overflow-hidden"
-        style={{ background: "linear-gradient(135deg, #F8F3E8 0%, #EDE6D3 50%, #F0EBE0 100%)" }}
+      <div
+        className="relative h-56 flex items-center justify-center overflow-hidden"
+        style={productImage
+          ? { background: "#080808" }
+          : { background: "linear-gradient(135deg, #F8F3E8 0%, #EDE6D3 50%, #F0EBE0 100%)" }
+        }
       >
-        {/* Ambient glow */}
-        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-          style={{ background: "radial-gradient(ellipse at 60% 40%, rgba(201,168,68,0.18) 0%, transparent 65%)" }}
-        />
-        {/* Decorative dots */}
-        <div className="absolute top-5 right-8 w-2 h-2 rounded-full bg-[#C9A844] opacity-25" />
-        <div className="absolute top-12 right-14 w-1 h-1 rounded-full bg-[#C9A844] opacity-20" />
-        <div className="absolute bottom-8 left-8 w-1.5 h-1.5 rounded-full bg-[#0D9488] opacity-20" />
-        <div className="absolute top-8 left-10 w-1 h-1 rounded-full bg-[#C9A844] opacity-15" />
-        <div className="absolute bottom-12 right-10 w-1 h-1 rounded-full bg-[#C9A844] opacity-20" />
-
-        {/* Main vial — centred, fills the space */}
-        <div className="relative z-10 drop-shadow-sm group-hover:scale-105 group-hover:-translate-y-1 transition-transform duration-500">
-          <CardVial />
-        </div>
+        {productImage ? (
+          <>
+            {/* Subtle gold radial glow on hover */}
+            <div
+              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
+              style={{ background: "radial-gradient(ellipse 70% 60% at 50% 60%, rgba(201,168,68,0.12) 0%, transparent 70%)" }}
+            />
+            <img
+              src={productImage}
+              alt={product.name}
+              className="relative z-10 h-44 w-auto object-contain group-hover:scale-105 group-hover:-translate-y-1 transition-transform duration-500 drop-shadow-2xl"
+            />
+          </>
+        ) : (
+          <>
+            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+              style={{ background: "radial-gradient(ellipse at 60% 40%, rgba(201,168,68,0.18) 0%, transparent 65%)" }}
+            />
+            <div className="relative z-10 group-hover:scale-105 group-hover:-translate-y-1 transition-transform duration-500">
+              <CardVial />
+            </div>
+          </>
+        )}
 
         {/* Category label */}
-        <span className="absolute top-3.5 left-4 text-[9px] uppercase tracking-[0.18em] text-[#B8962E] font-semibold">
+        <span
+          className={`absolute top-3.5 left-4 text-[9px] uppercase tracking-[0.18em] font-semibold ${productImage ? "text-[#C9A844]/80" : "text-[#B8962E]"}`}
+        >
           {product.category}
         </span>
         {product.requiresConsultation && (
-          <span className="absolute top-3 right-3 bg-amber-100 border border-amber-200 text-amber-700 text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full">
+          <span className={`absolute top-3 right-3 text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full ${productImage ? "bg-amber-400/10 border border-amber-400/25 text-amber-400" : "bg-amber-100 border border-amber-200 text-amber-700"}`}>
             Rx
           </span>
         )}
