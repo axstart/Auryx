@@ -242,11 +242,11 @@ export default function Home() {
         {/* Hero image — right side */}
         <div className="absolute right-0 top-0 bottom-0 w-[52%] z-0 hidden md:block">
           <motion.img
-            src="/peptides-hero.png"
-            alt="Auryx peptide vials"
+            src="/Hero.png"
+            alt="Precision wellness"
             className="absolute inset-0 w-full object-cover"
             style={{
-              objectPosition: "center center",
+              objectPosition: "center top",
               height: "120%",
               top: "-10%",
               y: heroImageY,
@@ -254,11 +254,11 @@ export default function Home() {
             }}
           />
           {/* Fade image into dark background on left */}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.60) 20%, rgba(10,10,10,0.10) 50%, transparent 100%)" }}/>
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.55) 18%, rgba(10,10,10,0.05) 45%, transparent 100%)" }}/>
           {/* Subtle bottom fade */}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, #0A0A0A 0%, transparent 25%)" }}/>
-          {/* Warm gold ambient glow to blend with image tones */}
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 55% at 65% 45%, rgba(201,168,68,0.06) 0%, transparent 65%)" }}/>
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, #0A0A0A 0%, transparent 20%)" }}/>
+          {/* Enhance the natural gold glow from the image */}
+          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 55% 60% at 55% 38%, rgba(201,168,68,0.08) 0%, transparent 60%)" }}/>
           {/* Orbital accent lines overlay */}
           <HeroOrbitalAccent/>
         </div>
@@ -397,10 +397,10 @@ export default function Home() {
             style={{ height: "340px" }}
           >
             <img
-              src="/peptides-section.png"
+              src="/peptides-collection.png"
               alt="AURYX Peptide Collection — Sermorelin, BPC-157, NAD+, CJC-1295"
               className="w-full h-full object-cover"
-              style={{ objectPosition: "center 30%" }}
+              style={{ objectPosition: "center 45%" }}
             />
             {/* Subtle top + bottom fades */}
             <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(245,238,228,0.3) 0%, transparent 20%, transparent 75%, rgba(245,238,228,0.35) 100%)" }}/>
