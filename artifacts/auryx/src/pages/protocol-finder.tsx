@@ -13,37 +13,37 @@ export default function ProtocolFinder() {
     <div className="min-h-screen bg-background text-foreground">
 
       {/* Header band */}
-      <div className="pt-28 pb-16 px-6 md:px-16 border-b border-border/40">
+      <div className="pt-24 pb-8 px-6 md:px-16 border-b border-border/40">
         <div className="container mx-auto max-w-4xl">
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
+            transition={{ duration: 0.6 }}
           >
-            <p className="text-xs uppercase tracking-[0.3em] text-primary mb-5">Concierge Intake</p>
-            <h1 className="text-5xl md:text-6xl font-serif leading-tight mb-6">
-              Your protocol starts<br />
-              <span className="text-foreground/40">with your rhythm.</span>
+            <p className="text-xs uppercase tracking-[0.3em] text-primary mb-3">Concierge Intake</p>
+            <h1 className="text-3xl md:text-4xl font-serif leading-snug mb-3">
+              Your protocol starts{" "}
+              <span className="text-foreground/35">with your rhythm.</span>
             </h1>
-            <p className="text-foreground/50 text-base leading-relaxed max-w-xl">
-              Answer a few questions about your goals, lifestyle, and current routine. We'll guide you toward the AURYX protocol that best matches your biology.
+            <p className="text-foreground/45 text-sm leading-relaxed max-w-lg">
+              Answer a few questions and Aria will recommend the AURYX protocol that best matches your biology.
             </p>
           </motion.div>
         </div>
       </div>
 
       {/* Trust pillars */}
-      <div className="px-6 md:px-16 py-10 border-b border-border/30 bg-card/20">
+      <div className="px-6 md:px-16 py-5 border-b border-border/30 bg-card/20">
         <div className="container mx-auto max-w-4xl">
-          <div className="flex flex-col sm:flex-row gap-6 sm:gap-12">
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-10">
             {[
               "Physician-reviewed protocols",
               "No obligation to purchase",
               "Free shipping on every order*",
             ].map((pt) => (
-              <div key={pt} className="flex items-center gap-2.5">
-                <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
-                <span className="text-sm text-foreground/55">{pt}</span>
+              <div key={pt} className="flex items-center gap-2">
+                <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
+                <span className="text-xs text-foreground/50">{pt}</span>
               </div>
             ))}
           </div>
@@ -51,7 +51,7 @@ export default function ProtocolFinder() {
       </div>
 
       {/* Assessment */}
-      <div className="px-6 md:px-16 py-16 md:py-24">
+      <div className="px-6 md:px-16 py-10 md:py-14">
         <div className="container mx-auto max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 24 }}

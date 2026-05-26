@@ -266,7 +266,7 @@ export default function Home() {
                 href="/protocol-finder"
                 className="flex items-center justify-center gap-2 bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.14em] text-[11px] uppercase px-8 py-4 rounded-lg hover:bg-[#D4B050] transition-colors"
               >
-                Shop Protocols
+                Find Your Peptides
               </Link>
               <Link
                 href="/shop"
@@ -719,7 +719,7 @@ export default function Home() {
                   href="/protocol-finder"
                   className="inline-flex items-center justify-center bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.15em] text-[11px] uppercase px-10 py-4 rounded-xl hover:bg-[#D4B050] transition-colors"
                 >
-                  Shop Protocols
+                  Find Your Peptides
                 </Link>
               </div>
             </motion.div>

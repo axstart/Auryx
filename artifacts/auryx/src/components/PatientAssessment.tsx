@@ -49,9 +49,9 @@ function StepShell({
       exit={{ opacity: 0, x: -20 }}
       transition={{ duration: 0.35 }}
     >
-      <p className="text-xs uppercase tracking-[0.25em] text-primary mb-4">{label}</p>
-      <h3 className="text-2xl md:text-3xl font-serif text-foreground mb-3">{headline}</h3>
-      <p className="text-muted-foreground text-sm mb-8 leading-relaxed">{sub}</p>
+      <p className="text-xs uppercase tracking-[0.25em] text-primary mb-2">{label}</p>
+      <h3 className="text-xl md:text-2xl font-serif text-foreground mb-2">{headline}</h3>
+      <p className="text-muted-foreground text-sm mb-5 leading-relaxed">{sub}</p>
       {children}
     </motion.div>
   );
@@ -600,9 +600,9 @@ export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpe
     <section id="assessment" className="pt-8 pb-10 px-6 md:px-12 bg-card relative z-20">
       <div className="container mx-auto max-w-7xl">
         <div className="max-w-3xl mx-auto">
-          <div className="bg-background/60 border border-border/60 rounded-2xl p-8 md:p-12 backdrop-blur-sm">
+          <div className="bg-background/60 border border-border/60 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
             {phase === "quiz" && (
-              <div className="mb-10">
+              <div className="mb-6">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-muted-foreground">Progress</span>
                   <span className="text-xs text-muted-foreground">{stepIndex + 1} of {totalSteps}</span>
