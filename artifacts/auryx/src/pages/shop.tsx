@@ -31,6 +31,8 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "cortagen": "/products/cortagen.png",
   "nad-plus": "/products/nad-plus.png",
   "glow-complex": "/products/glow-complex.png",
+  "klow-complex": "/products/klow-complex.png",
+  "cerebrolysin": "/products/cerebrolysin.png",
   "aod-9604": "/products/aod-9604.png",
 };
 
