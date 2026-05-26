@@ -209,19 +209,19 @@ export default function Home() {
       <section className="relative w-full min-h-[100dvh] flex items-center overflow-hidden">
 
         {/* Hero image — right side */}
-        <div className="absolute right-0 top-0 bottom-0 w-[55%] z-0 hidden md:block">
+        <div className="absolute right-0 top-0 bottom-0 w-[52%] z-0 hidden md:block">
           <img
-            src="/hero-bg.png"
+            src="/Hero.png"
             alt="Precision wellness"
-            className="absolute inset-0 w-full h-full object-cover object-top"
-            style={{ objectPosition: "70% center" }}
+            className="absolute inset-0 w-full h-full object-cover"
+            style={{ objectPosition: "center top" }}
           />
           {/* Fade image into dark background on left */}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.7) 20%, rgba(10,10,10,0.15) 55%, transparent 100%)" }}/>
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.55) 18%, rgba(10,10,10,0.05) 45%, transparent 100%)" }}/>
           {/* Subtle bottom fade */}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, #0A0A0A 0%, transparent 25%)" }}/>
-          {/* Gold glow behind subject */}
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 70% at 62% 45%, rgba(201,168,68,0.1) 0%, transparent 60%)" }}/>
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, #0A0A0A 0%, transparent 20%)" }}/>
+          {/* Enhance the natural gold glow from the image */}
+          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 55% 60% at 55% 38%, rgba(201,168,68,0.08) 0%, transparent 60%)" }}/>
           {/* Orbital accent lines overlay */}
           <HeroOrbitalAccent/>
         </div>
@@ -351,32 +351,47 @@ export default function Home() {
             </Link>
           </motion.div>
 
-          {/* Vial cards */}
+          {/* Editorial product image */}
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="relative rounded-2xl overflow-hidden mb-8"
+            style={{ height: "340px" }}
+          >
+            <img
+              src="/Peptides.png"
+              alt="AURYX Peptide Collection — Sermorelin, BPC-157, NAD+, CJC-1295"
+              className="w-full h-full object-cover"
+              style={{ objectPosition: "center 40%" }}
+            />
+            {/* Subtle top + bottom fades */}
+            <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(245,238,228,0.3) 0%, transparent 20%, transparent 75%, rgba(245,238,228,0.35) 100%)" }}/>
+          </motion.div>
+
+          {/* Product info cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 mb-8">
             {PEPTIDES.map((p, i) => (
               <motion.div
                 key={i}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 14 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
+                transition={{ delay: i * 0.07 }}
               >
                 <Link href={`/shop/${p.slug}`}
-                  className="group block bg-white rounded-2xl overflow-hidden border border-[#1a1a1a]/6 hover:border-[#C9A844]/35 hover:-translate-y-1.5 transition-all duration-300 shadow-sm hover:shadow-md"
+                  className="group block bg-white rounded-xl border border-[#1a1a1a]/6 hover:border-[#C9A844]/35 hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-md p-5"
                 >
-                  <div className="h-44 md:h-52 flex items-center justify-center py-5 px-6 bg-gradient-to-b from-[#fafaf8] to-white">
-                    <VialSVG name={p.name} tag={p.tag}/>
+                  <div className="mb-3">
+                    <span className="inline-block text-[9px] font-bold tracking-[0.2em] border border-[#1a1a1a]/18 text-[#1a1a1a]/50 px-2.5 py-1 rounded uppercase mb-3">
+                      {p.tag}
+                    </span>
+                    <h3 className="font-serif text-[#111] text-base leading-snug">{p.name}</h3>
                   </div>
-                  <div className="px-5 pb-5 pt-4 border-t border-[#1a1a1a]/5">
-                    <h3 className="font-serif text-[#111] text-sm md:text-base mb-2 leading-snug">{p.name}</h3>
-                    <p className="text-[#1a1a1a]/45 text-xs leading-relaxed mb-4">{p.desc}</p>
-                    <div className="flex items-center justify-between">
-                      <span className="inline-block text-[9px] font-bold tracking-[0.2em] border border-[#1a1a1a]/20 text-[#1a1a1a]/55 px-2.5 py-1 rounded uppercase">
-                        {p.tag}
-                      </span>
-                      <span className="text-[10px] font-semibold tracking-[0.15em] text-[#B8962E] uppercase group-hover:underline">Learn More →</span>
-                    </div>
-                  </div>
+                  <p className="text-[#1a1a1a]/45 text-xs leading-relaxed mb-4">{p.desc}</p>
+                  <span className="text-[10px] font-semibold tracking-[0.15em] text-[#B8962E] uppercase group-hover:gap-2 inline-flex items-center gap-1.5 transition-all">
+                    Learn More <span className="group-hover:translate-x-0.5 transition-transform inline-block">→</span>
+                  </span>
                 </Link>
               </motion.div>
             ))}
@@ -593,10 +608,10 @@ export default function Home() {
               className="relative min-h-[380px] md:min-h-[480px] lg:min-h-0 overflow-hidden"
             >
               <img
-                src="/about-bg.png"
+                src="/Lifestyle.png"
                 alt="Longevity lifestyle"
                 className="absolute inset-0 w-full h-full object-cover"
-                style={{ objectPosition: "center 30%" }}
+                style={{ objectPosition: "center 25%" }}
               />
               {/* Overlay to blend into dark bg */}
               <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.2) 15%, transparent 50%)" }}/>
@@ -696,33 +711,24 @@ export default function Home() {
               </div>
             </motion.div>
 
-            {/* Dark vial panel */}
+            {/* Peptide standout panel */}
             <motion.div
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 1 }}
-              className="relative min-h-[340px] md:min-h-0 flex items-center justify-center overflow-hidden"
-              style={{ background: "linear-gradient(135deg, #100c04 0%, #1c1405 50%, #0a0e08 100%)" }}
+              transition={{ duration: 1.1 }}
+              className="relative min-h-[340px] md:min-h-0 overflow-hidden"
             >
-              <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 75% 75% at 50% 50%, rgba(201,168,68,0.2) 0%, transparent 65%)" }}/>
-              {/* Gold particle scatter */}
-              {[[18, 18, 4, 0.45], [82, 25, 3, 0.38], [68, 78, 2.5, 0.42], [12, 68, 2, 0.32], [88, 82, 3, 0.38], [50, 12, 2, 0.3], [35, 88, 2.5, 0.35]].map(([l, t, r, o], i) => (
-                <div key={i} className="absolute rounded-full bg-[#C9A844]"
-                  style={{ left: `${l}%`, top: `${t}%`, width: r, height: r, opacity: o }} />
-              ))}
-              <div className="relative z-10 flex items-end gap-4">
-                {/* Clustered vials */}
-                <div className="h-40 opacity-65 -rotate-6 translate-y-4">
-                  <VialSVG name="BPC-157" tag="RECOVERY"/>
-                </div>
-                <div className="h-52 z-10">
-                  <VialSVG name="AURYX Precision" tag="PEPTIDE"/>
-                </div>
-                <div className="h-40 opacity-65 rotate-6 translate-y-4">
-                  <VialSVG name="NAD+" tag="ENERGY"/>
-                </div>
-              </div>
+              <img
+                src="/Peptide_standout.png"
+                alt="AURYX Precision Peptides"
+                className="absolute inset-0 w-full h-full object-cover"
+                style={{ objectPosition: "center 30%" }}
+              />
+              {/* Left edge blend into ivory */}
+              <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #F5EEE4 0%, rgba(245,238,228,0.15) 18%, transparent 40%)" }}/>
+              {/* Bottom fade */}
+              <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(20,16,8,0.4) 0%, transparent 40%)" }}/>
             </motion.div>
           </div>
         </div>
