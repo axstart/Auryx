@@ -253,13 +253,13 @@ export default function Home() {
             className="max-w-lg md:max-w-[540px]"
           >
             <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-7 font-medium">Precision Peptides</p>
-            <h1 className="font-serif text-5xl md:text-6xl lg:text-[5.5rem] leading-[1.04] mb-7 font-light">
-              Precision wellness,{" "}
-              delivered with{" "}
-              <em className="not-italic text-[#C9A844]">intention.</em>
+            <h1 className="font-serif text-3xl md:text-4xl lg:text-[3rem] leading-[1.15] mb-6 font-light">
+              Pharmaceutical-grade peptide protocols,{" "}
+              <em className="not-italic text-[#C9A844]">physician-reviewed</em>{" "}
+              and precision-dispensed.
             </h1>
-            <p className="text-white/55 text-base md:text-lg leading-relaxed mb-10 max-w-md">
-              Evidence-informed peptide protocols designed to support recovery, vitality, performance, and modern longevity.
+            <p className="text-white/55 text-sm md:text-base leading-relaxed mb-10 max-w-md">
+              Clinically developed formulations for longevity, recovery, performance, and vitality — with fast, free shipping on every order.*
             </p>
             <div className="flex flex-col gap-3 max-w-[300px]">
               <Link
