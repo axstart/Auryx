@@ -62,14 +62,14 @@ function OptionCard({ label, desc, onClick }: { label: string; desc: string; onC
     <button
       data-testid={`option-${label.toLowerCase().replace(/\s+/g, "-")}`}
       onClick={onClick}
-      className="w-full text-left p-5 rounded-lg border border-border/60 bg-card/30 hover:border-primary/50 hover:bg-primary/5 transition-all duration-200 group"
+      className="w-full text-left px-4 py-3 rounded-lg border border-[#C9A844]/20 bg-[#161510] hover:border-[#C9A844]/60 hover:bg-[#1e1a0a] transition-all duration-200 group"
     >
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between gap-3">
         <div>
-          <p className="font-medium text-sm text-foreground mb-1">{label}</p>
-          <p className="text-xs text-muted-foreground">{desc}</p>
+          <p className="font-medium text-sm text-foreground mb-0.5">{label}</p>
+          <p className="text-xs text-muted-foreground leading-snug">{desc}</p>
         </div>
-        <ChevronRight className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-4" />
+        <ChevronRight className="w-4 h-4 text-primary opacity-0 group-hover:opacity-100 transition-opacity shrink-0" />
       </div>
     </button>
   );
@@ -87,7 +87,7 @@ function StepKnowledge({ stepLabel, onSelect }: { stepLabel: string; onSelect: (
       headline="How familiar are you with peptide therapy?"
       sub="This helps us tailor the information and guidance we share with you."
     >
-      <div className="grid gap-4">
+      <div className="grid gap-2">
         {options.map((o) => (
           <OptionCard key={o.value} label={o.label} desc={o.desc} onClick={() => onSelect(o.value)} />
         ))}
@@ -157,7 +157,7 @@ function StepProtocolIntent({ stepLabel, onSelect }: { stepLabel: string; onSele
       headline="What would you like from Auryx?"
       sub="Given your experience with peptides, what would be most valuable for you right now?"
     >
-      <div className="grid gap-4">
+      <div className="grid gap-2">
         {options.map((o) => (
           <OptionCard key={o.value} label={o.label} desc={o.desc} onClick={() => onSelect(o.value)} />
         ))}
@@ -182,7 +182,7 @@ function StepGoal({ stepLabel, onSelect }: { stepLabel: string; onSelect: (v: st
       headline="What is your primary area of focus?"
       sub="Select the goal that matters most to you right now. A complete protocol can address multiple areas."
     >
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {options.map((o) => (
           <OptionCard key={o.value} label={o.label} desc={o.desc} onClick={() => onSelect(o.value)} />
         ))}
@@ -204,7 +204,7 @@ function StepEnergySleep({ stepLabel, onSelect }: { stepLabel: string; onSelect:
       headline="How would you describe your current energy and sleep?"
       sub="Your baseline vitality shapes which protocols will deliver the most meaningful impact."
     >
-      <div className="grid gap-4">
+      <div className="grid gap-2">
         {options.map((o) => (
           <OptionCard key={o.value} label={o.label} desc={o.desc} onClick={() => onSelect(o.value)} />
         ))}
@@ -226,7 +226,7 @@ function StepActivityLevel({ stepLabel, onSelect }: { stepLabel: string; onSelec
       headline="How active is your lifestyle?"
       sub="Activity level influences recovery demand, metabolic rate, and which compounds are most clinically relevant."
     >
-      <div className="grid gap-4">
+      <div className="grid gap-2">
         {options.map((o) => (
           <OptionCard key={o.value} label={o.label} desc={o.desc} onClick={() => onSelect(o.value)} />
         ))}
@@ -248,7 +248,7 @@ function StepIntent({ stepLabel, onSelect }: { stepLabel: string; onSelect: (v: 
       headline="What brings you to Auryx today?"
       sub="There's no wrong answer. This helps us direct you to exactly the right next step."
     >
-      <div className="grid gap-4">
+      <div className="grid gap-2">
         {options.map((o) => (
           <OptionCard key={o.value} label={o.label} desc={o.desc} onClick={() => onSelect(o.value)} />
         ))}
@@ -284,7 +284,7 @@ function StepMedical({ stepLabel, onSubmit }: { stepLabel: string; onSubmit: (se
       headline="Please review the following medical history items."
       sub="This information is used solely to ensure your safety and guide appropriate protocol design. Select all that apply."
     >
-      <div className="grid gap-3 mb-8">
+      <div className="grid gap-2 mb-6">
         {options.map((o) => {
           const active = selected.includes(o.value);
           return (
@@ -292,17 +292,17 @@ function StepMedical({ stepLabel, onSubmit }: { stepLabel: string; onSubmit: (se
               key={o.value}
               data-testid={`medical-option-${o.value}`}
               onClick={() => toggle(o.value)}
-              className={`w-full text-left p-5 rounded-lg border transition-all duration-200 ${
-                active ? "border-primary bg-primary/10" : "border-border/60 bg-card/30 hover:border-primary/40 hover:bg-card/50"
+              className={`w-full text-left px-4 py-3 rounded-lg border transition-all duration-200 ${
+                active ? "border-primary bg-primary/10" : "border-white/[0.14] bg-white/[0.06] hover:border-primary/50 hover:bg-primary/[0.06]"
               }`}
             >
               <div className="flex items-start gap-3">
-                <div className={`w-5 h-5 rounded mt-0.5 border flex items-center justify-center shrink-0 transition-colors ${active ? "bg-primary border-primary" : "border-border"}`}>
-                  {active && <CheckCircle2 className="w-3.5 h-3.5 text-primary-foreground" />}
+                <div className={`w-4 h-4 rounded mt-0.5 border flex items-center justify-center shrink-0 transition-colors ${active ? "bg-primary border-primary" : "border-white/20"}`}>
+                  {active && <CheckCircle2 className="w-3 h-3 text-[#0A0A0A]" />}
                 </div>
                 <div>
-                  <p className="font-medium text-sm text-foreground">{o.label}</p>
-                  <p className="text-xs text-muted-foreground mt-0.5">{o.desc}</p>
+                  <p className="font-medium text-sm text-foreground mb-0.5">{o.label}</p>
+                  <p className="text-xs text-muted-foreground leading-snug">{o.desc}</p>
                 </div>
               </div>
             </button>
