@@ -1,0 +1,242 @@
+Let’s refine the AURYX homepage without doing a full rebuild.
+
+The current homepage direction is better, but it still needs more premium UX/UI polish, stronger product presence, and better use of the new visual assets.
+
+Important:
+Do not break existing routes, cart logic, product data, footer links, or shop functionality.
+Do not redesign the entire site from scratch.
+Refine the homepage sections and visual hierarchy.
+
+Use the new image assets I uploaded to the project:
+- The isolated athletic woman with two Auryx peptide vials for the hero section.
+- The peptide vial/product assets for product-related sections.
+- Any existing lifestyle/couple image only if it still fits the layout.
+
+Main goal:
+The homepage should feel like a luxury precision wellness and peptide brand. It should be modern, healthy, premium, visually fluid, and conversion-oriented. It should not feel like a generic supplement store, cheap peptide catalog, bodybuilder site, or overly clinical medical site.
+
+1. Refine the hero section
+
+Update the hero to use the isolated athletic woman + Auryx vials PNG as the main visual asset.
+
+Hero layout:
+- Left side: copy and CTAs
+- Right side: woman/vials image
+- Background: deep obsidian / charcoal gradient with subtle champagne-gold particles, orbital lines, or soft molecular accents
+- Add a soft glow behind the subject so the transparent image blends beautifully into the dark background
+
+Hero copy:
+Eyebrow:
+PRECISION PEPTIDES
+
+Headline:
+Precision wellness, delivered with intention.
+
+Subheadline:
+Evidence-informed peptide protocols designed to support recovery, vitality, performance, and modern longevity.
+
+Primary CTA:
+Find My Protocol
+
+Secondary CTA:
+Explore Collections
+
+Small trust line below CTAs:
+Third-party tested · Discreet shipping · Concierge guidance
+
+UX:
+- Make the hero immediately communicate “premium peptide brand”
+- Make the image large and emotionally compelling
+- Keep the text readable on mobile
+- Do not crop the woman or vials awkwardly
+- On mobile, the image should sit beautifully below or behind the headline without blocking readability
+
+2. Move product presence higher
+
+Add a premium “Peptide Collections” preview section closer to the top, ideally right after the hero or after the protocol categories.
+
+Section title:
+Curated peptide protocols for your next standard.
+
+Body:
+Explore targeted support for recovery, vitality, cognitive performance, skin health, and healthy aging.
+
+Show 3 or 4 featured vial/product cards:
+- Sermorelin
+- BPC-157
+- NAD+
+- CJC-1295 / Ipamorelin
+
+Each card should include:
+- Product/vial image
+- Product name
+- Collection tag
+- One short support-focused sentence
+- “Learn More” CTA
+
+Important:
+Make this feel curated and editorial, not like a cheap product grid.
+Avoid aggressive “Buy Now” energy on the homepage.
+Use “Learn More” or “Explore” as the primary product CTA here.
+
+3. Improve Protocol Collections / Therapeutic Domains
+
+The section should feel more luxury and less generic.
+
+Rename if needed:
+Protocol Collections
+or
+Targeted Support Areas
+
+Use six cards:
+- Metabolic Support
+- Recovery & Resilience
+- Skin & Healthy Aging
+- Energy & Vitality
+- Cognitive Performance
+- Sleep & Restoration
+
+Card style:
+- Dark cards on obsidian background
+- Very subtle gold border
+- Minimal gold line icon
+- Short copy only
+- More whitespace
+- Better hover state
+- Clean arrow indicator
+
+Keep descriptions very short and support-focused.
+
+4. Upgrade the Protocol Finder section
+
+Make it feel like a concierge quiz/intake experience.
+
+Title:
+Your protocol starts with your rhythm.
+
+Body:
+Answer a few questions about your goals, lifestyle, and current routine. We’ll guide you toward the AURYX collection that best matches your priorities.
+
+Visual design:
+- Premium dark card or warm ivory card
+- Question preview tiles
+- Progress indicator or elegant step markers
+- CTA: Start My Protocol
+- Supporting line: Takes less than 60 seconds
+
+Do not make it look like a basic form.
+
+5. Refine The AURYX Methodology section
+
+Make this section more editorial and easier to scan.
+
+Keep four pillars:
+- Goal Mapping
+- Lifestyle Review
+- Protocol Matching
+- Ongoing Rhythm
+
+Use a more elegant vertical timeline or numbered editorial layout.
+
+Reduce long paragraphs.
+Use stronger spacing.
+Use refined gold numbering.
+Make it feel like a luxury process, not a dense explanation block.
+
+6. Improve Lifestyle Philosophy section
+
+Use a strong editorial image or the existing couple/lifestyle image if available.
+
+Headline:
+Longevity is a lifestyle, not a shortcut.
+
+Body:
+We believe in consistent choices, disciplined routines, and support that helps you thrive for the long run.
+
+Make the section feel warm, aspirational, and lifestyle-oriented.
+Use a split layout on desktop.
+Use stacked layout on mobile.
+Image should feel fluid, not boxed-in or generic.
+
+7. Upgrade testimonials
+
+Section title:
+Results That Speak
+
+Use 3 testimonial cards, but make them feel more premium:
+- Larger quotation marks
+- Better spacing
+- Subtle gold accent
+- Verified customer label
+- Short realistic quotes
+
+Use cautious copy:
+“I feel more focused, sleep better, and recover faster.”
+“My energy and clarity feel more consistent.”
+“AURYX fits seamlessly into my wellness routine.”
+
+Do not use guaranteed claims or medical claims.
+
+8. Final CTA
+
+Use a close-up Auryx vial/product visual.
+
+Headline:
+Your best, supported.
+
+Body:
+Guided protocols. Premium peptides. Personalized for your rhythm.
+
+CTA:
+Find My Protocol
+
+Make this section feel like a premium closing moment, not just another button.
+
+9. Compliance language
+
+Keep all copy support-oriented.
+
+Avoid:
+- cure
+- treat
+- heal
+- reverse aging
+- burn fat
+- guaranteed results
+- injury repair
+- disease
+- medical treatment
+
+Use:
+- supports
+- designed to support
+- may support
+- recovery support
+- healthy aging support
+- vitality
+- longevity
+- performance
+- restoration
+- wellness rhythm
+
+Footer disclaimer should remain visible:
+These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease. This website is for educational purposes only and does not provide medical advice. Consult a licensed healthcare provider before starting any protocol.
+
+10. Visual polish
+
+Improve:
+- Section spacing
+- Mobile readability
+- Button consistency
+- Card hierarchy
+- Image blending
+- Soft gradients
+- Champagne gold accents
+- Warm ivory contrast sections
+- Typography hierarchy
+- Product visibility
+
+After implementing:
+- Tell me exactly which files changed.
+- Run the project/build check.
+- Show me screenshots of the homepage on mobile and desktop.
