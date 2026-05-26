@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { motion } from "framer-motion";
+import { useState, useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Link } from "wouter";
 import { ConsultationModal } from "@/components/ConsultationModal";
 import { ProtocolContinuationModal } from "@/components/ProtocolContinuationModal";
@@ -202,19 +202,32 @@ export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const [continuationOpen, setContinuationOpen] = useState(false);
 
+  const heroRef = useRef<HTMLElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: heroRef,
+    offset: ["start start", "end start"],
+  });
+  const heroImageY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
+
   return (
     <div className="w-full bg-[#0A0A0A] text-white overflow-x-hidden">
 
       {/* ═══ 1. HERO ════════════════════════════════════════════════════ */}
-      <section className="relative w-full min-h-[100dvh] flex items-center overflow-hidden">
+      <section ref={heroRef} className="relative w-full min-h-[100dvh] flex items-center overflow-hidden">
 
         {/* Hero image — right side */}
         <div className="absolute right-0 top-0 bottom-0 w-[52%] z-0 hidden md:block">
-          <img
+          <motion.img
             src="/Hero.png"
             alt="Precision wellness"
-            className="absolute inset-0 w-full h-full object-cover"
-            style={{ objectPosition: "center top" }}
+            className="absolute inset-0 w-full object-cover"
+            style={{
+              objectPosition: "center top",
+              height: "120%",
+              top: "-10%",
+              y: heroImageY,
+              willChange: "transform",
+            }}
           />
           {/* Fade image into dark background on left */}
           <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.55) 18%, rgba(10,10,10,0.05) 45%, transparent 100%)" }}/>
