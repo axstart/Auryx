@@ -201,90 +201,88 @@ function ProductCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 22 }}
+      initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, delay: index * 0.04 }}
-      className={`group bg-white rounded-2xl overflow-hidden flex flex-col
-        shadow-[0_2px_16px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)]
-        hover:-translate-y-1 hover:ring-1 hover:ring-[#C9A844]/35
-        transition-all duration-300`}
+      transition={{ duration: 0.4, delay: index * 0.04 }}
+      className="group rounded-2xl overflow-hidden flex flex-row
+        shadow-[0_2px_14px_rgba(0,0,0,0.06)] hover:shadow-[0_10px_36px_rgba(0,0,0,0.12)]
+        hover:-translate-y-0.5 hover:ring-1 hover:ring-[#C9A844]/40
+        transition-all duration-300"
+      style={{ background: "linear-gradient(135deg, #F9F5EC 0%, #F3EBD8 50%, #EDE3CC 100%)" }}
     >
-      {/* ── Image stage ── */}
+      {/* ── Image zone ── */}
       <div
-        className={`relative flex items-center justify-center overflow-hidden ${featured ? "h-64" : "h-56"}`}
-        style={{ background: "linear-gradient(160deg, #F9F5EC 0%, #F2EAD6 55%, #EDE2CB 100%)" }}
+        className={`relative shrink-0 flex items-center justify-center overflow-hidden ${featured ? "w-[38%]" : "w-[34%]"}`}
       >
-        {/* Inner shadow */}
-        <div
-          className="absolute inset-0 pointer-events-none"
-          style={{ boxShadow: "inset 0 0 32px rgba(0,0,0,0.04)" }}
-        />
-        {/* Hover glow */}
         <div
           className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 65% 55% at 50% 55%, rgba(201,168,68,0.22) 0%, transparent 70%)" }}
+          style={{ background: "radial-gradient(ellipse 80% 70% at 50% 50%, rgba(201,168,68,0.24) 0%, transparent 70%)" }}
         />
-
         {productImage ? (
           <img
             src={productImage}
             alt={product.name}
-            className={`relative z-10 object-contain group-hover:scale-[1.04] group-hover:-translate-y-1 transition-transform duration-500 drop-shadow-lg ${featured ? "h-52 w-auto" : "h-44 w-auto"}`}
+            className={`relative z-10 object-contain group-hover:scale-[1.06] group-hover:-translate-y-0.5 transition-transform duration-500 drop-shadow-md ${featured ? "h-36 w-auto" : "h-28 w-auto"}`}
           />
         ) : (
-          <div className="relative z-10 group-hover:scale-[1.04] group-hover:-translate-y-1 transition-transform duration-500">
+          <div className="relative z-10 group-hover:scale-[1.06] transition-transform duration-500">
             <CardVial />
           </div>
         )}
-
-        {/* Category tag */}
-        <span className="absolute top-3.5 left-4 text-[9px] uppercase tracking-[0.18em] font-semibold text-[#B8962E]">
-          {product.category}
-        </span>
-        {product.requiresConsultation && (
-          <span className="absolute top-3 right-3 text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-amber-100 border border-amber-200 text-amber-700">
-            Rx
-          </span>
-        )}
       </div>
 
-      {/* ── Content ── */}
-      <div className="p-5 flex-1 flex flex-col gap-0">
-        <h3 className={`font-serif text-[#0A0A0A] leading-tight mb-2 ${featured ? "text-[1.35rem]" : "text-[1.18rem]"}`}>
-          {product.name}
-        </h3>
-        <p className="text-[#0A0A0A]/48 text-[13px] leading-relaxed flex-1 mb-4 line-clamp-2">
-          {product.shortDescription}
-        </p>
+      {/* ── Divider ── */}
+      <div className="w-px bg-[#C9A844]/22 my-5 shrink-0" />
 
-        <div className="flex items-center justify-between mb-4 mt-auto">
-          <span className="text-[#0A0A0A] font-semibold text-[1.15rem] tabular-nums tracking-tight">
-            ${(product.priceCents / 100).toFixed(0)}
-          </span>
-          {product.requiresConsultation && (
-            <div className="flex items-center gap-1">
-              <AlertCircle className="w-3 h-3 text-amber-500" />
-              <span className="text-[10px] text-amber-600 font-medium">Consultation required</span>
-            </div>
-          )}
+      {/* ── Content ── */}
+      <div className="flex-1 px-5 py-4 flex flex-col justify-between min-w-0">
+        <div>
+          <div className="flex items-start justify-between gap-2 mb-1">
+            <span className="text-[9px] uppercase tracking-[0.18em] font-semibold text-[#B8962E] leading-none mt-0.5">
+              {product.category}
+            </span>
+            {product.requiresConsultation && (
+              <span className="text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-amber-100/80 border border-amber-200 text-amber-700 shrink-0">
+                Rx
+              </span>
+            )}
+          </div>
+
+          <h3
+            className="text-[#0A0A0A] leading-[1.0] mb-2 truncate"
+            style={{
+              fontFamily: "'Bebas Neue', sans-serif",
+              fontSize: featured ? "clamp(1.6rem, 2.4vw, 2.2rem)" : "clamp(1.4rem, 2vw, 1.9rem)",
+              letterSpacing: "0.02em",
+            }}
+          >
+            {product.name}
+          </h3>
+
+          <p className="text-[#0A0A0A]/48 text-[12px] leading-relaxed line-clamp-2">
+            {product.shortDescription}
+          </p>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 mt-3 flex-wrap">
+          <span className="text-[#0A0A0A] font-semibold text-[1rem] tabular-nums mr-auto">
+            ${(product.priceCents / 100).toFixed(0)}
+          </span>
           <Link
             href={`/shop/${product.slug}`}
-            className="flex-1 h-10 rounded-xl border border-[#0A0A0A]/15 text-[#0A0A0A]/65 text-[11px] font-medium tracking-widest uppercase flex items-center justify-center gap-1 transition-all hover:border-[#B8962E]/50 hover:text-[#B8962E]"
+            className="h-8 px-3 rounded-lg border border-[#0A0A0A]/15 text-[#0A0A0A]/55 text-[10px] font-medium tracking-widest uppercase flex items-center gap-1 hover:border-[#B8962E]/55 hover:text-[#B8962E] transition-all whitespace-nowrap"
           >
-            Learn More <ChevronRight className="w-3 h-3" />
+            More <ChevronRight className="w-2.5 h-2.5" />
           </Link>
           <button
             onClick={handleAdd}
-            className={`flex-1 h-10 rounded-xl text-[11px] font-semibold tracking-widest uppercase flex items-center justify-center gap-1.5 transition-all duration-200 ${
+            className={`h-8 px-3 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center gap-1.5 transition-all duration-200 whitespace-nowrap ${
               adding
                 ? "bg-[#B8962E] text-white"
                 : "bg-[#0A0A0A] text-white hover:bg-[#1a1a1a] hover:ring-1 hover:ring-[#C9A844]/40"
             }`}
           >
-            <ShoppingCart className="w-3.5 h-3.5" />
+            <ShoppingCart className="w-3 h-3" />
             {adding ? "Added ✓" : "Add to Cart"}
           </button>
         </div>
@@ -489,7 +487,7 @@ export default function ShopPage() {
               </button>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               {featured.map((p, i) => (
                 <ProductCard key={p.slug} product={p} index={i} featured />
               ))}
@@ -625,7 +623,7 @@ export default function ShopPage() {
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                   transition={{ duration: 0.2 }}
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                  className="grid grid-cols-1 lg:grid-cols-2 gap-5"
                 >
                   {sorted.map((product, i) => (
                     <ProductCard key={product.slug} product={product} index={i} />
