@@ -1,11 +1,16 @@
 import { useState, useRef, useEffect, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { motion } from "framer-motion";
-import { ShoppingCart, AlertCircle, ChevronRight } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  ShoppingCart, AlertCircle, ChevronRight, Search,
+  Flame, TrendingUp, RefreshCw, Heart, Shield, Brain,
+  Sparkles, ArrowRight,
+} from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { Link } from "wouter";
 import type { ProductSummary } from "@/types/shop";
 
+/* ── Product image map ──────────────────────────────────────────────── */
 const PRODUCT_IMAGES: Record<string, string> = {
   "semaglutide": "/products/semaglutide.png",
   "tirzepatide": "/products/tirzepatide.png",
@@ -36,6 +41,7 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "aod-9604": "/products/aod-9604.png",
 };
 
+/* ── Categories & config ────────────────────────────────────────────── */
 const CATEGORIES = [
   "All",
   "GLP-1 & Metabolic",
@@ -47,13 +53,33 @@ const CATEGORIES = [
   "Auryx Signature Complexes",
 ];
 
+const GOAL_CARDS = [
+  { category: "GLP-1 & Metabolic",           tagline: "Body composition & metabolic support",     Icon: Flame },
+  { category: "Growth Hormone",               tagline: "Recovery, lean mass & healthy aging",      Icon: TrendingUp },
+  { category: "Recovery & Regeneration",      tagline: "Tissue repair & physical restoration",     Icon: RefreshCw },
+  { category: "Sexual Health & Vitality",     tagline: "Drive, vitality & hormonal balance",       Icon: Heart },
+  { category: "Immune & Longevity",           tagline: "Cellular health & immune resilience",      Icon: Shield },
+  { category: "Cognitive & Neuroprotective",  tagline: "Mental clarity & neuroprotection",         Icon: Brain },
+  { category: "Auryx Signature Complexes",    tagline: "Bespoke multi-peptide protocols",          Icon: Sparkles },
+];
+
+const FEATURED_SLUGS = ["sermorelin", "bpc-157", "nad-plus", "cjc-1295-ipamorelin"];
+
+const SORT_OPTIONS = [
+  { value: "featured",   label: "Featured" },
+  { value: "price-asc",  label: "Price: Low to High" },
+  { value: "price-desc", label: "Price: High to Low" },
+  { value: "az",         label: "A–Z" },
+];
+
+/* ── Data fetcher ───────────────────────────────────────────────────── */
 async function fetchProducts(): Promise<ProductSummary[]> {
   const res = await fetch("/api/products");
   if (!res.ok) throw new Error("Failed to load products");
   return res.json();
 }
 
-/* ─── Particle canvas for hero ─────────────────────────────────────── */
+/* ── Hero particles ─────────────────────────────────────────────────── */
 interface Particle {
   x: number; y: number; r: number;
   vx: number; vy: number;
@@ -62,17 +88,16 @@ interface Particle {
 
 function HeroParticles() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animRef = useRef<number>(0);
+  const animRef   = useRef<number>(0);
 
   const init = useCallback((canvas: HTMLCanvasElement) => {
-    const W = canvas.width = canvas.offsetWidth;
+    const W = canvas.width  = canvas.offsetWidth;
     const H = canvas.height = canvas.offsetHeight;
     const COLORS = ["#C9A844", "#B8962E", "#0D9488", "#FFFFFF"];
-    const count = Math.floor((W * H) / 14000);
+    const count  = Math.floor((W * H) / 14000);
 
     const particles: Particle[] = Array.from({ length: count }, () => ({
-      x: Math.random() * W,
-      y: Math.random() * H,
+      x: Math.random() * W, y: Math.random() * H,
       r: Math.random() * 2.5 + 1,
       vx: (Math.random() - 0.5) * 0.25,
       vy: (Math.random() - 0.5) * 0.25,
@@ -81,7 +106,6 @@ function HeroParticles() {
     }));
 
     const ctx = canvas.getContext("2d")!;
-
     const draw = () => {
       ctx.clearRect(0, 0, W, H);
       for (const p of particles) {
@@ -95,8 +119,6 @@ function HeroParticles() {
         ctx.fill();
       }
       ctx.globalAlpha = 1;
-
-      // Draw faint connecting lines between nearby particles
       for (let i = 0; i < particles.length; i++) {
         for (let j = i + 1; j < particles.length; j++) {
           const dx = particles[i].x - particles[j].x;
@@ -122,55 +144,49 @@ function HeroParticles() {
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-
     const observer = new ResizeObserver(() => {
       cancelAnimationFrame(animRef.current);
       init(canvas);
     });
     observer.observe(canvas);
     init(canvas);
-
-    return () => {
-      observer.disconnect();
-      cancelAnimationFrame(animRef.current);
-    };
+    return () => { observer.disconnect(); cancelAnimationFrame(animRef.current); };
   }, [init]);
 
   return (
     <canvas
       ref={canvasRef}
       className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ opacity: 0.7 }}
+      style={{ opacity: 0.65 }}
     />
   );
 }
 
-/* ─── Vial illustration for product card ───────────────────────────── */
+/* ── SVG vial fallback ──────────────────────────────────────────────── */
 function CardVial() {
   return (
-    <svg width="100" height="148" viewBox="0 0 100 148" fill="none" xmlns="http://www.w3.org/2000/svg">
-      {/* Cap */}
+    <svg width="90" height="134" viewBox="0 0 100 148" fill="none" xmlns="http://www.w3.org/2000/svg">
       <rect x="38" y="4" width="24" height="14" rx="5" fill="#C9A844" opacity="0.85" />
-      {/* Neck band */}
       <rect x="34" y="16" width="32" height="7" rx="2" fill="#C9A844" opacity="0.55" />
-      {/* Body */}
       <rect x="28" y="22" width="44" height="96" rx="9" fill="white" opacity="0.90" stroke="#C9A844" strokeWidth="1.2" strokeOpacity="0.35" />
-      {/* Inner liquid fill */}
       <rect x="34" y="28" width="32" height="52" rx="5" fill="#C9A844" opacity="0.09" />
-      {/* Glass highlight left */}
       <rect x="32" y="26" width="9" height="88" rx="4" fill="white" opacity="0.55" />
-      {/* Label area */}
       <rect x="35" y="70" width="30" height="30" rx="3" fill="#F5EDD0" opacity="0.7" />
       <text x="50" y="83" textAnchor="middle" fontSize="6.5" fill="#C9A844" opacity="0.9" fontFamily="Georgia, serif" letterSpacing="1.5" fontWeight="600">AURYX</text>
       <text x="50" y="93" textAnchor="middle" fontSize="4.5" fill="#B8962E" opacity="0.65" fontFamily="Georgia, serif" letterSpacing="0.5">PEPTIDE</text>
-      {/* Bottom dome */}
       <ellipse cx="50" cy="118" rx="22" ry="4" fill="#C9A844" opacity="0.08" />
     </svg>
   );
 }
 
-/* ─── Product card ──────────────────────────────────────────────────── */
-function ProductCard({ product, index }: { product: ProductSummary; index: number }) {
+/* ── Product card ───────────────────────────────────────────────────── */
+function ProductCard({
+  product, index, featured = false,
+}: {
+  product: ProductSummary;
+  index: number;
+  featured?: boolean;
+}) {
   const { addToCart } = useCart();
   const [adding, setAdding] = useState(false);
   const productImage = PRODUCT_IMAGES[product.slug];
@@ -185,63 +201,64 @@ function ProductCard({ product, index }: { product: ProductSummary; index: numbe
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 22 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.4, delay: index * 0.04 }}
-      className="group bg-white rounded-2xl overflow-hidden flex flex-col transition-all duration-300 shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:shadow-[0_12px_48px_rgba(0,0,0,0.15)] hover:-translate-y-1.5 hover:ring-1 hover:ring-[#B8962E]/40"
+      transition={{ duration: 0.45, delay: index * 0.04 }}
+      className={`group bg-white rounded-2xl overflow-hidden flex flex-col
+        shadow-[0_2px_16px_rgba(0,0,0,0.05)] hover:shadow-[0_16px_48px_rgba(0,0,0,0.12)]
+        hover:-translate-y-1 hover:ring-1 hover:ring-[#C9A844]/35
+        transition-all duration-300`}
     >
-      {/* Visual area */}
+      {/* ── Image stage ── */}
       <div
-        className="relative h-56 flex items-center justify-center overflow-hidden"
-        style={productImage
-          ? { background: "#080808" }
-          : { background: "linear-gradient(135deg, #F8F3E8 0%, #EDE6D3 50%, #F0EBE0 100%)" }
-        }
+        className={`relative flex items-center justify-center overflow-hidden ${featured ? "h-64" : "h-56"}`}
+        style={{ background: "linear-gradient(160deg, #F9F5EC 0%, #F2EAD6 55%, #EDE2CB 100%)" }}
       >
+        {/* Inner shadow */}
+        <div
+          className="absolute inset-0 pointer-events-none"
+          style={{ boxShadow: "inset 0 0 32px rgba(0,0,0,0.04)" }}
+        />
+        {/* Hover glow */}
+        <div
+          className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none"
+          style={{ background: "radial-gradient(ellipse 65% 55% at 50% 55%, rgba(201,168,68,0.22) 0%, transparent 70%)" }}
+        />
+
         {productImage ? (
-          <>
-            {/* Subtle gold radial glow on hover */}
-            <div
-              className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700"
-              style={{ background: "radial-gradient(ellipse 70% 60% at 50% 60%, rgba(201,168,68,0.12) 0%, transparent 70%)" }}
-            />
-            <img
-              src={productImage}
-              alt={product.name}
-              className="relative z-10 h-44 w-auto object-contain group-hover:scale-105 group-hover:-translate-y-1 transition-transform duration-500 drop-shadow-2xl"
-            />
-          </>
+          <img
+            src={productImage}
+            alt={product.name}
+            className={`relative z-10 object-contain group-hover:scale-[1.04] group-hover:-translate-y-1 transition-transform duration-500 drop-shadow-lg ${featured ? "h-52 w-auto" : "h-44 w-auto"}`}
+          />
         ) : (
-          <>
-            <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
-              style={{ background: "radial-gradient(ellipse at 60% 40%, rgba(201,168,68,0.18) 0%, transparent 65%)" }}
-            />
-            <div className="relative z-10 group-hover:scale-105 group-hover:-translate-y-1 transition-transform duration-500">
-              <CardVial />
-            </div>
-          </>
+          <div className="relative z-10 group-hover:scale-[1.04] group-hover:-translate-y-1 transition-transform duration-500">
+            <CardVial />
+          </div>
         )}
 
-        {/* Category label */}
-        <span
-          className={`absolute top-3.5 left-4 text-[9px] uppercase tracking-[0.18em] font-semibold ${productImage ? "text-[#C9A844]/80" : "text-[#B8962E]"}`}
-        >
+        {/* Category tag */}
+        <span className="absolute top-3.5 left-4 text-[9px] uppercase tracking-[0.18em] font-semibold text-[#B8962E]">
           {product.category}
         </span>
         {product.requiresConsultation && (
-          <span className={`absolute top-3 right-3 text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full ${productImage ? "bg-amber-400/10 border border-amber-400/25 text-amber-400" : "bg-amber-100 border border-amber-200 text-amber-700"}`}>
+          <span className="absolute top-3 right-3 text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-amber-100 border border-amber-200 text-amber-700">
             Rx
           </span>
         )}
       </div>
 
-      {/* Text + actions */}
-      <div className="p-5 flex-1 flex flex-col">
-        <h3 className="font-serif text-[#0A0A0A] text-xl mb-1.5 leading-tight">{product.name}</h3>
-        <p className="text-[#0A0A0A]/50 text-sm leading-relaxed flex-1 mb-4">{product.shortDescription}</p>
+      {/* ── Content ── */}
+      <div className="p-5 flex-1 flex flex-col gap-0">
+        <h3 className={`font-serif text-[#0A0A0A] leading-tight mb-2 ${featured ? "text-[1.35rem]" : "text-[1.18rem]"}`}>
+          {product.name}
+        </h3>
+        <p className="text-[#0A0A0A]/48 text-[13px] leading-relaxed flex-1 mb-4 line-clamp-2">
+          {product.shortDescription}
+        </p>
 
-        <div className="flex items-center justify-between mb-4">
-          <span className="text-[#0A0A0A] font-semibold text-lg tabular-nums">
+        <div className="flex items-center justify-between mb-4 mt-auto">
+          <span className="text-[#0A0A0A] font-semibold text-[1.15rem] tabular-nums tracking-tight">
             ${(product.priceCents / 100).toFixed(0)}
           </span>
           {product.requiresConsultation && (
@@ -255,16 +272,16 @@ function ProductCard({ product, index }: { product: ProductSummary; index: numbe
         <div className="flex items-center gap-2">
           <Link
             href={`/shop/${product.slug}`}
-            className="flex-1 h-9 rounded-lg border border-[#0A0A0A]/18 text-[#0A0A0A]/75 text-[11px] font-medium tracking-widest uppercase flex items-center justify-center gap-1 transition-all hover:border-[#0A0A0A]/50 hover:text-[#0A0A0A]"
+            className="flex-1 h-10 rounded-xl border border-[#0A0A0A]/15 text-[#0A0A0A]/65 text-[11px] font-medium tracking-widest uppercase flex items-center justify-center gap-1 transition-all hover:border-[#B8962E]/50 hover:text-[#B8962E]"
           >
-            Details <ChevronRight className="w-3 h-3" />
+            Learn More <ChevronRight className="w-3 h-3" />
           </Link>
           <button
             onClick={handleAdd}
-            className={`flex-1 h-9 rounded-lg text-[11px] font-medium tracking-widest uppercase flex items-center justify-center gap-1.5 transition-all duration-200 ${
+            className={`flex-1 h-10 rounded-xl text-[11px] font-semibold tracking-widest uppercase flex items-center justify-center gap-1.5 transition-all duration-200 ${
               adding
                 ? "bg-[#B8962E] text-white"
-                : "bg-[#0A0A0A] text-white hover:bg-[#1a1a1a]"
+                : "bg-[#0A0A0A] text-white hover:bg-[#1a1a1a] hover:ring-1 hover:ring-[#C9A844]/40"
             }`}
           >
             <ShoppingCart className="w-3.5 h-3.5" />
@@ -276,103 +293,282 @@ function ProductCard({ product, index }: { product: ProductSummary; index: numbe
   );
 }
 
-/* ─── Page ──────────────────────────────────────────────────────────── */
+/* ── Page ───────────────────────────────────────────────────────────── */
 export default function ShopPage() {
   const [activeCategory, setActiveCategory] = useState("All");
+  const [searchQuery,    setSearchQuery]    = useState("");
+  const [sortBy,         setSortBy]         = useState("featured");
   const gridRef = useRef<HTMLDivElement>(null);
+  const goalRef = useRef<HTMLDivElement>(null);
 
   const { data: products = [], isLoading, error } = useQuery({
     queryKey: ["products"],
     queryFn: fetchProducts,
   });
 
-  const filtered = activeCategory === "All"
-    ? products
-    : products.filter(p => p.category === activeCategory);
+  /* ── Filter + sort ── */
+  const filtered = products
+    .filter(p => activeCategory === "All" || p.category === activeCategory)
+    .filter(p => {
+      if (!searchQuery.trim()) return true;
+      const q = searchQuery.toLowerCase();
+      return p.name.toLowerCase().includes(q) || p.shortDescription.toLowerCase().includes(q);
+    });
+
+  const sorted = [...filtered].sort((a, b) => {
+    if (sortBy === "price-asc")  return a.priceCents - b.priceCents;
+    if (sortBy === "price-desc") return b.priceCents - a.priceCents;
+    if (sortBy === "az")         return a.name.localeCompare(b.name);
+    return 0;
+  });
+
+  const featured = products.filter(p => FEATURED_SLUGS.includes(p.slug))
+    .sort((a, b) => FEATURED_SLUGS.indexOf(a.slug) - FEATURED_SLUGS.indexOf(b.slug));
 
   const scrollToGrid = () => {
     gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
   };
 
+  const handleGoalClick = (category: string) => {
+    setActiveCategory(category);
+    setSearchQuery("");
+    setSortBy("featured");
+    setTimeout(() => gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 80);
+  };
+
   return (
     <div className="min-h-screen" style={{ background: "#FAFAF8" }}>
 
-      {/* ── Hero ── */}
+      {/* ══ HERO ═════════════════════════════════════════════════════════ */}
       <div
         className="relative w-full overflow-hidden flex items-center justify-center"
-        style={{ minHeight: "70vh", background: "#080808" }}
+        style={{ minHeight: "52vh", background: "#080808" }}
       >
-        {/* Layered radial gradients */}
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 70% 60% at 75% 40%, rgba(184,150,46,0.22) 0%, transparent 60%)" }} />
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 50% 50% at 20% 70%, rgba(13,148,136,0.12) 0%, transparent 55%)" }} />
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 40% 40% at 50% 50%, rgba(201,168,68,0.06) 0%, transparent 50%)" }} />
+          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 65% 55% at 72% 35%, rgba(184,150,46,0.22) 0%, transparent 60%)" }} />
+          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 45% 50% at 22% 70%, rgba(13,148,136,0.10) 0%, transparent 55%)" }} />
         </div>
-
-        {/* Animated particles */}
         <HeroParticles />
 
-        {/* Content — centred */}
-        <div className="relative z-10 text-center px-6 py-32 md:py-40 flex flex-col items-center">
+        <div className="relative z-10 text-center px-6 py-20 md:py-28 flex flex-col items-center max-w-2xl mx-auto">
           <motion.p
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.6 }}
-            className="text-[10px] uppercase tracking-[0.4em] text-[#B8962E] mb-6 font-medium"
+            className="text-[10px] uppercase tracking-[0.4em] text-[#B8962E] mb-5 font-medium"
           >
             Peptide Marketplace
           </motion.p>
           <motion.h1
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 18 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="font-serif text-white leading-none mb-6"
-            style={{ fontSize: "clamp(3rem, 8vw, 6.5rem)" }}
+            className="font-serif text-white leading-[1.08] mb-5"
+            style={{ fontSize: "clamp(2.4rem, 6vw, 4.8rem)" }}
           >
-            Precision.<br />Delivered.
+            Curated peptides.<br />Delivered with intention.
           </motion.h1>
           <motion.p
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.22 }}
-            className="text-white/45 max-w-md text-sm md:text-base leading-relaxed mb-10"
+            transition={{ duration: 0.7, delay: 0.2 }}
+            className="text-white/42 max-w-sm text-[14px] leading-relaxed mb-8"
           >
-            Pharmaceutical-grade peptide protocols.<br />
-            Physician-reviewed before every shipment.
+            Explore premium peptide protocols designed to support recovery, vitality,
+            performance, and modern longevity.
           </motion.p>
-          <motion.button
+
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.35 }}
-            onClick={scrollToGrid}
-            className="inline-flex items-center gap-2 bg-[#B8962E] text-white text-[11px] font-semibold tracking-[0.2em] uppercase px-8 py-3.5 rounded-full hover:bg-[#A07828] transition-colors"
+            transition={{ duration: 0.6, delay: 0.32 }}
+            className="flex flex-col sm:flex-row gap-3 mb-8"
           >
-            Browse Protocols
-          </motion.button>
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 bg-[#B8962E] text-white text-[11px] font-semibold tracking-[0.18em] uppercase px-7 py-3.5 rounded-full hover:bg-[#A07828] transition-colors"
+            >
+              Find My Protocol <ArrowRight className="w-3.5 h-3.5" />
+            </Link>
+            <button
+              onClick={() => goalRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+              className="inline-flex items-center gap-2 bg-white/8 border border-white/18 text-white text-[11px] font-semibold tracking-[0.18em] uppercase px-7 py-3.5 rounded-full hover:bg-white/14 transition-colors"
+            >
+              Shop by Goal
+            </button>
+          </motion.div>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.6, delay: 0.45 }}
+            className="text-white/28 text-[10px] tracking-[0.22em] uppercase"
+          >
+            Third-party tested · Discreet shipping · Concierge guidance
+          </motion.p>
         </div>
 
-        {/* Bottom fade to light */}
         <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
           style={{ background: "linear-gradient(to bottom, transparent, #FAFAF8)" }}
         />
       </div>
 
-      {/* ── Category Pills ── */}
+      {/* ══ TRUST STRIP ══════════════════════════════════════════════════ */}
+      <div className="border-b border-[#E8E4DC]" style={{ background: "#F5F1E8" }}>
+        <div className="container mx-auto px-6 md:px-12 py-4">
+          <div className="flex flex-wrap items-center justify-center gap-x-8 gap-y-2">
+            {[
+              { icon: "✦", text: "Third-party tested" },
+              { icon: "✦", text: "Discreet shipping" },
+              { icon: "✦", text: "Secure checkout" },
+              { icon: "✦", text: "Concierge guidance" },
+            ].map(item => (
+              <span key={item.text} className="flex items-center gap-2 text-[11px] text-[#B8962E] font-medium tracking-[0.12em] uppercase">
+                <span className="text-[#C9A844] text-[8px]">{item.icon}</span>
+                {item.text}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ══ SHOP BY GOAL ═════════════════════════════════════════════════ */}
+      <section ref={goalRef} className="py-16 px-6 md:px-12" style={{ background: "#FAFAF8" }}>
+        <div className="container mx-auto max-w-7xl">
+          <div className="mb-10 text-center">
+            <p className="text-[10px] uppercase tracking-[0.35em] text-[#B8962E] mb-3 font-medium">Guided Shopping</p>
+            <h2 className="font-serif text-[#0A0A0A] text-[1.9rem] md:text-[2.4rem] leading-tight">
+              Shop by Goal
+            </h2>
+          </div>
+
+          <div
+            className="flex gap-4 pb-2"
+            style={{ overflowX: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {GOAL_CARDS.map(({ category, tagline, Icon }) => (
+              <button
+                key={category}
+                onClick={() => handleGoalClick(category)}
+                className={`shrink-0 w-44 md:w-48 text-left rounded-2xl border p-5 transition-all duration-200 group/goal
+                  ${activeCategory === category
+                    ? "bg-[#0A0A0A] border-[#0A0A0A] shadow-lg"
+                    : "bg-white border-[#E8E4DC] hover:border-[#C9A844]/50 hover:shadow-md"
+                  }`}
+              >
+                <div className={`w-8 h-8 rounded-full flex items-center justify-center mb-4 transition-colors
+                  ${activeCategory === category ? "bg-[#C9A844]/20" : "bg-[#F5F0E8] group-hover/goal:bg-[#C9A844]/15"}`}>
+                  <Icon className={`w-3.5 h-3.5 ${activeCategory === category ? "text-[#C9A844]" : "text-[#B8962E]"}`} />
+                </div>
+                <p className={`font-serif text-[14px] leading-snug mb-1.5 ${activeCategory === category ? "text-white" : "text-[#0A0A0A]"}`}>
+                  {category}
+                </p>
+                <p className={`text-[11px] leading-relaxed ${activeCategory === category ? "text-white/50" : "text-[#0A0A0A]/40"}`}>
+                  {tagline}
+                </p>
+              </button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ FEATURED PROTOCOLS ═══════════════════════════════════════════ */}
+      {!isLoading && featured.length > 0 && activeCategory === "All" && !searchQuery && (
+        <section className="py-4 pb-16 px-6 md:px-12">
+          <div className="container mx-auto max-w-7xl">
+            <div className="flex items-end justify-between mb-8">
+              <div>
+                <p className="text-[10px] uppercase tracking-[0.35em] text-[#B8962E] mb-2 font-medium">Most Requested</p>
+                <h2 className="font-serif text-[#0A0A0A] text-[1.7rem] md:text-[2.1rem] leading-tight">Featured Protocols</h2>
+              </div>
+              <button
+                onClick={scrollToGrid}
+                className="hidden md:flex items-center gap-1.5 text-[11px] text-[#0A0A0A]/45 hover:text-[#B8962E] tracking-widest uppercase font-medium transition-colors"
+              >
+                View all <ChevronRight className="w-3 h-3" />
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {featured.map((p, i) => (
+                <ProductCard key={p.slug} product={p} index={i} featured />
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ══ CONVERSION BANNER ════════════════════════════════════════════ */}
+      {activeCategory === "All" && !searchQuery && (
+        <section className="px-6 md:px-12 pb-16">
+          <div className="container mx-auto max-w-7xl">
+            <div
+              className="relative rounded-3xl overflow-hidden p-8 md:p-12 flex flex-col md:flex-row items-center gap-8"
+              style={{ background: "linear-gradient(135deg, #0A0A0A 0%, #111008 60%, #0D0D0B 100%)" }}
+            >
+              <div className="absolute inset-0 pointer-events-none">
+                <div style={{ background: "radial-gradient(ellipse 55% 60% at 85% 50%, rgba(201,168,68,0.10) 0%, transparent 65%)" }} className="absolute inset-0" />
+                <div style={{ background: "radial-gradient(ellipse 35% 50% at 10% 80%, rgba(13,148,136,0.08) 0%, transparent 55%)" }} className="absolute inset-0" />
+              </div>
+              <div className="relative z-10 flex-1 text-center md:text-left">
+                <p className="text-[10px] uppercase tracking-[0.35em] text-[#C9A844] mb-3 font-medium">Personalised Protocol</p>
+                <h3 className="font-serif text-white text-[1.7rem] md:text-[2rem] leading-tight mb-3">
+                  Not sure where to start?
+                </h3>
+                <p className="text-white/40 text-[14px] leading-relaxed max-w-md">
+                  Answer a few questions and find the AURYX collection that best matches your goals,
+                  lifestyle, and current rhythm.
+                </p>
+              </div>
+              <div className="relative z-10 shrink-0">
+                <Link
+                  href="/"
+                  className="inline-flex items-center gap-2 bg-[#C9A844] text-[#0A0A0A] text-[11px] font-bold tracking-[0.2em] uppercase px-8 py-4 rounded-full hover:bg-[#D4B34E] transition-colors shadow-lg shadow-[#C9A844]/20"
+                >
+                  Take the 60-second Protocol Finder
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </Link>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ══ FILTER BAR ═══════════════════════════════════════════════════ */}
       <div
-        className="sticky z-30 bg-[#FAFAF8]/96 backdrop-blur border-b border-[#E8E8E4]"
-        style={{ top: 57 }}
         ref={gridRef}
+        className="sticky z-30 bg-[#FAFAF8]/97 backdrop-blur border-b border-[#E8E4DC]"
+        style={{ top: 57 }}
       >
         <div className="container mx-auto px-6 md:px-12">
+          {/* Search + sort row */}
+          <div className="flex items-center gap-3 pt-3 pb-2">
+            <div className="relative flex-1 max-w-xs">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#0A0A0A]/30" />
+              <input
+                type="text"
+                placeholder="Search protocols…"
+                value={searchQuery}
+                onChange={e => setSearchQuery(e.target.value)}
+                className="w-full pl-8 pr-3 py-2 text-[12px] rounded-lg border border-[#E8E4DC] bg-white/70 text-[#0A0A0A] placeholder:text-[#0A0A0A]/30 focus:outline-none focus:border-[#C9A844]/60 focus:ring-1 focus:ring-[#C9A844]/25 transition-all"
+              />
+            </div>
+            <select
+              value={sortBy}
+              onChange={e => setSortBy(e.target.value)}
+              className="py-2 px-3 text-[11px] rounded-lg border border-[#E8E4DC] bg-white/70 text-[#0A0A0A]/70 focus:outline-none focus:border-[#C9A844]/60 cursor-pointer tracking-wide"
+            >
+              {SORT_OPTIONS.map(o => (
+                <option key={o.value} value={o.value}>{o.label}</option>
+              ))}
+            </select>
+          </div>
+
+          {/* Category pills */}
           <div
-            className="flex gap-2 py-3.5"
-            style={{
-              overflowX: "auto",
-              msOverflowStyle: "none",
-              scrollbarWidth: "none",
-            }}
+            className="flex gap-2 pb-3"
+            style={{ overflowX: "auto", scrollbarWidth: "none", msOverflowStyle: "none" }}
           >
-            <style>{`.pill-row::-webkit-scrollbar { display: none; }`}</style>
             {CATEGORIES.map(cat => (
               <button
                 key={cat}
@@ -380,7 +576,7 @@ export default function ShopPage() {
                 className={`whitespace-nowrap text-[11px] px-4 py-1.5 rounded-full border font-medium tracking-wide transition-all shrink-0 ${
                   activeCategory === cat
                     ? "bg-[#0A0A0A] text-white border-[#0A0A0A]"
-                    : "bg-transparent text-[#0A0A0A]/70 border-[#0A0A0A]/22 hover:border-[#0A0A0A]/50 hover:text-[#0A0A0A]"
+                    : "bg-transparent text-[#0A0A0A]/60 border-[#0A0A0A]/18 hover:border-[#C9A844]/50 hover:text-[#0A0A0A]"
                 }`}
               >
                 {cat}
@@ -390,11 +586,11 @@ export default function ShopPage() {
         </div>
       </div>
 
-      {/* ── Product Grid ── */}
+      {/* ══ PRODUCT GRID ═════════════════════════════════════════════════ */}
       <section className="py-10 px-6 md:px-12">
         <div className="container mx-auto max-w-7xl">
           {isLoading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="bg-white rounded-2xl h-80 animate-pulse shadow-sm" />
               ))}
@@ -405,19 +601,54 @@ export default function ShopPage() {
             </div>
           ) : (
             <>
-              <p className="text-[10px] text-[#0A0A0A]/35 mb-7 uppercase tracking-[0.2em]">
-                {filtered.length} Protocol{filtered.length !== 1 ? "s" : ""}
-              </p>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {filtered.map((product, i) => (
-                  <ProductCard key={product.slug} product={product} index={i} />
-                ))}
+              <div className="flex items-center justify-between mb-7">
+                <p className="text-[10px] text-[#0A0A0A]/35 uppercase tracking-[0.2em]">
+                  {sorted.length} Protocol{sorted.length !== 1 ? "s" : ""}
+                  {activeCategory !== "All" && (
+                    <span className="ml-2 text-[#B8962E]">— {activeCategory}</span>
+                  )}
+                </p>
+                {(activeCategory !== "All" || searchQuery) && (
+                  <button
+                    onClick={() => { setActiveCategory("All"); setSearchQuery(""); setSortBy("featured"); }}
+                    className="text-[10px] text-[#0A0A0A]/40 hover:text-[#B8962E] tracking-widest uppercase font-medium transition-colors"
+                  >
+                    Clear filters
+                  </button>
+                )}
               </div>
+
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeCategory + sortBy + searchQuery}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"
+                >
+                  {sorted.map((product, i) => (
+                    <ProductCard key={product.slug} product={product} index={i} />
+                  ))}
+                </motion.div>
+              </AnimatePresence>
+
+              {sorted.length === 0 && (
+                <div className="text-center py-20">
+                  <p className="text-[#0A0A0A]/30 text-sm">No protocols match your search.</p>
+                  <button
+                    onClick={() => { setActiveCategory("All"); setSearchQuery(""); }}
+                    className="mt-4 text-[11px] text-[#B8962E] uppercase tracking-widest font-medium hover:underline"
+                  >
+                    Clear search
+                  </button>
+                </div>
+              )}
             </>
           )}
 
-          {/* ── Trust Strip ── */}
-          <div className="mt-20 pt-12 border-t border-[#E8E8E4]">
+          {/* ── Bottom trust strip ── */}
+          <div className="mt-20 pt-12 border-t border-[#E8E4DC]">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
               {[
                 { label: "US-Sourced", sub: "Licensed compounding pharmacies" },
@@ -427,13 +658,14 @@ export default function ShopPage() {
               ].map(item => (
                 <div key={item.label} className="flex flex-col items-center gap-1.5">
                   <p className="text-[#B8962E] text-sm font-semibold">{item.label}</p>
-                  <p className="text-[#0A0A0A]/40 text-xs leading-relaxed">{item.sub}</p>
+                  <p className="text-[#0A0A0A]/38 text-xs leading-relaxed">{item.sub}</p>
                 </div>
               ))}
             </div>
           </div>
         </div>
       </section>
+
     </div>
   );
 }

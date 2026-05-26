@@ -1,0 +1,237 @@
+Let’s upgrade the AURYX Shop page UI/UX.
+
+Important:
+Do not break existing product data, cart logic, add-to-cart functionality, filters, product routes, checkout, or footer links.
+This is not a full rebuild of the site. Focus only on improving the Shop page / product grid experience.
+
+Current problem:
+The Shop page works, but it feels too basic and repetitive. The individual peptide vial images are uploaded and appearing inside black square image areas, but the black blocks make the grid feel heavy, generic, and not very luxury or UX/UI friendly.
+
+Goal:
+Make the Shop page feel like a premium luxury peptide commerce experience: refined, intuitive, guided, easier to browse, and more desirable to buy from.
+
+Design direction:
+AURYX should feel like a luxury precision wellness and peptide brand.
+Use:
+- Warm ivory backgrounds
+- Obsidian / charcoal accents
+- Champagne gold details
+- Refined typography
+- Soft shadows
+- Rounded premium cards
+- Clean spacing
+- Elegant product staging
+- Mobile-first UX
+
+Avoid:
+- Cheap supplement store look
+- Generic product grid feel
+- Harsh black boxes behind every product
+- Tiny product images
+- Cluttered cards
+- Aggressive medical claims
+
+1. Improve the Shop hero
+
+Keep the current dark hero direction, but make it more useful for shopping.
+
+Hero headline:
+Curated peptides. Delivered with intention.
+
+Subheadline:
+Explore premium peptide protocols designed to support recovery, vitality, performance, and modern longevity.
+
+Primary CTA:
+Find My Protocol
+
+Secondary CTA:
+Shop by Goal
+
+Add a small trust line:
+Third-party tested · Discreet shipping · Concierge guidance
+
+Make the hero shorter than the homepage hero so users can reach products quickly.
+
+2. Add a guided “Shop by Goal” section before the product grid
+
+Create a premium horizontal or responsive card/chip section using the existing categories:
+
+- GLP-1 & Metabolic
+- Growth Hormone
+- Recovery & Regeneration
+- Sexual Health & Vitality
+- Immune & Longevity
+- Cognitive & Neuroprotective
+- Auryx Signature Complexes
+
+Each goal card should include:
+- Small gold line icon
+- Category name
+- Very short support-focused line
+- Click behavior that filters the product grid by that category
+
+Make this section feel like guided shopping, not just filter chips.
+
+3. Improve the filters
+
+Keep the existing category pills, but make them cleaner:
+- Sticky filter row on mobile if possible
+- Better active state
+- Add search input above or near filters
+- Add sorting dropdown: Featured, Best Sellers, Price Low to High, Price High to Low, A-Z
+
+The filter area should be easy to use on mobile.
+
+4. Redesign product cards
+
+Current issue:
+The product images are appearing inside black square blocks. This feels too harsh and repetitive.
+
+Replace the black product image area with a premium product stage.
+
+Use one of these approaches:
+Option A:
+Warm ivory product stage with subtle champagne gradient and soft inner shadow.
+
+Option B:
+Very dark charcoal product stage, but with a soft radial gold glow behind the vial instead of a flat black square.
+
+Option C:
+Alternate subtly between ivory and charcoal stages by category, but keep everything cohesive.
+
+Preferred:
+Use ivory / champagne product stage for most products because it feels more premium and makes the vials look cleaner.
+
+Each product card should include:
+- Small category tag at the top
+- Product image area with consistent height
+- Vial image centered, larger, and using object-contain
+- Product name
+- Short support-focused description
+- Price
+- “Learn More” as a secondary link
+- “Add to Cart” as the primary button
+
+Make the “Add to Cart” button visually consistent:
+- Obsidian/black button
+- White text
+- Small cart icon
+- Subtle gold hover state
+
+5. Make product cards more readable
+
+Increase spacing inside cards.
+Use stronger typography hierarchy:
+- Product name larger and clearer
+- Description shorter
+- Price more visible
+- CTAs aligned consistently at the bottom
+
+Cards should have equal height where possible so the grid feels clean.
+
+6. Add “Featured Protocols” before the full product list
+
+Before showing all 21 products, add a curated row/section:
+
+Title:
+Featured Protocols
+
+Subtitle:
+Start with the most requested AURYX categories.
+
+Show 4 featured products:
+- Sermorelin
+- BPC-157
+- NAD+
+- CJC-1295 / Ipamorelin
+
+These cards can be slightly larger and more editorial than the standard grid.
+
+7. Add a “Not sure where to start?” conversion banner
+
+Place this after the first few rows of products or above the grid.
+
+Content:
+Not sure where to start?
+
+Body:
+Answer a few questions and find the AURYX collection that best matches your goals, lifestyle, and current rhythm.
+
+CTA:
+Take the 60-second Protocol Finder
+
+Design:
+Premium dark card with gold accents, soft glow, and maybe a small vial image or AURYX logo mark.
+
+8. Improve product image handling
+
+Use the individual vial PNGs already uploaded.
+Make sure:
+- Images are not cropped
+- Images are centered
+- Product image area uses object-contain
+- Product image area has consistent height
+- Vials appear larger and more premium
+- Background stage does not overpower the product
+
+If any product image is missing, use a consistent placeholder vial style, not a blank black square.
+
+9. Add subtle trust strip near products
+
+Add a slim trust strip either above or below the grid:
+
+- Third-party tested
+- Discreet shipping
+- Secure checkout
+- Concierge guidance
+
+Use small gold line icons and concise text.
+
+10. Mobile UX
+
+Prioritize mobile:
+- Cards should be easy to scan
+- Product images should not feel tiny
+- Filter chips should scroll smoothly
+- Buttons must be thumb-friendly
+- Avoid excessive vertical clutter
+- Keep product cards clean and consistent
+
+Desktop:
+- Use a polished responsive grid
+- Avoid too much empty space
+- Keep cards aligned and elegant
+
+11. Compliance
+
+Keep all copy support-oriented.
+Avoid:
+- cure
+- treat
+- heal
+- reverse aging
+- burn fat
+- guaranteed results
+- injury repair
+- disease
+- medical treatment
+
+Use:
+- supports
+- designed to support
+- may support
+- recovery support
+- healthy aging support
+- vitality
+- longevity
+- performance
+- restoration
+- wellness rhythm
+
+Footer disclaimer should remain visible and unchanged.
+
+After implementing:
+- Tell me exactly which files changed.
+- Confirm no cart/shop functionality was broken.
+- Run the build/check.
+- Show me mobile and desktop screenshots of the updated Shop page.
