@@ -9,6 +9,7 @@ import type { ProductSummary } from "@/types/shop";
 const PRODUCT_IMAGES: Record<string, string> = {
   "semaglutide": "/products/semaglutide.png",
   "tirzepatide": "/products/tirzepatide.png",
+  "retatrutide": "/products/retatrutide.png",
   "sermorelin": "/products/sermorelin.png",
   "tesamorelin": "/products/tesamorelin.png",
   "tesamorelin-ipamorelin": "/products/ipamorelin.png",
