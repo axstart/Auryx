@@ -12,44 +12,51 @@ export default function ProtocolFinder() {
   return (
     <div className="min-h-screen bg-background text-foreground">
 
-      {/* Compact header — just enough to clear the navbar */}
-      <div className="pt-28 pb-6 px-6 md:px-16">
-        <div className="container mx-auto max-w-3xl">
+      {/* Header band */}
+      <div className="pt-28 pb-16 px-6 md:px-16 border-b border-border/40">
+        <div className="container mx-auto max-w-4xl">
           <motion.div
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+            transition={{ duration: 0.7 }}
           >
-            <div>
-              <p className="text-xs uppercase tracking-[0.3em] text-primary mb-2">Protocol Finder</p>
-              <h1 className="text-2xl md:text-3xl font-serif leading-tight">
-                Find the right protocol for you.
-              </h1>
-            </div>
-            <div className="flex flex-col sm:flex-row gap-4 sm:gap-8 shrink-0">
-              {[
-                "Physician-reviewed",
-                "No obligation",
-                "Free shipping*",
-              ].map((pt) => (
-                <div key={pt} className="flex items-center gap-2">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-primary shrink-0" />
-                  <span className="text-xs text-foreground/50">{pt}</span>
-                </div>
-              ))}
-            </div>
+            <p className="text-xs uppercase tracking-[0.3em] text-primary mb-5">Concierge Intake</p>
+            <h1 className="text-5xl md:text-6xl font-serif leading-tight mb-6">
+              Your protocol starts<br />
+              <span className="text-foreground/40">with your rhythm.</span>
+            </h1>
+            <p className="text-foreground/50 text-base leading-relaxed max-w-xl">
+              Answer a few questions about your goals, lifestyle, and current routine. We'll guide you toward the AURYX protocol that best matches your biology.
+            </p>
           </motion.div>
         </div>
       </div>
 
-      {/* Assessment — right up top */}
-      <div className="px-6 md:px-16 pb-16">
+      {/* Trust pillars */}
+      <div className="px-6 md:px-16 py-10 border-b border-border/30 bg-card/20">
+        <div className="container mx-auto max-w-4xl">
+          <div className="flex flex-col sm:flex-row gap-6 sm:gap-12">
+            {[
+              "Physician-reviewed protocols",
+              "No obligation to purchase",
+              "Free shipping on every order*",
+            ].map((pt) => (
+              <div key={pt} className="flex items-center gap-2.5">
+                <CheckCircle2 className="w-4 h-4 text-primary shrink-0" />
+                <span className="text-sm text-foreground/55">{pt}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Assessment */}
+      <div className="px-6 md:px-16 py-16 md:py-24">
         <div className="container mx-auto max-w-3xl">
           <motion.div
-            initial={{ opacity: 0, y: 16 }}
+            initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.1 }}
+            transition={{ duration: 0.7, delay: 0.2 }}
             className="bg-card border border-border rounded-2xl overflow-hidden"
           >
             <PatientAssessment
@@ -58,7 +65,7 @@ export default function ProtocolFinder() {
             />
           </motion.div>
 
-          <p className="text-xs text-foreground/25 text-center mt-6 leading-relaxed max-w-md mx-auto">
+          <p className="text-xs text-foreground/25 text-center mt-8 leading-relaxed max-w-md mx-auto">
             This tool is for educational guidance only and does not constitute medical advice.
             Always consult a licensed healthcare provider before beginning any protocol.
           </p>
