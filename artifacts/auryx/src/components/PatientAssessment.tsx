@@ -602,17 +602,47 @@ export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpe
         <div className="max-w-3xl mx-auto">
           <div className="bg-background/60 border border-border/60 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
             {phase === "quiz" && (
-              <div className="mb-6">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs text-muted-foreground">Progress</span>
-                  <span className="text-xs text-muted-foreground">{stepIndex + 1} of {totalSteps}</span>
-                </div>
-                <div className="h-[2px] bg-border rounded-full overflow-hidden">
-                  <motion.div
-                    className="h-full bg-primary rounded-full"
-                    animate={{ width: `${progressPct}%` }}
-                    transition={{ duration: 0.4 }}
-                  />
+              <div className="mb-7">
+                <div className="flex items-center justify-between">
+                  {Array.from({ length: totalSteps }, (_, i) => {
+                    const num = i + 1;
+                    const isComplete = i < stepIndex;
+                    const isCurrent = i === stepIndex;
+                    return (
+                      <div key={i} className="flex items-center flex-1 last:flex-none">
+                        <div className="relative flex flex-col items-center">
+                          <motion.div
+                            animate={{
+                              backgroundColor: isCurrent ? "#C9A844" : isComplete ? "#C9A844" : "transparent",
+                              borderColor: isCurrent || isComplete ? "#C9A844" : "rgba(255,255,255,0.15)",
+                              scale: isCurrent ? 1.1 : 1,
+                            }}
+                            transition={{ duration: 0.3 }}
+                            className="w-7 h-7 rounded-full border-2 flex items-center justify-center shrink-0"
+                          >
+                            {isComplete ? (
+                              <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none">
+                                <path d="M2 6l3 3 5-5" stroke={isCurrent ? "#0A0A0A" : "#0A0A0A"} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            ) : (
+                              <span className={`text-[10px] font-semibold leading-none ${isCurrent ? "text-[#0A0A0A]" : "text-foreground/30"}`}>
+                                {num}
+                              </span>
+                            )}
+                          </motion.div>
+                        </div>
+                        {i < totalSteps - 1 && (
+                          <div className="flex-1 mx-1 h-[1px] relative overflow-hidden bg-white/10">
+                            <motion.div
+                              className="absolute inset-y-0 left-0 bg-primary"
+                              animate={{ width: isComplete ? "100%" : "0%" }}
+                              transition={{ duration: 0.4 }}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
