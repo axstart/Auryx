@@ -131,6 +131,27 @@ export const PRODUCTS: Product[] = [
     priceCents: 19900,
   },
 
+  {
+    slug: "sermorelin",
+    name: "Sermorelin",
+    category: "Growth Hormone",
+    shortDescription: "Natural GH stimulation for sleep, recovery, and lean body composition.",
+    fullDescription:
+      "Sermorelin is a GHRH analogue that stimulates the pituitary gland to produce and release growth hormone naturally, preserving the body's own feedback mechanisms. It enhances GH pulsatility during deep sleep, improving sleep quality, accelerating recovery, and supporting lean body composition — making it an ideal entry-level growth hormone protocol for patients new to peptide therapy.",
+    benefits: [
+      "Stimulates natural, pulsatile GH release",
+      "Enhanced deep sleep quality and restoration",
+      "Improved lean body composition and recovery",
+      "Gentle on the endocrine system — preserves natural feedback loops",
+    ],
+    dosingInfo:
+      "Subcutaneous injection 5 nights per week before sleep, 200–300 mcg per dose. Protocol duration: 12–24 weeks minimum for full benefit.",
+    physicianNote:
+      "Sermorelin is our recommended starting point for patients new to growth hormone optimization. Its shorter half-life and pituitary-driven mechanism make it the safest and most physiological GH secretagogue available.",
+    requiresConsultation: false,
+    priceCents: 16900,
+  },
+
   // ── Recovery & Regeneration ────────────────────────────────────────────────
   {
     slug: "bpc-157",
