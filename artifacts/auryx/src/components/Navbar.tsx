@@ -58,10 +58,14 @@ export default function Navbar() {
             </div>
           </div>
 
-          {/* Center: AURYX wordmark */}
+          {/* Center: AURYX logo */}
           <div className="flex justify-center">
-            <Link href="/" className={`text-xl md:text-2xl font-serif tracking-[0.28em] font-bold transition-colors ${logoColor}`}>
-              AURYX
+            <Link href="/" className="flex items-center">
+              <img
+                src="/logo-transparent.png"
+                alt="AURYX"
+                className="h-7 md:h-8 w-auto object-contain"
+              />
             </Link>
           </div>
 
