@@ -1,11 +1,29 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ChevronRight, ChevronLeft, ShieldAlert, CheckCircle2, ArrowRight, Sparkles, RotateCcw, X } from "lucide-react";
+import { ChevronRight, ChevronLeft, ShieldAlert, CheckCircle2, ArrowRight, Sparkles, RotateCcw, X, ShoppingCart } from "lucide-react";
 import { useGetProtocolRecommendation } from "@workspace/api-client-react";
 import type { ProtocolRecommendation } from "@workspace/api-client-react";
+import { useCart } from "@/context/CartContext";
+import type { ProductSummary } from "@/types/shop";
+
+async function fetchProducts(): Promise<ProductSummary[]> {
+  const res = await fetch("/api/products");
+  if (!res.ok) throw new Error("Failed to load products");
+  return res.json();
+}
+
+function matchProduct(protocolName: string, products: ProductSummary[]): ProductSummary | undefined {
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
+  const pn = norm(protocolName);
+  return products.find(p => {
+    const n = norm(p.name);
+    return pn.includes(n) || n.includes(pn);
+  });
+}
 
 interface Answers {
   knowledge?: string;
@@ -613,6 +631,20 @@ function AIResultScreen({
   onReset: () => void;
   onConsult: () => void;
 }) {
+  const { addToCart } = useCart();
+  const [addedSlugs, setAddedSlugs] = useState<Set<string>>(new Set());
+  const { data: products = [] } = useQuery<ProductSummary[]>({
+    queryKey: ["products"],
+    queryFn: fetchProducts,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  function handleAdd(product: ProductSummary) {
+    addToCart(product);
+    setAddedSlugs(prev => new Set([...prev, product.slug]));
+    setTimeout(() => setAddedSlugs(prev => { const s = new Set(prev); s.delete(product.slug); return s; }), 1500);
+  }
+
   return (
     <motion.div
       key="ai-result"
@@ -636,35 +668,57 @@ function AIResultScreen({
 
       {/* Protocol cards */}
       <div className="grid gap-3 mb-6">
-        {result.protocols.map((item, i) => (
-          <div
-            key={item.protocol}
-            className="border border-[#C9A844]/20 bg-[#161510] rounded-xl px-5 py-4"
-          >
-            <div className="flex items-start gap-4">
-              <div className="w-6 h-6 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0 mt-0.5">
-                <span className="text-[10px] font-bold text-primary">{i + 1}</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex flex-wrap items-baseline gap-2 mb-1">
-                  <h4 className="font-serif text-lg text-foreground">{item.protocol}</h4>
-                  <span className="text-xs text-primary/70 italic tracking-wide">{item.tagline}</span>
+        {result.protocols.map((item, i) => {
+          const product = matchProduct(item.protocol, products);
+          const isAdded = product ? addedSlugs.has(product.slug) : false;
+          return (
+            <div
+              key={item.protocol}
+              className="border border-[#C9A844]/20 bg-[#161510] rounded-xl px-5 py-4"
+            >
+              <div className="flex items-start gap-4">
+                <div className="w-6 h-6 rounded-full bg-primary/10 border border-primary/30 flex items-center justify-center shrink-0 mt-0.5">
+                  <span className="text-[10px] font-bold text-primary">{i + 1}</span>
                 </div>
-                <p className="text-xs text-foreground/55 leading-relaxed mb-2">{item.why}</p>
-                <div className="flex flex-wrap gap-1.5">
-                  {item.peptides.map((p) => (
-                    <span
-                      key={p}
-                      className="px-2.5 py-0.5 rounded-full border border-primary/25 bg-primary/5 text-[10px] text-primary tracking-wide"
-                    >
-                      {p}
-                    </span>
-                  ))}
+                <div className="flex-1 min-w-0">
+                  <div className="flex flex-wrap items-baseline gap-2 mb-1">
+                    <h4 className="font-serif text-lg text-foreground">{item.protocol}</h4>
+                    <span className="text-xs text-primary/70 italic tracking-wide">{item.tagline}</span>
+                  </div>
+                  <p className="text-xs text-foreground/55 leading-relaxed mb-3">{item.why}</p>
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    {item.peptides.map((p) => (
+                      <span
+                        key={p}
+                        className="px-2.5 py-0.5 rounded-full border border-primary/25 bg-primary/5 text-[10px] text-primary tracking-wide"
+                      >
+                        {p}
+                      </span>
+                    ))}
+                  </div>
+                  {product && (
+                    <div className="flex items-center gap-3 pt-3 border-t border-white/[0.06]">
+                      <span className="text-sm font-semibold text-foreground tabular-nums">
+                        ${(product.priceCents / 100).toFixed(0)}
+                      </span>
+                      <button
+                        onClick={() => handleAdd(product)}
+                        className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[11px] font-semibold tracking-widest uppercase transition-all duration-200 ${
+                          isAdded
+                            ? "bg-primary/20 text-primary border border-primary/40"
+                            : "bg-primary text-[#0A0A0A] hover:bg-primary/85"
+                        }`}
+                      >
+                        <ShoppingCart className="w-3 h-3" />
+                        {isAdded ? "Added ✓" : "Add to Cart"}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       {/* Next step */}

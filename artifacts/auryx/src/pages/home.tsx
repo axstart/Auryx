@@ -1,9 +1,18 @@
 import { useState, useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { ConsultationModal } from "@/components/ConsultationModal";
 import { ProtocolContinuationModal } from "@/components/ProtocolContinuationModal";
-import { ArrowRight, CheckCircle } from "lucide-react";
+import { ArrowRight, CheckCircle, ShoppingCart } from "lucide-react";
+import { useCart } from "@/context/CartContext";
+import type { ProductSummary } from "@/types/shop";
+
+async function fetchProducts(): Promise<ProductSummary[]> {
+  const res = await fetch("/api/products");
+  if (!res.ok) throw new Error("Failed to load products");
+  return res.json();
+}
 
 /* ─── Gold SVG Icons ───────────────────────────────────────────────── */
 const IconMetabolic = () => (
@@ -178,10 +187,10 @@ const COLLECTIONS = [
 ];
 
 const PEPTIDES = [
-  { name: "Sermorelin", desc: "Supports natural growth hormone release and recovery.", tag: "RECOVERY", slug: "cjc-ipamorelin" },
+  { name: "TB-500", desc: "Supports tissue repair, recovery, and systemic regeneration.", tag: "RECOVERY", slug: "tb-500" },
   { name: "BPC-157", desc: "Supports recovery and tissue health.", tag: "RECOVERY", slug: "bpc-157" },
   { name: "NAD+", desc: "Supports cellular energy and healthy aging.", tag: "ENERGY", slug: "nad-plus" },
-  { name: "CJC-1295 / Ipamorelin", desc: "Supports growth hormone and metabolic vitality.", tag: "VITALITY", slug: "cjc-ipamorelin" },
+  { name: "CJC-1295 + Ipamorelin", desc: "Supports growth hormone and metabolic vitality.", tag: "VITALITY", slug: "cjc-1295-ipamorelin" },
 ];
 
 const METHODOLOGY = [
@@ -201,6 +210,21 @@ const TESTIMONIALS = [
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const [continuationOpen, setContinuationOpen] = useState(false);
+  const [addedSlugs, setAddedSlugs] = useState<Set<string>>(new Set());
+  const { addToCart } = useCart();
+  const { data: products = [] } = useQuery<ProductSummary[]>({
+    queryKey: ["products"],
+    queryFn: fetchProducts,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  function handleAdd(slug: string) {
+    const product = products.find(p => p.slug === slug);
+    if (!product) return;
+    addToCart(product);
+    setAddedSlugs(prev => new Set([...prev, slug]));
+    setTimeout(() => setAddedSlugs(prev => { const s = new Set(prev); s.delete(slug); return s; }), 1500);
+  }
 
   const heroRef = useRef<HTMLElement>(null);
   const { scrollYProgress } = useScroll({
@@ -384,30 +408,55 @@ export default function Home() {
 
           {/* Product info cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 mb-8">
-            {PEPTIDES.map((p, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 14 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.07 }}
-              >
-                <Link href={`/shop/${p.slug}`}
-                  className="group block bg-white rounded-xl border border-[#1a1a1a]/6 hover:border-[#C9A844]/35 hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-md p-5"
+            {PEPTIDES.map((p, i) => {
+              const product = products.find(pr => pr.slug === p.slug);
+              const isAdded = addedSlugs.has(p.slug);
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 14 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.07 }}
                 >
-                  <div className="mb-3">
-                    <span className="inline-block text-[9px] font-bold tracking-[0.2em] border border-[#1a1a1a]/18 text-[#1a1a1a]/50 px-2.5 py-1 rounded uppercase mb-3">
-                      {p.tag}
-                    </span>
-                    <h3 className="font-serif text-[#111] text-base leading-snug">{p.name}</h3>
+                  <div className="group flex flex-col bg-white rounded-xl border border-[#1a1a1a]/6 hover:border-[#C9A844]/35 hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-md p-5 h-full">
+                    <div className="mb-3">
+                      <span className="inline-block text-[9px] font-bold tracking-[0.2em] border border-[#1a1a1a]/18 text-[#1a1a1a]/50 px-2.5 py-1 rounded uppercase mb-3">
+                        {p.tag}
+                      </span>
+                      <h3 className="font-serif text-[#111] text-base leading-snug">{p.name}</h3>
+                    </div>
+                    <p className="text-[#1a1a1a]/45 text-xs leading-relaxed mb-4 flex-1">{p.desc}</p>
+                    <div className="mt-auto space-y-2">
+                      {product && (
+                        <div className="flex items-center justify-between">
+                          <span className="text-sm font-semibold text-[#111] tabular-nums">
+                            ${(product.priceCents / 100).toFixed(0)}
+                          </span>
+                          <Link href={`/shop/${p.slug}`} className="text-[10px] text-[#B8962E] hover:underline">
+                            Details →
+                          </Link>
+                        </div>
+                      )}
+                      <button
+                        onClick={() => handleAdd(p.slug)}
+                        disabled={!product}
+                        className={`w-full flex items-center justify-center gap-1.5 py-2 rounded-lg text-[10px] font-bold tracking-widest uppercase transition-all duration-200 ${
+                          isAdded
+                            ? "bg-[#B8962E] text-white"
+                            : product
+                              ? "bg-[#111] text-white hover:bg-[#222]"
+                              : "bg-[#111]/10 text-[#111]/30 cursor-not-allowed"
+                        }`}
+                      >
+                        <ShoppingCart className="w-3 h-3" />
+                        {isAdded ? "Added ✓" : "Add to Cart"}
+                      </button>
+                    </div>
                   </div>
-                  <p className="text-[#1a1a1a]/45 text-xs leading-relaxed mb-4">{p.desc}</p>
-                  <span className="text-[10px] font-semibold tracking-[0.15em] text-[#B8962E] uppercase group-hover:gap-2 inline-flex items-center gap-1.5 transition-all">
-                    Learn More <span className="group-hover:translate-x-0.5 transition-transform inline-block">→</span>
-                  </span>
-                </Link>
-              </motion.div>
-            ))}
+                </motion.div>
+              );
+            })}
           </div>
 
           <div className="text-center mb-12">
