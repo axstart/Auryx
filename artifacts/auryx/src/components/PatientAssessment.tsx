@@ -597,21 +597,8 @@ export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpe
   const stepLabel = `Step ${stepIndex + 1} of ${totalSteps}`;
 
   return (
-    <section id="assessment" className="pt-16 pb-32 px-6 md:px-12 bg-card relative z-20">
+    <section id="assessment" className="pt-8 pb-10 px-6 md:px-12 bg-card relative z-20">
       <div className="container mx-auto max-w-7xl">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-20"
-        >
-          <span className="text-primary tracking-[0.2em] text-sm uppercase mb-4 block">Personalized Guidance</span>
-          <h2 className="text-4xl md:text-5xl font-serif mb-6">Find Your Protocol</h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
-            Answer a few questions. Aria will analyse your profile and recommend the AURYX protocol that best matches your biology.
-          </p>
-        </motion.div>
-
         <div className="max-w-3xl mx-auto">
           <div className="bg-background/60 border border-border/60 rounded-2xl p-8 md:p-12 backdrop-blur-sm">
             {phase === "quiz" && (
