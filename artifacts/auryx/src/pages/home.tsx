@@ -242,11 +242,11 @@ export default function Home() {
         {/* Hero image — right side */}
         <div className="absolute right-0 top-0 bottom-0 w-[52%] z-0 hidden md:block">
           <motion.img
-            src="/Hero.png"
-            alt="Precision wellness"
+            src="/peptides-hero.png"
+            alt="Auryx peptide vials"
             className="absolute inset-0 w-full object-cover"
             style={{
-              objectPosition: "center top",
+              objectPosition: "center center",
               height: "120%",
               top: "-10%",
               y: heroImageY,
@@ -254,11 +254,11 @@ export default function Home() {
             }}
           />
           {/* Fade image into dark background on left */}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.55) 18%, rgba(10,10,10,0.05) 45%, transparent 100%)" }}/>
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.60) 20%, rgba(10,10,10,0.10) 50%, transparent 100%)" }}/>
           {/* Subtle bottom fade */}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, #0A0A0A 0%, transparent 20%)" }}/>
-          {/* Enhance the natural gold glow from the image */}
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 55% 60% at 55% 38%, rgba(201,168,68,0.08) 0%, transparent 60%)" }}/>
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, #0A0A0A 0%, transparent 25%)" }}/>
+          {/* Warm gold ambient glow to blend with image tones */}
+          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 60% 55% at 65% 45%, rgba(201,168,68,0.06) 0%, transparent 65%)" }}/>
           {/* Orbital accent lines overlay */}
           <HeroOrbitalAccent/>
         </div>
