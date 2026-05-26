@@ -397,10 +397,10 @@ export default function Home() {
             style={{ height: "340px" }}
           >
             <img
-              src="/Peptides.png"
+              src="/peptides-section.png"
               alt="AURYX Peptide Collection — Sermorelin, BPC-157, NAD+, CJC-1295"
               className="w-full h-full object-cover"
-              style={{ objectPosition: "center 40%" }}
+              style={{ objectPosition: "center 30%" }}
             />
             {/* Subtle top + bottom fades */}
             <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgba(245,238,228,0.3) 0%, transparent 20%, transparent 75%, rgba(245,238,228,0.35) 100%)" }}/>
