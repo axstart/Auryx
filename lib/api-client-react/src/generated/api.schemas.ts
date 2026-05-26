@@ -123,3 +123,23 @@ export interface ChatEscalation {
   conversationJson: string;
   createdAt: string;
 }
+
+export interface ProtocolRecommendationInput {
+  knowledge?: string;
+  goal?: string;
+  energySleep?: string;
+  activityLevel?: string;
+  intent?: string;
+  medical?: string[];
+  currentPeptides?: string;
+  protocolIntent?: string;
+}
+
+export interface ProtocolRecommendation {
+  protocol: string;
+  tagline: string;
+  why: string;
+  peptides: string[];
+  nextStep: string;
+  disclaimer: string;
+}

@@ -17,3 +17,5 @@ export * from "./healthStatus";
 export * from "./inventoryItem";
 export * from "./inventoryItemInput";
 export * from "./inventoryItemUpdate";
+export * from "./protocolRecommendation";
+export * from "./protocolRecommendationInput";

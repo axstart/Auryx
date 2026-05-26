@@ -26,6 +26,8 @@ import type {
   InventoryItem,
   InventoryItemInput,
   InventoryItemUpdate,
+  ProtocolRecommendation,
+  ProtocolRecommendationInput,
 } from "./api.schemas";
 
 import { customFetch } from "../custom-fetch";
@@ -777,6 +779,96 @@ export const useCreateChatEscalation = <
   TContext
 > => {
   return useMutation(getCreateChatEscalationMutationOptions(options));
+};
+
+/**
+ * @summary Get an AI-generated protocol recommendation
+ */
+export const getGetProtocolRecommendationUrl = () => {
+  return `/api/protocol-recommendation`;
+};
+
+export const getProtocolRecommendation = async (
+  protocolRecommendationInput: ProtocolRecommendationInput,
+  options?: RequestInit,
+): Promise<ProtocolRecommendation> => {
+  return customFetch<ProtocolRecommendation>(
+    getGetProtocolRecommendationUrl(),
+    {
+      ...options,
+      method: "POST",
+      headers: { "Content-Type": "application/json", ...options?.headers },
+      body: JSON.stringify(protocolRecommendationInput),
+    },
+  );
+};
+
+export const getGetProtocolRecommendationMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof getProtocolRecommendation>>,
+    TError,
+    { data: BodyType<ProtocolRecommendationInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof getProtocolRecommendation>>,
+  TError,
+  { data: BodyType<ProtocolRecommendationInput> },
+  TContext
+> => {
+  const mutationKey = ["getProtocolRecommendation"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof getProtocolRecommendation>>,
+    { data: BodyType<ProtocolRecommendationInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return getProtocolRecommendation(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type GetProtocolRecommendationMutationResult = NonNullable<
+  Awaited<ReturnType<typeof getProtocolRecommendation>>
+>;
+export type GetProtocolRecommendationMutationBody =
+  BodyType<ProtocolRecommendationInput>;
+export type GetProtocolRecommendationMutationError = ErrorType<void>;
+
+/**
+ * @summary Get an AI-generated protocol recommendation
+ */
+export const useGetProtocolRecommendation = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof getProtocolRecommendation>>,
+    TError,
+    { data: BodyType<ProtocolRecommendationInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof getProtocolRecommendation>>,
+  TError,
+  { data: BodyType<ProtocolRecommendationInput> },
+  TContext
+> => {
+  return useMutation(getGetProtocolRecommendationMutationOptions(options));
 };
 
 /**

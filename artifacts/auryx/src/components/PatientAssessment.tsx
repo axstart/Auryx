@@ -2,18 +2,22 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ChevronRight, ChevronLeft, ShieldAlert, CheckCircle2, ArrowRight } from "lucide-react";
+import { ChevronRight, ChevronLeft, ShieldAlert, CheckCircle2, ArrowRight, Sparkles, RotateCcw } from "lucide-react";
+import { useGetProtocolRecommendation } from "@workspace/api-client-react";
+import type { ProtocolRecommendation } from "@workspace/api-client-react";
 
 interface Answers {
   knowledge?: string;
   currentPeptides?: string;
   protocolIntent?: string;
   goal?: string;
+  energySleep?: string;
+  activityLevel?: string;
   intent?: string;
   medical?: string[];
 }
 
-type StepKey = "knowledge" | "currentPeptides" | "protocolIntent" | "goal" | "intent" | "medical";
+type StepKey = "knowledge" | "currentPeptides" | "protocolIntent" | "goal" | "energySleep" | "activityLevel" | "intent" | "medical";
 
 const MEDICAL_FLAGS = ["hormone-sensitive-cancer", "other-cancer", "active-treatment"];
 
@@ -22,88 +26,8 @@ function getSequence(answers: Answers): StepKey[] {
   if (answers.knowledge === "experienced") {
     base.push("currentPeptides", "protocolIntent");
   }
-  base.push("goal", "intent", "medical");
+  base.push("goal", "energySleep", "activityLevel", "intent", "medical");
   return base;
-}
-
-function classifyResult(answers: Answers): {
-  type: "consult-required" | "expert-review" | "consult-recommended" | "purchase-path" | "explorer" | "intake-eligible";
-  headline: string;
-  body: string;
-  cta: string;
-  flag?: "medical";
-} {
-  const hasMedicalFlag = answers.medical?.some((m) => MEDICAL_FLAGS.includes(m));
-
-  if (hasMedicalFlag) {
-    return {
-      type: "consult-required",
-      flag: "medical",
-      headline: "Physician Review Required",
-      body:
-        "Based on your medical history, a direct consultation with one of our physicians is required before any protocol can be considered. This is not a barrier — it is the standard of care we hold for every patient. Our team will review your case with complete discretion, expertise, and compassion. Many patients with complex histories find that peptide therapy is still an excellent fit under appropriate medical supervision.",
-      cta: "Request a Physician Consultation",
-    };
-  }
-
-  if (answers.knowledge === "experienced") {
-    if (answers.protocolIntent === "continue") {
-      return {
-        type: "intake-eligible",
-        headline: "Ready to Make the Switch.",
-        body: "Continuing your current protocol under Auryx takes less than 24 hours. Complete our brief intake form — your current stack, duration, and a quick medical screen — and a physician will approve and dispense within one business day. No lengthy consultation required.",
-        cta: "Begin Protocol Intake",
-      };
-    }
-    const wantsChanges = answers.protocolIntent === "changes";
-    const hasQuestions = answers.protocolIntent === "questions";
-    if (wantsChanges || hasQuestions) {
-      return {
-        type: "expert-review",
-        headline: "Let's Refine Your Protocol.",
-        body:
-          wantsChanges
-            ? "You clearly know your biology. Our physicians specialize in optimizing existing protocols — identifying gaps, adjusting doses, cycling strategies, and layering synergistic compounds. Bring your current stack and let's elevate it."
-            : "Excellent questions deserve physician-level answers. Our team is here to go deep — mechanism of action, stacking, cycling, lab interpretation, and next-step compounds. Book a brief expert session and get clarity.",
-        cta: "Book an Expert Protocol Review",
-      };
-    }
-    return {
-      type: "expert-review",
-      headline: "Maintaining Excellence.",
-      body:
-        "Consistency is the hallmark of a serious practitioner. If you're happy with your current protocol and simply exploring what Auryx offers, we're here whenever you're ready to take the next step — whether that's a new compound, a formulary switch, or a full stack review.",
-      cta: "Explore Our Formulary",
-    };
-  }
-
-  if (answers.intent === "consultation") {
-    return {
-      type: "consult-recommended",
-      headline: "You're Ready. So Are We.",
-      body:
-        "You have the intent and we have the expertise. Your next step is a private consultation with one of our longevity physicians who will review your biomarkers, goals, and history to design a protocol built entirely around your biology. Most patients walk away from their first consultation with a clear, actionable protocol in hand.",
-      cta: "Book Your Private Consultation",
-    };
-  }
-
-  if (answers.intent === "purchase") {
-    return {
-      type: "purchase-path",
-      headline: "We Can Help — With One Important Step",
-      body:
-        "We understand you're ready to move. Before any peptide protocol is dispensed, a brief physician consultation is required — not to slow you down, but to ensure your protocol is precisely matched to your biology. This protects your results and your safety. Many of our patients complete this step within 48 hours and begin their protocol shortly after.",
-      cta: "Start the Process",
-    };
-  }
-
-  return {
-    type: "explorer",
-    headline: "The Right Place to Start",
-    body:
-      "Curiosity is the first step toward transformation. Explore the science on this page, review our peptide profiles, and when you're ready — our physicians are here to guide you with zero pressure. There is no obligation in reaching out. Only the possibility of becoming someone who operates at an entirely different level.",
-    cta: "Explore the Science",
-  };
 }
 
 function StepShell({
@@ -267,6 +191,50 @@ function StepGoal({ stepLabel, onSelect }: { stepLabel: string; onSelect: (v: st
   );
 }
 
+function StepEnergySleep({ stepLabel, onSelect }: { stepLabel: string; onSelect: (v: string) => void }) {
+  const options = [
+    { value: "excellent", label: "Consistently strong", desc: "I sleep well, wake rested, and sustain energy throughout the day." },
+    { value: "variable", label: "Variable", desc: "Some good days, some bad — energy and sleep quality fluctuate." },
+    { value: "low", label: "Often low", desc: "I frequently feel fatigued, struggle with afternoon crashes, or sleep poorly." },
+    { value: "poor", label: "Significantly compromised", desc: "Chronic fatigue, poor sleep, and low energy are real ongoing issues for me." },
+  ];
+  return (
+    <StepShell
+      label={stepLabel}
+      headline="How would you describe your current energy and sleep?"
+      sub="Your baseline vitality shapes which protocols will deliver the most meaningful impact."
+    >
+      <div className="grid gap-4">
+        {options.map((o) => (
+          <OptionCard key={o.value} label={o.label} desc={o.desc} onClick={() => onSelect(o.value)} />
+        ))}
+      </div>
+    </StepShell>
+  );
+}
+
+function StepActivityLevel({ stepLabel, onSelect }: { stepLabel: string; onSelect: (v: string) => void }) {
+  const options = [
+    { value: "very-active", label: "Very active", desc: "Training 5+ days/week — sport, strength, endurance, or performance-focused." },
+    { value: "moderately-active", label: "Moderately active", desc: "Regular movement 3–4x/week. Health-conscious and consistent." },
+    { value: "lightly-active", label: "Lightly active", desc: "Occasional exercise. Looking to build or rebuild a more active lifestyle." },
+    { value: "sedentary", label: "Mostly sedentary", desc: "Desk-based, limited movement. Health optimization is a new priority." },
+  ];
+  return (
+    <StepShell
+      label={stepLabel}
+      headline="How active is your lifestyle?"
+      sub="Activity level influences recovery demand, metabolic rate, and which compounds are most clinically relevant."
+    >
+      <div className="grid gap-4">
+        {options.map((o) => (
+          <OptionCard key={o.value} label={o.label} desc={o.desc} onClick={() => onSelect(o.value)} />
+        ))}
+      </div>
+    </StepShell>
+  );
+}
+
 function StepIntent({ stepLabel, onSelect }: { stepLabel: string; onSelect: (v: string) => void }) {
   const options = [
     { value: "consultation", label: "I want a private consultation", desc: "I'm ready to speak with a physician and get a personalized protocol." },
@@ -347,54 +315,81 @@ function StepMedical({ stepLabel, onSubmit }: { stepLabel: string; onSubmit: (se
         onClick={() => onSubmit(selected)}
         className="w-full bg-primary text-primary-foreground h-12 text-base tracking-wide"
       >
-        See My Recommendation <ChevronRight className="ml-2 w-4 h-4" />
+        Analyse My Profile <ChevronRight className="ml-2 w-4 h-4" />
       </Button>
     </StepShell>
   );
 }
 
-function ResultScreen({ answers, onReset, onConsult, onContinueProtocol }: { answers: Answers; onReset: () => void; onConsult: () => void; onContinueProtocol?: () => void }) {
-  const result = classifyResult(answers);
+function LoadingScreen() {
+  const phrases = [
+    "Analysing your profile…",
+    "Matching compounds to your biology…",
+    "Calibrating protocol fit…",
+  ];
+  const [phraseIndex] = useState(0);
+
   return (
     <motion.div
-      key="result"
+      key="loading"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="flex flex-col items-center justify-center py-16 gap-8"
+    >
+      <div className="relative">
+        <div className="w-16 h-16 rounded-full border border-primary/20 flex items-center justify-center">
+          <motion.div
+            className="w-12 h-12 rounded-full border-t-2 border-primary"
+            animate={{ rotate: 360 }}
+            transition={{ duration: 1.2, repeat: Infinity, ease: "linear" }}
+          />
+        </div>
+        <div className="absolute inset-0 flex items-center justify-center">
+          <Sparkles className="w-5 h-5 text-primary" />
+        </div>
+      </div>
+      <div className="text-center">
+        <p className="text-xs uppercase tracking-[0.25em] text-primary mb-3">Aria is working</p>
+        <p className="text-muted-foreground text-sm">{phrases[phraseIndex]}</p>
+      </div>
+    </motion.div>
+  );
+}
+
+function MedicalResultScreen({ onReset, onConsult }: { onReset: () => void; onConsult: () => void }) {
+  return (
+    <motion.div
+      key="medical-result"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.5 }}
       className="text-center max-w-2xl mx-auto"
     >
       <div className="flex justify-center mb-6">
-        <div className={`w-16 h-16 rounded-full flex items-center justify-center border ${result.flag === "medical" ? "bg-amber-500/10 border-amber-500/30" : "bg-primary/10 border-primary/30"}`}>
-          {result.flag === "medical"
-            ? <ShieldAlert className="w-8 h-8 text-amber-400" />
-            : <CheckCircle2 className="w-8 h-8 text-primary" />}
+        <div className="w-16 h-16 rounded-full flex items-center justify-center border bg-amber-500/10 border-amber-500/30">
+          <ShieldAlert className="w-8 h-8 text-amber-400" />
         </div>
       </div>
-
       <div className="flex items-center justify-center gap-3 mb-4">
         <div className="h-[1px] w-8 bg-primary/40" />
-        <span className="text-primary text-xs tracking-[0.25em] uppercase">Your Assessment Result</span>
+        <span className="text-primary text-xs tracking-[0.25em] uppercase">Physician Review Required</span>
         <div className="h-[1px] w-8 bg-primary/40" />
       </div>
-
-      <h3 className="text-3xl md:text-4xl font-serif mb-6 text-foreground">{result.headline}</h3>
-      <p className="text-muted-foreground leading-relaxed mb-10 text-base">{result.body}</p>
-
+      <h3 className="text-3xl md:text-4xl font-serif mb-6 text-foreground">Physician Review Required</h3>
+      <p className="text-muted-foreground leading-relaxed mb-10 text-base">
+        Based on your medical history, a direct consultation with one of our physicians is required before any protocol can be considered.
+        This is not a barrier — it is the standard of care we hold for every patient. Our team will review your case with complete
+        discretion, expertise, and compassion. Many patients with complex histories find that peptide therapy is still an excellent
+        fit under appropriate medical supervision.
+      </p>
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <Button
           data-testid="result-primary-cta"
-          onClick={() => {
-            if (result.type === "explorer") {
-              document.getElementById("education")?.scrollIntoView({ behavior: "smooth" });
-            } else if (result.type === "intake-eligible") {
-              onContinueProtocol?.();
-            } else {
-              onConsult();
-            }
-          }}
+          onClick={onConsult}
           className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 text-base tracking-wide"
         >
-          {result.cta} <ArrowRight className="ml-2 w-4 h-4" />
+          Request a Physician Consultation <ArrowRight className="ml-2 w-4 h-4" />
         </Button>
         <Button
           data-testid="result-reset"
@@ -405,12 +400,133 @@ function ResultScreen({ answers, onReset, onConsult, onContinueProtocol }: { ans
           Start Over
         </Button>
       </div>
+      <p className="mt-8 text-xs text-muted-foreground/60 max-w-lg mx-auto">
+        All information shared is protected under strict medical privacy standards. Our physicians approach every case without judgment and with your wellbeing as the sole priority.
+      </p>
+    </motion.div>
+  );
+}
 
-      {result.flag === "medical" && (
-        <p className="mt-8 text-xs text-muted-foreground/60 max-w-lg mx-auto">
-          All information shared is protected under strict medical privacy standards. Our physicians approach every case without judgment and with your wellbeing as the sole priority.
-        </p>
+function AIResultScreen({
+  result,
+  onReset,
+  onConsult,
+}: {
+  result: ProtocolRecommendation;
+  onReset: () => void;
+  onConsult: () => void;
+}) {
+  return (
+    <motion.div
+      key="ai-result"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="max-w-2xl mx-auto"
+    >
+      <div className="flex items-center justify-center gap-3 mb-8">
+        <div className="h-[1px] flex-1 bg-primary/20" />
+        <span className="text-primary text-xs tracking-[0.25em] uppercase flex items-center gap-2">
+          <Sparkles className="w-3.5 h-3.5" /> Aria's Recommendation
+        </span>
+        <div className="h-[1px] flex-1 bg-primary/20" />
+      </div>
+
+      <div className="border border-primary/20 rounded-xl bg-primary/5 p-7 md:p-9 mb-6 text-center">
+        <p className="text-xs uppercase tracking-[0.3em] text-primary/70 mb-2">Recommended Protocol</p>
+        <h3 className="text-3xl md:text-4xl font-serif text-foreground mb-2">{result.protocol}</h3>
+        <p className="text-primary text-sm tracking-wide italic">{result.tagline}</p>
+      </div>
+
+      <p className="text-foreground/75 leading-relaxed text-base mb-6">{result.why}</p>
+
+      {result.peptides.length > 0 && (
+        <div className="mb-8">
+          <p className="text-xs uppercase tracking-[0.25em] text-muted-foreground mb-3">Key Compounds</p>
+          <div className="flex flex-wrap gap-2">
+            {result.peptides.map((p) => (
+              <span
+                key={p}
+                className="px-3 py-1.5 rounded-full border border-primary/30 bg-primary/5 text-xs text-primary tracking-wide"
+              >
+                {p}
+              </span>
+            ))}
+          </div>
+        </div>
       )}
+
+      <div className="bg-card/50 border border-border/40 rounded-lg px-5 py-4 mb-8">
+        <p className="text-sm text-foreground/80 leading-relaxed">{result.nextStep}</p>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-4">
+        <Button
+          data-testid="result-primary-cta"
+          onClick={onConsult}
+          className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 h-12 text-base tracking-wide"
+        >
+          Book a Private Consultation <ArrowRight className="ml-2 w-4 h-4" />
+        </Button>
+        <Button
+          data-testid="result-reset"
+          variant="outline"
+          onClick={onReset}
+          className="border-border/60 text-muted-foreground hover:border-primary/40 h-12 px-6"
+        >
+          <RotateCcw className="w-4 h-4 mr-2" /> Start Over
+        </Button>
+      </div>
+
+      <p className="mt-8 text-xs text-muted-foreground/40 text-center leading-relaxed max-w-lg mx-auto">
+        {result.disclaimer}
+      </p>
+    </motion.div>
+  );
+}
+
+function ErrorResultScreen({ onReset, onConsult }: { onReset: () => void; onConsult: () => void }) {
+  return (
+    <motion.div
+      key="error-result"
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+      className="text-center max-w-2xl mx-auto"
+    >
+      <div className="flex justify-center mb-6">
+        <div className="w-16 h-16 rounded-full flex items-center justify-center border bg-primary/10 border-primary/30">
+          <CheckCircle2 className="w-8 h-8 text-primary" />
+        </div>
+      </div>
+      <div className="flex items-center justify-center gap-3 mb-4">
+        <div className="h-[1px] w-8 bg-primary/40" />
+        <span className="text-primary text-xs tracking-[0.25em] uppercase">Assessment Complete</span>
+        <div className="h-[1px] w-8 bg-primary/40" />
+      </div>
+      <h3 className="text-3xl md:text-4xl font-serif mb-6 text-foreground">You're Ready. So Are We.</h3>
+      <p className="text-muted-foreground leading-relaxed mb-10 text-base">
+        Your profile suggests strong candidacy for a personalized protocol. The next step is a private consultation with one of our
+        longevity physicians — they will design a protocol built entirely around your biology, goals, and history. Most patients leave
+        their first consultation with a clear, actionable plan in hand.
+      </p>
+      <div className="flex flex-col sm:flex-row gap-4 justify-center">
+        <Button
+          data-testid="result-primary-cta"
+          onClick={onConsult}
+          className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 text-base tracking-wide"
+        >
+          Book Your Private Consultation <ArrowRight className="ml-2 w-4 h-4" />
+        </Button>
+        <Button
+          data-testid="result-reset"
+          variant="outline"
+          onClick={onReset}
+          className="border-border/60 text-muted-foreground hover:border-primary/40 h-12 px-8"
+        >
+          Start Over
+        </Button>
+      </div>
     </motion.div>
   );
 }
@@ -418,34 +534,66 @@ function ResultScreen({ answers, onReset, onConsult, onContinueProtocol }: { ans
 export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpenConsult: () => void; onContinueProtocol?: () => void }) {
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
-  const [done, setDone] = useState(false);
+  const [phase, setPhase] = useState<"quiz" | "loading" | "result" | "error" | "medical">("quiz");
+  const [aiResult, setAiResult] = useState<ProtocolRecommendation | null>(null);
+
+  const { mutateAsync: getRecommendation } = useGetProtocolRecommendation();
 
   const sequence = getSequence(answers);
   const totalSteps = sequence.length;
   const currentKey = sequence[stepIndex];
 
-  const advance = (key: keyof Answers, value: string | string[]) => {
+  const advance = async (key: keyof Answers, value: string | string[]) => {
     const updated = { ...answers, [key]: value };
     setAnswers(updated);
     const nextSequence = getSequence(updated);
+
     if (stepIndex < nextSequence.length - 1) {
       setStepIndex(stepIndex + 1);
-    } else {
-      setDone(true);
+      return;
+    }
+
+    const medicalArr = (key === "medical" ? value : updated.medical) as string[] | undefined;
+    const hasMedicalFlag = medicalArr?.some((m) => MEDICAL_FLAGS.includes(m));
+
+    if (hasMedicalFlag) {
+      setPhase("medical");
+      return;
+    }
+
+    setPhase("loading");
+    try {
+      const recommendation = await getRecommendation({
+        data: {
+          knowledge: updated.knowledge,
+          goal: updated.goal,
+          energySleep: updated.energySleep,
+          activityLevel: updated.activityLevel,
+          intent: updated.intent,
+          medical: updated.medical,
+          currentPeptides: updated.currentPeptides,
+          protocolIntent: updated.protocolIntent,
+        },
+      });
+      setAiResult(recommendation);
+      setPhase("result");
+    } catch {
+      setPhase("error");
     }
   };
 
   const goBack = () => { if (stepIndex > 0) setStepIndex(stepIndex - 1); };
 
   const reset = () => {
-    setDone(false);
+    setPhase("quiz");
+    setAiResult(null);
     setTimeout(() => {
       setStepIndex(0);
       setAnswers({});
     }, 200);
   };
 
-  const progressPct = done ? 100 : (stepIndex / totalSteps) * 100;
+  const progressPct = phase !== "quiz" ? 100 : (stepIndex / totalSteps) * 100;
   const stepLabel = `Step ${stepIndex + 1} of ${totalSteps}`;
 
   return (
@@ -460,13 +608,13 @@ export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpe
           <span className="text-primary tracking-[0.2em] text-sm uppercase mb-4 block">Personalized Guidance</span>
           <h2 className="text-4xl md:text-5xl font-serif mb-6">Find Your Protocol</h2>
           <p className="text-muted-foreground max-w-2xl mx-auto text-lg leading-relaxed">
-            Answer a few questions. We'll tell you exactly where you stand and what your most intelligent next step is.
+            Answer a few questions. Aria will analyse your profile and recommend the AURYX protocol that best matches your biology.
           </p>
         </motion.div>
 
         <div className="max-w-3xl mx-auto">
           <div className="bg-background/60 border border-border/60 rounded-2xl p-8 md:p-12 backdrop-blur-sm">
-            {!done && (
+            {phase === "quiz" && (
               <div className="mb-10">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-xs text-muted-foreground">Progress</span>
@@ -483,7 +631,7 @@ export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpe
             )}
 
             <AnimatePresence mode="wait">
-              {!done ? (
+              {phase === "quiz" && (
                 <div key={currentKey}>
                   {currentKey === "knowledge" && (
                     <StepKnowledge stepLabel={stepLabel} onSelect={(v) => advance("knowledge", v)} />
@@ -497,6 +645,12 @@ export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpe
                   {currentKey === "goal" && (
                     <StepGoal stepLabel={stepLabel} onSelect={(v) => advance("goal", v)} />
                   )}
+                  {currentKey === "energySleep" && (
+                    <StepEnergySleep stepLabel={stepLabel} onSelect={(v) => advance("energySleep", v)} />
+                  )}
+                  {currentKey === "activityLevel" && (
+                    <StepActivityLevel stepLabel={stepLabel} onSelect={(v) => advance("activityLevel", v)} />
+                  )}
                   {currentKey === "intent" && (
                     <StepIntent stepLabel={stepLabel} onSelect={(v) => advance("intent", v)} />
                   )}
@@ -504,12 +658,33 @@ export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpe
                     <StepMedical stepLabel={stepLabel} onSubmit={(v) => advance("medical", v)} />
                   )}
                 </div>
-              ) : (
-                <ResultScreen answers={answers} onReset={reset} onConsult={onOpenConsult} onContinueProtocol={onContinueProtocol} />
+              )}
+
+              {phase === "loading" && <LoadingScreen key="loading" />}
+
+              {phase === "result" && aiResult && (
+                <AIResultScreen
+                  key="ai-result"
+                  result={aiResult}
+                  onReset={reset}
+                  onConsult={onOpenConsult}
+                />
+              )}
+
+              {phase === "medical" && (
+                <MedicalResultScreen
+                  key="medical-result"
+                  onReset={reset}
+                  onConsult={onOpenConsult}
+                />
+              )}
+
+              {phase === "error" && (
+                <ErrorResultScreen key="error-result" onReset={reset} onConsult={onOpenConsult} />
               )}
             </AnimatePresence>
 
-            {!done && stepIndex > 0 && (
+            {phase === "quiz" && stepIndex > 0 && (
               <button
                 data-testid="assessment-back"
                 onClick={goBack}

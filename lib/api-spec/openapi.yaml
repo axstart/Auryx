@@ -230,6 +230,29 @@ paths:
         "400":
           description: Invalid input
 
+  /protocol-recommendation:
+    post:
+      operationId: getProtocolRecommendation
+      tags: [protocol]
+      summary: Get an AI-generated protocol recommendation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProtocolRecommendationInput"
+      responses:
+        "200":
+          description: AI-generated protocol recommendation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProtocolRecommendation"
+        "400":
+          description: Invalid input or medical consultation required
+        "500":
+          description: AI service error
+
   /chat/escalations:
     get:
       operationId: listChatEscalations
@@ -435,4 +458,45 @@ components:
         createdAt:
           type: string
           format: date-time
+
+    ProtocolRecommendationInput:
+      type: object
+      properties:
+        knowledge:
+          type: string
+        goal:
+          type: string
+        energySleep:
+          type: string
+        activityLevel:
+          type: string
+        intent:
+          type: string
+        medical:
+          type: array
+          items:
+            type: string
+        currentPeptides:
+          type: string
+        protocolIntent:
+          type: string
+
+    ProtocolRecommendation:
+      type: object
+      required: [protocol, tagline, why, peptides, nextStep, disclaimer]
+      properties:
+        protocol:
+          type: string
+        tagline:
+          type: string
+        why:
+          type: string
+        peptides:
+          type: array
+          items:
+            type: string
+        nextStep:
+          type: string
+        disclaimer:
+          type: string
 

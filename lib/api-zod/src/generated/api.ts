@@ -197,6 +197,29 @@ export const CreateChatEscalationBody = zod.object({
 });
 
 /**
+ * @summary Get an AI-generated protocol recommendation
+ */
+export const GetProtocolRecommendationBody = zod.object({
+  knowledge: zod.string().optional(),
+  goal: zod.string().optional(),
+  energySleep: zod.string().optional(),
+  activityLevel: zod.string().optional(),
+  intent: zod.string().optional(),
+  medical: zod.array(zod.string()).optional(),
+  currentPeptides: zod.string().optional(),
+  protocolIntent: zod.string().optional(),
+});
+
+export const GetProtocolRecommendationResponse = zod.object({
+  protocol: zod.string(),
+  tagline: zod.string(),
+  why: zod.string(),
+  peptides: zod.array(zod.string()),
+  nextStep: zod.string(),
+  disclaimer: zod.string(),
+});
+
+/**
  * @summary List all chat escalations (admin)
  */
 export const ListChatEscalationsHeader = zod.object({
