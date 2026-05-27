@@ -345,78 +345,59 @@ export default function ShopPage() {
     <div className="min-h-screen" style={{ background: "#FAFAF8" }}>
 
       {/* ══ HERO ═════════════════════════════════════════════════════════ */}
-      <div
-        className="relative w-full overflow-hidden flex items-center justify-center"
-        style={{ minHeight: "52vh", background: "#080808" }}
-      >
-        <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 65% 55% at 72% 35%, rgba(184,150,46,0.22) 0%, transparent 60%)" }} />
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 45% 50% at 22% 70%, rgba(13,148,136,0.10) 0%, transparent 55%)" }} />
+      <section className="relative w-full min-h-[88vh] flex items-center overflow-hidden bg-[#0A0A0A]">
+        {/* Right-side image */}
+        <div className="absolute right-0 top-0 bottom-0 w-[52%] z-0 hidden md:block">
+          <img
+            src="/peptides-collection.png"
+            alt="AURYX peptide collection"
+            className="absolute inset-0 w-full h-[115%] object-cover"
+            style={{ objectPosition: "center top", top: "-7%" }}
+          />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.55) 18%, rgba(10,10,10,0.05) 45%, transparent 100%)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, #0A0A0A 0%, transparent 22%)" }} />
+          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 55% 60% at 55% 38%, rgba(201,168,68,0.07) 0%, transparent 60%)" }} />
         </div>
-        <HeroParticles />
+        {/* Mobile bg */}
+        <div className="absolute inset-0 z-0 md:hidden" style={{ background: "linear-gradient(to bottom, #0A0A0A 40%, rgba(10,10,10,0.88) 100%)" }} />
+        <div className="absolute inset-0 z-0" style={{ background: "linear-gradient(135deg, #0A0A0A 0%, rgba(10,10,10,0.95) 40%, transparent 100%)" }} />
 
-        <div className="relative z-10 text-center px-6 py-20 md:py-28 flex flex-col items-center max-w-2xl mx-auto">
-          <motion.p
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-[10px] uppercase tracking-[0.4em] text-[#B8962E] mb-5 font-medium"
-          >
-            Peptide Marketplace
-          </motion.p>
-          <motion.h1
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.1 }}
-            className="font-serif text-white leading-[1.08] mb-5"
-            style={{ fontSize: "clamp(2.4rem, 6vw, 4.8rem)" }}
-          >
-            Curated peptides.<br />Delivered with intention.
-          </motion.h1>
-          <motion.p
-            initial={{ opacity: 0, y: 14 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="text-white/42 max-w-sm text-[14px] leading-relaxed mb-8"
-          >
-            Explore premium peptide protocols designed to support recovery, vitality,
-            performance, and modern longevity.
-          </motion.p>
-
+        <div className="container relative z-10 mx-auto px-6 md:px-14 lg:px-20 pt-32 pb-24 md:pt-36 md:pb-28">
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.32 }}
-            className="flex flex-col sm:flex-row gap-3 mb-8"
+            transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
+            className="max-w-lg md:max-w-[520px]"
           >
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 bg-[#B8962E] text-white text-[11px] font-semibold tracking-[0.18em] uppercase px-7 py-3.5 rounded-full hover:bg-[#A07828] transition-colors"
-            >
-              Find My Protocol <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-            <button
-              onClick={() => goalRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
-              className="inline-flex items-center gap-2 bg-white/8 border border-white/18 text-white text-[11px] font-semibold tracking-[0.18em] uppercase px-7 py-3.5 rounded-full hover:bg-white/14 transition-colors"
-            >
-              Shop by Goal
-            </button>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-7 font-medium">Peptide Marketplace</p>
+            <h1 className="font-serif text-3xl md:text-4xl lg:text-[3rem] leading-[1.15] mb-6 font-light text-white">
+              Curated peptides.{" "}
+              <em className="not-italic text-[#C9A844]">Delivered</em>{" "}
+              with intention.
+            </h1>
+            <p className="text-white/55 text-sm md:text-base leading-relaxed mb-10 max-w-md">
+              Premium peptide protocols for recovery, vitality, performance, and modern longevity — physician-supervised and third-party tested.
+            </p>
+            <div className="flex flex-col gap-3 max-w-[300px]">
+              <Link
+                href="/protocol-finder"
+                className="flex items-center justify-center gap-2 bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.14em] text-[11px] uppercase px-8 py-4 rounded-lg hover:bg-[#D4B050] transition-colors"
+              >
+                Find My Protocol
+              </Link>
+              <button
+                onClick={() => goalRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })}
+                className="flex items-center justify-center gap-2 border border-white/20 text-white/65 font-medium tracking-[0.14em] text-[11px] uppercase px-8 py-4 rounded-lg hover:border-[#C9A844]/50 hover:text-white/90 transition-colors"
+              >
+                Shop by Goal
+              </button>
+            </div>
+            <p className="mt-7 text-[10px] text-white/30 tracking-[0.12em] uppercase">
+              Third-party tested · Discreet shipping · Concierge guidance
+            </p>
           </motion.div>
-
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.6, delay: 0.45 }}
-            className="text-white/28 text-[10px] tracking-[0.22em] uppercase"
-          >
-            Third-party tested · Discreet shipping · Concierge guidance
-          </motion.p>
         </div>
-
-        <div className="absolute bottom-0 left-0 right-0 h-16 pointer-events-none"
-          style={{ background: "linear-gradient(to bottom, transparent, #FAFAF8)" }}
-        />
-      </div>
+      </section>
 
       {/* ══ TRUST STRIP ══════════════════════════════════════════════════ */}
       <div className="border-b border-[#E8E4DC]" style={{ background: "#F5F1E8" }}>

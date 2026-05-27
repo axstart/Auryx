@@ -94,28 +94,57 @@ export default function OurMethodPage() {
     <div className="w-full bg-[#0A0A0A] text-white overflow-x-hidden">
 
       {/* ── Hero ───────────────────────────────────────────────────── */}
-      <section className="relative pt-36 pb-28 px-6 md:px-14 lg:px-20 overflow-hidden min-h-[52vh] flex items-center">
-        {/* Ambient background glow */}
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 70% 60% at 50% 60%, rgba(201,168,68,0.07) 0%, transparent 65%)" }} />
-        <div className="absolute bottom-0 left-0 right-0 h-32 pointer-events-none" style={{ background: "linear-gradient(to bottom, transparent, rgba(245,238,228,0.04))" }} />
+      <section className="relative w-full min-h-[88vh] flex items-center overflow-hidden bg-[#0A0A0A]">
+        {/* Right-side image */}
+        <div className="absolute right-0 top-0 bottom-0 w-[52%] z-0 hidden md:block">
+          <img
+            src="/Lifestyle.png"
+            alt="AURYX longevity methodology"
+            className="absolute inset-0 w-full h-[115%] object-cover"
+            style={{ objectPosition: "center top", top: "-7%" }}
+          />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.55) 18%, rgba(10,10,10,0.05) 45%, transparent 100%)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, #0A0A0A 0%, transparent 22%)" }} />
+          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 55% 60% at 55% 38%, rgba(201,168,68,0.07) 0%, transparent 60%)" }} />
+        </div>
+        {/* Mobile bg */}
+        <div className="absolute inset-0 z-0 md:hidden" style={{ background: "linear-gradient(to bottom, #0A0A0A 40%, rgba(10,10,10,0.88) 100%)" }} />
+        <div className="absolute inset-0 z-0" style={{ background: "linear-gradient(135deg, #0A0A0A 0%, rgba(10,10,10,0.95) 40%, transparent 100%)" }} />
 
-        <div className="container mx-auto max-w-4xl relative z-10 text-center">
-          <FadeIn>
-            <p className="text-[10px] uppercase tracking-[0.45em] text-[#C9A844] mb-7 font-medium">Our Method</p>
-            <h1 className="font-serif text-5xl md:text-6xl lg:text-[4.5rem] leading-[1.08] font-light mb-8">
-              Precision by design.<br />
-              <em className="not-italic text-[#C9A844]">Trust</em> by standard.
+        <div className="container relative z-10 mx-auto px-6 md:px-14 lg:px-20 pt-32 pb-24 md:pt-36 md:pb-28">
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
+            className="max-w-lg md:max-w-[520px]"
+          >
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-7 font-medium">Our Method</p>
+            <h1 className="font-serif text-3xl md:text-4xl lg:text-[3rem] leading-[1.15] mb-6 font-light text-white">
+              Precision by design.{" "}
+              <em className="not-italic text-[#C9A844]">Trust</em>{" "}
+              by standard.
             </h1>
-            <p className="text-white/50 text-base md:text-lg leading-relaxed max-w-xl mx-auto mb-12">
-              AURYX is built on the belief that longevity is a practice — not a product. Our method combines evidence-based peptide science with clinical oversight and concierge-level guidance.
+            <p className="text-white/55 text-sm md:text-base leading-relaxed mb-10 max-w-md">
+              AURYX combines evidence-based peptide science with clinical oversight and concierge-level guidance — because longevity is a practice, not a product.
             </p>
-            <Link
-              href="/protocol-finder"
-              className="inline-flex items-center gap-2 bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.15em] text-[11px] uppercase px-10 py-4 rounded-xl hover:bg-[#D4B050] transition-colors"
-            >
-              Find My Protocol <ArrowRight className="w-3.5 h-3.5" />
-            </Link>
-          </FadeIn>
+            <div className="flex flex-col gap-3 max-w-[300px]">
+              <Link
+                href="/protocol-finder"
+                className="flex items-center justify-center gap-2 bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.14em] text-[11px] uppercase px-8 py-4 rounded-lg hover:bg-[#D4B050] transition-colors"
+              >
+                Find My Protocol <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+              <Link
+                href="/learn"
+                className="flex items-center justify-center gap-2 border border-white/20 text-white/65 font-medium tracking-[0.14em] text-[11px] uppercase px-8 py-4 rounded-lg hover:border-[#C9A844]/50 hover:text-white/90 transition-colors"
+              >
+                Explore the Science
+              </Link>
+            </div>
+            <p className="mt-7 text-[10px] text-white/30 tracking-[0.12em] uppercase">
+              Evidence-based · Physician-supervised · Concierge guidance
+            </p>
+          </motion.div>
         </div>
       </section>
 

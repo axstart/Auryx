@@ -388,19 +388,56 @@ export default function LearnPage() {
     <div className="w-full overflow-x-hidden">
 
       {/* ── Hero ──────────────────────────────────────────────────────── */}
-      <section className="relative bg-[#0A0A0A] pt-36 pb-20 px-6 md:px-14 lg:px-20 overflow-hidden">
-        <div className="absolute inset-0 pointer-events-none" style={{ background: "radial-gradient(ellipse 60% 50% at 50% 70%, rgba(201,168,68,0.07) 0%, transparent 65%)" }} />
-        <div className="container mx-auto max-w-3xl relative z-10 text-center">
-          <FadeIn>
-            <p className="text-[10px] uppercase tracking-[0.45em] text-[#C9A844] mb-6 font-medium">Peptide Encyclopedia</p>
-            <h1 className="font-serif text-5xl md:text-6xl leading-[1.08] font-light text-white mb-7">
-              Every peptide.<br />
+      <section className="relative w-full min-h-[88vh] flex items-center overflow-hidden bg-[#0A0A0A]">
+        {/* Right-side image */}
+        <div className="absolute right-0 top-0 bottom-0 w-[52%] z-0 hidden md:block">
+          <img
+            src="/peptides-hero.png"
+            alt="AURYX peptide science reference"
+            className="absolute inset-0 w-full h-[115%] object-cover"
+            style={{ objectPosition: "center top", top: "-7%" }}
+          />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.55) 18%, rgba(10,10,10,0.05) 45%, transparent 100%)" }} />
+          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, #0A0A0A 0%, transparent 22%)" }} />
+          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 55% 60% at 55% 38%, rgba(201,168,68,0.07) 0%, transparent 60%)" }} />
+        </div>
+        {/* Mobile bg */}
+        <div className="absolute inset-0 z-0 md:hidden" style={{ background: "linear-gradient(to bottom, #0A0A0A 40%, rgba(10,10,10,0.88) 100%)" }} />
+        <div className="absolute inset-0 z-0" style={{ background: "linear-gradient(135deg, #0A0A0A 0%, rgba(10,10,10,0.95) 40%, transparent 100%)" }} />
+
+        <div className="container relative z-10 mx-auto px-6 md:px-14 lg:px-20 pt-32 pb-24 md:pt-36 md:pb-28">
+          <motion.div
+            initial={{ opacity: 0, y: 28 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
+            className="max-w-lg md:max-w-[520px]"
+          >
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-7 font-medium">Peptide Encyclopedia</p>
+            <h1 className="font-serif text-3xl md:text-4xl lg:text-[3rem] leading-[1.15] mb-6 font-light text-white">
+              Every peptide.{" "}
               <em className="not-italic text-[#C9A844]">Explained.</em>
             </h1>
-            <p className="text-white/50 text-base leading-relaxed max-w-xl mx-auto">
-              A complete reference guide to the peptides in the AURYX collection — what they are, how they work, what they're used for, and what the science shows.
+            <p className="text-white/55 text-sm md:text-base leading-relaxed mb-10 max-w-md">
+              A complete reference to the compounds in the AURYX collection — what they are, how they work, and what the science shows.
             </p>
-          </FadeIn>
+            <div className="flex flex-col gap-3 max-w-[300px]">
+              <Link
+                href="/protocol-finder"
+                className="flex items-center justify-center gap-2 bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.14em] text-[11px] uppercase px-8 py-4 rounded-lg hover:bg-[#D4B050] transition-colors"
+              >
+                Find My Protocol
+              </Link>
+              <Link
+                href="/shop"
+                className="flex items-center justify-center gap-2 border border-white/20 text-white/65 font-medium tracking-[0.14em] text-[11px] uppercase px-8 py-4 rounded-lg hover:border-[#C9A844]/50 hover:text-white/90 transition-colors"
+              >
+                Browse All Peptides
+              </Link>
+            </div>
+            <p className="mt-7 text-[10px] text-white/30 tracking-[0.12em] uppercase">
+              26 compounds · 6 categories · Physician-reviewed
+            </p>
+          </motion.div>
         </div>
       </section>
 
