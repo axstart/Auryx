@@ -12,6 +12,7 @@ import ProductPage from "@/pages/product";
 import CheckoutPage from "@/pages/checkout";
 import CheckoutSuccessPage from "@/pages/checkout-success";
 import ProtocolFinderPage from "@/pages/protocol-finder";
+import OurMethodPage from "@/pages/our-method";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
@@ -31,6 +32,7 @@ function Router() {
             <Switch>
               <Route path="/" component={Home} />
               <Route path="/protocol-finder" component={ProtocolFinderPage} />
+              <Route path="/our-method" component={OurMethodPage} />
               <Route path="/shop" component={ShopPage} />
               <Route path="/shop/:slug" component={ProductPage} />
               <Route path="/checkout/success" component={CheckoutSuccessPage} />
