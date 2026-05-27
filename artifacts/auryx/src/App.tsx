@@ -13,6 +13,7 @@ import CheckoutPage from "@/pages/checkout";
 import CheckoutSuccessPage from "@/pages/checkout-success";
 import ProtocolFinderPage from "@/pages/protocol-finder";
 import OurMethodPage from "@/pages/our-method";
+import LearnPage from "@/pages/learn";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
@@ -33,6 +34,7 @@ function Router() {
               <Route path="/" component={Home} />
               <Route path="/protocol-finder" component={ProtocolFinderPage} />
               <Route path="/our-method" component={OurMethodPage} />
+              <Route path="/learn" component={LearnPage} />
               <Route path="/shop" component={ShopPage} />
               <Route path="/shop/:slug" component={ProductPage} />
               <Route path="/checkout/success" component={CheckoutSuccessPage} />

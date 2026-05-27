@@ -52,7 +52,7 @@ export default function Navbar() {
               <Link href="/our-method" className={`text-[11px] uppercase tracking-[0.18em] font-medium transition-colors ${light ? "text-[#0A0A0A]/65 hover:text-[#B8962E]" : "text-white/60 hover:text-[#C9A844]"}`}>
                 Our Method
               </Link>
-              <Link href="/#education" className={`text-[11px] uppercase tracking-[0.18em] font-medium transition-colors ${light ? "text-[#0A0A0A]/65 hover:text-[#B8962E]" : "text-white/60 hover:text-[#C9A844]"}`}>
+              <Link href="/learn" className={`text-[11px] uppercase tracking-[0.18em] font-medium transition-colors ${light ? "text-[#0A0A0A]/65 hover:text-[#B8962E]" : "text-white/60 hover:text-[#C9A844]"}`}>
                 Learn
               </Link>
             </div>
