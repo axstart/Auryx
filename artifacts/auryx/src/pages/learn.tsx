@@ -287,44 +287,44 @@ const PEPTIDES: PeptideEntry[] = [
 
 const FAQS = [
   {
-    q: "What is a peptide, and how does it differ from a protein?",
-    a: "A peptide is a chain of 2–50 amino acids. Proteins are longer chains (50+). Because peptides are smaller, they are often more bioavailable, can penetrate tissues more readily, and act with greater target specificity than full proteins. Therapeutic peptides typically mimic naturally occurring signaling molecules in the body.",
+    q: "What is peptide therapy?",
+    a: "Peptide therapy uses short chains of amino acids — called peptides — to send precise signals to your cells. These signals can support fat loss, muscle recovery, better sleep, stronger immunity, and healthy aging. Peptide therapy is a form of precision medicine: instead of broad interventions, it targets specific biological pathways. At AURYX, all peptide therapy protocols are physician-supervised and compounded to pharmaceutical-grade standards.",
   },
   {
     q: "Are peptides safe?",
-    a: "Peptides that are structurally identical or closely analogous to endogenous molecules the body already produces generally have favorable safety profiles. Safety varies by compound — GLP-1 agonists like semaglutide have well-documented clinical profiles across hundreds of thousands of patients. AURYX only offers compounds with established preclinical or clinical research. All protocols are physician-supervised.",
+    a: "Most therapeutic peptides are structurally similar to molecules your body already produces naturally. That's why they tend to have good safety profiles. Several peptides in our catalog — including semaglutide, tirzepatide, and tesamorelin — are FDA-approved drugs with large clinical trial data sets. Others are available through physician-supervised compounding with established research bases. AURYX only offers compounds with documented safety and efficacy data, and every protocol includes clinical review.",
   },
   {
-    q: "Do peptides require a prescription?",
-    a: "Some peptides require a physician consultation and prescription (marked Rx in our catalog) — including GLP-1 agonists like Semaglutide, Tirzepatide, and Retatrutide. Others are available through physician-supervised compounding without a standard prescription. AURYX provides clinical review for all orders involving controlled or consultation-required compounds.",
+    q: "What is BPC-157?",
+    a: "BPC-157 (Body Protection Compound 157) is a 15-amino-acid peptide derived from a protein found in the stomach. It may support healing in tendons, ligaments, joints, and the gut lining. BPC-157 is one of the most studied recovery peptides in the literature, with hundreds of published animal studies showing potential benefits for injury repair, inflammation reduction, and angiogenesis (new blood vessel formation). It is available through AURYX's physician-supervised recovery protocols.",
   },
   {
-    q: "How are AURYX peptides administered?",
-    a: "Most therapeutic peptides are administered via subcutaneous injection (a small insulin-style needle into fat tissue). Some, like Semax and Selank, are available as nasal sprays. KPV and BPC-157 can be taken orally for gut-specific effects. Your protocol guidelines will specify the recommended route.",
+    q: "What is semaglutide?",
+    a: "Semaglutide is a GLP-1 receptor agonist — a class of compounds that mimic a gut hormone called glucagon-like peptide-1. It works by reducing appetite, slowing digestion, and improving how the body manages blood sugar. Semaglutide is FDA-approved under the brand names Ozempic (for type 2 diabetes) and Wegovy (for obesity). In clinical trials, it produced an average 14.9% reduction in body weight. At AURYX, semaglutide is available through a physician-supervised metabolic protocol.",
   },
   {
-    q: "What is the difference between a GHRP and a GHRH?",
-    a: "GHRH (growth hormone-releasing hormone) analogs like Sermorelin and Tesamorelin stimulate the hypothalamus-pituitary axis to release more GH. GHRPs (growth hormone releasing peptides) like Ipamorelin mimic ghrelin to trigger a pulsatile GH release. Combining both (e.g., CJC-1295 + Ipamorelin) produces synergistic GH elevation.",
+    q: "How do growth hormone peptides work?",
+    a: "Growth hormone peptides like CJC-1295 and ipamorelin work by stimulating your pituitary gland to release more of your own growth hormone — not by adding synthetic GH from outside. CJC-1295 is a GHRH analogue that extends the duration of growth hormone release. Ipamorelin is a GHRP that triggers a clean GH pulse without raising cortisol. When used together, CJC-1295 + ipamorelin produces synergistic GH elevation that may support better sleep, faster recovery, lean muscle, and fat loss.",
   },
   {
-    q: "How long does it take to see results from peptide therapy?",
-    a: "Onset varies by compound and goal. BPC-157 may provide noticeable recovery improvement within 2–4 weeks. GLP-1 agonists typically show meaningful weight changes by weeks 4–8. Growth hormone protocols often take 8–12 weeks for body composition changes to become visible. Longevity-focused peptides like Epithalon are best assessed over months.",
+    q: "What is NAD+?",
+    a: "NAD+ (nicotinamide adenine dinucleotide) is a coenzyme your cells need to produce energy, repair DNA, and activate longevity proteins called sirtuins. NAD+ levels drop by roughly 50% between your 40s and 60s, which is linked to fatigue, slower metabolism, and cognitive decline. NAD+ therapy — delivered intravenously or subcutaneously — may support cellular energy, mitochondrial function, and healthy aging. It is a foundational compound in many longevity protocols.",
   },
   {
-    q: "Can peptides be stacked?",
-    a: "Yes — many peptides have complementary mechanisms and are commonly combined. Classic stacks include CJC-1295 + Ipamorelin (GH optimization), BPC-157 + TB-500 (recovery), and Tesamorelin + Ipamorelin (body recomposition). AURYX's protocol finder and clinical team can guide appropriate stacking for your specific goals.",
+    q: "How is AURYX different from other peptide providers?",
+    a: "AURYX is a physician-supervised telehealth peptide clinic — not a supplement store or research chemical supplier. Every protocol starts with a clinical intake assessment, and all compounds are compounded at FDA-registered US pharmacies to ≥99% purity with third-party testing. We offer concierge guidance through Aria, our AI health concierge, plus direct access to our medical team. We do not sell peptides for self-directed or research use.",
   },
   {
-    q: "What purity standards do AURYX peptides meet?",
-    a: "All AURYX peptides are sourced from US-based, FDA-registered compounding pharmacies and must meet ≥99% purity verified by third-party HPLC testing. Certificates of analysis are available upon request. We do not source from offshore peptide research suppliers.",
+    q: "Do I need a prescription for peptide therapy?",
+    a: "Some peptides require a prescription — including GLP-1 agonists like semaglutide, tirzepatide, and retatrutide. Others are available through physician-supervised compounding without a traditional prescription. At AURYX, every order goes through a clinical review process, regardless of the compound. This is what separates a legitimate telehealth peptide clinic from an unregulated research chemical supplier.",
   },
   {
-    q: "Are these peptides approved by the FDA?",
-    a: "Several peptides in our catalog have FDA approvals for specific conditions (Semaglutide, Tirzepatide, Tesamorelin, PT-141). Others are available through physician-supervised compounding, which is legal and regulated under the Federal Food, Drug, and Cosmetic Act. AURYX operates within this framework and does not sell unapproved compounds for self-directed use.",
+    q: "How long until I see results from peptide therapy?",
+    a: "It depends on the compound and your goal. BPC-157 for injury recovery may show results in 2–4 weeks. Semaglutide or tirzepatide for weight loss typically produces noticeable changes by weeks 4–8. Growth hormone peptides like CJC-1295 + ipamorelin usually take 8–12 weeks for visible body composition changes — though sleep improvements often come sooner. Longevity protocols like epithalon are designed for long-term biological effects measured over months.",
   },
   {
-    q: "What is the difference between research peptides and therapeutic peptides?",
-    a: "Research peptides are sold for in-vitro laboratory use only and are not labeled for human consumption. AURYX exclusively provides therapeutic-grade peptides through physician-supervised protocols — compounded to pharmaceutical standards for clinical use. We do not sell research-grade compounds.",
+    q: "Is peptide therapy available in my state?",
+    a: "AURYX operates as a nationwide telehealth peptide clinic serving patients across the United States. Availability of specific compounds may vary based on state regulations and individual clinical review. Our intake process determines which protocols are appropriate for you based on your location, health history, and goals. We currently serve patients in all 50 states for most protocols.",
   },
 ];
 
@@ -368,11 +368,104 @@ function FadeIn({ children, delay = 0, className = "" }: { children: React.React
   );
 }
 
+/* ── SEO helpers ──────────────────────────────────────────────────── */
+function setMeta(name: string, content: string) {
+  let el = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
+  if (!el) { el = document.createElement("meta"); el.name = name; document.head.appendChild(el); }
+  el.content = content;
+}
+function setOg(property: string, content: string) {
+  let el = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement | null;
+  if (!el) { el = document.createElement("meta"); el.setAttribute("property", property); document.head.appendChild(el); }
+  el.setAttribute("content", content);
+}
+function setCanonical(url: string) {
+  let el = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+  if (!el) { el = document.createElement("link"); el.rel = "canonical"; document.head.appendChild(el); }
+  el.href = url;
+}
+function setJsonLd(id: string, data: object) {
+  document.getElementById(id)?.remove();
+  const s = document.createElement("script");
+  s.id = id; s.type = "application/ld+json"; s.text = JSON.stringify(data);
+  document.head.appendChild(s);
+}
+
 export default function LearnPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   useEffect(() => {
-    document.title = "Peptide Encyclopedia — What Every Peptide Is & Does | AURYX";
+    const CANONICAL = "https://www.auryxlife.com/learn";
+
+    /* ── Basic SEO ─────────────────────────────────────────────── */
+    document.title = "Peptide Therapy Education | Auryx Learn";
+    setMeta("description", "Your complete peptide therapy guide — how peptides work, what BPC-157, semaglutide, CJC-1295 ipamorelin, and NAD+ do, and how to start a physician-supervised protocol at AURYX's telehealth peptide clinic.");
+    setMeta("keywords", "peptide therapy guide, how peptides work, BPC-157, semaglutide, CJC-1295 ipamorelin, telehealth peptide clinic, physician-supervised peptides, compounded peptides, longevity protocols, peptide therapy education");
+
+    /* ── Canonical ─────────────────────────────────────────────── */
+    setCanonical(CANONICAL);
+
+    /* ── GEO tags (US nationwide) ──────────────────────────────── */
+    setMeta("geo.region", "US");
+    setMeta("geo.placename", "United States");
+    setMeta("geo.position", "37.0902;-95.7129");
+    setMeta("ICBM", "37.0902, -95.7129");
+
+    /* ── Open Graph ────────────────────────────────────────────── */
+    setOg("og:title", "Peptide Therapy Education | Auryx Learn");
+    setOg("og:description", "Physician-reviewed guides on peptide therapy — semaglutide, BPC-157, CJC-1295 ipamorelin, NAD+, and 22 more compounds. AURYX's telehealth peptide clinic.");
+    setOg("og:url", CANONICAL);
+    setOg("og:type", "website");
+
+    /* ── FAQPage JSON-LD ───────────────────────────────────────── */
+    setJsonLd("ld-learn-faq", {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      mainEntity: FAQS.map(f => ({
+        "@type": "Question",
+        name: f.q,
+        acceptedAnswer: { "@type": "Answer", text: f.a },
+      })),
+    });
+
+    /* ── MedicalWebPage JSON-LD ────────────────────────────────── */
+    setJsonLd("ld-learn-medical", {
+      "@context": "https://schema.org",
+      "@type": "MedicalWebPage",
+      name: "Peptide Therapy Education | Auryx Learn",
+      description: "Physician-reviewed educational resource covering peptide therapy, longevity protocols, metabolic health, and precision medicine compounds.",
+      url: CANONICAL,
+      inLanguage: "en-US",
+      audience: { "@type": "Patient" },
+      medicalAudience: { "@type": "MedicalAudience", audienceType: "Patient" },
+      author: {
+        "@type": "Person",
+        name: "Romy Fontoura, MD",
+        jobTitle: "Physician, Longevity Medicine",
+      },
+      reviewedBy: {
+        "@type": "Person",
+        name: "Romy Fontoura, MD",
+        jobTitle: "Physician, Longevity Medicine",
+      },
+      publisher: {
+        "@type": "Organization",
+        name: "AURYX",
+        url: "https://www.auryxlife.com",
+      },
+      about: [
+        { "@type": "MedicalCondition", name: "Metabolic Syndrome" },
+        { "@type": "MedicalCondition", name: "Obesity" },
+        { "@type": "MedicalTherapy", name: "Peptide Therapy" },
+        { "@type": "MedicalTherapy", name: "Growth Hormone Optimization" },
+      ],
+      specialty: "Longevity Medicine",
+    });
+
+    return () => {
+      document.getElementById("ld-learn-faq")?.remove();
+      document.getElementById("ld-learn-medical")?.remove();
+    };
   }, []);
 
   const filteredPeptides = activeCategory
@@ -418,7 +511,7 @@ export default function LearnPage() {
               <em className="not-italic text-[#C9A844]">Explained.</em>
             </h1>
             <p className="text-white/55 text-sm md:text-base leading-relaxed mb-10 max-w-md">
-              A complete reference to the compounds in the AURYX collection — what they are, how they work, and what the science shows.
+              A physician-reviewed guide to every compound in the AURYX collection — what each peptide does, how it works, and what the clinical evidence shows. From semaglutide and BPC-157 to CJC-1295 ipamorelin and NAD+, each entry is written to help you make informed decisions about your longevity protocol.
             </p>
             <div className="flex flex-col gap-3 max-w-[300px]">
               <Link
@@ -440,6 +533,34 @@ export default function LearnPage() {
           </motion.div>
         </div>
       </section>
+
+      {/* ── AEO intro ─────────────────────────────────────────────────── */}
+      <div style={{ backgroundColor: "#F5EEE4" }} className="px-6 md:px-14 lg:px-20 py-14">
+        <div className="container mx-auto max-w-5xl">
+          <FadeIn>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+              <div className="md:col-span-1">
+                <p className="text-[9px] uppercase tracking-[0.45em] text-[#B8962E] mb-3 font-semibold">What is Peptide Therapy?</p>
+                <p className="text-[13px] text-[#111]/60 leading-relaxed">
+                  Peptide therapy uses short amino acid chains to send targeted signals to your cells — supporting fat loss, tissue repair, immune function, hormone optimization, and healthy aging. All protocols at AURYX are physician-supervised and compounded to pharmaceutical-grade standards.
+                </p>
+              </div>
+              <div className="md:col-span-1">
+                <p className="text-[9px] uppercase tracking-[0.45em] text-[#B8962E] mb-3 font-semibold">How to Use This Guide</p>
+                <p className="text-[13px] text-[#111]/60 leading-relaxed">
+                  Browse all 26 compounds below, or filter by category — Metabolic &amp; GLP-1, Recovery, Growth Hormone, Longevity, Immune, or Cognitive. Each entry covers the mechanism, key benefits, typical use, and links directly to its protocol page.
+                </p>
+              </div>
+              <div className="md:col-span-1">
+                <p className="text-[9px] uppercase tracking-[0.45em] text-[#B8962E] mb-3 font-semibold">Physician-Supervised Protocols</p>
+                <p className="text-[13px] text-[#111]/60 leading-relaxed">
+                  AURYX is a telehealth peptide clinic serving patients nationwide. Every order includes clinical review by Romy Fontoura, MD. Compounded peptides are sourced from US-based, FDA-registered pharmacies with ≥99% purity verified by third-party HPLC testing.
+                </p>
+              </div>
+            </div>
+          </FadeIn>
+        </div>
+      </div>
 
       {/* ── Category filter bar ───────────────────────────────────────── */}
       <div className="sticky top-0 z-30 bg-white/95 backdrop-blur border-b border-[#E8E3D8] shadow-sm">
