@@ -30,8 +30,8 @@ export const BLOG_POSTS: BlogPost[] = [
     author: "Romy Fontoura, MD",
     publishDate: "2026-04-08",
     readTime: 6,
-    heroImage: "/Hero.png",
-    heroImageAlt: "Precision peptide therapy consultation",
+    heroImage: "/blog-01.png",
+    heroImageAlt: "Physician reviewing peptide therapy protocol with AURYX vial",
     metaDescription:
       "A physician's guide to peptide therapy — what peptides are, how they work, common applications, and what to expect from your first protocol. Written by Romy Fontoura, MD.",
     content: [
@@ -120,8 +120,8 @@ export const BLOG_POSTS: BlogPost[] = [
     author: "Romy Fontoura, MD",
     publishDate: "2026-04-15",
     readTime: 7,
-    heroImage: "/peptides-collection.png",
-    heroImageAlt: "AURYX GLP-1 metabolic peptide vials",
+    heroImage: "/blog-02.png",
+    heroImageAlt: "Semaglutide vs Tirzepatide AURYX peptide vials side by side",
     metaDescription:
       "Semaglutide vs tirzepatide — a physician's evidence-based comparison of mechanisms, clinical outcomes, and how to choose the right GLP-1 protocol for your goals. Written by Romy Fontoura, MD.",
     content: [
@@ -222,8 +222,8 @@ export const BLOG_POSTS: BlogPost[] = [
     author: "Romy Fontoura, MD",
     publishDate: "2026-04-22",
     readTime: 6,
-    heroImage: "/Peptide_standout.png",
-    heroImageAlt: "AURYX recovery peptide vials",
+    heroImage: "/blog-03.png",
+    heroImageAlt: "BPC-157 and TB-500 recovery peptide vials with athlete knee",
     metaDescription:
       "BPC-157 and TB-500 — how these two recovery peptides work, why they are often combined, who benefits most, and what the research shows. Written by Romy Fontoura, MD.",
     content: [
@@ -314,8 +314,8 @@ export const BLOG_POSTS: BlogPost[] = [
     author: "Romy Fontoura, MD",
     publishDate: "2026-05-01",
     readTime: 8,
-    heroImage: "/Lifestyle.png",
-    heroImageAlt: "Active longevity lifestyle supported by peptide protocols",
+    heroImage: "/blog-04.png",
+    heroImageAlt: "Couple with healthy longevity lifestyle overlooking sunset",
     metaDescription:
       "The top 5 peptides for anti-aging and longevity in 2026 — epithalon, MOTS-c, thymosin alpha-1, NAD+, and semax. A physician's review of the evidence and how to build a longevity stack.",
     content: [
@@ -400,8 +400,8 @@ export const BLOG_POSTS: BlogPost[] = [
     author: "Romy Fontoura, MD",
     publishDate: "2026-05-12",
     readTime: 7,
-    heroImage: "/peptides-hero.png",
-    heroImageAlt: "AURYX growth hormone peptide vials — CJC-1295, Ipamorelin",
+    heroImage: "/blog-05.png",
+    heroImageAlt: "CJC-1295 and Ipamorelin growth hormone peptide vials with neural visualization",
     metaDescription:
       "How CJC-1295 and ipamorelin work, why combining them produces synergistic GH release, and what to expect from a growth hormone peptide protocol. Written by Romy Fontoura, MD.",
     content: [
