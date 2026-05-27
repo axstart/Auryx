@@ -23,7 +23,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { LogOut, Package, Users, AlertTriangle, Plus, Trash2, Pencil, Check, X, MessageSquare, ChevronDown, ChevronUp, Bot, Loader2, ClipboardList, Download, ShoppingBag } from "lucide-react";
+import { LogOut, Package, Users, AlertTriangle, Plus, Trash2, Pencil, Check, X, MessageSquare, ChevronDown, ChevronUp, Bot, Loader2, ClipboardList, Download, ShoppingBag, BarChart2 } from "lucide-react";
 
 const SESSION_KEY = "auryx_admin_key";
 
@@ -1066,6 +1066,250 @@ function ContinuationsTab({ adminKey }: { adminKey: string }) {
   );
 }
 
+// ── Types ────────────────────────────────────────────────────────────────────
+interface AriaAnalyticsRow {
+  id: number;
+  sessionId: string;
+  userMessage: string;
+  detectedIntent: string;
+  peptideMentioned: string | null;
+  userName: string | null;
+  createdAt: string;
+}
+
+interface AnalyticsSummary {
+  total: number;
+  intents: { intent: string; count: number }[];
+  topPeptides: { peptide: string | null; count: number }[];
+}
+
+const INTENT_COLORS: Record<string, string> = {
+  purchase:     "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
+  pricing:      "bg-blue-500/20 text-blue-300 border-blue-500/30",
+  consultation: "bg-primary/20 text-primary border-primary/30",
+  medical:      "bg-red-500/20 text-red-300 border-red-500/30",
+  general:      "bg-zinc-500/20 text-zinc-300 border-zinc-500/30",
+};
+
+const INTENT_LABELS: Record<string, string> = {
+  purchase:     "Purchase",
+  pricing:      "Pricing",
+  consultation: "Consultation",
+  medical:      "Medical",
+  general:      "General",
+};
+
+function IntentBadge({ intent }: { intent: string }) {
+  return (
+    <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${INTENT_COLORS[intent] ?? INTENT_COLORS.general}`}>
+      {INTENT_LABELS[intent] ?? intent}
+    </span>
+  );
+}
+
+function AriaAnalyticsTab({ adminKey }: { adminKey: string }) {
+  const headers = { "x-admin-key": adminKey };
+  const [intentFilter, setIntentFilter] = useState<string>("all");
+  const [dateFrom, setDateFrom] = useState<string>("");
+
+  const summaryParams = new URLSearchParams();
+  if (dateFrom) summaryParams.set("from", new Date(dateFrom).toISOString());
+
+  const logParams = new URLSearchParams();
+  if (intentFilter && intentFilter !== "all") logParams.set("intent", intentFilter);
+  if (dateFrom) logParams.set("from", new Date(dateFrom).toISOString());
+
+  const { data: summary, isLoading: summaryLoading } = useQuery<AnalyticsSummary>({
+    queryKey: ["aria-analytics-summary", dateFrom],
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/aria-analytics/summary?${summaryParams}`, { headers });
+      if (!res.ok) throw new Error("Failed to fetch summary");
+      return res.json();
+    },
+    refetchInterval: 30000,
+  });
+
+  const { data: log = [], isLoading: logLoading } = useQuery<AriaAnalyticsRow[]>({
+    queryKey: ["aria-analytics-log", intentFilter, dateFrom],
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/aria-analytics?${logParams}`, { headers });
+      if (!res.ok) throw new Error("Failed to fetch log");
+      return res.json();
+    },
+    refetchInterval: 30000,
+  });
+
+  const total = summary?.total ?? 0;
+  const intents = summary?.intents ?? [];
+  const topPeptides = summary?.topPeptides ?? [];
+
+  const getCount = (intent: string) => intents.find(i => i.intent === intent)?.count ?? 0;
+  const getPct = (intent: string) => total > 0 ? Math.round((getCount(intent) / total) * 100) : 0;
+
+  // Top questions: deduplicate by normalized message, keep highest count
+  const questionFreq: Record<string, { message: string; count: number }> = {};
+  for (const row of log) {
+    const key = row.userMessage.trim().toLowerCase().slice(0, 80);
+    if (!questionFreq[key]) questionFreq[key] = { message: row.userMessage.trim(), count: 0 };
+    questionFreq[key].count++;
+  }
+  const topQuestions = Object.values(questionFreq)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 10);
+
+  return (
+    <div>
+      <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
+        <div>
+          <h2 className="text-2xl font-serif text-foreground mb-1">Aria Analytics</h2>
+          <p className="text-sm text-muted-foreground">
+            {total} messages logged — last 30 days by default
+          </p>
+        </div>
+        <div className="flex items-center gap-3 flex-wrap">
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={e => setDateFrom(e.target.value)}
+            className="h-9 rounded-md border border-border/60 bg-card text-sm text-foreground px-3 focus:outline-none focus:border-primary/50"
+          />
+          {dateFrom && (
+            <button
+              onClick={() => setDateFrom("")}
+              className="text-xs text-muted-foreground hover:text-foreground"
+            >
+              Clear date
+            </button>
+          )}
+        </div>
+      </div>
+
+      {summaryLoading ? (
+        <div className="text-center py-12 text-muted-foreground text-sm">Loading analytics...</div>
+      ) : total === 0 ? (
+        <div className="text-center py-20 text-muted-foreground">
+          <BarChart2 className="w-12 h-12 mx-auto mb-4 opacity-30" />
+          <p>No chat data yet. Analytics populate as visitors chat with Aria.</p>
+        </div>
+      ) : (
+        <>
+          {/* Intent breakdown */}
+          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8">
+            {(["purchase", "pricing", "consultation", "medical", "general"] as const).map(intent => (
+              <div key={intent} className="bg-card/50 border border-border/60 rounded-lg p-4 text-center">
+                <p className="text-2xl font-bold text-foreground mb-1">{getPct(intent)}%</p>
+                <IntentBadge intent={intent} />
+                <p className="text-xs text-muted-foreground mt-1.5">{getCount(intent)} msgs</p>
+              </div>
+            ))}
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            {/* Top peptides */}
+            <div className="bg-card/50 border border-border/60 rounded-lg p-5">
+              <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
+                Most Mentioned Peptides
+              </h3>
+              {topPeptides.length === 0 ? (
+                <p className="text-xs text-muted-foreground">No peptides mentioned yet.</p>
+              ) : (
+                <div className="space-y-2">
+                  {topPeptides.map(({ peptide, count }) => {
+                    const pct = total > 0 ? Math.round((count / total) * 100) : 0;
+                    return (
+                      <div key={peptide}>
+                        <div className="flex items-center justify-between text-xs mb-1">
+                          <span className="text-foreground/80">{peptide}</span>
+                          <span className="text-muted-foreground">{count} ({pct}%)</span>
+                        </div>
+                        <div className="h-1.5 bg-border/40 rounded-full overflow-hidden">
+                          <div className="h-full bg-primary/60 rounded-full" style={{ width: `${pct}%` }} />
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* Top questions */}
+            <div className="bg-card/50 border border-border/60 rounded-lg p-5">
+              <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-teal-500 inline-block" />
+                Top Questions Asked
+              </h3>
+              {topQuestions.length === 0 ? (
+                <p className="text-xs text-muted-foreground">No data yet.</p>
+              ) : (
+                <ol className="space-y-2">
+                  {topQuestions.map(({ message, count }, i) => (
+                    <li key={i} className="flex items-start gap-2.5 text-xs">
+                      <span className="text-muted-foreground/50 tabular-nums w-4 shrink-0 pt-px">{i + 1}.</span>
+                      <span className="text-foreground/70 flex-1 line-clamp-2 leading-relaxed">{message}</span>
+                      {count > 1 && <span className="text-primary/60 shrink-0">×{count}</span>}
+                    </li>
+                  ))}
+                </ol>
+              )}
+            </div>
+          </div>
+
+          {/* Full message log */}
+          <div>
+            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
+              <h3 className="text-sm font-medium text-foreground">Full Message Log</h3>
+              <div className="flex gap-2 flex-wrap">
+                {(["all", "purchase", "pricing", "consultation", "medical", "general"] as const).map(f => (
+                  <button
+                    key={f}
+                    onClick={() => setIntentFilter(f)}
+                    className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
+                      intentFilter === f
+                        ? "bg-primary/15 text-primary border-primary/30"
+                        : "border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
+                    }`}
+                  >
+                    {f === "all" ? "All" : INTENT_LABELS[f]}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {logLoading ? (
+              <div className="text-center py-8 text-muted-foreground text-sm">Loading...</div>
+            ) : log.length === 0 ? (
+              <div className="text-center py-8 text-muted-foreground text-sm">No messages match this filter.</div>
+            ) : (
+              <div className="space-y-1.5 max-h-[600px] overflow-y-auto pr-1">
+                {log.map(row => (
+                  <div key={row.id} className="bg-card/40 border border-border/40 rounded-lg px-4 py-3 flex items-start gap-3">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-foreground/80 leading-relaxed">{row.userMessage}</p>
+                      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                        {row.userName && (
+                          <span className="text-[10px] text-muted-foreground/60">{row.userName}</span>
+                        )}
+                        {row.peptideMentioned && (
+                          <span className="text-[10px] text-teal-400/70 border border-teal-500/20 rounded px-1.5 py-px">{row.peptideMentioned}</span>
+                        )}
+                        <span className="text-[10px] text-muted-foreground/40">
+                          {new Date(row.createdAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+                        </span>
+                      </div>
+                    </div>
+                    <IntentBadge intent={row.detectedIntent} />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
+
 function AriaTab({ adminKey }: { adminKey: string }) {
   const { toast } = useToast();
   const [instructions, setInstructions] = useState("");
@@ -1207,7 +1451,7 @@ export default function Admin() {
   }, []);
 
   const [adminKey, setAdminKey] = useState<string>(() => sessionStorage.getItem(SESSION_KEY) ?? "");
-  const [tab, setTab] = useState<"consultations" | "inventory" | "escalations" | "aria" | "continuations" | "orders">("consultations");
+  const [tab, setTab] = useState<"consultations" | "inventory" | "escalations" | "aria" | "continuations" | "orders" | "analytics">("consultations");
 
   const headers = { "x-admin-key": adminKey };
 
@@ -1295,6 +1539,13 @@ export default function Admin() {
               >
                 <ShoppingBag className="hidden sm:inline w-4 h-4 mr-2" />Orders
               </button>
+              <button
+                data-testid="tab-analytics"
+                onClick={() => setTab("analytics")}
+                className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${tab === "analytics" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                <BarChart2 className="hidden sm:inline w-4 h-4 mr-2" />Aria Analytics
+              </button>
             </nav>
           </div>
           <button
@@ -1315,6 +1566,7 @@ export default function Admin() {
           {tab === "aria" && <AriaTab adminKey={adminKey} />}
           {tab === "continuations" && <ContinuationsTab adminKey={adminKey} />}
           {tab === "orders" && <OrdersTab adminKey={adminKey} />}
+          {tab === "analytics" && <AriaAnalyticsTab adminKey={adminKey} />}
         </motion.div>
       </div>
     </div>

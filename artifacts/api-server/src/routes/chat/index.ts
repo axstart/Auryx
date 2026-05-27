@@ -1,9 +1,10 @@
 import { Router } from "express";
 import Anthropic from "@anthropic-ai/sdk";
 import { db } from "@workspace/db";
-import { chatEscalationsTable } from "@workspace/db/schema";
+import { chatEscalationsTable, ariaAnalyticsTable } from "@workspace/db/schema";
 import { adminAuth } from "../../middlewares/adminAuth.js";
 import { getAriaInstructions } from "./instructionsCache.js";
+import { detectIntent, detectPeptide } from "../analytics/index.js";
 
 const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const router = Router();
@@ -121,14 +122,29 @@ router.get("/chat/hours", (_req, res) => {
 });
 
 router.post("/chat/message", async (req, res) => {
-  const { messages, userInfo } = req.body as {
+  const { messages, userInfo, sessionId } = req.body as {
     messages: { role: "user" | "assistant"; content: string }[];
     userInfo?: { name?: string; email?: string; phone?: string };
+    sessionId?: string;
   };
 
   if (!Array.isArray(messages) || messages.length === 0) {
     res.status(400).json({ error: "messages array required" });
     return;
+  }
+
+  // Silent analytics — log the last user message, fire-and-forget
+  const lastUserMsg = [...messages].reverse().find(m => m.role === "user");
+  if (lastUserMsg) {
+    const sid = sessionId ?? "unknown";
+    const text = lastUserMsg.content;
+    db.insert(ariaAnalyticsTable).values({
+      sessionId: sid,
+      userMessage: text,
+      detectedIntent: detectIntent(text),
+      peptideMentioned: detectPeptide(text),
+      userName: userInfo?.name ?? null,
+    }).catch(() => {});
   }
 
   res.setHeader("Content-Type", "text/event-stream");

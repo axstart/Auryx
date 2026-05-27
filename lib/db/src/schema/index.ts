@@ -23,3 +23,4 @@ export * from "./chatEscalations";
 export * from "./ariaSettings";
 export * from "./protocolContinuations";
 export * from "./orders";
+export * from "./ariaAnalytics";

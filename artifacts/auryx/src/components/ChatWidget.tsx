@@ -100,6 +100,7 @@ export default function ChatWidget() {
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLInputElement>(null);
+  const sessionId = useRef<string>(crypto.randomUUID());
 
   // Reset label and restart the 6 s fade timer every time the chat closes
   useEffect(() => {
@@ -163,6 +164,7 @@ export default function ChatWidget() {
         body: JSON.stringify({
           messages: nextMessages.map(m => ({ role: m.role, content: m.content })),
           userInfo,
+          sessionId: sessionId.current,
         }),
       });
 
