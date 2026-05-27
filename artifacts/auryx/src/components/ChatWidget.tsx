@@ -195,25 +195,22 @@ export default function ChatWidget() {
         }
       }
 
-      // Surface escalation prompt if Aria naturally suggests it
-      const lower = accumulated.toLowerCase();
+      // Only surface escalation when user explicitly asks to speak to a person
+      const userLower = trimmed.toLowerCase();
       if (
         !escalated &&
-        (lower.includes("connecting you") ||
-          lower.includes("get you connected") ||
-          lower.includes("connect you with") ||
-          lower.includes("connecting you with") ||
-          lower.includes("i'm flagging this") ||
-          lower.includes("flagging this for") ||
-          lower.includes("option to email") ||
-          lower.includes("option to reach") ||
-          lower.includes("you'll see the option") ||
-          lower.includes("see the option below") ||
-          lower.includes("one of our physicians") ||
-          lower.includes("auryx team") ||
-          lower.includes("admin@auryxlife.com") ||
-          lower.includes("business day") ||
-          lower.includes("reach out"))
+        (userLower.includes("speak to") ||
+          userLower.includes("talk to") ||
+          userLower.includes("contact") ||
+          userLower.includes("human") ||
+          userLower.includes("person") ||
+          userLower.includes("someone") ||
+          userLower.includes("real person") ||
+          userLower.includes("team") ||
+          userLower.includes("email") ||
+          userLower.includes("call me") ||
+          userLower.includes("reach out") ||
+          userLower.includes("get in touch"))
       ) {
         setShowEscalate(true);
       }

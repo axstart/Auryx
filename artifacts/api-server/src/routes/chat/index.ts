@@ -45,23 +45,16 @@ function nextAvailableLabel(): string {
 
 async function buildSystemPrompt(
   userName?: string,
-  teamAvailable?: boolean
 ): Promise<string> {
   const nameIntro = userName
     ? `The visitor's name is ${userName}. Address them by their first name naturally — warmly but not excessively.`
     : "";
-
-  const availabilityBlock = teamAvailable
-    ? `TEAM AVAILABILITY: The Auryx team is currently available (business hours: 8 AM – 8 PM ET). When a visitor needs escalation, you can offer to connect them right away.`
-    : `TEAM AVAILABILITY: The Auryx team is currently outside business hours (available Mon–Fri 8 AM – 8 PM ET). When escalation is needed, do NOT say you can connect them "right away." Instead, warmly acknowledge this and direct them to email admin@auryxlife.com — reassure them the team will respond first thing next business day. Make this feel attentive and premium, not like a voicemail.`;
 
   const instructions = await getAriaInstructions();
 
   return `You are Aria, the Auryx AI health concierge — warm, precise, and exceptionally polished. You guide visitors through Auryx, a luxury precision longevity and peptide therapy practice.
 
 ${nameIntro}
-
-${availabilityBlock}
 
 ${instructions}`;
 }
@@ -151,9 +144,11 @@ router.post("/chat/message", async (req, res) => {
   res.setHeader("Cache-Control", "no-cache");
   res.setHeader("Connection", "keep-alive");
 
+  // Human-feel delay: 1.5–2 s before first token
+  await new Promise(resolve => setTimeout(resolve, 1500 + Math.random() * 500));
+
   try {
-    const available    = isWithinBusinessHours();
-    const systemPrompt = await buildSystemPrompt(userInfo?.name, available);
+    const systemPrompt = await buildSystemPrompt(userInfo?.name);
 
     const stream = anthropic.messages.stream({
       model: "claude-haiku-4-5-20251001",
