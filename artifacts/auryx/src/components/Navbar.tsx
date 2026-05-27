@@ -55,6 +55,9 @@ export default function Navbar() {
               <Link href="/learn" className={`text-[11px] uppercase tracking-[0.18em] font-medium transition-colors ${light ? "text-[#0A0A0A]/65 hover:text-[#B8962E]" : "text-white/60 hover:text-[#C9A844]"}`}>
                 Learn
               </Link>
+              <Link href="/blog" className={`text-[11px] uppercase tracking-[0.18em] font-medium transition-colors ${light ? "text-[#0A0A0A]/65 hover:text-[#B8962E]" : "text-white/60 hover:text-[#C9A844]"}`}>
+                Journal
+              </Link>
             </div>
           </div>
 
@@ -101,8 +104,9 @@ export default function Navbar() {
             {[
               { label: "Shop", href: "/shop" },
               { label: "Protocol Finder", href: "/protocol-finder" },
-              { label: "Learn", href: "/#education" },
-              { label: "About", href: "/#philosophy" },
+              { label: "Our Method", href: "/our-method" },
+              { label: "Learn", href: "/learn" },
+              { label: "Journal", href: "/blog" },
             ].map(l => (
               <Link
                 key={l.label}

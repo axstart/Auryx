@@ -1,0 +1,11 @@
+Do a full SEO, GEO, and AEO optimization pass on the Learn page (/learn). Specifically:
+1. Page-level SEO — add a unique <title> tag for the Learn page: 'Peptide Therapy Education | Auryx Learn'. Add a unique <meta name='description'> that includes keywords: peptide therapy guide, how peptides work, BPC-157, semaglutide, CJC-1295, telehealth peptide clinic.
+2. Heading structure — ensure the page has one H1, logical H2s for each peptide category, and H3s for individual peptides. This is critical for both SEO and AI search engines.
+3. FAQPage JSON-LD schema — add or update the FAQPage schema on the Learn page with at least 10 Q&A pairs covering: What is peptide therapy? Are peptides safe? What is BPC-157? What is semaglutide? How do growth hormone peptides work? What is NAD+? How is Auryx different? Do I need a prescription? How long until I see results? Is peptide therapy available in my state?
+4. MedicalWebPage JSON-LD schema — add a MedicalWebPage schema marking the Learn page as medical educational content with Romy Fontoura MD as the author/reviewer.
+5. Internal linking — every peptide mentioned on the Learn page should link to its product page in the shop (/shop/[peptide-slug]).
+6. Keyword density — make sure high-value keywords appear naturally throughout: 'peptide therapy', 'telehealth peptide clinic', 'physician-supervised peptides', 'compounded peptides', 'longevity protocols', 'BPC-157', 'semaglutide', 'CJC-1295 ipamorelin'.
+7. AEO optimization — rewrite any dense paragraphs into clear question-and-answer format where appropriate. AI search engines (ChatGPT, Perplexity, Gemini) prefer content structured as direct answers to specific questions.
+8. GEO tags — confirm the Learn page has proper geo meta tags pointing to United States nationwide.
+9. Reading level — ensure content is written at an 8th-10th grade reading level for maximum accessibility while maintaining medical credibility.
+10. Canonical tag — add <link rel='canonical' href='https://www.auryxlife.com/learn' /> to the Learn page head.

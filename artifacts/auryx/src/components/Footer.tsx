@@ -18,9 +18,9 @@ export default function Footer() {
           <nav className="flex flex-wrap items-center gap-x-7 gap-y-3">
             {[
               { label: "Shop", href: "/shop" },
-              { label: "Our Method", href: "/protocol-finder" },
-              { label: "Learn", href: "/#education" },
-              { label: "About", href: "/#philosophy" },
+              { label: "Our Method", href: "/our-method" },
+              { label: "Learn", href: "/learn" },
+              { label: "Journal", href: "/blog" },
               { label: "Account", href: "/admin" },
             ].map(l => (
               <Link key={l.label} href={l.href} className="text-[11px] uppercase tracking-[0.2em] text-white/40 hover:text-[#C9A844] transition-colors font-medium">
