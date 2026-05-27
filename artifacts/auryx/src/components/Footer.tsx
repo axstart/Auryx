@@ -20,7 +20,7 @@ export default function Footer() {
               { label: "Shop", href: "/shop" },
               { label: "Our Method", href: "/our-method" },
               { label: "Learn", href: "/learn" },
-              { label: "Journal", href: "/blog" },
+              { label: "Pep Talk", href: "/blog" },
               { label: "Account", href: "/admin" },
             ].map(l => (
               <Link key={l.label} href={l.href} className="text-[11px] uppercase tracking-[0.2em] text-white/40 hover:text-[#C9A844] transition-colors font-medium">

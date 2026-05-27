@@ -56,7 +56,7 @@ export default function Navbar() {
                 Learn
               </Link>
               <Link href="/blog" className={`text-[11px] uppercase tracking-[0.18em] font-medium transition-colors ${light ? "text-[#0A0A0A]/65 hover:text-[#B8962E]" : "text-white/60 hover:text-[#C9A844]"}`}>
-                Journal
+                Pep Talk
               </Link>
             </div>
           </div>
@@ -106,7 +106,7 @@ export default function Navbar() {
               { label: "Protocol Finder", href: "/protocol-finder" },
               { label: "Our Method", href: "/our-method" },
               { label: "Learn", href: "/learn" },
-              { label: "Journal", href: "/blog" },
+              { label: "Pep Talk", href: "/blog" },
             ].map(l => (
               <Link
                 key={l.label}
