@@ -1,3 +1,8 @@
+export interface ProductVariant {
+  label: string;
+  priceCents: number;
+}
+
 export interface ProductSummary {
   slug: string;
   name: string;
@@ -5,6 +10,7 @@ export interface ProductSummary {
   shortDescription: string;
   priceCents: number;
   requiresConsultation: boolean;
+  variants?: ProductVariant[];
 }
 
 export interface Product extends ProductSummary {
@@ -15,8 +21,11 @@ export interface Product extends ProductSummary {
 }
 
 export interface CartItem {
+  cartKey: string;
   product: ProductSummary;
   quantity: number;
+  variantLabel?: string;
+  variantPriceCents?: number;
 }
 
 export interface ShippingAddress {

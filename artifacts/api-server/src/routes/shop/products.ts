@@ -1,3 +1,8 @@
+export interface ProductVariant {
+  label: string;
+  priceCents: number;
+}
+
 export interface Product {
   slug: string;
   name: string;
@@ -9,28 +14,11 @@ export interface Product {
   physicianNote?: string;
   priceCents: number;
   requiresConsultation: boolean;
+  variants?: ProductVariant[];
 }
 
 export const PRODUCTS: Product[] = [
   // ── GLP-1 & Metabolic ─────────────────────────────────────────────────────
-  {
-    slug: "semaglutide",
-    name: "Semaglutide",
-    category: "GLP-1 & Metabolic",
-    shortDescription: "Sustained fat loss and improved insulin sensitivity.",
-    fullDescription:
-      "Semaglutide is a GLP-1 receptor agonist that suppresses appetite, slows gastric emptying, and improves glycemic control. It delivers sustained fat loss while preserving lean mass, making it the gold standard for metabolic optimization in patients with excess adiposity or insulin resistance.",
-    benefits: [
-      "Sustained fat loss without lean mass compromise",
-      "Improved insulin sensitivity and glycemic control",
-      "Reduced cardiovascular risk markers",
-      "Appetite regulation and reduced cravings",
-    ],
-    dosingInfo:
-      "Weekly subcutaneous injection, 0.25 mg titrating to 1–2.4 mg over 4–8 weeks as tolerated. Protocol duration: 12–24 weeks minimum. All dosing supervised by Auryx physicians.",
-    requiresConsultation: true,
-    priceCents: 19900,
-  },
   {
     slug: "tirzepatide",
     name: "Tirzepatide",
@@ -47,7 +35,38 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "Weekly subcutaneous injection, 2.5 mg titrating up to 15 mg over 12–20 weeks. Protocol duration: 16–32 weeks. All dosing supervised by Auryx physicians.",
     requiresConsultation: true,
-    priceCents: 19900,
+    priceCents: 32900,
+    variants: [
+      { label: "10 mg", priceCents: 32900 },
+      { label: "20 mg", priceCents: 34900 },
+      { label: "30 mg", priceCents: 57900 },
+      { label: "40 mg", priceCents: 62900 },
+      { label: "50 mg", priceCents: 87900 },
+      { label: "60 mg", priceCents: 99900 },
+      { label: "90 mg", priceCents: 139900 },
+    ],
+  },
+  {
+    slug: "semaglutide",
+    name: "Semaglutide",
+    category: "GLP-1 & Metabolic",
+    shortDescription: "Sustained fat loss and improved insulin sensitivity.",
+    fullDescription:
+      "Semaglutide is a GLP-1 receptor agonist that suppresses appetite, slows gastric emptying, and improves glycemic control. It delivers sustained fat loss while preserving lean mass, making it the gold standard for metabolic optimization in patients with excess adiposity or insulin resistance.",
+    benefits: [
+      "Sustained fat loss without lean mass compromise",
+      "Improved insulin sensitivity and glycemic control",
+      "Reduced cardiovascular risk markers",
+      "Appetite regulation and reduced cravings",
+    ],
+    dosingInfo:
+      "Weekly subcutaneous injection, 0.25 mg titrating to 1–2.4 mg over 4–8 weeks as tolerated. Protocol duration: 12–24 weeks minimum. All dosing supervised by Auryx physicians.",
+    requiresConsultation: true,
+    priceCents: 34900,
+    variants: [
+      { label: "12.5 mg", priceCents: 34900 },
+      { label: "20 mg",   priceCents: 34900 },
+    ],
   },
   {
     slug: "retatrutide",
@@ -65,9 +84,16 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "Weekly subcutaneous injection, 2 mg titrating to 12 mg over 24 weeks. Protocol duration: 24–48 weeks. Requires comprehensive metabolic panel prior to initiation.",
     requiresConsultation: true,
-    priceCents: 19900,
+    priceCents: 44900,
+    variants: [
+      { label: "10 mg", priceCents: 44900 },
+      { label: "12 mg", priceCents: 44900 },
+      { label: "20 mg", priceCents: 44900 },
+      { label: "24 mg", priceCents: 44900 },
+      { label: "30 mg", priceCents: 44900 },
+      { label: "40 mg", priceCents: 44900 },
+    ],
   },
-
   {
     slug: "tesofensine",
     name: "Tesofensine",
@@ -84,7 +110,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "0.25–0.5 mg oral daily, taken in the morning. Titrate from 0.25 mg over 4 weeks. Protocol duration: 12–24 weeks.",
     requiresConsultation: false,
-    priceCents: 18900,
+    priceCents: 27900,
   },
   {
     slug: "tesofensine-ipamorelin",
@@ -102,7 +128,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "Tesofensine 0.25–0.5 mg oral morning + Ipamorelin 200 mcg subcutaneous nightly. Protocol duration: 12–24 weeks.",
     requiresConsultation: false,
-    priceCents: 24900,
+    priceCents: 34900,
   },
   {
     slug: "aod-9604",
@@ -120,10 +146,54 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "300–600 mcg subcutaneous injection daily, ideally 30 minutes before exercise or upon waking on an empty stomach. Protocol duration: 12–24 weeks.",
     requiresConsultation: false,
-    priceCents: 17900,
+    priceCents: 22900,
   },
 
   // ── Growth Hormone ─────────────────────────────────────────────────────────
+  {
+    slug: "sermorelin",
+    name: "Sermorelin",
+    category: "Growth Hormone",
+    shortDescription: "Natural GH stimulation for sleep, recovery, and lean body composition.",
+    fullDescription:
+      "Sermorelin is a GHRH analogue that stimulates the pituitary gland to produce and release growth hormone naturally, preserving the body's own feedback mechanisms. It enhances GH pulsatility during deep sleep, improving sleep quality, accelerating recovery, and supporting lean body composition — making it an ideal entry-level growth hormone protocol for patients new to peptide therapy.",
+    benefits: [
+      "Stimulates natural, pulsatile GH release",
+      "Enhanced deep sleep quality and restoration",
+      "Improved lean body composition and recovery",
+      "Gentle on the endocrine system — preserves natural feedback loops",
+    ],
+    dosingInfo:
+      "Subcutaneous injection 5 nights per week before sleep, 200–300 mcg per dose. Protocol duration: 12–24 weeks minimum for full benefit.",
+    physicianNote:
+      "Sermorelin is our recommended starting point for patients new to growth hormone optimization. Its shorter half-life and pituitary-driven mechanism make it the safest and most physiological GH secretagogue available.",
+    requiresConsultation: false,
+    priceCents: 22900,
+  },
+  {
+    slug: "tesamorelin",
+    name: "Tesamorelin",
+    category: "Growth Hormone",
+    shortDescription: "Clinically proven visceral fat reduction and elevated IGF-1.",
+    fullDescription:
+      "Tesamorelin is a stabilized GHRH analogue with the strongest clinical evidence base of any growth hormone secretagogue. FDA-approved for visceral adiposity in specific populations, it reliably elevates IGF-1, reduces trunk fat, and improves metabolic markers. Ideal for patients with documented visceral adiposity or declining IGF-1 levels.",
+    benefits: [
+      "Clinically proven visceral fat reduction",
+      "Elevated IGF-1 for tissue repair and metabolism",
+      "Improved lean mass and body composition",
+      "Enhanced cognitive clarity and energy",
+    ],
+    dosingInfo:
+      "Daily subcutaneous injection, 1–2 mg before sleep. Protocol duration: 12–24 weeks. IGF-1 labs recommended at baseline and at 8 weeks.",
+    physicianNote:
+      "Tesamorelin carries the strongest evidence base of any GH secretagogue — its clinical trial data on visceral fat reduction is unambiguous. We recommend it for patients with measurable VAT or documented IGF-1 decline.",
+    requiresConsultation: false,
+    priceCents: 27900,
+    variants: [
+      { label: "10 mg", priceCents: 27900 },
+      { label: "20 mg", priceCents: 27900 },
+    ],
+  },
   {
     slug: "ipamorelin",
     name: "Ipamorelin",
@@ -140,7 +210,11 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "200–300 mcg subcutaneous injection 5 nights per week, administered before sleep. Can be stacked with CJC-1295 for amplified GH release. Protocol duration: 12–24 weeks.",
     requiresConsultation: false,
-    priceCents: 16900,
+    priceCents: 22900,
+    variants: [
+      { label: "5 mg",  priceCents: 22900 },
+      { label: "10 mg", priceCents: 22900 },
+    ],
   },
   {
     slug: "cjc-1295-ipamorelin",
@@ -161,27 +235,7 @@ export const PRODUCTS: Product[] = [
     physicianNote:
       "CJC-1295 + Ipamorelin is our most prescribed entry-level growth hormone protocol. The combination maximizes pulsatile GH release while maintaining hormonal safety — avoiding the flat, supraphysiological levels seen with exogenous HGH.",
     requiresConsultation: false,
-    priceCents: 19900,
-  },
-  {
-    slug: "tesamorelin",
-    name: "Tesamorelin",
-    category: "Growth Hormone",
-    shortDescription: "Clinically proven visceral fat reduction and elevated IGF-1.",
-    fullDescription:
-      "Tesamorelin is a stabilized GHRH analogue with the strongest clinical evidence base of any growth hormone secretagogue. FDA-approved for visceral adiposity in specific populations, it reliably elevates IGF-1, reduces trunk fat, and improves metabolic markers. Ideal for patients with documented visceral adiposity or declining IGF-1 levels.",
-    benefits: [
-      "Clinically proven visceral fat reduction",
-      "Elevated IGF-1 for tissue repair and metabolism",
-      "Improved lean mass and body composition",
-      "Enhanced cognitive clarity and energy",
-    ],
-    dosingInfo:
-      "Daily subcutaneous injection, 1–2 mg before sleep. Protocol duration: 12–24 weeks. IGF-1 labs recommended at baseline and at 8 weeks.",
-    physicianNote:
-      "Tesamorelin carries the strongest evidence base of any GH secretagogue — its clinical trial data on visceral fat reduction is unambiguous. We recommend it for patients with measurable VAT or documented IGF-1 decline.",
-    requiresConsultation: false,
-    priceCents: 19900,
+    priceCents: 29900,
   },
   {
     slug: "tesamorelin-ipamorelin",
@@ -201,28 +255,7 @@ export const PRODUCTS: Product[] = [
     physicianNote:
       "This is our flagship GH protocol — the combination produces synergistic effects that neither compound achieves alone. We prescribe it for patients seeking maximal anti-aging and body composition results.",
     requiresConsultation: false,
-    priceCents: 19900,
-  },
-
-  {
-    slug: "sermorelin",
-    name: "Sermorelin",
-    category: "Growth Hormone",
-    shortDescription: "Natural GH stimulation for sleep, recovery, and lean body composition.",
-    fullDescription:
-      "Sermorelin is a GHRH analogue that stimulates the pituitary gland to produce and release growth hormone naturally, preserving the body's own feedback mechanisms. It enhances GH pulsatility during deep sleep, improving sleep quality, accelerating recovery, and supporting lean body composition — making it an ideal entry-level growth hormone protocol for patients new to peptide therapy.",
-    benefits: [
-      "Stimulates natural, pulsatile GH release",
-      "Enhanced deep sleep quality and restoration",
-      "Improved lean body composition and recovery",
-      "Gentle on the endocrine system — preserves natural feedback loops",
-    ],
-    dosingInfo:
-      "Subcutaneous injection 5 nights per week before sleep, 200–300 mcg per dose. Protocol duration: 12–24 weeks minimum for full benefit.",
-    physicianNote:
-      "Sermorelin is our recommended starting point for patients new to growth hormone optimization. Its shorter half-life and pituitary-driven mechanism make it the safest and most physiological GH secretagogue available.",
-    requiresConsultation: false,
-    priceCents: 16900,
+    priceCents: 39900,
   },
 
   // ── Recovery & Regeneration ────────────────────────────────────────────────
@@ -242,7 +275,11 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "200–500 mcg subcutaneous or intramuscular injection, once daily near the injury site. Oral dosing available for gut applications (500–1000 mcg). Protocol duration: 4–12 weeks.",
     requiresConsultation: false,
-    priceCents: 19900,
+    priceCents: 24900,
+    variants: [
+      { label: "10 mg", priceCents: 24900 },
+      { label: "20 mg", priceCents: 24900 },
+    ],
   },
   {
     slug: "tb-500",
@@ -260,7 +297,29 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "2.5–5 mg subcutaneous injection twice weekly for 4–6 weeks loading phase, then 2.5 mg weekly for maintenance. Protocol duration: 8–16 weeks.",
     requiresConsultation: false,
-    priceCents: 19900,
+    priceCents: 24900,
+    variants: [
+      { label: "5 mg",  priceCents: 24900 },
+      { label: "10 mg", priceCents: 24900 },
+    ],
+  },
+  {
+    slug: "bpc-157-tb-500",
+    name: "BPC-157 + TB-500",
+    category: "Recovery & Regeneration",
+    shortDescription: "Comprehensive tissue repair stack targeting systemic and local injury pathways.",
+    fullDescription:
+      "This synergistic stack combines BPC-157's localized tendon, gut, and joint healing with TB-500's systemic tissue regeneration and anti-inflammatory action. Together they address injury recovery from every angle — making this combination the definitive repair protocol for serious athletes, post-surgical patients, and anyone dealing with chronic musculoskeletal injury.",
+    benefits: [
+      "Localized and systemic healing in a single protocol",
+      "Accelerated tendon, ligament, and joint recovery",
+      "Gut mucosal repair alongside systemic regeneration",
+      "Significantly reduced recovery timeline",
+    ],
+    dosingInfo:
+      "BPC-157 200–500 mcg + TB-500 2.5–5 mg subcutaneous injection, administered together 3–5 times per week. Protocol duration: 6–12 weeks.",
+    requiresConsultation: false,
+    priceCents: 24900,
   },
   {
     slug: "kpv",
@@ -298,7 +357,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "1–2 mg subcutaneous injection 1–2 hours before activity, as needed. Limit to 2–3 uses per week. Titrate from 0.5 mg to assess individual response.",
     requiresConsultation: false,
-    priceCents: 19900,
+    priceCents: 24900,
   },
   {
     slug: "kisspeptin",
@@ -316,7 +375,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "0.3–1 nmol/kg subcutaneous injection, 2–3 times per week. Protocol duration: 8–16 weeks. Hormone panel recommended at baseline.",
     requiresConsultation: true,
-    priceCents: 19900,
+    priceCents: 22900,
   },
 
   // ── Immune & Longevity ─────────────────────────────────────────────────────
@@ -336,7 +395,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "1.6 mg subcutaneous injection twice weekly. Protocol duration: 8–16 weeks for immune optimization; ongoing for maintenance.",
     requiresConsultation: false,
-    priceCents: 19900,
+    priceCents: 29900,
   },
   {
     slug: "epithalon",
@@ -354,25 +413,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "5–10 mg subcutaneous injection once daily for 10–20 days, 1–2 cycles per year. Best administered in the evening.",
     requiresConsultation: false,
-    priceCents: 19900,
-  },
-  {
-    slug: "pinealon",
-    name: "Pinealon",
-    category: "Immune & Longevity",
-    shortDescription: "Deep neuroprotection and circadian optimization.",
-    fullDescription:
-      "Pinealon is a tripeptide from the pineal gland that crosses the blood-brain barrier and exerts neuroprotective effects at the cellular level. It reduces oxidative stress in neuronal tissue, optimizes circadian signaling, and demonstrates marked cognitive preservation — particularly relevant as a preventive intervention against age-related neurodegeneration.",
-    benefits: [
-      "Blood-brain barrier penetrant neuroprotection",
-      "Oxidative stress reduction in neuronal tissue",
-      "Circadian signaling optimization",
-      "Cognitive preservation and neurodegeneration prevention",
-    ],
-    dosingInfo:
-      "0.1–0.2 mg/kg subcutaneous injection, once daily for 10 days per cycle. Two cycles per year recommended.",
-    requiresConsultation: false,
-    priceCents: 19900,
+    priceCents: 22900,
   },
   {
     slug: "mots-c",
@@ -390,10 +431,50 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "5–10 mg subcutaneous injection once daily, 3–5 days per week. Protocol duration: 8–12 weeks, repeat 1–2 times per year.",
     requiresConsultation: false,
-    priceCents: 19900,
+    priceCents: 26900,
+  },
+  {
+    slug: "nad-plus",
+    name: "NAD+",
+    category: "Immune & Longevity",
+    shortDescription: "Cellular energy restoration, DNA repair, and mental clarity.",
+    fullDescription:
+      "NAD+ (nicotinamide adenine dinucleotide) is a coenzyme central to cellular energy metabolism, DNA repair, and sirtuins activation. Levels decline 50% by age 50 — supplementing via IV or subcutaneous injection restores mitochondrial function, activates longevity pathways, improves mental clarity, and accelerates recovery from both physical and neurological stress.",
+    benefits: [
+      "Mitochondrial energy production restoration",
+      "DNA repair and sirtuin longevity pathway activation",
+      "Enhanced mental clarity and cognitive function",
+      "Accelerated physical and neurological recovery",
+    ],
+    dosingInfo:
+      "250–500 mg IV infusion over 2–4 hours, 1–3 times per week during loading phase; 250 mg subcutaneous weekly for maintenance. Administer slowly to minimize discomfort.",
+    requiresConsultation: false,
+    priceCents: 29900,
+    variants: [
+      { label: "500 mg",  priceCents: 29900 },
+      { label: "1000 mg", priceCents: 29900 },
+    ],
   },
 
   // ── Cognitive & Neuroprotective ────────────────────────────────────────────
+  {
+    slug: "pinealon",
+    name: "Pinealon",
+    category: "Cognitive & Neuroprotective",
+    shortDescription: "Deep neuroprotection and circadian optimization.",
+    fullDescription:
+      "Pinealon is a tripeptide from the pineal gland that crosses the blood-brain barrier and exerts neuroprotective effects at the cellular level. It reduces oxidative stress in neuronal tissue, optimizes circadian signaling, and demonstrates marked cognitive preservation — particularly relevant as a preventive intervention against age-related neurodegeneration.",
+    benefits: [
+      "Blood-brain barrier penetrant neuroprotection",
+      "Oxidative stress reduction in neuronal tissue",
+      "Circadian signaling optimization",
+      "Cognitive preservation and neurodegeneration prevention",
+    ],
+    dosingInfo:
+      "0.1–0.2 mg/kg subcutaneous injection, once daily for 10 days per cycle. Two cycles per year recommended.",
+    requiresConsultation: false,
+    priceCents: 19900,
+  },
   {
     slug: "semax",
     name: "Semax",
@@ -410,7 +491,11 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "100–300 mcg intranasal administration, 1–2 times daily. Protocol duration: 2–4 weeks on, 2 weeks off.",
     requiresConsultation: false,
-    priceCents: 19900,
+    priceCents: 22900,
+    variants: [
+      { label: "5 mg",  priceCents: 22900 },
+      { label: "30 mg", priceCents: 22900 },
+    ],
   },
   {
     slug: "selank",
@@ -431,43 +516,6 @@ export const PRODUCTS: Product[] = [
     priceCents: 19900,
   },
   {
-    slug: "cerebrolysin",
-    name: "Cerebrolysin",
-    category: "Cognitive & Neuroprotective",
-    shortDescription: "Robust neuroprotection, post-stroke repair, and memory enhancement.",
-    fullDescription:
-      "Cerebrolysin is a peptide mixture derived from porcine brain protein that crosses the blood-brain barrier and delivers neurotrophic and neuroprotective effects comparable to endogenous growth factors. It is used clinically for Alzheimer's treatment, post-stroke recovery, and TBI rehabilitation — and used in longevity medicine for memory enhancement and neurodegeneration prevention.",
-    benefits: [
-      "Neurotrophic effects comparable to BDNF and NGF",
-      "Alzheimer's prevention and cognitive preservation",
-      "Post-stroke and TBI neurological repair",
-      "Enhanced long-term memory and recall",
-    ],
-    dosingInfo:
-      "5–30 mL intravenous or intramuscular injection, daily for 10–20 day cycles. Protocol designed individually based on neurological goals.",
-    requiresConsultation: true,
-    priceCents: 19900,
-  },
-  {
-    slug: "nad-plus",
-    name: "NAD+",
-    category: "Cognitive & Neuroprotective",
-    shortDescription: "Cellular energy restoration, DNA repair, and mental clarity.",
-    fullDescription:
-      "NAD+ (nicotinamide adenine dinucleotide) is a coenzyme central to cellular energy metabolism, DNA repair, and sirtuins activation. Levels decline 50% by age 50 — supplementing via IV or subcutaneous injection restores mitochondrial function, activates longevity pathways, improves mental clarity, and accelerates recovery from both physical and neurological stress.",
-    benefits: [
-      "Mitochondrial energy production restoration",
-      "DNA repair and sirtuin longevity pathway activation",
-      "Enhanced mental clarity and cognitive function",
-      "Accelerated physical and neurological recovery",
-    ],
-    dosingInfo:
-      "250–500 mg IV infusion over 2–4 hours, 1–3 times per week during loading phase; 250 mg subcutaneous weekly for maintenance. Administer slowly to minimize discomfort.",
-    requiresConsultation: false,
-    priceCents: 19900,
-  },
-
-  {
     slug: "cortagen",
     name: "Cortagen",
     category: "Cognitive & Neuroprotective",
@@ -483,7 +531,25 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "10 mg subcutaneous injection daily for 10-day cycles, 2–3 times per year. For preventive cardiac longevity protocols.",
     requiresConsultation: false,
-    priceCents: 14900,
+    priceCents: 19900,
+  },
+  {
+    slug: "cerebrolysin",
+    name: "Cerebrolysin",
+    category: "Cognitive & Neuroprotective",
+    shortDescription: "Robust neuroprotection, post-stroke repair, and memory enhancement.",
+    fullDescription:
+      "Cerebrolysin is a peptide mixture derived from porcine brain protein that crosses the blood-brain barrier and delivers neurotrophic and neuroprotective effects comparable to endogenous growth factors. It is used clinically for Alzheimer's treatment, post-stroke recovery, and TBI rehabilitation — and used in longevity medicine for memory enhancement and neurodegeneration prevention.",
+    benefits: [
+      "Neurotrophic effects comparable to BDNF and NGF",
+      "Alzheimer's prevention and cognitive preservation",
+      "Post-stroke and TBI neurological repair",
+      "Enhanced long-term memory and recall",
+    ],
+    dosingInfo:
+      "5–30 mL intravenous or intramuscular injection, daily for 10–20 day cycles. Protocol designed individually based on neurological goals.",
+    requiresConsultation: true,
+    priceCents: 29900,
   },
 
   // ── Auryx Signature Complexes ──────────────────────────────────────────────
@@ -503,7 +569,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "Administered per individualized Auryx protocol. Contact our clinical team for dosing schedule.",
     requiresConsultation: true,
-    priceCents: 19900,
+    priceCents: 39900,
   },
   {
     slug: "klow-complex",
@@ -521,7 +587,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "Administered per individualized Auryx protocol. Contact our clinical team for dosing schedule.",
     requiresConsultation: true,
-    priceCents: 19900,
+    priceCents: 42900,
   },
 ];
 

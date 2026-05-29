@@ -66,55 +66,61 @@ export default function CartDrawer() {
                   </button>
                 </div>
               ) : (
-                items.map(({ product, quantity }) => (
-                  <div key={product.slug} className="flex gap-4 py-4 border-b border-white/[0.06] last:border-0">
-                    {/* Mini vial visual */}
-                    <div className="w-12 h-16 rounded-xl flex-shrink-0 flex items-center justify-center" style={{ background: "rgba(184,150,46,0.1)" }}>
-                      <svg width="20" height="32" viewBox="0 0 20 32" fill="none">
-                        <rect x="7" y="1" width="6" height="4" rx="1.5" fill="#B8962E" opacity="0.7" />
-                        <rect x="6" y="4" width="8" height="2" rx="0.5" fill="#B8962E" opacity="0.4" />
-                        <rect x="4" y="6" width="12" height="22" rx="3" fill="white" opacity="0.15" stroke="#B8962E" strokeWidth="0.5" strokeOpacity="0.4" />
-                        <rect x="6" y="8" width="8" height="12" rx="1.5" fill="#B8962E" opacity="0.08" />
-                      </svg>
-                    </div>
+                items.map(({ cartKey, product, quantity, variantLabel, variantPriceCents }) => {
+                  const linePriceCents = variantPriceCents ?? product.priceCents;
+                  return (
+                    <div key={cartKey} className="flex gap-4 py-4 border-b border-white/[0.06] last:border-0">
+                      {/* Mini vial visual */}
+                      <div className="w-12 h-16 rounded-xl flex-shrink-0 flex items-center justify-center" style={{ background: "rgba(184,150,46,0.1)" }}>
+                        <svg width="20" height="32" viewBox="0 0 20 32" fill="none">
+                          <rect x="7" y="1" width="6" height="4" rx="1.5" fill="#B8962E" opacity="0.7" />
+                          <rect x="6" y="4" width="8" height="2" rx="0.5" fill="#B8962E" opacity="0.4" />
+                          <rect x="4" y="6" width="12" height="22" rx="3" fill="white" opacity="0.15" stroke="#B8962E" strokeWidth="0.5" strokeOpacity="0.4" />
+                          <rect x="6" y="8" width="8" height="12" rx="1.5" fill="#B8962E" opacity="0.08" />
+                        </svg>
+                      </div>
 
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-white/90 leading-tight">{product.name}</p>
-                      <p className="text-[10px] text-white/35 mt-0.5 uppercase tracking-wide">{product.category}</p>
-                      {product.requiresConsultation && (
-                        <p className="text-[10px] text-amber-400/80 mt-1">Consultation required</p>
-                      )}
-                      <p className="text-[#B8962E] text-sm font-semibold mt-1.5">
-                        ${((product.priceCents * quantity) / 100).toFixed(2)}
-                      </p>
-                    </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-white/90 leading-tight">{product.name}</p>
+                        {variantLabel && (
+                          <p className="text-[10px] text-[#B8962E]/80 mt-0.5 font-medium">{variantLabel}</p>
+                        )}
+                        <p className="text-[10px] text-white/35 mt-0.5 uppercase tracking-wide">{product.category}</p>
+                        {product.requiresConsultation && (
+                          <p className="text-[10px] text-amber-400/80 mt-1">Consultation required</p>
+                        )}
+                        <p className="text-[#B8962E] text-sm font-semibold mt-1.5">
+                          ${((linePriceCents * quantity) / 100).toFixed(2)}
+                        </p>
+                      </div>
 
-                    <div className="flex flex-col items-end justify-between shrink-0">
-                      <button
-                        onClick={() => removeFromCart(product.slug)}
-                        className="text-white/20 hover:text-red-400 transition-colors p-0.5"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
-                      <div className="flex items-center gap-2 border border-white/10 rounded-lg px-2.5 py-1.5">
+                      <div className="flex flex-col items-end justify-between shrink-0">
                         <button
-                          onClick={() => updateQuantity(product.slug, quantity - 1)}
-                          className="text-white/40 hover:text-white transition-colors"
+                          onClick={() => removeFromCart(cartKey)}
+                          className="text-white/20 hover:text-red-400 transition-colors p-0.5"
                         >
-                          <Minus className="w-3 h-3" />
+                          <Trash2 className="w-3.5 h-3.5" />
                         </button>
-                        <span className="text-sm text-white w-4 text-center font-medium">{quantity}</span>
-                        <button
-                          onClick={() => updateQuantity(product.slug, quantity + 1)}
-                          className="text-white/40 hover:text-white transition-colors"
-                          disabled={quantity >= 10}
-                        >
-                          <Plus className="w-3 h-3" />
-                        </button>
+                        <div className="flex items-center gap-2 border border-white/10 rounded-lg px-2.5 py-1.5">
+                          <button
+                            onClick={() => updateQuantity(cartKey, quantity - 1)}
+                            className="text-white/40 hover:text-white transition-colors"
+                          >
+                            <Minus className="w-3 h-3" />
+                          </button>
+                          <span className="text-sm text-white w-4 text-center font-medium">{quantity}</span>
+                          <button
+                            onClick={() => updateQuantity(cartKey, quantity + 1)}
+                            className="text-white/40 hover:text-white transition-colors"
+                            disabled={quantity >= 10}
+                          >
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
+                  );
+                })
               )}
             </div>
 

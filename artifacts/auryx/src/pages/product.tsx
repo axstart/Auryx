@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ShoppingCart, AlertCircle, CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { Link } from "wouter";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { Product } from "@/types/shop";
 
 const PRODUCT_IMAGES: Record<string, string> = {
@@ -20,6 +20,7 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "tesofensine-ipamorelin": "/products/tesofensine-ipamorelin.png",
   "bpc-157": "/products/bpc-157.png",
   "tb-500": "/products/tb-500.png",
+  "bpc-157-tb-500": "/products/bpc-157.png",
   "kpv": "/products/kpv.png",
   "pt-141": "/products/pt-141.png",
   "kisspeptin": "/products/kisspeptin.png",
@@ -111,6 +112,7 @@ export default function ProductPage() {
   const { addToCart } = useCart();
   const [added, setAdded] = useState(false);
   const [qty, setQty] = useState(1);
+  const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
 
   const { data: product, isLoading, error } = useQuery({
     queryKey: ["product", slug],
@@ -118,9 +120,23 @@ export default function ProductPage() {
     enabled: !!slug,
   });
 
+  useEffect(() => {
+    setSelectedVariantIdx(0);
+  }, [slug]);
+
+  const hasVariants = !!(product?.variants && product.variants.length > 1);
+  const selectedVariant = hasVariants ? product!.variants![selectedVariantIdx] : null;
+  const displayPriceCents = selectedVariant ? selectedVariant.priceCents : (product?.priceCents ?? 0);
+  const variantLabel = selectedVariant?.label;
+
   const handleAddToCart = () => {
     if (!product) return;
-    addToCart(product, qty);
+    addToCart(
+      product,
+      qty,
+      variantLabel,
+      selectedVariant ? selectedVariant.priceCents : undefined,
+    );
     setAdded(true);
     setTimeout(() => setAdded(false), 2000);
   };
@@ -173,7 +189,6 @@ export default function ProductPage() {
                   background: "linear-gradient(160deg, #F9F5EC 0%, #F2EAD6 55%, #EDE2CB 100%)",
                 }}
               >
-                {/* Permanent base glow */}
                 <div
                   className="absolute inset-0 pointer-events-none"
                   style={{ background: "radial-gradient(ellipse 65% 55% at 50% 52%, rgba(201,168,68,0.22) 0%, transparent 68%)" }}
@@ -241,11 +256,47 @@ export default function ProductPage() {
 
               {/* Purchase Box */}
               <div className="bg-white border border-[#E8E8E4] rounded-2xl p-6 shadow-sm space-y-5">
+
+                {/* Dosage Variant Selector */}
+                {hasVariants && (
+                  <div>
+                    <p className="text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/45 font-medium mb-3">
+                      Dosage — <span className="text-[#0A0A0A]/70 normal-case tracking-normal font-semibold">{product.variants![selectedVariantIdx].label}</span>
+                    </p>
+                    <div className="flex flex-wrap gap-2">
+                      {product.variants!.map((v, i) => (
+                        <button
+                          key={v.label}
+                          onClick={() => setSelectedVariantIdx(i)}
+                          className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all duration-150 ${
+                            selectedVariantIdx === i
+                              ? "bg-[#0A0A0A] text-white border-[#0A0A0A] shadow-sm"
+                              : "bg-white text-[#0A0A0A]/70 border-[#D8D4CC] hover:border-[#B8962E]/60 hover:text-[#B8962E]"
+                          }`}
+                        >
+                          {v.label}
+                          {v.priceCents !== product.variants![0].priceCents && (
+                            <span className={`ml-1.5 text-[11px] ${selectedVariantIdx === i ? "text-white/60" : "text-[#0A0A0A]/40"}`}>
+                              ${(v.priceCents / 100).toFixed(0)}
+                            </span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Price */}
                 <div>
-                  <p className="text-3xl font-semibold text-[#0A0A0A]">${(product.priceCents / 100).toFixed(2)}</p>
-                  <p className="text-xs text-[#0A0A0A]/40 mt-0.5">Per protocol unit · Price may vary by dosing</p>
+                  <p className="text-3xl font-semibold text-[#0A0A0A]">
+                    ${(displayPriceCents / 100).toFixed(2)}
+                  </p>
+                  <p className="text-xs text-[#0A0A0A]/40 mt-0.5">
+                    {hasVariants ? "Per vial · Physician-supervised protocol" : "Per protocol unit · Price may vary by dosing"}
+                  </p>
                 </div>
 
+                {/* Quantity */}
                 <div>
                   <p className="text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/45 font-medium mb-2.5">Quantity</p>
                   <div className="flex items-center gap-2">
@@ -276,7 +327,7 @@ export default function ProductPage() {
                   {added ? (
                     <><CheckCircle2 className="w-4 h-4" /> Added to Cart</>
                   ) : (
-                    <><ShoppingCart className="w-4 h-4" /> Add to Cart — ${((product.priceCents * qty) / 100).toFixed(2)}</>
+                    <><ShoppingCart className="w-4 h-4" /> Add to Cart — ${((displayPriceCents * qty) / 100).toFixed(2)}</>
                   )}
                 </button>
               </div>

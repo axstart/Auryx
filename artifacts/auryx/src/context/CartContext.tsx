@@ -1,11 +1,15 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import type { CartItem, ProductSummary } from "@/types/shop";
 
+function makeCartKey(slug: string, variantLabel?: string): string {
+  return variantLabel ? `${slug}:${variantLabel}` : slug;
+}
+
 interface CartContextValue {
   items: CartItem[];
-  addToCart: (product: ProductSummary, quantity?: number) => void;
-  removeFromCart: (slug: string) => void;
-  updateQuantity: (slug: string, quantity: number) => void;
+  addToCart: (product: ProductSummary, quantity?: number, variantLabel?: string, variantPriceCents?: number) => void;
+  removeFromCart: (cartKey: string) => void;
+  updateQuantity: (cartKey: string, quantity: number) => void;
   clearCart: () => void;
   totalCents: number;
   totalItems: number;
@@ -22,7 +26,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<CartItem[]>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? JSON.parse(stored) : [];
+      if (!stored) return [];
+      const parsed = JSON.parse(stored) as CartItem[];
+      return parsed.map(item => ({
+        ...item,
+        cartKey: item.cartKey
+          ?? makeCartKey(item.product.slug, item.variantLabel),
+      }));
     } catch {
       return [];
     }
@@ -33,38 +43,47 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
   }, [items]);
 
-  const addToCart = useCallback((product: ProductSummary, quantity = 1) => {
+  const addToCart = useCallback((
+    product: ProductSummary,
+    quantity = 1,
+    variantLabel?: string,
+    variantPriceCents?: number,
+  ) => {
+    const cartKey = makeCartKey(product.slug, variantLabel);
     setItems(prev => {
-      const existing = prev.find(i => i.product.slug === product.slug);
+      const existing = prev.find(i => i.cartKey === cartKey);
       if (existing) {
         return prev.map(i =>
-          i.product.slug === product.slug
+          i.cartKey === cartKey
             ? { ...i, quantity: Math.min(i.quantity + quantity, 10) }
             : i
         );
       }
-      return [...prev, { product, quantity }];
+      return [...prev, { cartKey, product, quantity, variantLabel, variantPriceCents }];
     });
     setIsOpen(true);
   }, []);
 
-  const removeFromCart = useCallback((slug: string) => {
-    setItems(prev => prev.filter(i => i.product.slug !== slug));
+  const removeFromCart = useCallback((cartKey: string) => {
+    setItems(prev => prev.filter(i => i.cartKey !== cartKey));
   }, []);
 
-  const updateQuantity = useCallback((slug: string, quantity: number) => {
+  const updateQuantity = useCallback((cartKey: string, quantity: number) => {
     if (quantity <= 0) {
-      setItems(prev => prev.filter(i => i.product.slug !== slug));
+      setItems(prev => prev.filter(i => i.cartKey !== cartKey));
     } else {
       setItems(prev =>
-        prev.map(i => i.product.slug === slug ? { ...i, quantity: Math.min(quantity, 10) } : i)
+        prev.map(i => i.cartKey === cartKey ? { ...i, quantity: Math.min(quantity, 10) } : i)
       );
     }
   }, []);
 
   const clearCart = useCallback(() => setItems([]), []);
 
-  const totalCents = items.reduce((sum, i) => sum + i.product.priceCents * i.quantity, 0);
+  const totalCents = items.reduce(
+    (sum, i) => sum + (i.variantPriceCents ?? i.product.priceCents) * i.quantity,
+    0,
+  );
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
 
   return (

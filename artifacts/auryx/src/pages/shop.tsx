@@ -273,25 +273,47 @@ function ProductCard({
 
         <div className="flex items-center gap-2 mt-3 flex-wrap">
           <span className="text-[#0A0A0A] font-semibold text-[1rem] tabular-nums mr-auto">
-            ${(product.priceCents / 100).toFixed(0)}
+            {product.variants && product.variants.length > 1
+              ? <>
+                  <span className="text-[0.7rem] text-[#0A0A0A]/40 font-normal mr-0.5">from</span>
+                  ${Math.min(...product.variants.map(v => v.priceCents / 100)).toFixed(0)}
+                </>
+              : `$${(product.priceCents / 100).toFixed(0)}`
+            }
           </span>
-          <Link
-            href={`/shop/${product.slug}`}
-            className="h-8 px-3 rounded-lg bg-white/70 border border-[#D8CEB8] text-[#6B5A3A] text-[10px] font-medium tracking-widest uppercase flex items-center gap-1 hover:bg-white hover:border-[#B8962E]/60 hover:text-[#B8962E] transition-all whitespace-nowrap shadow-sm"
-          >
-            More <ChevronRight className="w-2.5 h-2.5" />
-          </Link>
-          <button
-            onClick={handleAdd}
-            className={`h-8 px-3 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center gap-1.5 transition-all duration-200 whitespace-nowrap ${
-              adding
-                ? "bg-[#B8962E] text-white"
-                : "bg-[#0A0A0A] text-white hover:bg-[#1a1a1a] hover:ring-1 hover:ring-[#C9A844]/40"
-            }`}
-          >
-            <ShoppingCart className="w-3 h-3" />
-            {adding ? "Added ✓" : "Add to Cart"}
-          </button>
+          {product.variants && product.variants.length > 1 ? (
+            <Link
+              href={`/shop/${product.slug}`}
+              className={`h-8 px-3 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center gap-1.5 transition-all duration-200 whitespace-nowrap ${
+                adding
+                  ? "bg-[#B8962E] text-white"
+                  : "bg-[#0A0A0A] text-white hover:bg-[#1a1a1a] hover:ring-1 hover:ring-[#C9A844]/40"
+              }`}
+            >
+              <ChevronRight className="w-3 h-3" />
+              Select Dose
+            </Link>
+          ) : (
+            <>
+              <Link
+                href={`/shop/${product.slug}`}
+                className="h-8 px-3 rounded-lg bg-white/70 border border-[#D8CEB8] text-[#6B5A3A] text-[10px] font-medium tracking-widest uppercase flex items-center gap-1 hover:bg-white hover:border-[#B8962E]/60 hover:text-[#B8962E] transition-all whitespace-nowrap shadow-sm"
+              >
+                More <ChevronRight className="w-2.5 h-2.5" />
+              </Link>
+              <button
+                onClick={handleAdd}
+                className={`h-8 px-3 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center gap-1.5 transition-all duration-200 whitespace-nowrap ${
+                  adding
+                    ? "bg-[#B8962E] text-white"
+                    : "bg-[#0A0A0A] text-white hover:bg-[#1a1a1a] hover:ring-1 hover:ring-[#C9A844]/40"
+                }`}
+              >
+                <ShoppingCart className="w-3 h-3" />
+                {adding ? "Added ✓" : "Add to Cart"}
+              </button>
+            </>
+          )}
         </div>
       </div>
     </motion.div>

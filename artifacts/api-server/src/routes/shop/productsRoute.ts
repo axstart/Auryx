@@ -4,8 +4,8 @@ import { PRODUCTS, getProductBySlug } from "./products.js";
 const router = Router();
 
 router.get("/products", (_req, res) => {
-  const summaries = PRODUCTS.map(({ slug, name, category, shortDescription, priceCents, requiresConsultation }) => ({
-    slug, name, category, shortDescription, priceCents, requiresConsultation,
+  const summaries = PRODUCTS.map(({ slug, name, category, shortDescription, priceCents, requiresConsultation, variants }) => ({
+    slug, name, category, shortDescription, priceCents, requiresConsultation, variants,
   }));
   res.json(summaries);
 });
