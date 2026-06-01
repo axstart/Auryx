@@ -60,7 +60,11 @@ function CheckoutPayment({ form, totalCents, onSuccess }: CheckoutPaymentProps) 
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        items: items.map(i => ({ slug: i.product.slug, quantity: i.quantity })),
+        items: items.map(i => ({
+          slug: i.product.slug,
+          quantity: i.quantity,
+          ...(i.variantLabel ? { variantLabel: i.variantLabel } : {}),
+        })),
         customerEmail: form.email,
       }),
     });
@@ -102,7 +106,11 @@ function CheckoutPayment({ form, totalCents, onSuccess }: CheckoutPaymentProps) 
             zip: form.zip,
             country: "US",
           },
-          items: items.map(i => ({ slug: i.product.slug, quantity: i.quantity })),
+          items: items.map(i => ({
+            slug: i.product.slug,
+            quantity: i.quantity,
+            ...(i.variantLabel ? { variantLabel: i.variantLabel } : {}),
+          })),
         }),
       });
 

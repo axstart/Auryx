@@ -9,12 +9,13 @@ import { getProductBySlug } from "./products.js";
 import { eq } from "drizzle-orm";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
-  apiVersion: "2025-04-30.basil",
+  apiVersion: "2026-04-22.dahlia",
 });
 
 const CartItemSchema = z.object({
   slug: z.string(),
   quantity: z.number().int().min(1).max(10),
+  variantLabel: z.string().optional(),
 });
 
 const CreatePaymentIntentSchema = z.object({
@@ -39,6 +40,29 @@ const CompleteOrderSchema = z.object({
   items: z.array(CartItemSchema).min(1),
 });
 
+function resolveItemPrice(item: z.infer<typeof CartItemSchema>): {
+  priceCents: number;
+  name: string;
+  slug: string;
+  variantLabel?: string;
+  error?: string;
+} {
+  const product = getProductBySlug(item.slug);
+  if (!product) return { priceCents: 0, name: "", slug: item.slug, error: `Unknown product: ${item.slug}` };
+
+  let priceCents = product.priceCents;
+
+  if (item.variantLabel) {
+    const variant = product.variants?.find(v => v.label === item.variantLabel);
+    if (!variant) {
+      return { priceCents: 0, name: product.name, slug: product.slug, error: `Unknown variant "${item.variantLabel}" for ${product.slug}` };
+    }
+    priceCents = variant.priceCents;
+  }
+
+  return { priceCents, name: product.name, slug: product.slug, variantLabel: item.variantLabel };
+}
+
 const router = Router();
 
 router.get("/checkout/publishable-key", (_req, res) => {
@@ -55,16 +79,22 @@ router.post("/checkout/create-payment-intent", async (req, res) => {
   }
 
   let totalCents = 0;
-  const lineItems: { slug: string; name: string; quantity: number; priceCents: number }[] = [];
+  const lineItems: { slug: string; name: string; quantity: number; priceCents: number; variantLabel?: string }[] = [];
 
   for (const item of parsed.data.items) {
-    const product = getProductBySlug(item.slug);
-    if (!product) {
-      res.status(400).json({ error: `Unknown product: ${item.slug}` });
+    const resolved = resolveItemPrice(item);
+    if (resolved.error) {
+      res.status(400).json({ error: resolved.error });
       return;
     }
-    totalCents += product.priceCents * item.quantity;
-    lineItems.push({ slug: product.slug, name: product.name, quantity: item.quantity, priceCents: product.priceCents });
+    totalCents += resolved.priceCents * item.quantity;
+    lineItems.push({
+      slug: resolved.slug,
+      name: resolved.name,
+      quantity: item.quantity,
+      priceCents: resolved.priceCents,
+      ...(resolved.variantLabel ? { variantLabel: resolved.variantLabel } : {}),
+    });
   }
 
   try {
@@ -107,16 +137,24 @@ router.post("/checkout/complete", async (req, res) => {
     return;
   }
 
+  // Recalculate totals server-side — never trust client-submitted amounts
   let totalCents = 0;
-  const lineItems: { slug: string; name: string; quantity: number; priceCents: number }[] = [];
+  const lineItems: { slug: string; name: string; quantity: number; priceCents: number; variantLabel?: string }[] = [];
   let requiresConsultation = false;
 
   for (const item of items) {
+    const resolved = resolveItemPrice(item);
+    if (resolved.error) continue;
+    totalCents += resolved.priceCents * item.quantity;
+    lineItems.push({
+      slug: resolved.slug,
+      name: resolved.name,
+      quantity: item.quantity,
+      priceCents: resolved.priceCents,
+      ...(resolved.variantLabel ? { variantLabel: resolved.variantLabel } : {}),
+    });
     const product = getProductBySlug(item.slug);
-    if (!product) continue;
-    totalCents += product.priceCents * item.quantity;
-    lineItems.push({ slug: product.slug, name: product.name, quantity: item.quantity, priceCents: product.priceCents });
-    if (product.requiresConsultation) requiresConsultation = true;
+    if (product?.requiresConsultation) requiresConsultation = true;
   }
 
   const [order] = await db.insert(ordersTable).values({
@@ -133,7 +171,10 @@ router.post("/checkout/complete", async (req, res) => {
 
   req.log.info({ id: order.id, email }, "Order created");
 
-  const itemsList = lineItems.map(i => `  • ${i.name} ×${i.quantity} — $${(i.priceCents / 100).toFixed(2)}`).join("\n");
+  const itemsList = lineItems.map(i => {
+    const label = i.variantLabel ? ` (${i.variantLabel})` : "";
+    return `  • ${i.name}${label} ×${i.quantity} — $${(i.priceCents / 100).toFixed(2)}`;
+  }).join("\n");
   const totalDisplay = `$${(totalCents / 100).toFixed(2)}`;
 
   // Admin notification
@@ -164,8 +205,9 @@ router.post("/checkout/complete", async (req, res) => {
     ].join("\n"),
   }).catch(() => {});
 
-  // Customer confirmation
+  // Customer confirmation — sent to the customer's email
   sendMail({
+    to: email,
     subject: `Your Auryx Order Confirmation — #${order.id}`,
     text: [
       `Hi ${customerName},`,
@@ -181,7 +223,7 @@ router.post("/checkout/complete", async (req, res) => {
       ``,
       requiresConsultation
         ? `One or more items in your order require a physician consultation before fulfillment. A member of our clinical team will reach out to you at ${email} to schedule a brief review.`
-        : `Your order is being reviewed and will be fulfilled as soon as our clinical team processes it.`,
+        : `Your order is being reviewed and will be fulfilled as soon as our clinical team processes it. Expected shipping within 24–48 hours after approval.`,
       ``,
       `Questions? Email us at admin@auryxlife.com`,
       ``,
@@ -200,7 +242,7 @@ router.get("/orders", adminAuth, async (_req, res) => {
 });
 
 router.patch("/orders/:id", adminAuth, async (req, res) => {
-  const id = parseInt(req.params.id, 10);
+  const id = parseInt(req.params["id"] as string, 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 
   const parsed = z.object({

@@ -535,7 +535,7 @@ interface AdminOrder {
   email: string;
   phone: string | null;
   shippingAddress: { street: string; city: string; state: string; zip: string; country: string };
-  items: { slug: string; name: string; quantity: number; priceCents: number }[];
+  items: { slug: string; name: string; quantity: number; priceCents: number; variantLabel?: string }[];
   totalCents: number;
   status: string;
   stripePaymentIntentId: string | null;
@@ -659,7 +659,15 @@ function OrdersTab({ adminKey }: { adminKey: string }) {
                       {new Date(o.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
                     </span>
                   </div>
-                  <div className="ml-4 flex items-center gap-3 shrink-0">
+                  <div className="ml-4 flex items-center gap-2 shrink-0">
+                    {o.status === "pending" && (
+                      <button
+                        onClick={e => { e.stopPropagation(); handleStatus(o.id, "approved"); }}
+                        className="text-xs px-3 py-1.5 bg-primary/20 text-primary border border-primary/30 rounded-lg hover:bg-primary/30 transition-colors font-medium whitespace-nowrap"
+                      >
+                        Approve →
+                      </button>
+                    )}
                     <Select value={o.status} onValueChange={v => { handleStatus(o.id, v); }}>
                       <SelectTrigger className="h-7 text-xs w-28 bg-background/50 border-border/60" onClick={e => e.stopPropagation()}>
                         <SelectValue />
@@ -682,7 +690,11 @@ function OrdersTab({ adminKey }: { adminKey: string }) {
                         <div className="space-y-1">
                           {o.items.map((item, i) => (
                             <div key={i} className="flex justify-between text-foreground/80">
-                              <span>{item.name} ×{item.quantity}</span>
+                              <span>
+                                {item.name}
+                                {item.variantLabel && <span className="text-primary/70 ml-1">({item.variantLabel})</span>}
+                                {" "}×{item.quantity}
+                              </span>
                               <span className="text-primary">${((item.priceCents * item.quantity) / 100).toFixed(2)}</span>
                             </div>
                           ))}

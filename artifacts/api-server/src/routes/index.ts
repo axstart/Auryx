@@ -7,6 +7,7 @@ import ariaSettingsRouter from "./ariaSettings.js";
 import protocolContinuationsRouter from "./protocolContinuations.js";
 import productsRouter from "./shop/productsRoute.js";
 import checkoutRouter from "./shop/checkoutRoute.js";
+import webhookRouter from "./shop/webhookRoute.js";
 import protocolRecommendationRouter from "./protocolRecommendation.js";
 import analyticsRouter from "./analytics/index.js";
 
@@ -20,6 +21,7 @@ router.use(ariaSettingsRouter);
 router.use(protocolContinuationsRouter);
 router.use(productsRouter);
 router.use(checkoutRouter);
+router.use(webhookRouter);
 router.use(protocolRecommendationRouter);
 router.use(analyticsRouter);
 

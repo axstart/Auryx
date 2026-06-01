@@ -1,0 +1,12 @@
+🎉 Stripe live keys are in! Now let's wire everything together properly. Send this prompt to the Replit Agent:
+
+"Complete the full Stripe live integration for the Auryx shop. Here's everything needed:
+1. Switch to live mode — confirm the checkout is using the live STRIPE_SECRET_KEY and STRIPE_PUBLISHABLE_KEY, not test keys. Verify no hardcoded test keys anywhere in the codebase.
+2. Product sync — on server startup, automatically create or sync all 26 Auryx peptide products in Stripe with their correct prices using the Stripe Products and Prices API. This means every product in the shop data file gets a corresponding Stripe Price ID that can be used for checkout.
+3. Checkout flow — when a customer clicks 'Proceed to Checkout' from the cart, create a Stripe Payment Intent server-side with the correct line items and amounts. Use Stripe Elements on the frontend for the card input, styled to match the dark/gold Auryx aesthetic.
+4. Success flow — after successful payment: save the order to the database with status 'Pending Review', send a confirmation email to the customer via Zoho SMTP, send a notification email to admin@auryxlife.com with the order details, and redirect the customer to a /order-confirmation page.
+5. Order confirmation page — create a clean /order-confirmation page matching the Auryx aesthetic showing: order summary, total paid, message explaining that their order is pending physician review and will ship within 24-48 hours after approval.
+6. Webhook — set up a Stripe webhook endpoint at /api/stripe/webhook to handle payment_intent.succeeded and payment_intent.payment_failed events. On success, update order status in database. On failure, log the error.
+7. Admin dashboard — in the Orders tab, show all orders with: customer name, email, items ordered, total, payment status (Paid/Failed/Pending), fulfillment status (Pending Review/Approved/Shipped), and a button for Romy to approve each order before fulfillment.
+8. Failed payment handling — if payment fails, show a clear error message on the checkout page and allow retry without losing cart contents.
+9. Security — validate all amounts server-side, never trust client-side price data. Always calculate totals from the server's product catalog, not from what the frontend sends.

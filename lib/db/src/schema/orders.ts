@@ -30,6 +30,7 @@ export const OrderItemSchema = z.object({
   name: z.string(),
   quantity: z.number().int().min(1),
   priceCents: z.number().int().min(0),
+  variantLabel: z.string().optional(),
 });
 
 export const insertOrderSchema = createInsertSchema(ordersTable, {

@@ -29,11 +29,13 @@ export async function verifyMailer(): Promise<void> {
 }
 
 export async function sendMail(opts: {
+  to?: string;
   subject: string;
   text: string;
 }): Promise<void> {
-  const to = process.env.ADMIN_EMAIL;
+  const adminEmail = process.env.ADMIN_EMAIL;
   const from = process.env.ZOHO_EMAIL;
+  const to = opts.to ?? adminEmail;
 
   if (!to || !from || !process.env.ZOHO_PASSWORD) {
     console.warn("[mailer] sendMail skipped — missing env vars");
