@@ -1,0 +1,84 @@
+Rebuild the Auryx admin dashboard from scratch at /admin with the following full specification.
+
+## AUTHENTICATION
+
+Login screen at /admin/login with email + password fields. Clean, minimal design matching the site's dark/gold aesthetic.
+
+Two permission levels:
+- ADMIN: full access to all sections including Financials. Credentials stored in Replit Secrets as ADMIN_LEO_EMAIL, ADMIN_LEO_PASSWORD, ADMIN_ROMY_EMAIL, ADMIN_ROMY_PASSWORD
+- STAFF: access to Dashboard, Orders, Inventory, Patients, Aria/Chat, Escalations. No Financials tab. Accounts stored in PostgreSQL database with hashed passwords.
+
+Session-based authentication using express-session. Sessions expire after 8 hours. Redirect to /admin/login if session expired or not authenticated.
+
+Remove the old ADMIN_KEY secret-based access entirely.
+
+## USER MANAGEMENT (Admin only)
+
+Section visible only to Admin accounts. Allows:
+- Create new staff account (name, email, password — password stored hashed in PostgreSQL)
+- Deactivate/reactivate staff accounts
+- View last login timestamp per user
+
+## DASHBOARD (all users)
+
+Top bar shows:
+- Page title
+- Count of pending approvals (badge, amber)
+- Count of low stock items (badge, red)
+- Logged-in user email + logout button
+
+Metric cards (4 across):
+- Total revenue this month
+- Active orders count
+- Total patients count
+- Pending approvals count
+
+Two panels below:
+- Recent orders table (patient, peptide, status, action)
+- Inventory alerts table (peptide, units, status)
+
+## ORDERS & FULFILLMENT (all users)
+
+Filters bar:
+- Status dropdown: All / Pending Approval / Approved / Sent to Pharmacy / Shipped / Delivered
+- Date range: from/to date pickers
+- Search: by patient name or order ID
+- Clear filters button
+
+Metric cards (4 across):
+- Pending approval count
+- Sent to pharmacy count
+- Shipped count
+- Delivered count
+
+Orders table columns:
+- Order ID
+- Patient name
+- Peptide
+- Amount
+- Order date
+- Status (pill badge)
+- Tracking number (editable inline)
+- Action button (context-sensitive):
+  - Pending → "Approve" button (gold)
+  - Approved → "Send to Pharmacy" button
+  - Sent to Pharmacy → "Mark Shipped" button + tracking number input
+  - Shipped → "Mark Delivered" + "Notify Patient" button
+  - Delivered → "View" button
+
+When status changes, send automated email to patient via Zoho SMTP notifying them of the update.
+
+CSV export button exports filtered results.
+
+## INVENTORY (all users)
+
+Table columns:
+- Peptide name
+- Units on hand
+- Low stock threshold (editable)
+- Cost per unit (editable)
+- Sell price (pulled from existing product data)
+- Gross margin % (calculated: (sell - cost) / sell)
+- Status pill: OK (green) if above threshold, Low Stock (red) if below
+
+"Adjust Stock" button opens inline form to add or remove units with a reason f
