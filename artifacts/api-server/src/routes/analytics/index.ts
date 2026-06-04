@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { ariaAnalyticsTable } from "@workspace/db/schema";
 import { sessionAuth } from "../../middlewares/sessionAuth.js";
-import { desc, gte, and, eq, sql } from "drizzle-orm";
+import { desc, gte, lt, and, eq, sql } from "drizzle-orm";
 
 const router = Router();
 
@@ -59,7 +59,7 @@ router.get("/admin/aria-analytics", sessionAuth, async (req, res) => {
 
   const conditions = [];
   if (from) conditions.push(gte(ariaAnalyticsTable.createdAt, new Date(from)));
-  if (to)   conditions.push(gte(new Date(to), ariaAnalyticsTable.createdAt));
+  if (to)   conditions.push(lt(ariaAnalyticsTable.createdAt, new Date(to)));
   if (intent && intent !== "all") conditions.push(eq(ariaAnalyticsTable.detectedIntent, intent));
 
   const rows = await db

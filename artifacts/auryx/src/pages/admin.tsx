@@ -185,7 +185,7 @@ function Spinner() {
 function SubTabs<T extends string>({ tabs, active, onChange }: {
   tabs: { id: T; label: string }[];
   active: T;
-  onChange: (t: T) => void;
+  onChange: React.Dispatch<React.SetStateAction<T>>;
 }) {
   return (
     <div className="flex gap-2 border-b border-white/10 mb-4">
