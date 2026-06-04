@@ -93,6 +93,7 @@ const CreateStaffSchema = z.object({
   name: z.string().min(1),
   email: z.string().email(),
   password: z.string().min(8),
+  role: z.enum(["staff", "admin"]).default("staff"),
 });
 
 router.get("/admin/users", requireAdmin, async (_req, res) => {
@@ -100,6 +101,7 @@ router.get("/admin/users", requireAdmin, async (_req, res) => {
     id: adminUsersTable.id,
     name: adminUsersTable.name,
     email: adminUsersTable.email,
+    role: adminUsersTable.role,
     isActive: adminUsersTable.isActive,
     lastLoginAt: adminUsersTable.lastLoginAt,
     createdAt: adminUsersTable.createdAt,
@@ -114,7 +116,7 @@ router.post("/admin/users", requireAdmin, async (req, res) => {
     return;
   }
 
-  const { name, email, password } = parsed.data;
+  const { name, email, password, role } = parsed.data;
   const passwordHash = await bcrypt.hash(password, 12);
 
   try {
@@ -122,10 +124,12 @@ router.post("/admin/users", requireAdmin, async (req, res) => {
       name,
       email: email.toLowerCase(),
       passwordHash,
+      role,
     }).returning({
       id: adminUsersTable.id,
       name: adminUsersTable.name,
       email: adminUsersTable.email,
+      role: adminUsersTable.role,
       isActive: adminUsersTable.isActive,
       createdAt: adminUsersTable.createdAt,
     });
@@ -143,6 +147,7 @@ router.patch("/admin/users/:id", requireAdmin, async (req, res) => {
     isActive: z.boolean().optional(),
     name: z.string().min(1).optional(),
     password: z.string().min(8).optional(),
+    role: z.enum(["staff", "admin"]).optional(),
   }).safeParse(req.body);
 
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
@@ -150,6 +155,7 @@ router.patch("/admin/users/:id", requireAdmin, async (req, res) => {
   const updates: Partial<typeof adminUsersTable.$inferInsert> = {};
   if (parsed.data.isActive !== undefined) updates.isActive = parsed.data.isActive;
   if (parsed.data.name) updates.name = parsed.data.name;
+  if (parsed.data.role) updates.role = parsed.data.role;
   if (parsed.data.password) updates.passwordHash = await bcrypt.hash(parsed.data.password, 12);
 
   const [user] = await db.update(adminUsersTable)
@@ -159,6 +165,7 @@ router.patch("/admin/users/:id", requireAdmin, async (req, res) => {
       id: adminUsersTable.id,
       name: adminUsersTable.name,
       email: adminUsersTable.email,
+      role: adminUsersTable.role,
       isActive: adminUsersTable.isActive,
       lastLoginAt: adminUsersTable.lastLoginAt,
     });

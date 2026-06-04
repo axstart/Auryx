@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { useLocation } from "wouter";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -74,6 +74,7 @@ interface StaffUser {
   id: number;
   name: string;
   email: string;
+  role: "staff" | "admin";
   isActive: boolean;
   lastLoginAt?: string;
   createdAt: string;
@@ -92,6 +93,7 @@ interface FinancialsData {
   allTimeRevenueCents: number;
   monthlyRevenue: { month: string; revenueCents: number; orderCount: number }[];
   ordersByStatus: { status: string; count: number; totalCents: number }[];
+  topSellingItems: { name: string; revenueCents: number; unitsSold: number }[];
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -262,12 +264,38 @@ function DashboardTab() {
 
 // ── Orders ───────────────────────────────────────────────────────────────────
 
+function exportOrdersCSV(orders: Order[]) {
+  const headers = ["ID", "Customer", "Email", "Phone", "Status", "Total", "Tracking", "Ordered", "Items"];
+  const rows = orders.map(o => [
+    o.id,
+    `"${o.customerName}"`,
+    o.email,
+    o.phone ?? "",
+    o.status,
+    (o.totalCents / 100).toFixed(2),
+    o.trackingNumber ?? "",
+    fmtDate(o.createdAt),
+    `"${o.items.map(i => `${i.name}×${i.quantity}`).join("; ")}"`,
+  ]);
+  const csv = [headers, ...rows].map(r => r.join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `auryx-orders-${new Date().toISOString().slice(0, 10)}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
 function OrdersTab() {
   const { data: orders, loading, reload } = useApi<Order[]>("/orders");
   const [expanded, setExpanded] = useState<number | null>(null);
   const [trackingInputs, setTrackingInputs] = useState<Record<number, string>>({});
   const [saving, setSaving] = useState<number | null>(null);
   const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
+  const [search, setSearch] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
 
   async function updateOrder(id: number, body: object) {
     setSaving(id);
@@ -283,29 +311,88 @@ function OrdersTab() {
     }
   }
 
-  const filtered = orders?.filter(o => statusFilter === "all" || o.status === statusFilter) ?? [];
+  const filtered = (orders ?? []).filter(o => {
+    if (statusFilter !== "all" && o.status !== statusFilter) return false;
+    if (search) {
+      const q = search.toLowerCase();
+      if (!o.customerName.toLowerCase().includes(q) && !o.email.toLowerCase().includes(q) && !String(o.id).includes(q)) return false;
+    }
+    if (dateFrom && new Date(o.createdAt) < new Date(dateFrom)) return false;
+    if (dateTo && new Date(o.createdAt) > new Date(dateTo + "T23:59:59")) return false;
+    return true;
+  });
+
+  // Status metric cards
+  const statusCounts = STATUS_ORDER.reduce((acc, s) => {
+    acc[s] = (orders ?? []).filter(o => o.status === s).length;
+    return acc;
+  }, {} as Record<OrderStatus, number>);
 
   if (loading) return <Spinner />;
 
   return (
     <div className="space-y-4">
-      <div className="flex gap-2 flex-wrap">
-        {(["all", ...STATUS_ORDER] as const).map(s => (
+      {/* Status metric cards */}
+      <div className="grid grid-cols-5 gap-2">
+        {STATUS_ORDER.map(s => (
           <button
             key={s}
-            onClick={() => setStatusFilter(s)}
-            className={`px-3 py-1 rounded text-xs font-['DM_Sans'] tracking-wide transition-colors ${
+            onClick={() => setStatusFilter(statusFilter === s ? "all" : s)}
+            className={`p-3 rounded-lg border text-left transition-all ${
               statusFilter === s
-                ? "bg-[#C9A844] text-black"
-                : "bg-white/5 text-white/50 hover:bg-white/10"
+                ? "border-[#C9A844]/40 bg-[#C9A844]/10"
+                : "border-white/8 bg-white/[0.02] hover:border-white/15"
             }`}
           >
-            {s === "all" ? "All" : STATUS_LABEL[s]}
+            <p className="text-xs text-white/30 font-['DM_Sans'] truncate">{STATUS_LABEL[s]}</p>
+            <p className="text-xl font-['Cormorant_Garamond'] text-white/70 mt-1">{statusCounts[s]}</p>
           </button>
         ))}
       </div>
 
-      {filtered.length === 0 ? <EmptyState message="No orders." /> : (
+      {/* Filters */}
+      <div className="flex gap-3 flex-wrap items-center">
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search name, email, order #…"
+          className="flex-1 min-w-48 bg-white/5 border border-white/10 text-white/80 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
+        />
+        <input
+          type="date"
+          value={dateFrom}
+          onChange={e => setDateFrom(e.target.value)}
+          className="bg-white/5 border border-white/10 text-white/50 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
+        />
+        <span className="text-white/20 text-sm">→</span>
+        <input
+          type="date"
+          value={dateTo}
+          onChange={e => setDateTo(e.target.value)}
+          className="bg-white/5 border border-white/10 text-white/50 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
+        />
+        {(search || dateFrom || dateTo || statusFilter !== "all") && (
+          <button
+            onClick={() => { setSearch(""); setDateFrom(""); setDateTo(""); setStatusFilter("all"); }}
+            className="text-xs text-white/30 hover:text-white/60 font-['DM_Sans'] transition-colors"
+          >
+            Clear filters
+          </button>
+        )}
+        <button
+          onClick={() => exportOrdersCSV(filtered)}
+          className="ml-auto px-3 py-2 bg-white/5 hover:bg-white/10 text-white/50 text-xs rounded font-['DM_Sans'] transition-colors"
+        >
+          Export CSV
+        </button>
+      </div>
+
+      <p className="text-xs text-white/30 font-['DM_Sans']">
+        {filtered.length} order{filtered.length !== 1 ? "s" : ""}
+        {filtered.length !== (orders?.length ?? 0) ? ` of ${orders?.length ?? 0}` : ""}
+      </p>
+
+      {filtered.length === 0 ? <EmptyState message="No orders match your filters." /> : (
         <div className="space-y-2">
           {filtered.map(order => {
             const isExpanded = expanded === order.id;
@@ -332,6 +419,7 @@ function OrdersTab() {
                   </div>
                   <div className="flex items-center gap-4 shrink-0 ml-4">
                     <span className="text-sm text-white/60 font-['DM_Sans']">{fmt$(order.totalCents)}</span>
+                    <span className="text-xs text-white/30 font-['DM_Sans'] hidden sm:block">{fmtDate(order.createdAt)}</span>
                     <Badge label={STATUS_LABEL[order.status]} className={STATUS_COLOR[order.status]} />
                     <span className="text-white/30 text-xs">{isExpanded ? "▲" : "▼"}</span>
                   </div>
@@ -424,12 +512,109 @@ function OrdersTab() {
   );
 }
 
+// ── Adjust Stock Modal ────────────────────────────────────────────────────────
+
+function AdjustStockModal({
+  item,
+  onClose,
+  onSaved,
+}: {
+  item: InventoryItem;
+  onClose: () => void;
+  onSaved: () => void;
+}) {
+  const [delta, setDelta] = useState(0);
+  const [saving, setSaving] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => { inputRef.current?.focus(); }, []);
+
+  async function save() {
+    if (delta === 0) { onClose(); return; }
+    setSaving(true);
+    try {
+      await apiFetch(`/inventory/${item.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stock: Math.max(0, item.stock + delta) }),
+      });
+      onSaved();
+      onClose();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const newStock = Math.max(0, item.stock + delta);
+  const isLow = newStock <= item.lowStockThreshold;
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.96 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.96 }}
+        className="bg-[#111] border border-white/10 rounded-xl p-6 w-80 shadow-2xl"
+      >
+        <p className="text-base font-['Cormorant_Garamond'] text-white/80 mb-1">Adjust Stock</p>
+        <p className="text-xs text-white/40 font-['DM_Sans'] mb-4">{item.name}</p>
+
+        <div className="flex items-center gap-3 mb-4">
+          <button
+            onClick={() => setDelta(d => d - 1)}
+            className="w-9 h-9 rounded bg-white/5 hover:bg-white/10 text-white/60 text-lg flex items-center justify-center font-['DM_Sans'] transition-colors"
+          >
+            −
+          </button>
+          <input
+            ref={inputRef}
+            type="number"
+            value={delta}
+            onChange={e => setDelta(parseInt(e.target.value) || 0)}
+            className="flex-1 text-center bg-white/5 border border-white/10 text-white/80 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
+          />
+          <button
+            onClick={() => setDelta(d => d + 1)}
+            className="w-9 h-9 rounded bg-white/5 hover:bg-white/10 text-white/60 text-lg flex items-center justify-center font-['DM_Sans'] transition-colors"
+          >
+            +
+          </button>
+        </div>
+
+        <div className="flex justify-between text-xs text-white/40 font-['DM_Sans'] mb-5">
+          <span>Current: {item.stock} {item.unit}</span>
+          <span className={isLow ? "text-amber-400" : "text-white/60"}>
+            New: {newStock} {item.unit}{isLow ? " ⚠ Low" : ""}
+          </span>
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            onClick={save}
+            disabled={saving || delta === 0}
+            className="flex-1 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-40 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
+          >
+            {saving ? "Saving…" : "Save"}
+          </button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white/50 text-sm rounded font-['DM_Sans'] transition-colors"
+          >
+            Cancel
+          </button>
+        </div>
+      </motion.div>
+    </div>
+  );
+}
+
 // ── Inventory ────────────────────────────────────────────────────────────────
 
 function InventoryTab() {
   const { data: items, loading, reload } = useApi<InventoryItem[]>("/inventory");
   const [editingId, setEditingId] = useState<number | "new" | null>(null);
-  const [form, setForm] = useState<Partial<InventoryItem>>({});
+  const [adjustItem, setAdjustItem] = useState<InventoryItem | null>(null);
+  const [form, setForm] = useState<Partial<InventoryItem & { sellPriceCents: number }>>({});
   const [saving, setSaving] = useState(false);
 
   function startNew() {
@@ -445,17 +630,19 @@ function InventoryTab() {
   async function saveItem() {
     setSaving(true);
     try {
+      const body = { ...form };
+      delete (body as Record<string, unknown>).sellPriceCents;
       if (editingId === "new") {
         await apiFetch("/inventory", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
+          body: JSON.stringify(body),
         });
       } else {
         await apiFetch(`/inventory/${editingId}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
+          body: JSON.stringify(body),
         });
       }
       setEditingId(null);
@@ -551,6 +738,16 @@ function InventoryTab() {
         )}
       </AnimatePresence>
 
+      <AnimatePresence>
+        {adjustItem && (
+          <AdjustStockModal
+            item={adjustItem}
+            onClose={() => setAdjustItem(null)}
+            onSaved={reload}
+          />
+        )}
+      </AnimatePresence>
+
       {!items?.length ? <EmptyState message="No inventory items yet." /> : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm font-['DM_Sans']">
@@ -558,6 +755,7 @@ function InventoryTab() {
               <tr className="text-left text-white/30 text-xs tracking-widest uppercase border-b border-white/8">
                 <th className="pb-3 pr-4 font-normal">Item</th>
                 <th className="pb-3 pr-4 font-normal">Category</th>
+                <th className="pb-3 pr-4 font-normal">Status</th>
                 <th className="pb-3 pr-4 text-right font-normal">Stock</th>
                 <th className="pb-3 pr-4 text-right font-normal">Cost/Unit</th>
                 <th className="pb-3 pr-4 font-normal">Notes</th>
@@ -567,15 +765,23 @@ function InventoryTab() {
             <tbody className="divide-y divide-white/5">
               {items.map(item => {
                 const lowStock = item.stock <= item.lowStockThreshold;
+                const outOfStock = item.stock === 0;
                 return (
                   <tr key={item.id}>
                     <td className="py-3 pr-4 text-white/80">{item.name}</td>
                     <td className="py-3 pr-4 text-white/40">{item.category}</td>
+                    <td className="py-3 pr-4">
+                      {outOfStock
+                        ? <Badge label="Out of Stock" className="text-red-400 bg-red-400/10" />
+                        : lowStock
+                        ? <Badge label="Low Stock" className="text-amber-400 bg-amber-400/10" />
+                        : <Badge label="In Stock" className="text-green-400 bg-green-400/10" />
+                      }
+                    </td>
                     <td className="py-3 pr-4 text-right">
-                      <span className={lowStock ? "text-amber-400 font-medium" : "text-white/70"}>
+                      <span className={outOfStock ? "text-red-400 font-medium" : lowStock ? "text-amber-400 font-medium" : "text-white/70"}>
                         {item.stock} {item.unit}
                       </span>
-                      {lowStock && <span className="ml-1 text-amber-400 text-xs">⚠</span>}
                     </td>
                     <td className="py-3 pr-4 text-right text-white/50">
                       {item.costPerUnit ? fmt$(item.costPerUnit) : "—"}
@@ -583,6 +789,7 @@ function InventoryTab() {
                     <td className="py-3 pr-4 text-white/30 text-xs max-w-xs truncate">{item.notes ?? "—"}</td>
                     <td className="py-3">
                       <div className="flex gap-3 justify-end">
+                        <button onClick={() => setAdjustItem(item)} className="text-xs text-white/40 hover:text-[#0D9488] transition-colors">Adjust</button>
                         <button onClick={() => startEdit(item)} className="text-xs text-white/40 hover:text-[#C9A844] transition-colors">Edit</button>
                         <button onClick={() => deleteItem(item.id)} className="text-xs text-white/40 hover:text-red-400 transition-colors">Delete</button>
                       </div>
@@ -1025,7 +1232,7 @@ function EscalationsPanel() {
 function UsersTab() {
   const { data: users, loading, reload } = useApi<StaffUser[]>("/admin/users");
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", password: "", role: "staff" });
   const [saving, setSaving] = useState(false);
   const [formError, setFormError] = useState("");
 
@@ -1043,11 +1250,11 @@ function UsersTab() {
         const body = await r.json();
         throw new Error(body.error ?? "Failed");
       }
-      setForm({ name: "", email: "", password: "" });
+      setForm({ name: "", email: "", password: "", role: "staff" });
       setShowForm(false);
       reload();
-    } catch (err: any) {
-      setFormError(err.message);
+    } catch (err: unknown) {
+      setFormError(err instanceof Error ? err.message : "Failed");
     } finally {
       setSaving(false);
     }
@@ -1102,6 +1309,17 @@ function UsersTab() {
                 />
               </div>
             ))}
+            <div>
+              <label className="block text-xs tracking-widest uppercase text-white/30 mb-1 font-['DM_Sans']">Role</label>
+              <select
+                value={form.role}
+                onChange={e => setForm(p => ({ ...p, role: e.target.value }))}
+                className="w-full bg-white/5 border border-white/10 text-white/80 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
+              >
+                <option value="staff">Staff</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
             {formError && <p className="text-red-400 text-xs font-['DM_Sans']">{formError}</p>}
             <div className="flex gap-2">
               <button
@@ -1135,11 +1353,15 @@ function UsersTab() {
               <div>
                 <p className="text-sm text-white/80 font-['DM_Sans']">{u.name}</p>
                 <p className="text-xs text-white/30 font-['DM_Sans'] mt-0.5">
-                  {u.email} · Added {fmtDate(u.createdAt)}
+                  {u.email} · <span className="capitalize">{u.role}</span> · Added {fmtDate(u.createdAt)}
                   {u.lastLoginAt ? ` · Last login ${fmtDate(u.lastLoginAt)}` : " · Never logged in"}
                 </p>
               </div>
               <div className="flex items-center gap-3">
+                <Badge
+                  label={u.role === "admin" ? "Admin" : "Staff"}
+                  className={u.role === "admin" ? "text-[#C9A844] bg-[#C9A844]/10" : "text-teal-400 bg-teal-400/10"}
+                />
                 <Badge
                   label={u.isActive ? "Active" : "Inactive"}
                   className={u.isActive ? "text-green-400 bg-green-400/10" : "text-white/30 bg-white/5"}
@@ -1157,7 +1379,7 @@ function UsersTab() {
       )}
 
       <div className="bg-white/[0.02] border border-white/8 rounded-lg px-5 py-4 mt-2">
-        <p className="text-xs tracking-widest uppercase text-white/30 mb-2 font-['DM_Sans']">Admin Accounts</p>
+        <p className="text-xs tracking-widest uppercase text-white/30 mb-2 font-['DM_Sans']">Admin Accounts (Environment)</p>
         <p className="text-sm text-white/40 font-['DM_Sans']">
           Leo and Romy are configured as admins via environment secrets and are not stored in the database.
         </p>
@@ -1175,6 +1397,7 @@ function FinancialsTab() {
   if (!data) return <EmptyState message="Could not load financials." />;
 
   const maxRevenue = Math.max(...data.monthlyRevenue.map(m => m.revenueCents), 1);
+  const maxItemRevenue = Math.max(...(data.topSellingItems ?? []).map(i => i.revenueCents), 1);
 
   const STATUS_LABEL_MAP: Record<string, string> = {
     pending: "Pending",
@@ -1205,6 +1428,7 @@ function FinancialsTab() {
                 >
                   <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#111] text-white/70 text-xs font-['DM_Sans'] px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                     {fmt$(m.revenueCents)}
+                    {m.orderCount > 0 && <span className="ml-1 text-white/40">({m.orderCount})</span>}
                   </div>
                 </div>
                 <p className="text-white/20 text-[10px] font-['DM_Sans'] text-center leading-none">
@@ -1230,6 +1454,30 @@ function FinancialsTab() {
           ))}
         </div>
       </div>
+
+      {data.topSellingItems && data.topSellingItems.length > 0 && (
+        <div>
+          <p className="text-xs tracking-widest uppercase text-white/30 mb-3 font-['DM_Sans']">Top Selling Peptides by Revenue</p>
+          <div className="space-y-2">
+            {data.topSellingItems.map((item, i) => (
+              <div key={item.name} className="flex items-center gap-3">
+                <span className="text-white/20 text-xs w-4 font-['DM_Sans'] text-right shrink-0">{i + 1}</span>
+                <div className="flex-1 bg-white/5 rounded h-6 overflow-hidden relative">
+                  <div
+                    className="h-full bg-[#C9A844]/25 rounded transition-all"
+                    style={{ width: `${Math.round((item.revenueCents / maxItemRevenue) * 100)}%` }}
+                  />
+                  <span className="absolute inset-0 flex items-center px-2 text-xs text-white/60 font-['DM_Sans'] truncate">
+                    {item.name}
+                  </span>
+                </div>
+                <span className="text-white/50 text-sm font-['DM_Sans'] shrink-0 w-20 text-right">{fmt$(item.revenueCents)}</span>
+                <span className="text-white/30 text-xs font-['DM_Sans'] shrink-0 w-16 text-right">{item.unitsSold} units</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

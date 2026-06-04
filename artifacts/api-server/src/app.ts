@@ -38,7 +38,13 @@ app.use(
       conString: process.env.DATABASE_URL,
       tableName: "session",
     }),
-    secret: process.env.SESSION_SECRET ?? "auryx-dev-secret-change-in-prod",
+    secret: (() => {
+      const s = process.env.SESSION_SECRET;
+      if (!s && process.env.NODE_ENV === "production") {
+        throw new Error("SESSION_SECRET environment variable is required in production");
+      }
+      return s ?? "auryx-dev-secret-DO-NOT-USE-IN-PROD";
+    })(),
     resave: false,
     saveUninitialized: false,
     cookie: {
