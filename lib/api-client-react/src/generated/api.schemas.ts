@@ -80,6 +80,8 @@ export interface InventoryItem {
   lowStockThreshold: number;
   /** Cost per unit in cents (e.g. 5000 = $50.00) */
   costPerUnit: number;
+  /** Sell price per unit in cents (e.g. 32900 = $329.00) */
+  sellPriceCents: number;
   /** @nullable */
   notes?: string | null;
   updatedAt: string;
@@ -101,6 +103,11 @@ export interface InventoryItemInput {
    * @minimum 0
    */
   costPerUnit?: number;
+  /**
+   * Sell price per unit in cents
+   * @minimum 0
+   */
+  sellPriceCents?: number;
   notes?: string;
 }
 
@@ -118,6 +125,11 @@ export interface InventoryItemUpdate {
    * @minimum 0
    */
   costPerUnit?: number;
+  /**
+   * Sell price per unit in cents
+   * @minimum 0
+   */
+  sellPriceCents?: number;
   notes?: string;
 }
 

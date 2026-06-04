@@ -70,9 +70,9 @@ router.post("/admin/auth/login", async (req, res) => {
     .set({ lastLoginAt: new Date() })
     .where(eq(adminUsersTable.id, staff.id));
 
-  req.session.user = { id: staff.id, email: staff.email, name: staff.name, role: "staff" };
+  req.session.user = { id: staff.id, email: staff.email, name: staff.name, role: staff.role as "staff" | "admin" };
   req.session.cookie.maxAge = 8 * 60 * 60 * 1000;
-  res.json({ email: staff.email, name: staff.name, role: "staff" });
+  res.json({ email: staff.email, name: staff.name, role: staff.role });
 });
 
 // POST /api/admin/auth/logout

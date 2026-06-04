@@ -22,5 +22,10 @@ export interface InventoryItemInput {
    * @minimum 0
    */
   costPerUnit?: number;
+  /**
+   * Sell price per unit in cents
+   * @minimum 0
+   */
+  sellPriceCents?: number;
   notes?: string;
 }

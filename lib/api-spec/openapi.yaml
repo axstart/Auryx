@@ -330,7 +330,7 @@ components:
 
     InventoryItem:
       type: object
-      required: [id, name, category, stock, unit, lowStockThreshold, costPerUnit, updatedAt]
+      required: [id, name, category, stock, unit, lowStockThreshold, costPerUnit, sellPriceCents, updatedAt]
       properties:
         id:
           type: integer
@@ -347,6 +347,9 @@ components:
         costPerUnit:
           type: integer
           description: Cost per unit in cents (e.g. 5000 = $50.00)
+        sellPriceCents:
+          type: integer
+          description: Sell price per unit in cents (e.g. 32900 = $329.00)
         notes:
           type: ["string", "null"]
         updatedAt:
@@ -377,6 +380,11 @@ components:
           minimum: 0
           default: 0
           description: Cost per unit in cents
+        sellPriceCents:
+          type: integer
+          minimum: 0
+          default: 0
+          description: Sell price per unit in cents
         notes:
           type: string
 
@@ -400,6 +408,10 @@ components:
           type: integer
           minimum: 0
           description: Cost per unit in cents
+        sellPriceCents:
+          type: integer
+          minimum: 0
+          description: Sell price per unit in cents
         notes:
           type: string
 

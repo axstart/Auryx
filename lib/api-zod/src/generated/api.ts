@@ -101,6 +101,9 @@ export const ListInventoryResponseItem = zod.object({
   costPerUnit: zod
     .number()
     .describe("Cost per unit in cents (e.g. 5000 = $50.00)"),
+  sellPriceCents: zod
+    .number()
+    .describe("Sell price per unit in cents (e.g. 32900 = $329.00)"),
   notes: zod.string().nullish(),
   updatedAt: zod.coerce.date(),
 });
@@ -117,6 +120,9 @@ export const createInventoryItemBodyLowStockThresholdMin = 0;
 export const createInventoryItemBodyCostPerUnitDefault = 0;
 export const createInventoryItemBodyCostPerUnitMin = 0;
 
+export const createInventoryItemBodySellPriceCentsDefault = 0;
+export const createInventoryItemBodySellPriceCentsMin = 0;
+
 export const CreateInventoryItemBody = zod.object({
   name: zod.string().min(1),
   category: zod.string().min(1),
@@ -130,6 +136,11 @@ export const CreateInventoryItemBody = zod.object({
     .min(createInventoryItemBodyCostPerUnitMin)
     .default(createInventoryItemBodyCostPerUnitDefault)
     .describe("Cost per unit in cents"),
+  sellPriceCents: zod
+    .number()
+    .min(createInventoryItemBodySellPriceCentsMin)
+    .default(createInventoryItemBodySellPriceCentsDefault)
+    .describe("Sell price per unit in cents"),
   notes: zod.string().optional(),
 });
 
@@ -146,6 +157,8 @@ export const updateInventoryItemBodyLowStockThresholdMin = 0;
 
 export const updateInventoryItemBodyCostPerUnitMin = 0;
 
+export const updateInventoryItemBodySellPriceCentsMin = 0;
+
 export const UpdateInventoryItemBody = zod.object({
   name: zod.string().min(1).optional(),
   category: zod.string().optional(),
@@ -160,6 +173,11 @@ export const UpdateInventoryItemBody = zod.object({
     .min(updateInventoryItemBodyCostPerUnitMin)
     .optional()
     .describe("Cost per unit in cents"),
+  sellPriceCents: zod
+    .number()
+    .min(updateInventoryItemBodySellPriceCentsMin)
+    .optional()
+    .describe("Sell price per unit in cents"),
   notes: zod.string().optional(),
 });
 
@@ -173,6 +191,9 @@ export const UpdateInventoryItemResponse = zod.object({
   costPerUnit: zod
     .number()
     .describe("Cost per unit in cents (e.g. 5000 = $50.00)"),
+  sellPriceCents: zod
+    .number()
+    .describe("Sell price per unit in cents (e.g. 32900 = $329.00)"),
   notes: zod.string().nullish(),
   updatedAt: zod.coerce.date(),
 });

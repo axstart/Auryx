@@ -29,6 +29,7 @@ interface InventoryItem {
   unit: string;
   lowStockThreshold: number;
   costPerUnit: number;
+  sellPriceCents: number;
   notes?: string;
 }
 
@@ -618,7 +619,7 @@ function InventoryTab() {
   const [saving, setSaving] = useState(false);
 
   function startNew() {
-    setForm({ name: "", category: "", stock: 0, unit: "vials", lowStockThreshold: 5, costPerUnit: 0 });
+    setForm({ name: "", category: "", stock: 0, unit: "vials", lowStockThreshold: 5, costPerUnit: 0, sellPriceCents: 0 });
     setEditingId("new");
   }
 
@@ -667,6 +668,7 @@ function InventoryTab() {
     { label: "Unit", key: "unit", type: "text" },
     { label: "Low Stock Threshold", key: "lowStockThreshold", type: "number" },
     { label: "Cost per Unit (cents)", key: "costPerUnit", type: "number", hint: "e.g. 5000 = $50.00" },
+    { label: "Sell Price (cents)", key: "sellPriceCents", type: "number", hint: "e.g. 32900 = $329.00" },
   ];
 
   return (
@@ -758,6 +760,8 @@ function InventoryTab() {
                 <th className="pb-3 pr-4 font-normal">Status</th>
                 <th className="pb-3 pr-4 text-right font-normal">Stock</th>
                 <th className="pb-3 pr-4 text-right font-normal">Cost/Unit</th>
+                <th className="pb-3 pr-4 text-right font-normal">Sell Price</th>
+                <th className="pb-3 pr-4 text-right font-normal">Margin</th>
                 <th className="pb-3 pr-4 font-normal">Notes</th>
                 <th className="pb-3 font-normal"></th>
               </tr>
@@ -766,6 +770,9 @@ function InventoryTab() {
               {items.map(item => {
                 const lowStock = item.stock <= item.lowStockThreshold;
                 const outOfStock = item.stock === 0;
+                const grossMargin = item.sellPriceCents > 0 && item.costPerUnit > 0
+                  ? Math.round(((item.sellPriceCents - item.costPerUnit) / item.sellPriceCents) * 100)
+                  : null;
                 return (
                   <tr key={item.id}>
                     <td className="py-3 pr-4 text-white/80">{item.name}</td>
@@ -785,6 +792,17 @@ function InventoryTab() {
                     </td>
                     <td className="py-3 pr-4 text-right text-white/50">
                       {item.costPerUnit ? fmt$(item.costPerUnit) : "—"}
+                    </td>
+                    <td className="py-3 pr-4 text-right text-white/70">
+                      {item.sellPriceCents ? fmt$(item.sellPriceCents) : "—"}
+                    </td>
+                    <td className="py-3 pr-4 text-right">
+                      {grossMargin !== null
+                        ? <span className={grossMargin >= 60 ? "text-green-400" : grossMargin >= 30 ? "text-amber-400" : "text-red-400"}>
+                            {grossMargin}%
+                          </span>
+                        : <span className="text-white/20">—</span>
+                      }
                     </td>
                     <td className="py-3 pr-4 text-white/30 text-xs max-w-xs truncate">{item.notes ?? "—"}</td>
                     <td className="py-3">
