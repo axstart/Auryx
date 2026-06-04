@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { verifyMailer } from "./lib/mailer.js";
+import { syncInventoryFromCatalog } from "./lib/syncInventory.js";
 
 const rawPort = process.env["PORT"];
 
@@ -24,4 +25,5 @@ app.listen(port, (err) => {
 
   logger.info({ port }, "Server listening");
   verifyMailer();
+  syncInventoryFromCatalog();
 });

@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useLocation } from "wouter";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -79,6 +79,35 @@ interface StaffUser {
   isActive: boolean;
   lastLoginAt?: string;
   createdAt: string;
+}
+
+type PatientStage = "lead" | "consultation" | "active_patient" | "churned";
+
+interface PatientOrder {
+  id: number;
+  status: string;
+  totalCents: number;
+  createdAt: string;
+  items: { name: string; quantity: number; priceCents: number; variantLabel?: string }[];
+  trackingNumber?: string | null;
+}
+
+interface PatientRecord {
+  email: string;
+  name: string;
+  phone?: string;
+  state?: string;
+  age?: number;
+  interest: string;
+  primaryGoal: string;
+  usedPeptidesBefore: string;
+  hearAboutUs: string;
+  stage: PatientStage;
+  notes: string;
+  consultationId?: number;
+  consultationStatus?: string;
+  orders: PatientOrder[];
+  lastActivity: string;
 }
 
 interface DashboardData {
@@ -825,20 +854,366 @@ function InventoryTab() {
 
 // ── Patients ─────────────────────────────────────────────────────────────────
 
+const STAGE_CONFIG: Record<PatientStage, { label: string; headerCls: string; borderCls: string; badgeCls: string }> = {
+  lead:           { label: "Lead",           headerCls: "text-amber-400",  borderCls: "border-amber-500/20",  badgeCls: "bg-amber-400/10 text-amber-400"  },
+  consultation:   { label: "Consultation",   headerCls: "text-blue-400",   borderCls: "border-blue-500/20",   badgeCls: "bg-blue-400/10 text-blue-400"    },
+  active_patient: { label: "Active Patient", headerCls: "text-green-400",  borderCls: "border-green-500/20",  badgeCls: "bg-green-400/10 text-green-400"  },
+  churned:        { label: "Churned",        headerCls: "text-red-400",    borderCls: "border-red-500/20",    badgeCls: "bg-red-400/10 text-red-400"      },
+};
+const STAGE_KEYS: PatientStage[] = ["lead", "consultation", "active_patient", "churned"];
+
 function PatientsTab() {
+  const [view, setView] = useState<"kanban" | "list">("kanban");
   const [sub, setSub] = useState<"consultations" | "continuations">("consultations");
 
   return (
     <div>
-      <SubTabs
-        tabs={[
-          { id: "consultations", label: "Consultations" },
-          { id: "continuations", label: "Protocol Continuations" },
-        ]}
-        active={sub}
-        onChange={setSub}
-      />
-      {sub === "consultations" ? <ConsultationsPanel /> : <ContinuationsPanel />}
+      <div className="flex justify-between items-center mb-4">
+        <SectionTitle>Patients</SectionTitle>
+        <div className="flex gap-1 bg-white/5 rounded p-1">
+          <button
+            onClick={() => setView("kanban")}
+            className={`px-3 py-1 text-xs rounded font-['DM_Sans'] transition-colors ${view === "kanban" ? "bg-[#C9A844] text-black font-medium" : "text-white/40 hover:text-white/60"}`}
+          >
+            CRM
+          </button>
+          <button
+            onClick={() => setView("list")}
+            className={`px-3 py-1 text-xs rounded font-['DM_Sans'] transition-colors ${view === "list" ? "bg-[#C9A844] text-black font-medium" : "text-white/40 hover:text-white/60"}`}
+          >
+            List
+          </button>
+        </div>
+      </div>
+
+      {view === "list" ? (
+        <div>
+          <SubTabs
+            tabs={[
+              { id: "consultations", label: "Consultations" },
+              { id: "continuations", label: "Protocol Continuations" },
+            ]}
+            active={sub}
+            onChange={setSub}
+          />
+          {sub === "consultations" ? <ConsultationsPanel /> : <ContinuationsPanel />}
+        </div>
+      ) : (
+        <PatientKanbanView />
+      )}
+    </div>
+  );
+}
+
+function PatientKanbanView() {
+  const { data: patients, loading, reload } = useApi<PatientRecord[]>("/admin/patients");
+  const [stageFilter, setStageFilter] = useState("all");
+  const [search, setSearch] = useState("");
+  const [peptideFilter, setPeptideFilter] = useState("all");
+  const [selected, setSelected] = useState<PatientRecord | null>(null);
+  const [savingStage, setSavingStage] = useState(false);
+  const [notesText, setNotesText] = useState("");
+  const [savingNotes, setSavingNotes] = useState(false);
+  const [notesSaved, setNotesSaved] = useState(false);
+
+  const allInterests = useMemo(() => {
+    if (!patients) return [];
+    const set = new Set<string>();
+    patients.forEach(p => {
+      if (p.interest) p.interest.split(",").forEach(i => { const t = i.trim(); if (t) set.add(t); });
+    });
+    return [...set].sort();
+  }, [patients]);
+
+  const filtered = useMemo(() => {
+    if (!patients) return [];
+    return patients.filter(p => {
+      if (stageFilter !== "all" && p.stage !== stageFilter) return false;
+      const q = search.toLowerCase();
+      if (q && !p.name.toLowerCase().includes(q) && !p.email.toLowerCase().includes(q)) return false;
+      if (peptideFilter !== "all" && !p.interest.toLowerCase().includes(peptideFilter.toLowerCase())) return false;
+      return true;
+    });
+  }, [patients, stageFilter, search, peptideFilter]);
+
+  const byStage = useMemo(() => {
+    const m: Record<PatientStage, PatientRecord[]> = { lead: [], consultation: [], active_patient: [], churned: [] };
+    filtered.forEach(p => { (m[p.stage] ?? m.lead).push(p); });
+    return m;
+  }, [filtered]);
+
+  async function updateStage(p: PatientRecord, stage: PatientStage) {
+    setSavingStage(true);
+    try {
+      await apiFetch(`/admin/patients/${encodeURIComponent(p.email)}/stage`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ stage }),
+      });
+      reload();
+      setSelected(prev => prev?.email === p.email ? { ...prev, stage } : prev);
+    } finally {
+      setSavingStage(false);
+    }
+  }
+
+  async function saveNotes(email: string) {
+    setSavingNotes(true);
+    try {
+      await apiFetch(`/admin/patients/${encodeURIComponent(email)}/notes`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ notes: notesText }),
+      });
+      setNotesSaved(true);
+      setTimeout(() => setNotesSaved(false), 2000);
+      reload();
+    } finally {
+      setSavingNotes(false);
+    }
+  }
+
+  function openDetail(p: PatientRecord) {
+    setSelected(p);
+    setNotesText(p.notes);
+  }
+
+  const hasFilters = stageFilter !== "all" || search !== "" || peptideFilter !== "all";
+
+  if (loading) return <Spinner />;
+
+  return (
+    <div>
+      {/* Filter bar */}
+      <div className="flex gap-2 mb-5 flex-wrap items-center">
+        <select
+          value={stageFilter}
+          onChange={e => setStageFilter(e.target.value)}
+          className="bg-white/5 border border-white/10 text-white/70 text-xs rounded px-3 py-1.5 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
+        >
+          <option value="all">All Stages</option>
+          {STAGE_KEYS.map(s => <option key={s} value={s}>{STAGE_CONFIG[s].label}</option>)}
+        </select>
+        <input
+          type="text"
+          placeholder="Search name or email…"
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          className="bg-white/5 border border-white/10 text-white/70 text-xs rounded px-3 py-1.5 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40 w-52"
+        />
+        <select
+          value={peptideFilter}
+          onChange={e => setPeptideFilter(e.target.value)}
+          className="bg-white/5 border border-white/10 text-white/70 text-xs rounded px-3 py-1.5 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
+        >
+          <option value="all">All Interests</option>
+          {allInterests.map(i => <option key={i} value={i}>{i}</option>)}
+        </select>
+        {hasFilters && (
+          <button
+            onClick={() => { setStageFilter("all"); setSearch(""); setPeptideFilter("all"); }}
+            className="text-xs text-white/30 hover:text-white/60 font-['DM_Sans'] px-2 py-1.5 transition-colors"
+          >
+            Clear
+          </button>
+        )}
+        <span className="ml-auto text-xs text-white/20 font-['DM_Sans']">
+          {filtered.length} / {patients?.length ?? 0} patients
+        </span>
+      </div>
+
+      {/* Kanban + detail split */}
+      <div className="flex gap-4 items-start">
+        {/* Kanban board */}
+        <div className={`transition-all duration-200 ${selected ? "hidden lg:block lg:flex-1 lg:min-w-0" : "w-full"}`}>
+          <div className="grid grid-cols-4 gap-3">
+            {STAGE_KEYS.map(stage => {
+              const cfg = STAGE_CONFIG[stage];
+              const cards = byStage[stage];
+              return (
+                <div key={stage} className={`bg-white/[0.02] border ${cfg.borderCls} rounded-lg overflow-hidden`}>
+                  <div className="px-3 py-2 border-b border-white/5 flex items-center justify-between">
+                    <span className={`text-xs font-['DM_Sans'] font-medium ${cfg.headerCls}`}>{cfg.label}</span>
+                    <span className="text-xs text-white/20 font-['DM_Sans']">{cards.length}</span>
+                  </div>
+                  <div className="p-2 space-y-2 min-h-[100px]">
+                    {cards.map(p => (
+                      <button
+                        key={p.email}
+                        onClick={() => openDetail(p)}
+                        className={`w-full text-left rounded-md p-2.5 transition-colors border ${
+                          selected?.email === p.email
+                            ? "border-[#C9A844]/40 bg-[#C9A844]/5"
+                            : "bg-white/[0.03] hover:bg-white/[0.06] border-white/8"
+                        }`}
+                      >
+                        <p className="text-xs text-white/80 font-['DM_Sans'] font-medium truncate">{p.name}</p>
+                        <p className="text-xs text-white/30 font-['DM_Sans'] truncate mt-0.5">{p.email}</p>
+                        {p.interest && (
+                          <div className="flex flex-wrap gap-1 mt-1.5">
+                            {p.interest.split(",").slice(0, 2).map(t => (
+                              <span key={t} style={{ fontSize: "10px" }} className="bg-teal-400/8 text-teal-400/70 px-1.5 py-0.5 rounded font-['DM_Sans'] truncate">
+                                {t.trim()}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                        <p style={{ fontSize: "10px" }} className="text-white/20 font-['DM_Sans'] mt-1.5">
+                          {p.orders.length > 0 ? `${p.orders.length} order${p.orders.length > 1 ? "s" : ""} · ` : ""}{fmtDate(p.lastActivity)}
+                        </p>
+                      </button>
+                    ))}
+                    {cards.length === 0 && (
+                      <p className="text-xs text-white/15 font-['DM_Sans'] text-center py-4">—</p>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Detail panel */}
+        <AnimatePresence>
+          {selected && (
+            <motion.div
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 24 }}
+              className="w-full lg:w-[400px] flex-shrink-0 bg-white/[0.03] border border-white/10 rounded-lg overflow-hidden"
+            >
+              <div className="px-5 py-4 border-b border-white/8 flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <p className="text-base text-white/90 font-['Cormorant_Garamond'] truncate">{selected.name}</p>
+                  <p className="text-xs text-white/40 font-['DM_Sans'] mt-0.5 truncate">{selected.email}</p>
+                </div>
+                <button onClick={() => setSelected(null)} className="text-white/30 hover:text-white/60 text-xl leading-none flex-shrink-0">×</button>
+              </div>
+
+              <div className="p-5 space-y-5 overflow-y-auto" style={{ maxHeight: "calc(100vh - 280px)" }}>
+                {/* Stage */}
+                <div>
+                  <p className="text-xs tracking-widest uppercase text-white/25 font-['DM_Sans'] mb-2">Stage</p>
+                  <div className="flex flex-wrap gap-2">
+                    {STAGE_KEYS.map(s => {
+                      const cfg = STAGE_CONFIG[s];
+                      const active = selected.stage === s;
+                      return (
+                        <button
+                          key={s}
+                          onClick={() => !active && updateStage(selected, s)}
+                          disabled={savingStage}
+                          className={`text-xs px-3 py-1.5 rounded font-['DM_Sans'] transition-colors disabled:opacity-50 ${active ? `${cfg.badgeCls} font-medium` : "bg-white/5 text-white/30 hover:bg-white/10"}`}
+                        >
+                          {cfg.label}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Contact info */}
+                <div className="grid grid-cols-2 gap-3">
+                  {selected.phone && (
+                    <div><p className="text-xs text-white/25 font-['DM_Sans']">Phone</p><p className="text-sm text-white/70 font-['DM_Sans']">{selected.phone}</p></div>
+                  )}
+                  {selected.state && (
+                    <div><p className="text-xs text-white/25 font-['DM_Sans']">State</p><p className="text-sm text-white/70 font-['DM_Sans']">{selected.state}</p></div>
+                  )}
+                  {(selected.age ?? 0) > 0 && (
+                    <div><p className="text-xs text-white/25 font-['DM_Sans']">Age</p><p className="text-sm text-white/70 font-['DM_Sans']">{selected.age}</p></div>
+                  )}
+                </div>
+
+                {/* Interest tags */}
+                {selected.interest && (
+                  <div>
+                    <p className="text-xs tracking-widest uppercase text-white/25 font-['DM_Sans'] mb-1.5">Areas of Interest</p>
+                    <div className="flex flex-wrap gap-1.5">
+                      {selected.interest.split(",").map(t => (
+                        <span key={t} className="text-xs bg-teal-400/10 text-teal-400 px-2 py-0.5 rounded font-['DM_Sans']">{t.trim()}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Consultation form fields */}
+                {selected.primaryGoal && (
+                  <div>
+                    <p className="text-xs tracking-widest uppercase text-white/25 font-['DM_Sans'] mb-1">Primary Goal</p>
+                    <p className="text-sm text-white/60 font-['DM_Sans']">{selected.primaryGoal}</p>
+                  </div>
+                )}
+                {selected.usedPeptidesBefore && (
+                  <div>
+                    <p className="text-xs tracking-widest uppercase text-white/25 font-['DM_Sans'] mb-1">Peptide Experience</p>
+                    <p className="text-sm text-white/60 font-['DM_Sans']">{selected.usedPeptidesBefore}</p>
+                  </div>
+                )}
+                {selected.hearAboutUs && (
+                  <div>
+                    <p className="text-xs tracking-widest uppercase text-white/25 font-['DM_Sans'] mb-1">Referral Source</p>
+                    <p className="text-sm text-white/60 font-['DM_Sans']">{selected.hearAboutUs}</p>
+                  </div>
+                )}
+                {selected.consultationStatus && (
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <p className="text-xs text-white/25 font-['DM_Sans']">Consult status:</p>
+                    <Badge
+                      label={selected.consultationStatus}
+                      className={selected.consultationStatus === "contacted" ? "text-green-400 bg-green-400/10" : "text-amber-400 bg-amber-400/10"}
+                    />
+                    <a href={`mailto:${selected.email}`} className="ml-auto text-xs text-white/30 hover:text-[#C9A844] font-['DM_Sans'] transition-colors">Reply ↗</a>
+                  </div>
+                )}
+
+                {/* Order history */}
+                {selected.orders.length > 0 && (
+                  <div>
+                    <p className="text-xs tracking-widest uppercase text-white/25 font-['DM_Sans'] mb-2">Order History</p>
+                    <div className="space-y-2">
+                      {selected.orders.map(o => (
+                        <div key={o.id} className="bg-white/[0.03] border border-white/8 rounded p-3">
+                          <div className="flex items-center justify-between mb-1">
+                            <span className="text-xs text-white/40 font-['DM_Sans']">#{o.id} · {fmtDate(o.createdAt)}</span>
+                            <Badge
+                              label={STATUS_LABEL[o.status as OrderStatus] ?? o.status}
+                              className={STATUS_COLOR[o.status as OrderStatus] ?? "text-white/40 bg-white/5"}
+                            />
+                          </div>
+                          <p className="text-xs text-white/30 font-['DM_Sans']">
+                            {(o.items as { name: string; quantity: number }[]).map(i => `${i.name} ×${i.quantity}`).join(", ")}
+                          </p>
+                          <p className="text-xs text-white/50 font-['DM_Sans'] mt-1">{fmt$(o.totalCents)}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Notes */}
+                <div>
+                  <p className="text-xs tracking-widest uppercase text-white/25 font-['DM_Sans'] mb-1.5">Notes</p>
+                  <textarea
+                    value={notesText}
+                    onChange={e => setNotesText(e.target.value)}
+                    rows={3}
+                    placeholder="Internal notes…"
+                    className="w-full bg-white/5 border border-white/10 text-white/70 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40 resize-none"
+                  />
+                  <button
+                    onClick={() => saveNotes(selected.email)}
+                    disabled={savingNotes}
+                    className="mt-1.5 text-xs px-3 py-1.5 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black rounded font-['DM_Sans'] font-medium transition-colors"
+                  >
+                    {notesSaved ? "Saved ✓" : savingNotes ? "Saving…" : "Save Notes"}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }

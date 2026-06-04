@@ -12,6 +12,7 @@ import protocolRecommendationRouter from "./protocolRecommendation.js";
 import analyticsRouter from "./analytics/index.js";
 import adminAuthRouter from "./adminAuth/index.js";
 import adminDashboardRouter from "./adminDashboard/index.js";
+import adminPatientsRouter from "./adminPatients/index.js";
 
 const router: IRouter = Router();
 
@@ -28,5 +29,6 @@ router.use(protocolRecommendationRouter);
 router.use(analyticsRouter);
 router.use(adminAuthRouter);
 router.use(adminDashboardRouter);
+router.use(adminPatientsRouter);
 
 export default router;
