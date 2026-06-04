@@ -5,6 +5,7 @@ import { db } from "@workspace/db";
 import { adminUsersTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import { sessionAuth, requireAdmin } from "../../middlewares/sessionAuth.js";
+import { checkBlocked, recordFailure, clearAttempts, getIp } from "../../lib/loginRateLimiter.js";
 
 const router = Router();
 
@@ -26,6 +27,15 @@ function getAdminCredentials(): { email: string; password: string; name: string 
 
 // POST /api/admin/auth/login
 router.post("/admin/auth/login", async (req, res) => {
+  const ip = getIp(req as Parameters<typeof getIp>[0]);
+
+  // Brute-force check
+  const blockCheck = checkBlocked(ip);
+  if (blockCheck.blocked) {
+    res.status(429).json({ error: blockCheck.error });
+    return;
+  }
+
   const parsed = LoginSchema.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: "Email and password required" });
@@ -39,11 +49,19 @@ router.post("/admin/auth/login", async (req, res) => {
   const adminMatch = admins.find(a => a.email.toLowerCase() === email.toLowerCase());
   if (adminMatch) {
     if (password !== adminMatch.password) {
-      res.status(401).json({ error: "Invalid credentials" });
+      const { nowBlocked, remaining } = recordFailure(ip);
+      if (nowBlocked) {
+        res.status(429).json({ error: "Too many login attempts. Please try again in 15 minutes." });
+      } else if (remaining <= 2) {
+        res.status(401).json({ error: "Invalid credentials", attemptsRemaining: remaining });
+      } else {
+        res.status(401).json({ error: "Invalid credentials" });
+      }
       return;
     }
+    clearAttempts(ip);
     req.session.user = { id: null, email: adminMatch.email, name: adminMatch.name, role: "admin" };
-    req.session.cookie.maxAge = 8 * 60 * 60 * 1000; // 8 hours
+    req.session.cookie.maxAge = 8 * 60 * 60 * 1000;
     res.json({ email: adminMatch.email, name: adminMatch.name, role: "admin" });
     return;
   }
@@ -55,17 +73,32 @@ router.post("/admin/auth/login", async (req, res) => {
     .where(eq(adminUsersTable.email, email.toLowerCase()));
 
   if (!staff || !staff.isActive) {
-    res.status(401).json({ error: "Invalid credentials" });
+    const { nowBlocked, remaining } = recordFailure(ip);
+    if (nowBlocked) {
+      res.status(429).json({ error: "Too many login attempts. Please try again in 15 minutes." });
+    } else if (remaining <= 2) {
+      res.status(401).json({ error: "Invalid credentials", attemptsRemaining: remaining });
+    } else {
+      res.status(401).json({ error: "Invalid credentials" });
+    }
     return;
   }
 
   const valid = await bcrypt.compare(password, staff.passwordHash);
   if (!valid) {
-    res.status(401).json({ error: "Invalid credentials" });
+    const { nowBlocked, remaining } = recordFailure(ip);
+    if (nowBlocked) {
+      res.status(429).json({ error: "Too many login attempts. Please try again in 15 minutes." });
+    } else if (remaining <= 2) {
+      res.status(401).json({ error: "Invalid credentials", attemptsRemaining: remaining });
+    } else {
+      res.status(401).json({ error: "Invalid credentials" });
+    }
     return;
   }
 
-  // Update last login
+  // Success — clear rate limit, update last login
+  clearAttempts(ip);
   await db.update(adminUsersTable)
     .set({ lastLoginAt: new Date() })
     .where(eq(adminUsersTable.id, staff.id));

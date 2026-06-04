@@ -8,6 +8,7 @@ export default function AdminLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [attemptsRemaining, setAttemptsRemaining] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
@@ -23,6 +24,7 @@ export default function AdminLogin() {
       navigate("/admin");
     } catch (err: any) {
       setError(err.message ?? "Login failed");
+      setAttemptsRemaining(typeof err.attemptsRemaining === "number" ? err.attemptsRemaining : null);
     } finally {
       setSubmitting(false);
     }
@@ -74,7 +76,14 @@ export default function AdminLogin() {
           </div>
 
           {error && (
-            <p className="text-red-400 text-sm font-['DM_Sans'] text-center">{error}</p>
+            <div className="text-center">
+              <p className="text-red-400 text-sm font-['DM_Sans']">{error}</p>
+              {attemptsRemaining !== null && attemptsRemaining > 0 && (
+                <p className="text-white/30 text-xs font-['DM_Sans'] mt-1">
+                  {attemptsRemaining} attempt{attemptsRemaining !== 1 ? "s" : ""} remaining before lockout
+                </p>
+              )}
+            </div>
           )}
 
           <button

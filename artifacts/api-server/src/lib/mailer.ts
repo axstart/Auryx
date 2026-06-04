@@ -32,6 +32,7 @@ export async function sendMail(opts: {
   to?: string;
   subject: string;
   text: string;
+  html?: string;
 }): Promise<void> {
   const adminEmail = process.env.ADMIN_EMAIL;
   const from = process.env.ZOHO_EMAIL;
@@ -47,5 +48,6 @@ export async function sendMail(opts: {
     to,
     subject: opts.subject,
     text: opts.text,
+    ...(opts.html ? { html: opts.html } : {}),
   });
 }

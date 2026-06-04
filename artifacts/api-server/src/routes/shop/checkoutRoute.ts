@@ -5,6 +5,7 @@ import { db } from "@workspace/db";
 import { ordersTable } from "@workspace/db/schema";
 import { sessionAuth } from "../../middlewares/sessionAuth.js";
 import { sendMail } from "../../lib/mailer.js";
+import { sendOrderStatusEmail } from "../../lib/orderEmail.js";
 import { getProductBySlug } from "./products.js";
 import { eq } from "drizzle-orm";
 
@@ -341,7 +342,14 @@ router.patch("/orders/:id", sessionAuth, async (req, res) => {
 
   // Send customer email for every status change
   if (parsed.data.status) {
-    sendStatusEmail(order);
+    sendOrderStatusEmail({
+      id: order.id,
+      email: order.email,
+      customerName: order.customerName,
+      status: order.status,
+      trackingNumber: order.trackingNumber,
+      items: order.items as { name: string; quantity: number; variantLabel?: string }[],
+    });
   }
 
   res.json(order);

@@ -39,7 +39,9 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
     });
     if (!r.ok) {
       const body = await r.json().catch(() => ({}));
-      throw new Error(body.error ?? "Login failed");
+      const err = new Error(body.error ?? "Login failed") as Error & { attemptsRemaining?: number };
+      if (typeof body.attemptsRemaining === "number") err.attemptsRemaining = body.attemptsRemaining;
+      throw err;
     }
     const data = await r.json();
     setUser(data);
