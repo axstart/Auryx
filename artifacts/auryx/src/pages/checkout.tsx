@@ -7,25 +7,29 @@ import { useCart } from "@/context/CartContext";
 import { Input } from "@/components/ui/input";
 import { Link, useLocation } from "wouter";
 
-let stripePromise: ReturnType<typeof loadStripe> | null = null;
+// Module-level stable Promise — created once, passed directly to <Elements>.
+// Never await and re-assign; Elements must receive the same Promise reference forever.
+let _stripePromise: ReturnType<typeof loadStripe> | null = null;
 
-async function getStripePromise() {
-  if (!stripePromise) {
-    const res = await fetch("/api/checkout/publishable-key");
-    if (!res.ok) throw new Error("Failed to load Stripe key from server");
-    const { publishableKey } = await res.json();
-    if (!publishableKey || !String(publishableKey).startsWith("pk_")) {
-      throw new Error("Stripe is not configured correctly — invalid publishable key");
-    }
-    stripePromise = loadStripe(publishableKey);
-    // If loadStripe returns null, clear the cache so the next attempt retries
-    const resolved = await stripePromise;
-    if (!resolved) {
-      stripePromise = null;
-      throw new Error("Stripe failed to initialize");
-    }
+function getStripePromise(): ReturnType<typeof loadStripe> {
+  if (!_stripePromise) {
+    _stripePromise = fetch("/api/checkout/publishable-key")
+      .then(r => {
+        if (!r.ok) throw new Error("Failed to load Stripe key");
+        return r.json();
+      })
+      .then(({ publishableKey }: { publishableKey: string }) => {
+        if (!publishableKey || !publishableKey.startsWith("pk_")) {
+          throw new Error("Invalid Stripe publishable key");
+        }
+        return loadStripe(publishableKey);
+      })
+      .catch(err => {
+        _stripePromise = null; // allow retry on next mount
+        throw err;
+      }) as ReturnType<typeof loadStripe>;
   }
-  return stripePromise;
+  return _stripePromise;
 }
 
 interface CheckoutForm {
@@ -60,7 +64,12 @@ function CheckoutPayment({ form, totalCents, onSuccess }: CheckoutPaymentProps) 
 
     const { error: submitError } = await elements.submit();
     if (submitError) {
-      setError(submitError.message ?? "Payment failed");
+      console.error("[Stripe] elements.submit() error:", JSON.stringify({
+        type: submitError.type,
+        code: submitError.code,
+        message: submitError.message,
+      }));
+      setError(submitError.message ?? `Submit error (${submitError.type ?? "unknown"})`);
       setLoading(false);
       return;
     }
@@ -94,7 +103,16 @@ function CheckoutPayment({ form, totalCents, onSuccess }: CheckoutPaymentProps) 
     });
 
     if (confirmError) {
-      setError(confirmError.message ?? "Payment failed");
+      console.error("[Stripe] confirmPayment error:", JSON.stringify({
+        type: confirmError.type,
+        code: confirmError.code,
+        decline_code: confirmError.decline_code,
+        message: confirmError.message,
+        param: confirmError.param,
+      }));
+      const msg = confirmError.message
+        ?? `Payment error (${confirmError.type ?? "unknown"} / ${confirmError.code ?? "no-code"})`;
+      setError(msg);
       setLoading(false);
       return;
     }
@@ -200,7 +218,9 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 export default function CheckoutPage() {
   const { items, totalCents, totalItems } = useCart();
   const [, navigate] = useLocation();
-  const [stripe, setStripe] = useState<Awaited<ReturnType<typeof loadStripe>> | null>(null);
+  // Hold the stable Promise reference — never the resolved value.
+  // Elements requires the same object reference for the lifetime of the component.
+  const [stripeP] = useState<ReturnType<typeof loadStripe>>(() => getStripePromise());
   const [stripeError, setStripeError] = useState(false);
   const [step, setStep] = useState<"details" | "payment">("details");
   const [form, setForm] = useState<CheckoutForm>({
@@ -210,10 +230,8 @@ export default function CheckoutPage() {
   const [errors, setErrors] = useState<Partial<CheckoutForm>>({});
 
   useEffect(() => {
-    getStripePromise()
-      .then(s => setStripe(s))
-      .catch(() => setStripeError(true));
-  }, []);
+    stripeP.catch(() => setStripeError(true));
+  }, [stripeP]);
 
   const validate = useCallback(() => {
     const e: Partial<CheckoutForm> = {};
@@ -339,13 +357,9 @@ export default function CheckoutPage() {
                     <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-600">
                       Unable to load payment form. Please refresh and try again.
                     </div>
-                  ) : !stripe ? (
-                    <div className="flex items-center justify-center py-12">
-                      <Loader2 className="w-6 h-6 text-[#B8962E] animate-spin" />
-                    </div>
                   ) : (
                     <Elements
-                      stripe={stripe}
+                      stripe={stripeP}
                       options={{
                         mode: "payment",
                         amount: totalCents,
