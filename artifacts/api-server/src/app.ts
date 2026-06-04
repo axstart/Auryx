@@ -1,8 +1,12 @@
 import express, { type Express } from "express";
 import cors from "cors";
 import pinoHttp from "pino-http";
+import session from "express-session";
+import connectPgSimple from "connect-pg-simple";
 import router from "./routes";
 import { logger } from "./lib/logger";
+
+const PgSession = connectPgSimple(session);
 
 const app: Express = express();
 
@@ -25,7 +29,28 @@ app.use(
     },
   }),
 );
-app.use(cors());
+app.use(cors({ origin: true, credentials: true }));
+
+// Session middleware
+app.use(
+  session({
+    store: new PgSession({
+      conString: process.env.DATABASE_URL,
+      tableName: "admin_sessions",
+      createTableIfMissing: true,
+    }),
+    secret: process.env.SESSION_SECRET ?? "auryx-dev-secret-change-in-prod",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: process.env.NODE_ENV === "production",
+      httpOnly: true,
+      sameSite: "lax",
+      maxAge: 8 * 60 * 60 * 1000, // 8 hours
+    },
+  }),
+);
+
 // Stripe webhook requires raw body for signature verification — must be before express.json()
 app.use("/api/stripe/webhook", express.raw({ type: "application/json" }));
 app.use(express.json());

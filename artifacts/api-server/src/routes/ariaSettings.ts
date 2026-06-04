@@ -2,17 +2,17 @@ import { Router } from "express";
 import { eq } from "drizzle-orm";
 import { db } from "@workspace/db";
 import { ariaSettingsTable } from "@workspace/db/schema";
-import { adminAuth } from "../middlewares/adminAuth.js";
+import { sessionAuth } from "../middlewares/sessionAuth.js";
 import { DEFAULT_ARIA_INSTRUCTIONS } from "./chat/defaultInstructions.js";
 import { clearAriaCache } from "./chat/instructionsCache.js";
 
 const router = Router();
 
-router.get("/admin/aria-settings/default", adminAuth, (_req, res) => {
+router.get("/admin/aria-settings/default", sessionAuth, (_req, res) => {
   res.json({ instructions: DEFAULT_ARIA_INSTRUCTIONS });
 });
 
-router.get("/admin/aria-settings", adminAuth, async (_req, res) => {
+router.get("/admin/aria-settings", sessionAuth, async (_req, res) => {
   const [row] = await db.select().from(ariaSettingsTable).limit(1);
   res.json({
     instructions: row?.instructions ?? DEFAULT_ARIA_INSTRUCTIONS,
@@ -21,7 +21,7 @@ router.get("/admin/aria-settings", adminAuth, async (_req, res) => {
   });
 });
 
-router.put("/admin/aria-settings", adminAuth, async (req, res) => {
+router.put("/admin/aria-settings", sessionAuth, async (req, res) => {
   const { instructions } = req.body as { instructions: string };
   if (!instructions?.trim()) {
     res.status(400).json({ error: "instructions required" });

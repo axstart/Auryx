@@ -2,7 +2,7 @@ import { Router } from "express";
 import Anthropic from "@anthropic-ai/sdk";
 import { db } from "@workspace/db";
 import { chatEscalationsTable, ariaAnalyticsTable } from "@workspace/db/schema";
-import { adminAuth } from "../../middlewares/adminAuth.js";
+import { sessionAuth } from "../../middlewares/sessionAuth.js";
 import { getAriaInstructions } from "./instructionsCache.js";
 import { detectIntent, detectPeptide } from "../analytics/index.js";
 
@@ -207,7 +207,7 @@ router.post("/chat/escalate", async (req, res) => {
   res.status(201).json(row);
 });
 
-router.get("/chat/escalations", adminAuth, async (req, res) => {
+router.get("/chat/escalations", sessionAuth, async (req, res) => {
   const rows = await db
     .select()
     .from(chatEscalationsTable)

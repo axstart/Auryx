@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
 import { db, inventoryItemsTable } from "@workspace/db";
-import { adminAuth } from "../../middlewares/adminAuth";
+import { sessionAuth } from "../../middlewares/sessionAuth.js";
 import {
   CreateInventoryItemBody,
   UpdateInventoryItemResponse,
@@ -13,7 +13,7 @@ import {
 
 const router: IRouter = Router();
 
-router.get("/inventory", adminAuth, async (req, res): Promise<void> => {
+router.get("/inventory", sessionAuth, async (req, res): Promise<void> => {
   const records = await db
     .select()
     .from(inventoryItemsTable)
@@ -21,7 +21,7 @@ router.get("/inventory", adminAuth, async (req, res): Promise<void> => {
   res.json(ListInventoryResponse.parse(records));
 });
 
-router.post("/inventory", adminAuth, async (req, res): Promise<void> => {
+router.post("/inventory", sessionAuth, async (req, res): Promise<void> => {
   const parsed = CreateInventoryItemBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -35,7 +35,7 @@ router.post("/inventory", adminAuth, async (req, res): Promise<void> => {
   res.status(201).json(UpdateInventoryItemResponse.parse(record));
 });
 
-router.patch("/inventory/:id", adminAuth, async (req, res): Promise<void> => {
+router.patch("/inventory/:id", sessionAuth, async (req, res): Promise<void> => {
   const params = UpdateInventoryItemParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -58,7 +58,7 @@ router.patch("/inventory/:id", adminAuth, async (req, res): Promise<void> => {
   res.json(UpdateInventoryItemResponse.parse(record));
 });
 
-router.delete("/inventory/:id", adminAuth, async (req, res): Promise<void> => {
+router.delete("/inventory/:id", sessionAuth, async (req, res): Promise<void> => {
   const params = DeleteInventoryItemParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

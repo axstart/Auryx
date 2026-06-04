@@ -3,7 +3,7 @@ import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "@workspace/db";
 import { ordersTable } from "@workspace/db/schema";
-import { adminAuth } from "../../middlewares/adminAuth.js";
+import { sessionAuth } from "../../middlewares/sessionAuth.js";
 import { sendMail } from "../../lib/mailer.js";
 import { getProductBySlug } from "./products.js";
 import { eq } from "drizzle-orm";
@@ -39,6 +39,9 @@ const CompleteOrderSchema = z.object({
   shippingAddress: ShippingAddressSchema,
   items: z.array(CartItemSchema).min(1),
 });
+
+const ORDER_STATUSES = ["pending", "approved", "sent_to_pharmacy", "shipped", "delivered"] as const;
+type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 function resolveItemPrice(item: z.infer<typeof CartItemSchema>): {
   priceCents: number;
@@ -122,7 +125,6 @@ router.post("/checkout/complete", async (req, res) => {
 
   const { paymentIntentId, customerName, email, phone, shippingAddress, items } = parsed.data;
 
-  // Verify payment with Stripe
   let intent;
   try {
     intent = await stripe.paymentIntents.retrieve(paymentIntentId);
@@ -137,7 +139,6 @@ router.post("/checkout/complete", async (req, res) => {
     return;
   }
 
-  // Recalculate totals server-side — never trust client-submitted amounts
   let totalCents = 0;
   const lineItems: { slug: string; name: string; quantity: number; priceCents: number; variantLabel?: string }[] = [];
   let requiresConsultation = false;
@@ -177,7 +178,6 @@ router.post("/checkout/complete", async (req, res) => {
   }).join("\n");
   const totalDisplay = `$${(totalCents / 100).toFixed(2)}`;
 
-  // Admin notification
   sendMail({
     subject: `New Order #${order.id} — ${customerName}`,
     text: [
@@ -205,7 +205,6 @@ router.post("/checkout/complete", async (req, res) => {
     ].join("\n"),
   }).catch(() => {});
 
-  // Customer confirmation — sent to the customer's email
   sendMail({
     to: email,
     subject: `Your Auryx Order Confirmation — #${order.id}`,
@@ -236,27 +235,75 @@ router.post("/checkout/complete", async (req, res) => {
 
 // ── Admin: orders ──────────────────────────────────────────────────────────
 
-router.get("/orders", adminAuth, async (_req, res) => {
+router.get("/orders", sessionAuth, async (_req, res) => {
   const orders = await db.select().from(ordersTable).orderBy(ordersTable.createdAt);
   res.json(orders);
 });
 
-router.patch("/orders/:id", adminAuth, async (req, res) => {
+router.patch("/orders/:id", sessionAuth, async (req, res) => {
   const id = parseInt(req.params["id"] as string, 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 
   const parsed = z.object({
-    status: z.enum(["pending", "approved", "shipped"]),
+    status: z.enum(ORDER_STATUSES).optional(),
+    trackingNumber: z.string().optional().nullable(),
   }).safeParse(req.body);
 
   if (!parsed.success) { res.status(400).json({ error: parsed.error.message }); return; }
+  if (!parsed.data.status && parsed.data.trackingNumber === undefined) {
+    res.status(400).json({ error: "No fields to update" }); return;
+  }
+
+  const updates: Partial<typeof ordersTable.$inferInsert> = {};
+  if (parsed.data.status) updates.status = parsed.data.status;
+  if (parsed.data.trackingNumber !== undefined) updates.trackingNumber = parsed.data.trackingNumber;
 
   const [order] = await db.update(ordersTable)
-    .set({ status: parsed.data.status })
+    .set(updates)
     .where(eq(ordersTable.id, id))
     .returning();
 
   if (!order) { res.status(404).json({ error: "Not found" }); return; }
+
+  // If just approved — send confirmation email to customer
+  if (parsed.data.status === "approved") {
+    const o = order as typeof ordersTable.$inferSelect;
+    sendMail({
+      to: o.email,
+      subject: `Auryx Order #${o.id} — Approved`,
+      text: [
+        `Hi ${o.customerName},`,
+        ``,
+        `Great news — your Auryx order #${o.id} has been approved and is being prepared for fulfillment.`,
+        ``,
+        `We'll send you another update when your order ships.`,
+        ``,
+        `Questions? Email us at admin@auryxlife.com`,
+        ``,
+        `— The Auryx Team`,
+      ].join("\n"),
+    }).catch(() => {});
+  }
+
+  if (parsed.data.status === "shipped" && order.trackingNumber) {
+    const o = order as typeof ordersTable.$inferSelect;
+    sendMail({
+      to: o.email,
+      subject: `Auryx Order #${o.id} — Shipped`,
+      text: [
+        `Hi ${o.customerName},`,
+        ``,
+        `Your Auryx order #${o.id} has shipped!`,
+        ``,
+        `Tracking number: ${o.trackingNumber}`,
+        ``,
+        `Thank you for choosing Auryx.`,
+        ``,
+        `— The Auryx Team`,
+      ].join("\n"),
+    }).catch(() => {});
+  }
+
   res.json(order);
 });
 

@@ -11,6 +11,7 @@ export const ordersTable = pgTable("orders", {
   items: jsonb("items").notNull(),
   totalCents: integer("total_cents").notNull(),
   status: text("status").notNull().default("pending"),
+  trackingNumber: text("tracking_number"),
   stripePaymentIntentId: text("stripe_payment_intent_id"),
   requiresConsultation: boolean("requires_consultation").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
 import { db, consultationRequestsTable } from "@workspace/db";
-import { adminAuth } from "../../middlewares/adminAuth";
+import { sessionAuth } from "../../middlewares/sessionAuth.js";
 import {
   CreateConsultationBody,
   ListConsultationsResponseItem,
@@ -93,7 +93,7 @@ router.post("/consultations", async (req, res): Promise<void> => {
   res.status(201).json(ListConsultationsResponseItem.parse(record));
 });
 
-router.get("/consultations", adminAuth, async (req, res): Promise<void> => {
+router.get("/consultations", sessionAuth, async (req, res): Promise<void> => {
   const records = await db
     .select()
     .from(consultationRequestsTable)
@@ -101,7 +101,7 @@ router.get("/consultations", adminAuth, async (req, res): Promise<void> => {
   res.json(ListConsultationsResponse.parse(records));
 });
 
-router.patch("/consultations/:id", adminAuth, async (req, res): Promise<void> => {
+router.patch("/consultations/:id", sessionAuth, async (req, res): Promise<void> => {
   const params = UpdateConsultationParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

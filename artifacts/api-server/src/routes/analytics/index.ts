@@ -1,7 +1,7 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
 import { ariaAnalyticsTable } from "@workspace/db/schema";
-import { adminAuth } from "../../middlewares/adminAuth.js";
+import { sessionAuth } from "../../middlewares/sessionAuth.js";
 import { desc, gte, and, eq, sql } from "drizzle-orm";
 
 const router = Router();
@@ -37,7 +37,6 @@ export function detectPeptide(message: string): string | null {
   const lower = message.toLowerCase();
   for (const name of PEPTIDE_NAMES) {
     if (lower.includes(name)) {
-      // Normalise to canonical display name
       if (name.includes("aod")) return "AOD-9604";
       if (name.includes("cjc")) return "CJC-1295 + Ipamorelin";
       if (name.includes("bpc")) return "BPC-157";
@@ -55,8 +54,7 @@ export function detectPeptide(message: string): string | null {
 
 // ── Admin routes ─────────────────────────────────────────────────────────────
 
-// Full message log with optional filters: ?from=ISO&to=ISO&intent=purchase
-router.get("/admin/aria-analytics", adminAuth, async (req, res) => {
+router.get("/admin/aria-analytics", sessionAuth, async (req, res) => {
   const { from, to, intent } = req.query as Record<string, string | undefined>;
 
   const conditions = [];
@@ -74,8 +72,7 @@ router.get("/admin/aria-analytics", adminAuth, async (req, res) => {
   res.json(rows);
 });
 
-// Summary: intent counts, top peptides, top questions
-router.get("/admin/aria-analytics/summary", adminAuth, async (req, res) => {
+router.get("/admin/aria-analytics/summary", sessionAuth, async (req, res) => {
   const { from } = req.query as Record<string, string | undefined>;
   const since = from ? new Date(from) : new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 

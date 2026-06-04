@@ -1,521 +1,590 @@
-import { useState, useEffect } from "react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { motion } from "framer-motion";
-import {
-  listConsultations,
-  getListConsultationsQueryKey,
-  listInventory,
-  getListInventoryQueryKey,
-  useUpdateConsultation,
-  useCreateInventoryItem,
-  useUpdateInventoryItem,
-  useDeleteInventoryItem,
-} from "@workspace/api-client-react";
-import type { Consultation, InventoryItem, InventoryItemInput, ConsultationUpdate } from "@workspace/api-client-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
-import { LogOut, Package, Users, AlertTriangle, Plus, Trash2, Pencil, Check, X, MessageSquare, ChevronDown, ChevronUp, Bot, Loader2, ClipboardList, Download, ShoppingBag, BarChart2 } from "lucide-react";
+import { useState, useEffect, useCallback } from "react";
+import { useLocation } from "wouter";
+import { useAdminAuth } from "@/context/AdminAuthContext";
+import { motion, AnimatePresence } from "framer-motion";
 
-const SESSION_KEY = "auryx_admin_key";
+// ── Types ────────────────────────────────────────────────────────────────────
 
-function statusColor(status: string) {
-  if (status === "new") return "bg-amber-500/20 text-amber-300 border-amber-500/30";
-  if (status === "contacted") return "bg-blue-500/20 text-blue-300 border-blue-500/30";
-  if (status === "complete") return "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
-  return "bg-border text-muted-foreground";
+type OrderStatus = "pending" | "approved" | "sent_to_pharmacy" | "shipped" | "delivered";
+
+interface Order {
+  id: number;
+  customerName: string;
+  email: string;
+  phone?: string;
+  shippingAddress: { street: string; city: string; state: string; zip: string };
+  items: { name: string; quantity: number; priceCents: number; variantLabel?: string }[];
+  totalCents: number;
+  status: OrderStatus;
+  trackingNumber?: string;
+  requiresConsultation: boolean;
+  createdAt: string;
 }
 
-const INTEREST_MAP: Record<string, string> = {
-  "fat-loss": "Fat Loss & Body Composition",
-  "anti-aging": "Anti-Aging & Longevity",
-  "performance": "Performance & Strength",
-  "energy-focus": "Energy & Focus",
-  "recovery": "Recovery & Injury Healing",
-  "hormonal": "Hormonal Balance",
-  "sexual-health": "Sexual Health & Vitality",
-  "sleep": "Sleep Optimization",
-  "cognitive": "Cognitive Performance",
-  "other": "Other",
-  "energy": "Energy & Vitality",
+interface InventoryItem {
+  id: number;
+  name: string;
+  category: string;
+  stock: number;
+  unit: string;
+  lowStockThreshold: number;
+  costPerUnit: number;
+  notes?: string;
+}
+
+interface Consultation {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  age?: string;
+  state?: string;
+  interest: string;
+  primaryGoal: string;
+  usedPeptidesBefore: string;
+  message?: string;
+  status: string;
+  createdAt: string;
+}
+
+interface ProtocolContinuation {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  peptides: string;
+  duration: string;
+  prescribingContext: string;
+  status: string;
+  notes?: string;
+  createdAt: string;
+}
+
+interface ChatEscalation {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string;
+  preferredContact?: string;
+  conversationJson: string;
+  createdAt: string;
+}
+
+interface StaffUser {
+  id: number;
+  name: string;
+  email: string;
+  isActive: boolean;
+  lastLoginAt?: string;
+  createdAt: string;
+}
+
+interface DashboardData {
+  monthlyRevenueCents: number;
+  activeOrdersCount: number;
+  pendingOrdersCount: number;
+  totalPatientsCount: number;
+  recentOrders: Order[];
+  lowStockItems: InventoryItem[];
+}
+
+interface FinancialsData {
+  allTimeRevenueCents: number;
+  monthlyRevenue: { month: string; revenueCents: number; orderCount: number }[];
+  ordersByStatus: { status: string; count: number; totalCents: number }[];
+}
+
+// ── Helpers ──────────────────────────────────────────────────────────────────
+
+const fmt$ = (cents: number) =>
+  new Intl.NumberFormat("en-US", { style: "currency", currency: "USD" }).format(cents / 100);
+
+const fmtDate = (s: string) =>
+  new Date(s).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+
+const STATUS_ORDER: OrderStatus[] = ["pending", "approved", "sent_to_pharmacy", "shipped", "delivered"];
+const STATUS_LABEL: Record<OrderStatus, string> = {
+  pending: "Pending",
+  approved: "Approved",
+  sent_to_pharmacy: "Sent to Pharmacy",
+  shipped: "Shipped",
+  delivered: "Delivered",
+};
+const STATUS_COLOR: Record<OrderStatus, string> = {
+  pending: "text-amber-400 bg-amber-400/10",
+  approved: "text-teal-400 bg-teal-400/10",
+  sent_to_pharmacy: "text-blue-400 bg-blue-400/10",
+  shipped: "text-purple-400 bg-purple-400/10",
+  delivered: "text-green-400 bg-green-400/10",
 };
 
-function interestLabel(val: string) {
-  if (!val) return "—";
-  return val
-    .split(",")
-    .map((v) => INTEREST_MAP[v.trim()] ?? v.trim())
-    .join(", ");
+function apiFetch(path: string, opts?: RequestInit) {
+  return fetch(`/api${path}`, { credentials: "include", ...opts });
 }
 
-function goalLabel(val: string) {
-  const map: Record<string, string> = {
-    "weight-loss": "Weight Loss",
-    "anti-aging": "Anti-Aging",
-    "performance": "Performance & Strength",
-    "energy-focus": "Energy & Focus",
-    "recovery": "Recovery",
-    "hormonal": "Hormonal Balance",
-    "other": "Other",
-  };
-  return map[val] ?? val;
+function useApi<T>(path: string | null) {
+  const [data, setData] = useState<T | null>(null);
+  const [loading, setLoading] = useState(!!path);
+  const [error, setError] = useState<string | null>(null);
+
+  const reload = useCallback(() => {
+    if (!path) return;
+    setLoading(true);
+    apiFetch(path)
+      .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
+      .then(setData)
+      .catch(e => setError(String(e)))
+      .finally(() => setLoading(false));
+  }, [path]);
+
+  useEffect(() => { reload(); }, [reload]);
+
+  return { data, loading, error, reload };
 }
 
-function sourceLabel(val: string) {
-  const map: Record<string, string> = {
-    "instagram": "Instagram",
-    "google": "Google Search",
-    "referral": "Referral from a Friend",
-    "ai-search": "AI Search (ChatGPT, Gemini, Claude, etc.)",
-    "tiktok": "TikTok",
-    "other": "Other",
-  };
-  return map[val] ?? val;
-}
+// ── Small reusable pieces ─────────────────────────────────────────────────────
 
-function LoginScreen({ onLogin }: { onLogin: (key: string) => void }) {
-  const [key, setKey] = useState("");
-  const [error, setError] = useState("");
-  const { toast } = useToast();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!key.trim()) return;
-    try {
-      const data = await listConsultations({ headers: { "x-admin-key": key } });
-      if (Array.isArray(data)) {
-        sessionStorage.setItem(SESSION_KEY, key);
-        onLogin(key);
-      }
-    } catch {
-      setError("Invalid admin key. Please try again.");
-      toast({ title: "Access denied", description: "Incorrect admin key.", variant: "destructive" });
-    }
-  };
-
+function MetricCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-6">
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-sm"
-      >
-        <div className="text-center mb-10">
-          <p className="text-primary tracking-[0.3em] text-sm uppercase mb-3">Auryx</p>
-          <h1 className="text-3xl font-serif text-foreground mb-2">Admin Access</h1>
-          <p className="text-muted-foreground text-sm">Enter your admin key to continue.</p>
-        </div>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <Input
-            data-testid="input-admin-key"
-            type="password"
-            placeholder="Admin key"
-            value={key}
-            onChange={(e) => { setKey(e.target.value); setError(""); }}
-            className="bg-card border-border h-12 text-center tracking-widest"
-            autoFocus
-          />
-          {error && <p className="text-xs text-red-400 text-center">{error}</p>}
-          <Button data-testid="button-admin-login" type="submit" className="w-full bg-primary text-primary-foreground h-12">
-            Enter
-          </Button>
-        </form>
-      </motion.div>
+    <div className="bg-white/[0.03] border border-white/10 rounded-lg p-5">
+      <p className="text-xs tracking-widest uppercase text-white/40 font-['DM_Sans'] mb-2">{label}</p>
+      <p className="text-2xl font-['Cormorant_Garamond'] text-[#C9A844]">{value}</p>
+      {sub && <p className="text-xs text-white/30 mt-1 font-['DM_Sans']">{sub}</p>}
     </div>
   );
 }
 
-function ConsultationsTab({ adminKey }: { adminKey: string }) {
-  const queryClient = useQueryClient();
-  const headers = { "x-admin-key": adminKey };
-  const [statusFilter, setStatusFilter] = useState<"all" | "new" | "contacted" | "complete">("all");
-
-  const { data: consultations = [], isLoading } = useQuery({
-    queryKey: getListConsultationsQueryKey(),
-    queryFn: () => listConsultations({ headers }),
-  });
-
-  const updateMutation = useUpdateConsultation({
-    mutation: {
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: getListConsultationsQueryKey() }),
-    },
-    request: { headers },
-  });
-
-  const handleStatus = (id: number, status: string) => {
-    updateMutation.mutate({ id, data: { status } as ConsultationUpdate });
-  };
-
-  const newCount = consultations.filter((c: Consultation) => c.status === "new").length;
-  const filtered = statusFilter === "all"
-    ? [...consultations].reverse()
-    : [...consultations].reverse().filter((c: Consultation) => c.status === statusFilter);
-
-  const exportCSV = () => {
-    const cols = ["ID", "Date", "Name", "Email", "Phone", "State", "Age", "Instagram", "Interest", "Primary Goal", "Used Peptides Before", "How They Found Us", "Message", "Status"];
-    const escape = (v: string | number | null | undefined) => {
-      const s = v == null ? "" : String(v);
-      return `"${s.replace(/"/g, '""')}"`;
-    };
-    const rows = [...consultations].reverse().map((c: Consultation) => [
-      escape(c.id),
-      escape(new Date(c.createdAt).toLocaleString("en-US")),
-      escape(c.name),
-      escape(c.email),
-      escape(c.phone ?? ""),
-      escape(c.state ?? ""),
-      escape(c.age ?? ""),
-      escape(c.instagramHandle ?? ""),
-      escape(interestLabel(c.interest)),
-      escape(goalLabel(c.primaryGoal ?? "")),
-      escape(c.usedPeptidesBefore === "yes" ? "Yes" : c.usedPeptidesBefore === "no" ? "No" : ""),
-      escape(sourceLabel(c.hearAboutUs ?? "")),
-      escape(c.message ?? ""),
-      escape(c.status),
-    ].join(","));
-    const csv = [cols.map(h => `"${h}"`).join(","), ...rows].join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `auryx-consultations-${new Date().toISOString().slice(0, 10)}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
-
-  const FILTERS = [
-    { value: "all",       label: "All" },
-    { value: "new",       label: newCount > 0 ? `New (${newCount})` : "New" },
-    { value: "contacted", label: "Contacted" },
-    { value: "complete",  label: "Complete" },
-  ] as const;
-
+function Badge({ label, className }: { label: string; className: string }) {
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-        <div>
-          <h2 className="text-2xl font-serif text-foreground mb-1">Consultation Requests</h2>
-          <p className="text-sm text-muted-foreground">
-            {consultations.length} total &mdash; {newCount} new
-          </p>
-        </div>
-        {consultations.length > 0 && (
-          <Button
-            data-testid="button-export-csv"
-            onClick={exportCSV}
-            variant="outline"
-            className="h-9 text-sm border-border/60 hover:border-primary/40 hover:text-primary"
-          >
-            <Download className="w-4 h-4 mr-2" /> Export CSV
-          </Button>
-        )}
-      </div>
+    <span className={`inline-block px-2 py-0.5 rounded text-xs font-medium font-['DM_Sans'] ${className}`}>
+      {label}
+    </span>
+  );
+}
 
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {FILTERS.map(f => (
-          <button
-            key={f.value}
-            onClick={() => setStatusFilter(f.value)}
-            className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
-              statusFilter === f.value
-                ? "bg-primary/15 text-primary border-primary/30"
-                : "border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
+function SectionTitle({ children }: { children: React.ReactNode }) {
+  return (
+    <h2 className="text-lg font-['Cormorant_Garamond'] text-white/80 mb-4">{children}</h2>
+  );
+}
 
-      {isLoading ? (
-        <div className="text-muted-foreground text-sm text-center py-20">Loading...</div>
-      ) : consultations.length === 0 ? (
-        <div className="text-center py-20 text-muted-foreground">
-          <Users className="w-12 h-12 mx-auto mb-4 opacity-30" />
-          <p>No consultation requests yet.</p>
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center py-20 text-muted-foreground">
-          <p className="text-sm">No {statusFilter} consultations.</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {filtered.map((c: Consultation) => (
-            <div
-              key={c.id}
-              data-testid={`consultation-row-${c.id}`}
-              className={`bg-card/50 border rounded-lg p-6 ${c.status === "new" ? "border-primary/30" : "border-border/60"}`}
-            >
-              <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-3 mb-2 flex-wrap">
-                    <span className="font-medium text-foreground">{c.name}</span>
-                    <span className={`text-xs px-2 py-0.5 rounded-full border font-medium ${statusColor(c.status)}`}>
-                      {c.status}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(c.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric", hour: "2-digit", minute: "2-digit" })}
-                    </span>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-sm text-muted-foreground mb-2">
-                    <span>{c.email}</span>
-                    {c.phone && <span>{c.phone}</span>}
-                    {c.age ? <span>Age {c.age}</span> : null}
-                    {c.state && <span>{c.state}</span>}
-                    {c.instagramHandle && <span className="text-primary/60">{c.instagramHandle}</span>}
-                  </div>
-                  <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-xs text-muted-foreground mb-3">
-                    <span><span className="text-foreground/50">Interest:</span> {interestLabel(c.interest)}</span>
-                    {c.primaryGoal && <span><span className="text-foreground/50">Goal:</span> {goalLabel(c.primaryGoal)}</span>}
-                    {c.usedPeptidesBefore && <span><span className="text-foreground/50">Used peptides:</span> {c.usedPeptidesBefore === "yes" ? "Yes" : "No"}</span>}
-                    {c.hearAboutUs && <span><span className="text-foreground/50">Found us via:</span> {sourceLabel(c.hearAboutUs)}</span>}
-                  </div>
-                  {c.message && (
-                    <p className="text-sm text-foreground/70 bg-background/40 rounded p-3 border border-border/40 italic">
-                      "{c.message}"
-                    </p>
-                  )}
-                </div>
-                <div className="shrink-0 flex items-center gap-3">
-                  <Select value={c.status} onValueChange={(val) => handleStatus(c.id, val)}>
-                    <SelectTrigger data-testid={`status-select-${c.id}`} className="w-36 h-9 text-xs bg-background border-border">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="new">New</SelectItem>
-                      <SelectItem value="contacted">Contacted</SelectItem>
-                      <SelectItem value="complete">Complete</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <a
-                    href={`mailto:${c.email}?subject=Your Auryx Consultation Request&body=Hi ${c.name},%0A%0AThank you for reaching out to Auryx.%0A%0A`}
-                    className="text-xs text-primary hover:underline whitespace-nowrap"
-                  >
-                    Reply →
-                  </a>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      )}
+function EmptyState({ message }: { message: string }) {
+  return (
+    <div className="text-center py-16 text-white/30 font-['DM_Sans'] text-sm">{message}</div>
+  );
+}
+
+function Spinner() {
+  return (
+    <div className="flex justify-center py-12">
+      <div className="w-6 h-6 border-2 border-[#C9A844]/30 border-t-[#C9A844] rounded-full animate-spin" />
     </div>
   );
 }
 
-type InventoryFormState = Omit<InventoryItemInput, "stock" | "lowStockThreshold"> & {
-  stock: string;
-  lowStockThreshold: string;
-};
-
-const EMPTY_FORM: InventoryFormState = {
-  name: "",
-  category: "",
-  stock: "",
-  unit: "vials",
-  lowStockThreshold: "5",
-  notes: "",
-};
-
-function InventoryTab({ adminKey }: { adminKey: string }) {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-  const headers = { "x-admin-key": adminKey };
-
-  const { data: items = [], isLoading } = useQuery({
-    queryKey: getListInventoryQueryKey(),
-    queryFn: () => listInventory({ headers }),
-  });
-
-  const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState<InventoryFormState>(EMPTY_FORM);
-  const [editingId, setEditingId] = useState<number | null>(null);
-  const [editStock, setEditStock] = useState<string>("");
-
-  const createMutation = useCreateInventoryItem({
-    mutation: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getListInventoryQueryKey() });
-        setForm(EMPTY_FORM);
-        setShowForm(false);
-        toast({ title: "Item added", description: `${form.name} added to inventory.` });
-      },
-    },
-    request: { headers },
-  });
-
-  const updateMutation = useUpdateInventoryItem({
-    mutation: {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: getListInventoryQueryKey() });
-        setEditingId(null);
-      },
-    },
-    request: { headers },
-  });
-
-  const deleteMutation = useDeleteInventoryItem({
-    mutation: {
-      onSuccess: () => queryClient.invalidateQueries({ queryKey: getListInventoryQueryKey() }),
-    },
-    request: { headers },
-  });
-
-  const handleAdd = (e: React.FormEvent) => {
-    e.preventDefault();
-    createMutation.mutate({
-      data: {
-        name: form.name,
-        category: form.category,
-        stock: parseInt(form.stock) || 0,
-        unit: form.unit,
-        lowStockThreshold: parseInt(form.lowStockThreshold) || 5,
-        notes: form.notes || undefined,
-      },
-    });
-  };
-
-  const startEdit = (item: InventoryItem) => {
-    setEditingId(item.id);
-    setEditStock(String(item.stock));
-  };
-
-  const saveEdit = (item: InventoryItem) => {
-    updateMutation.mutate({ id: item.id, data: { stock: parseInt(editStock) || 0 } });
-  };
-
-  const lowStock = items.filter((i: InventoryItem) => i.stock <= i.lowStockThreshold);
-
+function SubTabs<T extends string>({ tabs, active, onChange }: {
+  tabs: { id: T; label: string }[];
+  active: T;
+  onChange: (t: T) => void;
+}) {
   return (
-    <div>
-      <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-        <div>
-          <h2 className="text-2xl font-serif text-foreground mb-1">Inventory</h2>
-          <p className="text-sm text-muted-foreground">{items.length} items &mdash; {lowStock.length} low stock</p>
-        </div>
-        <Button
-          data-testid="button-add-item"
-          onClick={() => setShowForm(!showForm)}
-          className="bg-primary text-primary-foreground h-9 text-sm"
+    <div className="flex gap-2 border-b border-white/10 mb-4">
+      {tabs.map(t => (
+        <button
+          key={t.id}
+          onClick={() => onChange(t.id)}
+          className={`pb-3 px-1 text-sm font-['DM_Sans'] transition-colors border-b-2 -mb-[1px] ${
+            active === t.id
+              ? "text-[#C9A844] border-[#C9A844]"
+              : "text-white/40 border-transparent hover:text-white/60"
+          }`}
         >
-          <Plus className="w-4 h-4 mr-2" /> Add Item
-        </Button>
+          {t.label}
+        </button>
+      ))}
+    </div>
+  );
+}
+
+// ── Dashboard ────────────────────────────────────────────────────────────────
+
+function DashboardTab() {
+  const { data, loading } = useApi<DashboardData>("/admin/dashboard");
+
+  if (loading) return <Spinner />;
+  if (!data) return <EmptyState message="Could not load dashboard." />;
+
+  return (
+    <div className="space-y-8">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+        <MetricCard label="Revenue (this month)" value={fmt$(data.monthlyRevenueCents)} />
+        <MetricCard label="Active Orders" value={String(data.activeOrdersCount)} />
+        <MetricCard label="Pending Review" value={String(data.pendingOrdersCount)} />
+        <MetricCard label="Total Patients" value={String(data.totalPatientsCount)} />
       </div>
 
-      {lowStock.length > 0 && (
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-lg p-4 mb-6 flex items-start gap-3">
-          <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
-          <div>
-            <p className="text-sm font-medium text-amber-300 mb-1">Low Stock Alert</p>
-            <p className="text-xs text-amber-300/70">{lowStock.map((i: InventoryItem) => `${i.name} (${i.stock} ${i.unit})`).join(", ")}</p>
+      {data.lowStockItems.length > 0 && (
+        <div>
+          <SectionTitle>⚠ Low Stock Alerts</SectionTitle>
+          <div className="space-y-2">
+            {data.lowStockItems.map(item => (
+              <div key={item.id} className="flex items-center justify-between bg-amber-400/5 border border-amber-400/20 rounded px-4 py-3">
+                <span className="text-sm text-white/80 font-['DM_Sans']">{item.name}</span>
+                <span className="text-amber-400 text-sm font-['DM_Sans']">{item.stock} {item.unit} remaining</span>
+              </div>
+            ))}
           </div>
         </div>
       )}
 
-      {showForm && (
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="bg-card/50 border border-primary/30 rounded-lg p-6 mb-6"
-        >
-          <h3 className="text-sm font-medium text-foreground mb-4">Add New Item</h3>
-          <form onSubmit={handleAdd} className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            <Input data-testid="input-item-name" placeholder="Peptide name" value={form.name} onChange={e => setForm(f => ({ ...f, name: e.target.value }))} required className="bg-background border-border" />
-            <Input data-testid="input-item-category" placeholder="Category" value={form.category} onChange={e => setForm(f => ({ ...f, category: e.target.value }))} required className="bg-background border-border" />
-            <Input data-testid="input-item-stock" placeholder="Current stock" type="number" min="0" value={form.stock} onChange={e => setForm(f => ({ ...f, stock: e.target.value }))} required className="bg-background border-border" />
-            <Input data-testid="input-item-unit" placeholder="Unit (e.g. vials)" value={form.unit} onChange={e => setForm(f => ({ ...f, unit: e.target.value }))} required className="bg-background border-border" />
-            <Input data-testid="input-item-threshold" placeholder="Low stock alert at" type="number" min="0" value={form.lowStockThreshold} onChange={e => setForm(f => ({ ...f, lowStockThreshold: e.target.value }))} required className="bg-background border-border" />
-            <Input data-testid="input-item-notes" placeholder="Notes (optional)" value={form.notes} onChange={e => setForm(f => ({ ...f, notes: e.target.value }))} className="bg-background border-border" />
-            <div className="sm:col-span-2 md:col-span-3 flex gap-3">
-              <Button data-testid="button-save-item" type="submit" disabled={createMutation.isPending} className="bg-primary text-primary-foreground h-9 text-sm">
-                {createMutation.isPending ? "Saving..." : "Save Item"}
-              </Button>
-              <Button type="button" variant="outline" onClick={() => setShowForm(false)} className="h-9 text-sm border-border/60">Cancel</Button>
-            </div>
-          </form>
-        </motion.div>
-      )}
+      <div>
+        <SectionTitle>Recent Orders</SectionTitle>
+        {data.recentOrders.length === 0 ? <EmptyState message="No orders yet." /> : (
+          <div className="space-y-2">
+            {data.recentOrders.map(order => (
+              <div key={order.id} className="flex items-center justify-between bg-white/[0.02] border border-white/8 rounded px-4 py-3">
+                <div>
+                  <p className="text-sm text-white/80 font-['DM_Sans']">#{order.id} — {order.customerName}</p>
+                  <p className="text-xs text-white/30 font-['DM_Sans'] mt-0.5">{fmtDate(order.createdAt)}</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-white/60 font-['DM_Sans']">{fmt$(order.totalCents)}</span>
+                  <Badge label={STATUS_LABEL[order.status]} className={STATUS_COLOR[order.status]} />
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
-      {isLoading ? (
-        <div className="text-muted-foreground text-sm text-center py-20">Loading...</div>
-      ) : items.length === 0 ? (
-        <div className="text-center py-20 text-muted-foreground">
-          <Package className="w-12 h-12 mx-auto mb-4 opacity-30" />
-          <p>No inventory items yet. Add your first item above.</p>
+// ── Orders ───────────────────────────────────────────────────────────────────
+
+function OrdersTab() {
+  const { data: orders, loading, reload } = useApi<Order[]>("/orders");
+  const [expanded, setExpanded] = useState<number | null>(null);
+  const [trackingInputs, setTrackingInputs] = useState<Record<number, string>>({});
+  const [saving, setSaving] = useState<number | null>(null);
+  const [statusFilter, setStatusFilter] = useState<OrderStatus | "all">("all");
+
+  async function updateOrder(id: number, body: object) {
+    setSaving(id);
+    try {
+      await apiFetch(`/orders/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      reload();
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  const filtered = orders?.filter(o => statusFilter === "all" || o.status === statusFilter) ?? [];
+
+  if (loading) return <Spinner />;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex gap-2 flex-wrap">
+        {(["all", ...STATUS_ORDER] as const).map(s => (
+          <button
+            key={s}
+            onClick={() => setStatusFilter(s)}
+            className={`px-3 py-1 rounded text-xs font-['DM_Sans'] tracking-wide transition-colors ${
+              statusFilter === s
+                ? "bg-[#C9A844] text-black"
+                : "bg-white/5 text-white/50 hover:bg-white/10"
+            }`}
+          >
+            {s === "all" ? "All" : STATUS_LABEL[s]}
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? <EmptyState message="No orders." /> : (
+        <div className="space-y-2">
+          {filtered.map(order => {
+            const isExpanded = expanded === order.id;
+            const currentIdx = STATUS_ORDER.indexOf(order.status);
+            const nextStatus = currentIdx < STATUS_ORDER.length - 1 ? STATUS_ORDER[currentIdx + 1] : null;
+
+            return (
+              <div key={order.id} className="bg-white/[0.02] border border-white/10 rounded-lg overflow-hidden">
+                <button
+                  onClick={() => setExpanded(isExpanded ? null : order.id)}
+                  className="w-full flex items-center justify-between px-5 py-4 text-left"
+                >
+                  <div className="flex items-center gap-4 min-w-0">
+                    <span className="text-white/30 text-sm font-['DM_Sans'] shrink-0">#{order.id}</span>
+                    <div className="min-w-0">
+                      <p className="text-sm text-white/80 font-['DM_Sans'] truncate">{order.customerName}</p>
+                      <p className="text-xs text-white/30 font-['DM_Sans'] truncate">{order.email}</p>
+                    </div>
+                    {order.requiresConsultation && (
+                      <span className="text-xs text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded font-['DM_Sans'] shrink-0">
+                        Consult
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-4 shrink-0 ml-4">
+                    <span className="text-sm text-white/60 font-['DM_Sans']">{fmt$(order.totalCents)}</span>
+                    <Badge label={STATUS_LABEL[order.status]} className={STATUS_COLOR[order.status]} />
+                    <span className="text-white/30 text-xs">{isExpanded ? "▲" : "▼"}</span>
+                  </div>
+                </button>
+
+                <AnimatePresence>
+                  {isExpanded && (
+                    <motion.div
+                      initial={{ height: 0, opacity: 0 }}
+                      animate={{ height: "auto", opacity: 1 }}
+                      exit={{ height: 0, opacity: 0 }}
+                      transition={{ duration: 0.2 }}
+                      className="overflow-hidden"
+                    >
+                      <div className="px-5 pb-5 border-t border-white/8 pt-4 space-y-4">
+                        <div>
+                          <p className="text-xs tracking-widest uppercase text-white/30 mb-2 font-['DM_Sans']">Items</p>
+                          <div className="space-y-1">
+                            {order.items.map((item, i) => (
+                              <div key={i} className="flex justify-between text-sm font-['DM_Sans']">
+                                <span className="text-white/70">
+                                  {item.name}{item.variantLabel ? ` (${item.variantLabel})` : ""} ×{item.quantity}
+                                </span>
+                                <span className="text-white/50">{fmt$(item.priceCents * item.quantity)}</span>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div>
+                          <p className="text-xs tracking-widest uppercase text-white/30 mb-1 font-['DM_Sans']">Shipping</p>
+                          <p className="text-sm text-white/60 font-['DM_Sans']">
+                            {order.shippingAddress.street}, {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zip}
+                          </p>
+                        </div>
+
+                        <div className="flex gap-2 items-end">
+                          <div className="flex-1">
+                            <label className="text-xs tracking-widest uppercase text-white/30 mb-1 block font-['DM_Sans']">
+                              Tracking Number
+                            </label>
+                            <input
+                              value={trackingInputs[order.id] ?? order.trackingNumber ?? ""}
+                              onChange={e => setTrackingInputs(p => ({ ...p, [order.id]: e.target.value }))}
+                              placeholder="Enter tracking number"
+                              className="w-full bg-white/5 border border-white/10 text-white/80 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
+                            />
+                          </div>
+                          <button
+                            onClick={() => updateOrder(order.id, { trackingNumber: trackingInputs[order.id] ?? order.trackingNumber ?? null })}
+                            disabled={saving === order.id}
+                            className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white/70 text-sm rounded font-['DM_Sans'] transition-colors disabled:opacity-50"
+                          >
+                            Save
+                          </button>
+                        </div>
+
+                        <div className="flex gap-2 flex-wrap">
+                          {nextStatus && (
+                            <button
+                              onClick={() => updateOrder(order.id, { status: nextStatus })}
+                              disabled={saving === order.id}
+                              className="px-4 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
+                            >
+                              {saving === order.id ? "Updating…" : `Mark as ${STATUS_LABEL[nextStatus]}`}
+                            </button>
+                          )}
+                          <a
+                            href={`mailto:${order.email}`}
+                            className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors"
+                          >
+                            Email Customer
+                          </a>
+                        </div>
+
+                        <p className="text-xs text-white/20 font-['DM_Sans']">
+                          Ordered {fmtDate(order.createdAt)} · {order.phone ?? "No phone"}
+                          {order.trackingNumber ? ` · Tracking: ${order.trackingNumber}` : ""}
+                        </p>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            );
+          })}
         </div>
-      ) : (
+      )}
+    </div>
+  );
+}
+
+// ── Inventory ────────────────────────────────────────────────────────────────
+
+function InventoryTab() {
+  const { data: items, loading, reload } = useApi<InventoryItem[]>("/inventory");
+  const [editingId, setEditingId] = useState<number | "new" | null>(null);
+  const [form, setForm] = useState<Partial<InventoryItem>>({});
+  const [saving, setSaving] = useState(false);
+
+  function startNew() {
+    setForm({ name: "", category: "", stock: 0, unit: "vials", lowStockThreshold: 5, costPerUnit: 0 });
+    setEditingId("new");
+  }
+
+  function startEdit(item: InventoryItem) {
+    setForm({ ...item });
+    setEditingId(item.id);
+  }
+
+  async function saveItem() {
+    setSaving(true);
+    try {
+      if (editingId === "new") {
+        await apiFetch("/inventory", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+      } else {
+        await apiFetch(`/inventory/${editingId}`, {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+      }
+      setEditingId(null);
+      reload();
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function deleteItem(id: number) {
+    if (!confirm("Delete this inventory item?")) return;
+    await apiFetch(`/inventory/${id}`, { method: "DELETE" });
+    reload();
+  }
+
+  if (loading) return <Spinner />;
+
+  const fields: { label: string; key: keyof InventoryItem; type: string; hint?: string }[] = [
+    { label: "Name", key: "name", type: "text" },
+    { label: "Category", key: "category", type: "text" },
+    { label: "Stock", key: "stock", type: "number" },
+    { label: "Unit", key: "unit", type: "text" },
+    { label: "Low Stock Threshold", key: "lowStockThreshold", type: "number" },
+    { label: "Cost per Unit (cents)", key: "costPerUnit", type: "number", hint: "e.g. 5000 = $50.00" },
+  ];
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <SectionTitle>Inventory</SectionTitle>
+        <button
+          onClick={startNew}
+          className="px-4 py-2 bg-[#C9A844] hover:bg-[#b8973d] text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
+        >
+          + Add Item
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {editingId !== null && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="bg-white/[0.04] border border-[#C9A844]/30 rounded-lg p-5 space-y-4"
+          >
+            <p className="text-sm text-[#C9A844] font-['DM_Sans'] tracking-wide">
+              {editingId === "new" ? "New Item" : "Edit Item"}
+            </p>
+            <div className="grid grid-cols-2 gap-3">
+              {fields.map(({ label, key, type, hint }) => (
+                <div key={key as string}>
+                  <label className="block text-xs tracking-widest uppercase text-white/30 mb-1 font-['DM_Sans']">
+                    {label}{hint && <span className="normal-case tracking-normal ml-1 text-white/20">({hint})</span>}
+                  </label>
+                  <input
+                    type={type}
+                    value={String(form[key] ?? "")}
+                    onChange={e => setForm(p => ({
+                      ...p,
+                      [key]: type === "number" ? parseInt(e.target.value) || 0 : e.target.value,
+                    }))}
+                    className="w-full bg-white/5 border border-white/10 text-white/80 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
+                  />
+                </div>
+              ))}
+            </div>
+            <div>
+              <label className="block text-xs tracking-widest uppercase text-white/30 mb-1 font-['DM_Sans']">Notes</label>
+              <input
+                type="text"
+                value={form.notes ?? ""}
+                onChange={e => setForm(p => ({ ...p, notes: e.target.value }))}
+                className="w-full bg-white/5 border border-white/10 text-white/80 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
+              />
+            </div>
+            <div className="flex gap-2">
+              <button
+                onClick={saveItem}
+                disabled={saving}
+                className="px-5 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
+              >
+                {saving ? "Saving…" : "Save"}
+              </button>
+              <button
+                onClick={() => setEditingId(null)}
+                className="px-5 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {!items?.length ? <EmptyState message="No inventory items yet." /> : (
         <div className="overflow-x-auto">
-          <table className="w-full text-sm">
+          <table className="w-full text-sm font-['DM_Sans']">
             <thead>
-              <tr className="border-b border-border/60 text-xs uppercase tracking-wider text-muted-foreground">
-                <th className="text-left py-3 pr-6">Peptide</th>
-                <th className="text-left py-3 pr-6">Category</th>
-                <th className="text-left py-3 pr-6">Stock</th>
-                <th className="text-left py-3 pr-6">Unit</th>
-                <th className="text-left py-3 pr-6">Alert At</th>
-                <th className="text-left py-3 pr-6">Notes</th>
-                <th className="text-left py-3">Actions</th>
+              <tr className="text-left text-white/30 text-xs tracking-widest uppercase border-b border-white/8">
+                <th className="pb-3 pr-4 font-normal">Item</th>
+                <th className="pb-3 pr-4 font-normal">Category</th>
+                <th className="pb-3 pr-4 text-right font-normal">Stock</th>
+                <th className="pb-3 pr-4 text-right font-normal">Cost/Unit</th>
+                <th className="pb-3 pr-4 font-normal">Notes</th>
+                <th className="pb-3 font-normal"></th>
               </tr>
             </thead>
-            <tbody>
-              {items.map((item: InventoryItem) => {
-                const isLow = item.stock <= item.lowStockThreshold;
+            <tbody className="divide-y divide-white/5">
+              {items.map(item => {
+                const lowStock = item.stock <= item.lowStockThreshold;
                 return (
-                  <tr
-                    key={item.id}
-                    data-testid={`inventory-row-${item.id}`}
-                    className={`border-b border-border/30 ${isLow ? "bg-amber-500/5" : ""}`}
-                  >
-                    <td className="py-4 pr-6">
-                      <span className="font-medium text-foreground">{item.name}</span>
-                      {isLow && <AlertTriangle className="inline w-3.5 h-3.5 text-amber-400 ml-2" />}
+                  <tr key={item.id}>
+                    <td className="py-3 pr-4 text-white/80">{item.name}</td>
+                    <td className="py-3 pr-4 text-white/40">{item.category}</td>
+                    <td className="py-3 pr-4 text-right">
+                      <span className={lowStock ? "text-amber-400 font-medium" : "text-white/70"}>
+                        {item.stock} {item.unit}
+                      </span>
+                      {lowStock && <span className="ml-1 text-amber-400 text-xs">⚠</span>}
                     </td>
-                    <td className="py-4 pr-6 text-muted-foreground">{item.category}</td>
-                    <td className="py-4 pr-6">
-                      {editingId === item.id ? (
-                        <div className="flex items-center gap-2">
-                          <Input
-                            data-testid={`edit-stock-${item.id}`}
-                            type="number"
-                            min="0"
-                            value={editStock}
-                            onChange={e => setEditStock(e.target.value)}
-                            className="w-20 h-7 text-xs bg-background border-border"
-                          />
-                          <button onClick={() => saveEdit(item)} className="text-emerald-400 hover:text-emerald-300"><Check className="w-4 h-4" /></button>
-                          <button onClick={() => setEditingId(null)} className="text-muted-foreground hover:text-foreground"><X className="w-4 h-4" /></button>
-                        </div>
-                      ) : (
-                        <span className={`font-mono ${isLow ? "text-amber-400 font-bold" : "text-foreground"}`}>{item.stock}</span>
-                      )}
+                    <td className="py-3 pr-4 text-right text-white/50">
+                      {item.costPerUnit ? fmt$(item.costPerUnit) : "—"}
                     </td>
-                    <td className="py-4 pr-6 text-muted-foreground">{item.unit}</td>
-                    <td className="py-4 pr-6 text-muted-foreground">{item.lowStockThreshold}</td>
-                    <td className="py-4 pr-6 text-muted-foreground text-xs max-w-[200px] truncate">{item.notes ?? "—"}</td>
-                    <td className="py-4">
-                      <div className="flex items-center gap-2">
-                        <button
-                          data-testid={`button-edit-${item.id}`}
-                          onClick={() => startEdit(item)}
-                          className="text-muted-foreground hover:text-primary transition-colors"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        <button
-                          data-testid={`button-delete-${item.id}`}
-                          onClick={() => deleteMutation.mutate({ id: item.id })}
-                          className="text-muted-foreground hover:text-red-400 transition-colors"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                    <td className="py-3 pr-4 text-white/30 text-xs max-w-xs truncate">{item.notes ?? "—"}</td>
+                    <td className="py-3">
+                      <div className="flex gap-3 justify-end">
+                        <button onClick={() => startEdit(item)} className="text-xs text-white/40 hover:text-[#C9A844] transition-colors">Edit</button>
+                        <button onClick={() => deleteItem(item.id)} className="text-xs text-white/40 hover:text-red-400 transition-colors">Delete</button>
                       </div>
                     </td>
                   </tr>
@@ -529,1058 +598,743 @@ function InventoryTab({ adminKey }: { adminKey: string }) {
   );
 }
 
-interface AdminOrder {
-  id: number;
-  customerName: string;
-  email: string;
-  phone: string | null;
-  shippingAddress: { street: string; city: string; state: string; zip: string; country: string };
-  items: { slug: string; name: string; quantity: number; priceCents: number; variantLabel?: string }[];
-  totalCents: number;
-  status: string;
-  stripePaymentIntentId: string | null;
-  requiresConsultation: boolean;
-  createdAt: string;
-}
+// ── Patients ─────────────────────────────────────────────────────────────────
 
-function orderStatusColor(status: string) {
-  if (status === "pending") return "bg-amber-500/20 text-amber-300 border-amber-500/30";
-  if (status === "approved") return "bg-blue-500/20 text-blue-300 border-blue-500/30";
-  if (status === "shipped") return "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
-  return "bg-border text-muted-foreground";
-}
-
-function OrdersTab({ adminKey }: { adminKey: string }) {
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-  const headers = { "x-admin-key": adminKey };
-  const [expandedId, setExpandedId] = useState<number | null>(null);
-  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "shipped">("all");
-
-  const { data: orders = [], isLoading } = useQuery<AdminOrder[]>({
-    queryKey: ["admin-orders"],
-    queryFn: async () => {
-      const res = await fetch("/api/orders", { headers });
-      if (!res.ok) throw new Error("Failed to fetch orders");
-      return res.json();
-    },
-    refetchInterval: 30000,
-  });
-
-  const handleStatus = async (id: number, status: string) => {
-    try {
-      const res = await fetch(`/api/orders/${id}`, {
-        method: "PATCH",
-        headers: { ...headers, "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
-      });
-      if (!res.ok) throw new Error();
-      queryClient.invalidateQueries({ queryKey: ["admin-orders"] });
-    } catch {
-      toast({ title: "Failed to update status", variant: "destructive" });
-    }
-  };
-
-  const pending = orders.filter(o => o.status === "pending").length;
-  const filtered = statusFilter === "all" ? [...orders].reverse() : [...orders].reverse().filter(o => o.status === statusFilter);
-  const totalRevenue = orders.reduce((s, o) => s + o.totalCents, 0);
+function PatientsTab() {
+  const [sub, setSub] = useState<"consultations" | "continuations">("consultations");
 
   return (
     <div>
-      <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
-        <div>
-          <h2 className="text-2xl font-serif text-foreground mb-1">Orders</h2>
-          <p className="text-sm text-muted-foreground">
-            {orders.length} total &mdash; ${(totalRevenue / 100).toFixed(2)} revenue
-          </p>
-        </div>
-      </div>
+      <SubTabs
+        tabs={[
+          { id: "consultations", label: "Consultations" },
+          { id: "continuations", label: "Protocol Continuations" },
+        ]}
+        active={sub}
+        onChange={setSub}
+      />
+      {sub === "consultations" ? <ConsultationsPanel /> : <ContinuationsPanel />}
+    </div>
+  );
+}
 
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {([
-          { value: "all", label: "All" },
-          { value: "pending", label: pending > 0 ? `Pending (${pending})` : "Pending" },
-          { value: "approved", label: "Approved" },
-          { value: "shipped", label: "Shipped" },
-        ] as const).map(f => (
-          <button
-            key={f.value}
-            onClick={() => setStatusFilter(f.value)}
-            className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
-              statusFilter === f.value
-                ? "bg-primary/15 text-primary border-primary/30"
-                : "border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
+function ConsultationsPanel() {
+  const { data: consultations, loading, reload } = useApi<Consultation[]>("/consultations");
+  const [saving, setSaving] = useState<number | null>(null);
 
-      {isLoading ? (
-        <div className="flex items-center justify-center py-24">
-          <Loader2 className="w-6 h-6 animate-spin text-primary mr-3" />
-          <span className="text-muted-foreground text-sm">Loading orders…</span>
-        </div>
-      ) : orders.length === 0 ? (
-        <div className="text-center py-20 text-muted-foreground">
-          <ShoppingBag className="w-12 h-12 mx-auto mb-4 opacity-30" />
-          <p>No orders yet.</p>
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center py-16 text-muted-foreground">
-          <p className="text-sm">No {statusFilter} orders.</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {filtered.map((o: AdminOrder) => {
-            const isExpanded = expandedId === o.id;
-            return (
-              <div key={o.id} className="bg-card/50 border border-border/60 hover:border-primary/20 transition-colors rounded-lg overflow-hidden">
-                <div
-                  className="flex items-center justify-between px-6 py-4 cursor-pointer"
-                  onClick={() => setExpandedId(isExpanded ? null : o.id)}
+  async function updateStatus(id: number, status: string) {
+    setSaving(id);
+    try {
+      await apiFetch(`/consultations/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      reload();
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  if (loading) return <Spinner />;
+  if (!consultations?.length) return <EmptyState message="No consultation requests yet." />;
+
+  return (
+    <div className="space-y-3">
+      {consultations.map(c => (
+        <div key={c.id} className="bg-white/[0.02] border border-white/10 rounded-lg px-5 py-4">
+          <div className="flex items-start justify-between gap-4">
+            <div className="min-w-0">
+              <p className="text-sm text-white/80 font-['DM_Sans']">{c.name}</p>
+              <p className="text-xs text-white/40 font-['DM_Sans'] mt-0.5">
+                {c.email} · {c.phone ?? "No phone"} · {c.age ? `Age ${c.age}` : ""} {c.state ? `· ${c.state}` : ""} · {fmtDate(c.createdAt)}
+              </p>
+              {c.message && (
+                <p className="text-xs text-white/50 mt-2 font-['DM_Sans'] max-w-xl leading-relaxed">{c.message}</p>
+              )}
+              <div className="flex gap-2 mt-2 flex-wrap">
+                {c.interest.split(",").map(i => (
+                  <span key={i} className="text-xs bg-teal-400/10 text-teal-400 px-2 py-0.5 rounded font-['DM_Sans']">
+                    {i.trim()}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="flex flex-col items-end gap-2 shrink-0">
+              <Badge
+                label={c.status}
+                className={c.status === "contacted" ? "text-green-400 bg-green-400/10" : "text-amber-400 bg-amber-400/10"}
+              />
+              <div className="flex gap-2">
+                {c.status !== "contacted" && (
+                  <button
+                    onClick={() => updateStatus(c.id, "contacted")}
+                    disabled={saving === c.id}
+                    className="text-xs px-3 py-1 bg-teal-500/20 hover:bg-teal-500/30 text-teal-400 rounded font-['DM_Sans'] transition-colors disabled:opacity-50"
+                  >
+                    Mark Contacted
+                  </button>
+                )}
+                <a
+                  href={`mailto:${c.email}`}
+                  className="text-xs px-3 py-1 bg-white/5 hover:bg-white/10 text-white/50 rounded font-['DM_Sans'] transition-colors"
                 >
-                  <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <div className="min-w-0">
-                      <div className="flex items-center gap-3 mb-0.5 flex-wrap">
-                        <span className="font-medium text-foreground text-sm">#{o.id} — {o.customerName}</span>
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${orderStatusColor(o.status)}`}>{o.status}</span>
-                        {o.requiresConsultation && (
-                          <span className="text-[10px] px-2 py-0.5 rounded-full border bg-amber-500/10 text-amber-300 border-amber-500/30">
-                            <AlertTriangle className="inline w-2.5 h-2.5 mr-1" />consult required
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground">{o.email}{o.phone ? ` · ${o.phone}` : ""}</p>
-                    </div>
-                    <span className="ml-auto mr-4 text-primary font-medium text-sm shrink-0">${(o.totalCents / 100).toFixed(2)}</span>
-                    <span className="text-xs text-muted-foreground shrink-0">
-                      {new Date(o.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" })}
-                    </span>
-                  </div>
-                  <div className="ml-4 flex items-center gap-2 shrink-0">
-                    {o.status === "pending" && (
+                  Reply
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function ContinuationsPanel() {
+  const { data: rows, loading, reload } = useApi<ProtocolContinuation[]>("/admin/protocol-continuations");
+  const [saving, setSaving] = useState<number | null>(null);
+  const [expanded, setExpanded] = useState<number | null>(null);
+
+  const STATUSES = ["pending", "approved", "needs-review", "rejected"];
+
+  async function updateStatus(id: number, status: string) {
+    setSaving(id);
+    try {
+      await apiFetch(`/admin/protocol-continuations/${id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status }),
+      });
+      reload();
+    } finally {
+      setSaving(null);
+    }
+  }
+
+  if (loading) return <Spinner />;
+  if (!rows?.length) return <EmptyState message="No protocol continuation requests yet." />;
+
+  return (
+    <div className="space-y-2">
+      {rows.map(r => (
+        <div key={r.id} className="bg-white/[0.02] border border-white/10 rounded-lg overflow-hidden">
+          <button
+            onClick={() => setExpanded(expanded === r.id ? null : r.id)}
+            className="w-full flex items-center justify-between px-5 py-4 text-left"
+          >
+            <div>
+              <p className="text-sm text-white/80 font-['DM_Sans']">{r.name}</p>
+              <p className="text-xs text-white/30 font-['DM_Sans']">{r.email} · {fmtDate(r.createdAt)}</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <Badge
+                label={r.status}
+                className={
+                  r.status === "approved" ? "text-green-400 bg-green-400/10" :
+                  r.status === "rejected" ? "text-red-400 bg-red-400/10" :
+                  r.status === "needs-review" ? "text-amber-400 bg-amber-400/10" :
+                  "text-white/40 bg-white/5"
+                }
+              />
+              <span className="text-white/30 text-xs">{expanded === r.id ? "▲" : "▼"}</span>
+            </div>
+          </button>
+          <AnimatePresence>
+            {expanded === r.id && (
+              <motion.div
+                initial={{ height: 0, opacity: 0 }}
+                animate={{ height: "auto", opacity: 1 }}
+                exit={{ height: 0, opacity: 0 }}
+                className="overflow-hidden"
+              >
+                <div className="px-5 pb-4 border-t border-white/8 pt-4 space-y-2">
+                  <p className="text-sm text-white/60 font-['DM_Sans']">
+                    <span className="text-white/30">Peptides:</span> {r.peptides}
+                  </p>
+                  <p className="text-sm text-white/60 font-['DM_Sans']">
+                    <span className="text-white/30">Duration:</span> {r.duration}
+                  </p>
+                  <p className="text-sm text-white/60 font-['DM_Sans']">
+                    <span className="text-white/30">Context:</span> {r.prescribingContext}
+                  </p>
+                  {r.notes && (
+                    <p className="text-sm text-white/60 font-['DM_Sans']">
+                      <span className="text-white/30">Notes:</span> {r.notes}
+                    </p>
+                  )}
+                  <div className="flex gap-2 flex-wrap pt-1">
+                    {STATUSES.filter(s => s !== r.status).map(s => (
                       <button
-                        onClick={e => { e.stopPropagation(); handleStatus(o.id, "approved"); }}
-                        className="text-xs px-3 py-1.5 bg-primary/20 text-primary border border-primary/30 rounded-lg hover:bg-primary/30 transition-colors font-medium whitespace-nowrap"
+                        key={s}
+                        onClick={() => updateStatus(r.id, s)}
+                        disabled={saving === r.id}
+                        className="text-xs px-3 py-1 bg-white/5 hover:bg-white/10 text-white/50 rounded font-['DM_Sans'] transition-colors capitalize disabled:opacity-50"
                       >
-                        Approve →
+                        {s.replace("-", " ")}
                       </button>
-                    )}
-                    <Select value={o.status} onValueChange={v => { handleStatus(o.id, v); }}>
-                      <SelectTrigger className="h-7 text-xs w-28 bg-background/50 border-border/60" onClick={e => e.stopPropagation()}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="approved">Approved</SelectItem>
-                        <SelectItem value="shipped">Shipped</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    {isExpanded ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+                    ))}
+                    <a
+                      href={`mailto:${r.email}`}
+                      className="text-xs px-3 py-1 bg-white/5 hover:bg-white/10 text-white/50 rounded font-['DM_Sans'] transition-colors"
+                    >
+                      Reply
+                    </a>
                   </div>
                 </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+      ))}
+    </div>
+  );
+}
 
-                {isExpanded && (
-                  <div className="border-t border-border/40 px-6 py-5 bg-background/30 space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                      <div>
-                        <p className="text-muted-foreground uppercase tracking-wider mb-2">Items Ordered</p>
-                        <div className="space-y-1">
-                          {o.items.map((item, i) => (
-                            <div key={i} className="flex justify-between text-foreground/80">
-                              <span>
-                                {item.name}
-                                {item.variantLabel && <span className="text-primary/70 ml-1">({item.variantLabel})</span>}
-                                {" "}×{item.quantity}
-                              </span>
-                              <span className="text-primary">${((item.priceCents * item.quantity) / 100).toFixed(2)}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-muted-foreground uppercase tracking-wider mb-2">Shipping Address</p>
-                        <p className="text-foreground/80 leading-relaxed">
-                          {o.shippingAddress.street}<br/>
-                          {o.shippingAddress.city}, {o.shippingAddress.state} {o.shippingAddress.zip}
-                        </p>
-                      </div>
-                      {o.stripePaymentIntentId && (
-                        <div>
-                          <p className="text-muted-foreground uppercase tracking-wider mb-1">Stripe Payment</p>
-                          <p className="text-foreground/60 font-mono text-[10px] break-all">{o.stripePaymentIntentId}</p>
-                        </div>
-                      )}
-                    </div>
-                    <div className="pt-3 border-t border-border/30 flex justify-end">
-                      <a
-                        href={`mailto:${o.email}?subject=Your Auryx Order #${o.id}&body=Hi ${o.customerName},%0A%0A`}
-                        className="text-xs text-primary hover:underline"
-                      >
-                        Email customer →
-                      </a>
-                    </div>
-                  </div>
-                )}
+// ── Aria / Chat ───────────────────────────────────────────────────────────────
+
+function AriaTab() {
+  const [sub, setSub] = useState<"settings" | "analytics" | "escalations">("settings");
+
+  return (
+    <div>
+      <SubTabs
+        tabs={[
+          { id: "settings", label: "System Prompt" },
+          { id: "analytics", label: "Analytics" },
+          { id: "escalations", label: "Escalations" },
+        ]}
+        active={sub}
+        onChange={setSub}
+      />
+      {sub === "settings" && <AriaSettingsPanel />}
+      {sub === "analytics" && <AriaAnalyticsPanel />}
+      {sub === "escalations" && <EscalationsPanel />}
+    </div>
+  );
+}
+
+function AriaSettingsPanel() {
+  const { data: current, loading } = useApi<{ instructions: string; updatedAt?: string; isCustom: boolean }>("/admin/aria-settings");
+  const { data: defaults } = useApi<{ instructions: string }>("/admin/aria-settings/default");
+  const [text, setText] = useState("");
+  const [saving, setSaving] = useState(false);
+  const [saved, setSaved] = useState(false);
+
+  useEffect(() => {
+    if (current) setText(current.instructions);
+  }, [current]);
+
+  async function save() {
+    setSaving(true);
+    try {
+      await apiFetch("/admin/aria-settings", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ instructions: text }),
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 2500);
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (loading) return <Spinner />;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <p className="text-sm text-white/60 font-['DM_Sans']">Aria System Prompt</p>
+          {current?.updatedAt && (
+            <p className="text-xs text-white/30 font-['DM_Sans'] mt-0.5">
+              Last updated: {fmtDate(current.updatedAt)}
+            </p>
+          )}
+        </div>
+        <div className="flex gap-2">
+          {current?.isCustom && (
+            <button
+              onClick={() => defaults && setText(defaults.instructions)}
+              className="px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 text-white/50 rounded font-['DM_Sans'] transition-colors"
+            >
+              Reset to Default
+            </button>
+          )}
+          <button
+            onClick={save}
+            disabled={saving}
+            className="px-4 py-1.5 text-xs bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black rounded font-['DM_Sans'] font-medium transition-colors"
+          >
+            {saved ? "Saved ✓" : saving ? "Saving…" : "Save"}
+          </button>
+        </div>
+      </div>
+      <textarea
+        value={text}
+        onChange={e => setText(e.target.value)}
+        rows={20}
+        className="w-full bg-white/[0.03] border border-white/10 text-white/70 text-sm rounded-lg px-4 py-3 font-mono focus:outline-none focus:border-[#C9A844]/30 resize-none leading-relaxed"
+      />
+    </div>
+  );
+}
+
+function AriaAnalyticsPanel() {
+  const { data: summary, loading } = useApi<{
+    total: number;
+    intents: { intent: string; count: number }[];
+    topPeptides: { peptide: string; count: number }[];
+  }>("/admin/aria-analytics/summary");
+
+  if (loading) return <Spinner />;
+  if (!summary) return <EmptyState message="No analytics data." />;
+
+  const INTENT_COLORS: Record<string, string> = {
+    purchase: "text-green-400 bg-green-400/10",
+    pricing: "text-blue-400 bg-blue-400/10",
+    consultation: "text-teal-400 bg-teal-400/10",
+    medical: "text-amber-400 bg-amber-400/10",
+    general: "text-white/40 bg-white/5",
+  };
+
+  const maxPeptide = summary.topPeptides[0]?.count ?? 1;
+
+  return (
+    <div className="space-y-6">
+      <MetricCard label="Total Aria Conversations (30 days)" value={String(summary.total)} />
+
+      {summary.intents.length > 0 && (
+        <div>
+          <p className="text-xs tracking-widest uppercase text-white/30 mb-3 font-['DM_Sans']">Intent Breakdown</p>
+          <div className="flex flex-wrap gap-2">
+            {summary.intents.map(i => (
+              <div
+                key={i.intent}
+                className={`px-3 py-2 rounded font-['DM_Sans'] ${INTENT_COLORS[i.intent] ?? "text-white/40 bg-white/5"}`}
+              >
+                <span className="text-xs capitalize">{i.intent}</span>
+                <span className="ml-2 text-sm font-medium">{i.count}</span>
               </div>
-            );
-          })}
+            ))}
+          </div>
+        </div>
+      )}
+
+      {summary.topPeptides.length > 0 && (
+        <div>
+          <p className="text-xs tracking-widest uppercase text-white/30 mb-3 font-['DM_Sans']">Top Peptides Mentioned</p>
+          <div className="space-y-2">
+            {summary.topPeptides.map((p, i) => (
+              <div key={p.peptide} className="flex items-center gap-3">
+                <span className="text-white/20 text-xs w-4 font-['DM_Sans'] text-right">{i + 1}</span>
+                <div className="flex-1 bg-white/5 rounded h-5 overflow-hidden">
+                  <div
+                    className="h-full bg-[#C9A844]/40 rounded transition-all"
+                    style={{ width: `${Math.round((p.count / maxPeptide) * 100)}%` }}
+                  />
+                </div>
+                <span className="text-white/60 text-sm font-['DM_Sans'] w-36 truncate">{p.peptide}</span>
+                <span className="text-white/30 text-xs font-['DM_Sans'] w-6 text-right">{p.count}</span>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-interface ChatEscalation {
-  id: number;
-  name: string;
-  email: string;
-  phone: string | null;
-  preferredContact: string | null;
-  conversationJson: string;
-  createdAt: string;
-}
+function EscalationsPanel() {
+  const { data: escalations, loading } = useApi<ChatEscalation[]>("/chat/escalations");
+  const [expanded, setExpanded] = useState<number | null>(null);
 
-function EscalationsTab({ adminKey }: { adminKey: string }) {
-  const headers = { "x-admin-key": adminKey };
-  const [expandedId, setExpandedId] = useState<number | null>(null);
-
-  const { data: escalations = [], isLoading } = useQuery<ChatEscalation[]>({
-    queryKey: ["chat-escalations"],
-    queryFn: async () => {
-      const res = await fetch("/api/chat/escalations", { headers });
-      if (!res.ok) throw new Error("Failed to fetch escalations");
-      return res.json();
-    },
-    refetchInterval: 30000,
-  });
+  if (loading) return <Spinner />;
+  if (!escalations?.length) return <EmptyState message="No Aria escalations yet." />;
 
   return (
-    <div>
-      <div className="mb-8">
-        <h2 className="text-2xl font-serif text-foreground mb-1">Chat Escalations</h2>
-        <p className="text-sm text-muted-foreground">
-          {escalations.length} visitor{escalations.length !== 1 ? "s" : ""} requested to connect with the team via Aria
-        </p>
-      </div>
+    <div className="space-y-2">
+      {escalations.map(e => {
+        let messages: { role: string; content: string }[] = [];
+        try { messages = JSON.parse(e.conversationJson); } catch {}
 
-      {isLoading ? (
-        <div className="text-muted-foreground text-sm text-center py-20">Loading...</div>
-      ) : escalations.length === 0 ? (
-        <div className="text-center py-20 text-muted-foreground">
-          <MessageSquare className="w-12 h-12 mx-auto mb-4 opacity-30" />
-          <p>No chat escalations yet.</p>
-        </div>
-      ) : (
-        <div className="space-y-3">
-          {[...escalations].reverse().map((e: ChatEscalation) => {
-            let conversation: { role: string; content: string }[] = [];
-            try { conversation = JSON.parse(e.conversationJson); } catch {}
-            const isExpanded = expandedId === e.id;
-            return (
-              <div key={e.id} className="bg-card/50 border border-border/60 hover:border-primary/20 transition-colors rounded-lg overflow-hidden">
-                <div
-                  className="flex items-center justify-between px-6 py-4 cursor-pointer"
-                  onClick={() => setExpandedId(isExpanded ? null : e.id)}
+        return (
+          <div key={e.id} className="bg-white/[0.02] border border-white/10 rounded-lg overflow-hidden">
+            <button
+              onClick={() => setExpanded(expanded === e.id ? null : e.id)}
+              className="w-full flex items-center justify-between px-5 py-4 text-left"
+            >
+              <div>
+                <p className="text-sm text-white/80 font-['DM_Sans']">{e.name}</p>
+                <p className="text-xs text-white/30 font-['DM_Sans']">
+                  {e.email}{e.phone ? ` · ${e.phone}` : ""} · {fmtDate(e.createdAt)}
+                </p>
+              </div>
+              <div className="flex items-center gap-2">
+                {e.preferredContact && (
+                  <span className="text-xs text-teal-400 bg-teal-400/10 px-2 py-0.5 rounded font-['DM_Sans']">
+                    Prefers {e.preferredContact}
+                  </span>
+                )}
+                <span className="text-white/30 text-xs">{expanded === e.id ? "▲" : "▼"}</span>
+              </div>
+            </button>
+            <AnimatePresence>
+              {expanded === e.id && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: "auto", opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  className="overflow-hidden"
                 >
-                  <div className="flex items-center gap-4 flex-1 min-w-0">
-                    <div className="w-8 h-8 rounded-full bg-primary/15 border border-primary/25 flex items-center justify-center shrink-0">
-                      <span className="text-primary text-xs font-serif font-bold">
-                        {e.name.charAt(0).toUpperCase()}
-                      </span>
-                    </div>
-                    <div className="min-w-0">
-                      <p className="font-medium text-foreground text-sm">{e.name}</p>
-                      <p className="text-xs text-muted-foreground">{e.email}{e.phone ? ` · ${e.phone}` : ""}</p>
-                    </div>
-                    {e.preferredContact && (
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium shrink-0 ${
-                        e.preferredContact === "call"
-                          ? "bg-blue-500/10 text-blue-300 border-blue-500/20"
-                          : e.preferredContact === "text"
-                          ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/20"
-                          : "bg-primary/10 text-primary border-primary/20"
-                      }`}>
-                        {e.preferredContact === "call" ? "📞 call" : e.preferredContact === "text" ? "💬 text" : "✉ email"}
-                      </span>
-                    )}
-                    <span className="text-xs text-muted-foreground ml-auto mr-4 shrink-0">
-                      {new Date(e.createdAt).toLocaleDateString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-                    </span>
-                    <span className="text-xs text-muted-foreground/60 shrink-0">
-                      {conversation.length} msg{conversation.length !== 1 ? "s" : ""}
-                    </span>
-                  </div>
-                  <div className="ml-4 text-muted-foreground shrink-0">
-                    {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                  </div>
-                </div>
-
-                {isExpanded && conversation.length > 0 && (
-                  <div className="border-t border-border/40 px-6 py-5 bg-background/30 space-y-3">
-                    <p className="text-xs uppercase tracking-wider text-muted-foreground/60 mb-4">Conversation transcript</p>
-                    {conversation.map((msg, i) => (
-                      <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                        <div className={`max-w-[75%] rounded-xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap ${
-                          msg.role === "user"
-                            ? "bg-primary/15 text-foreground border border-primary/20"
-                            : "bg-card border border-border/60 text-foreground/80"
-                        }`}>
-                          <span className="block text-[10px] uppercase tracking-wider mb-1 opacity-50">
-                            {msg.role === "user" ? e.name : "Aria"}
-                          </span>
-                          {msg.content}
-                        </div>
+                  <div className="px-5 pb-4 border-t border-white/8 pt-4 space-y-2 max-h-96 overflow-y-auto">
+                    {messages.map((m, i) => (
+                      <div
+                        key={i}
+                        className={`text-sm font-['DM_Sans'] px-3 py-2 rounded ${
+                          m.role === "user"
+                            ? "bg-white/5 text-white/70"
+                            : "bg-teal-400/5 text-teal-300/80"
+                        }`}
+                      >
+                        <span className="text-xs uppercase tracking-wide text-white/30 mr-2">
+                          {m.role === "user" ? "Patient" : "Aria"}:
+                        </span>
+                        {m.content}
                       </div>
                     ))}
-                    <div className="pt-3 border-t border-border/30 flex justify-end">
-                      <a
-                        href={`mailto:${e.email}?subject=Following up from Auryx&body=Hi ${e.name},%0A%0AThank you for your interest in Auryx.`}
-                        className="text-xs text-primary hover:underline flex items-center gap-1"
-                      >
-                        Reply to {e.email} →
-                      </a>
-                    </div>
+                    <a
+                      href={`mailto:${e.email}`}
+                      className="block mt-3 text-xs text-center px-4 py-2 bg-white/5 hover:bg-white/10 text-white/50 rounded font-['DM_Sans'] transition-colors"
+                    >
+                      Reply via Email
+                    </a>
                   </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-interface ProtocolContinuation {
-  id: number;
-  name: string;
-  email: string;
-  phone?: string | null;
-  peptides: string;
-  duration: string;
-  prescribingContext: string;
-  prescribingDetails?: string | null;
-  redFlagsJson: string;
-  notes?: string | null;
-  status: string;
-  createdAt: string;
-}
+// ── User Management ───────────────────────────────────────────────────────────
 
-function continuationStatusColor(status: string) {
-  if (status === "pending") return "bg-amber-500/20 text-amber-300 border-amber-500/30";
-  if (status === "approved") return "bg-emerald-500/20 text-emerald-300 border-emerald-500/30";
-  if (status === "needs-review") return "bg-blue-500/20 text-blue-300 border-blue-500/30";
-  if (status === "rejected") return "bg-red-500/20 text-red-300 border-red-500/30";
-  return "bg-border text-muted-foreground";
-}
+function UsersTab() {
+  const { data: users, loading, reload } = useApi<StaffUser[]>("/admin/users");
+  const [showForm, setShowForm] = useState(false);
+  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [saving, setSaving] = useState(false);
+  const [formError, setFormError] = useState("");
 
-function prescribingLabel(val: string) {
-  const map: Record<string, string> = {
-    "md-do": "MD / DO",
-    "np-pa": "NP / PA",
-    "functional": "Functional / integrative",
-    "telehealth": "Online clinic / telehealth",
-    "self-managed": "Self-managed",
-    "other": "Other",
-  };
-  return map[val] ?? val;
-}
-
-function durationLabel(val: string) {
-  const map: Record<string, string> = {
-    "less-than-1-month": "< 1 month",
-    "1-3-months": "1–3 months",
-    "3-6-months": "3–6 months",
-    "6-12-months": "6–12 months",
-    "more-than-1-year": "> 1 year",
-  };
-  return map[val] ?? val;
-}
-
-function ContinuationsTab({ adminKey }: { adminKey: string }) {
-  const queryClient = useQueryClient();
-  const { toast } = useToast();
-  const [expanded, setExpanded] = useState<number | null>(null);
-  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "approved" | "needs-review" | "rejected">("all");
-
-  const headers = { "x-admin-key": adminKey };
-
-  const { data: items = [], isLoading } = useQuery<ProtocolContinuation[]>({
-    queryKey: ["admin-protocol-continuations"],
-    queryFn: async () => {
-      const res = await fetch("/api/admin/protocol-continuations", { headers });
-      if (!res.ok) throw new Error("Failed to fetch");
-      return res.json() as Promise<ProtocolContinuation[]>;
-    },
-  });
-
-  const handleStatus = async (id: number, status: string) => {
+  async function createStaff(e: React.FormEvent) {
+    e.preventDefault();
+    setFormError("");
+    setSaving(true);
     try {
-      const res = await fetch(`/api/admin/protocol-continuations/${id}`, {
-        method: "PATCH",
-        headers: { ...headers, "Content-Type": "application/json" },
-        body: JSON.stringify({ status }),
+      const r = await apiFetch("/admin/users", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
       });
-      if (!res.ok) throw new Error();
-      queryClient.invalidateQueries({ queryKey: ["admin-protocol-continuations"] });
-    } catch {
-      toast({ title: "Failed to update status", variant: "destructive" });
+      if (!r.ok) {
+        const body = await r.json();
+        throw new Error(body.error ?? "Failed");
+      }
+      setForm({ name: "", email: "", password: "" });
+      setShowForm(false);
+      reload();
+    } catch (err: any) {
+      setFormError(err.message);
+    } finally {
+      setSaving(false);
     }
+  }
+
+  async function toggleActive(user: StaffUser) {
+    await apiFetch(`/admin/users/${user.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ isActive: !user.isActive }),
+    });
+    reload();
+  }
+
+  if (loading) return <Spinner />;
+
+  return (
+    <div className="space-y-4">
+      <div className="flex justify-between items-center">
+        <SectionTitle>Staff Accounts</SectionTitle>
+        <button
+          onClick={() => setShowForm(!showForm)}
+          className="px-4 py-2 bg-[#C9A844] hover:bg-[#b8973d] text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
+        >
+          + Add Staff
+        </button>
+      </div>
+
+      <AnimatePresence>
+        {showForm && (
+          <motion.form
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            onSubmit={createStaff}
+            className="bg-white/[0.04] border border-[#C9A844]/30 rounded-lg p-5 space-y-3"
+          >
+            <p className="text-sm text-[#C9A844] font-['DM_Sans'] tracking-wide">New Staff Member</p>
+            {[
+              { label: "Full Name", key: "name", type: "text" },
+              { label: "Email", key: "email", type: "email" },
+              { label: "Password (min 8 chars)", key: "password", type: "password" },
+            ].map(({ label, key, type }) => (
+              <div key={key}>
+                <label className="block text-xs tracking-widest uppercase text-white/30 mb-1 font-['DM_Sans']">{label}</label>
+                <input
+                  type={type}
+                  value={form[key as keyof typeof form]}
+                  onChange={e => setForm(p => ({ ...p, [key]: e.target.value }))}
+                  required
+                  className="w-full bg-white/5 border border-white/10 text-white/80 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
+                />
+              </div>
+            ))}
+            {formError && <p className="text-red-400 text-xs font-['DM_Sans']">{formError}</p>}
+            <div className="flex gap-2">
+              <button
+                type="submit"
+                disabled={saving}
+                className="px-5 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
+              >
+                {saving ? "Creating…" : "Create"}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowForm(false)}
+                className="px-5 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors"
+              >
+                Cancel
+              </button>
+            </div>
+          </motion.form>
+        )}
+      </AnimatePresence>
+
+      {!users?.length ? (
+        <EmptyState message="No staff users yet. Add one above." />
+      ) : (
+        <div className="space-y-2">
+          {users.map(u => (
+            <div
+              key={u.id}
+              className="flex items-center justify-between bg-white/[0.02] border border-white/10 rounded-lg px-5 py-4"
+            >
+              <div>
+                <p className="text-sm text-white/80 font-['DM_Sans']">{u.name}</p>
+                <p className="text-xs text-white/30 font-['DM_Sans'] mt-0.5">
+                  {u.email} · Added {fmtDate(u.createdAt)}
+                  {u.lastLoginAt ? ` · Last login ${fmtDate(u.lastLoginAt)}` : " · Never logged in"}
+                </p>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge
+                  label={u.isActive ? "Active" : "Inactive"}
+                  className={u.isActive ? "text-green-400 bg-green-400/10" : "text-white/30 bg-white/5"}
+                />
+                <button
+                  onClick={() => toggleActive(u)}
+                  className="text-xs px-3 py-1 bg-white/5 hover:bg-white/10 text-white/40 rounded font-['DM_Sans'] transition-colors"
+                >
+                  {u.isActive ? "Deactivate" : "Activate"}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      <div className="bg-white/[0.02] border border-white/8 rounded-lg px-5 py-4 mt-2">
+        <p className="text-xs tracking-widest uppercase text-white/30 mb-2 font-['DM_Sans']">Admin Accounts</p>
+        <p className="text-sm text-white/40 font-['DM_Sans']">
+          Leo and Romy are configured as admins via environment secrets and are not stored in the database.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+// ── Financials ────────────────────────────────────────────────────────────────
+
+function FinancialsTab() {
+  const { data, loading } = useApi<FinancialsData>("/admin/financials");
+
+  if (loading) return <Spinner />;
+  if (!data) return <EmptyState message="Could not load financials." />;
+
+  const maxRevenue = Math.max(...data.monthlyRevenue.map(m => m.revenueCents), 1);
+
+  const STATUS_LABEL_MAP: Record<string, string> = {
+    pending: "Pending",
+    approved: "Approved",
+    sent_to_pharmacy: "At Pharmacy",
+    shipped: "Shipped",
+    delivered: "Delivered",
   };
 
-  const pending = items.filter(i => i.status === "pending").length;
-  const filtered = statusFilter === "all" ? items : items.filter(i => i.status === statusFilter);
+  return (
+    <div className="space-y-8">
+      <MetricCard label="All-Time Revenue" value={fmt$(data.allTimeRevenueCents)} />
 
-  const FILTERS = [
-    { value: "all",          label: "All" },
-    { value: "pending",      label: pending > 0 ? `Pending (${pending})` : "Pending" },
-    { value: "approved",     label: "Approved" },
-    { value: "needs-review", label: "Needs Review" },
-    { value: "rejected",     label: "Rejected" },
-  ] as const;
+      <div>
+        <p className="text-xs tracking-widest uppercase text-white/30 mb-4 font-['DM_Sans']">
+          Monthly Revenue (12 months)
+        </p>
+        <div className="flex items-end gap-1 h-40">
+          {data.monthlyRevenue.map(m => {
+            const heightPct = m.revenueCents > 0
+              ? Math.max(4, (m.revenueCents / maxRevenue) * 100)
+              : 2;
+            return (
+              <div key={m.month} className="flex-1 flex flex-col items-center gap-1 group">
+                <div
+                  className="w-full bg-[#C9A844]/30 group-hover:bg-[#C9A844]/60 rounded-t transition-colors relative"
+                  style={{ height: `${heightPct}%` }}
+                >
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#111] text-white/70 text-xs font-['DM_Sans'] px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                    {fmt$(m.revenueCents)}
+                  </div>
+                </div>
+                <p className="text-white/20 text-[10px] font-['DM_Sans'] text-center leading-none">
+                  {m.month.split(" ")[0]}
+                </p>
+              </div>
+            );
+          })}
+        </div>
+      </div>
 
-  if (isLoading) {
+      <div>
+        <p className="text-xs tracking-widest uppercase text-white/30 mb-3 font-['DM_Sans']">Orders by Status</p>
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+          {data.ordersByStatus.map(s => (
+            <div key={s.status} className="bg-white/[0.02] border border-white/8 rounded-lg px-4 py-3">
+              <p className="text-xs text-white/30 font-['DM_Sans'] mb-1">
+                {STATUS_LABEL_MAP[s.status] ?? s.status}
+              </p>
+              <p className="text-xl font-['Cormorant_Garamond'] text-white/70">{s.count}</p>
+              <p className="text-xs text-white/30 font-['DM_Sans']">{fmt$(s.totalCents)}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ── Main Layout ───────────────────────────────────────────────────────────────
+
+type Tab = "dashboard" | "orders" | "inventory" | "patients" | "aria" | "users" | "financials";
+
+const ALL_TABS: { id: Tab; label: string; adminOnly?: boolean }[] = [
+  { id: "dashboard", label: "Dashboard" },
+  { id: "orders", label: "Orders" },
+  { id: "inventory", label: "Inventory" },
+  { id: "patients", label: "Patients" },
+  { id: "aria", label: "Aria / Chat" },
+  { id: "users", label: "User Management", adminOnly: true },
+  { id: "financials", label: "Financials", adminOnly: true },
+];
+
+export default function Admin() {
+  const { user, loading, logout } = useAdminAuth();
+  const [, navigate] = useLocation();
+  const [activeTab, setActiveTab] = useState<Tab>("dashboard");
+
+  useEffect(() => {
+    if (!loading && !user) navigate("/admin/login");
+  }, [user, loading, navigate]);
+
+  if (loading) {
     return (
-      <div className="flex items-center justify-center py-24">
-        <Loader2 className="w-6 h-6 animate-spin text-primary mr-3" />
-        <span className="text-muted-foreground text-sm">Loading protocol continuations…</span>
+      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#C9A844]/30 border-t-[#C9A844] rounded-full animate-spin" />
       </div>
     );
   }
 
+  if (!user) return null;
+
+  const visibleTabs = ALL_TABS.filter(t => !t.adminOnly || user.role === "admin");
+
   return (
-    <div>
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h2 className="text-2xl font-serif text-foreground mb-1">Protocol Continuations</h2>
-          <p className="text-sm text-muted-foreground">
-            Patients who submitted a "Continue My Protocol" intake. {pending > 0 && <span className="text-primary font-medium">{pending} pending review.</span>}
+    <div className="min-h-screen bg-[#0A0A0A] flex text-white">
+      {/* Sidebar */}
+      <aside className="w-52 shrink-0 border-r border-white/8 flex flex-col fixed inset-y-0 left-0 z-10">
+        <div className="px-5 py-5 border-b border-white/8">
+          <span className="font-['Cormorant_Garamond'] text-xl font-light tracking-[0.2em] text-[#C9A844]">
+            AURYX
+          </span>
+          <p className="text-[10px] tracking-widest uppercase text-white/25 font-['DM_Sans'] mt-0.5">
+            Admin Portal
           </p>
         </div>
-      </div>
 
-      <div className="flex gap-2 mb-6 flex-wrap">
-        {FILTERS.map(f => (
-          <button
-            key={f.value}
-            onClick={() => setStatusFilter(f.value)}
-            className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
-              statusFilter === f.value
-                ? "bg-primary/15 text-primary border-primary/30"
-                : "border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
-            }`}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
-
-      {items.length === 0 ? (
-        <div className="text-center py-24 text-muted-foreground">
-          <ClipboardList className="w-10 h-10 mx-auto mb-4 opacity-30" />
-          <p className="text-sm">No protocol continuations yet.</p>
-        </div>
-      ) : filtered.length === 0 ? (
-        <div className="text-center py-24 text-muted-foreground">
-          <p className="text-sm">No {statusFilter} continuations.</p>
-        </div>
-      ) : (
-        <div className="space-y-4">
-          {filtered.map(item => {
-            const flags: string[] = (() => { try { return JSON.parse(item.redFlagsJson); } catch { return []; } })();
-            const isOpen = expanded === item.id;
-            return (
-              <div key={item.id} className="border border-border/60 rounded-xl bg-card/40 overflow-hidden">
-                <div className="p-5 flex flex-col sm:flex-row sm:items-center gap-4">
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-3 mb-1 flex-wrap">
-                      <span className="font-medium text-foreground text-sm">{item.name}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full border ${continuationStatusColor(item.status)}`}>{item.status}</span>
-                      {flags.length > 0 && (
-                        <span className="text-xs px-2 py-0.5 rounded-full border bg-amber-500/10 text-amber-300 border-amber-500/30">
-                          <AlertTriangle className="inline w-3 h-3 mr-1" />flags
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground truncate">{item.email}{item.phone ? ` · ${item.phone}` : ""}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {durationLabel(item.duration)} · {prescribingLabel(item.prescribingContext)}
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-3 shrink-0 flex-wrap">
-                    <Select value={item.status} onValueChange={v => handleStatus(item.id, v)}>
-                      <SelectTrigger className="h-8 text-xs w-36 bg-background/50 border-border/60">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="pending">Pending</SelectItem>
-                        <SelectItem value="approved">Approved</SelectItem>
-                        <SelectItem value="needs-review">Needs Review</SelectItem>
-                        <SelectItem value="rejected">Rejected</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <a
-                      href={`mailto:${item.email}?subject=Your Auryx Protocol Continuation&body=Hi ${item.name},%0A%0A`}
-                      className="text-xs text-primary hover:underline whitespace-nowrap"
-                    >
-                      Reply
-                    </a>
-                    <button
-                      onClick={() => setExpanded(isOpen ? null : item.id)}
-                      className="text-xs text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
-                    >
-                      {isOpen ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                      {isOpen ? "Less" : "Details"}
-                    </button>
-                  </div>
-                </div>
-                {isOpen && (
-                  <div className="border-t border-border/40 bg-background/30 px-5 py-4 grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                    <div>
-                      <p className="text-muted-foreground uppercase tracking-wider mb-1">Current Protocol</p>
-                      <p className="text-foreground whitespace-pre-wrap">{item.peptides}</p>
-                    </div>
-                    {item.prescribingDetails && (
-                      <div>
-                        <p className="text-muted-foreground uppercase tracking-wider mb-1">Provider / Clinic</p>
-                        <p className="text-foreground">{item.prescribingDetails}</p>
-                      </div>
-                    )}
-                    {item.notes && (
-                      <div className="sm:col-span-2">
-                        <p className="text-muted-foreground uppercase tracking-wider mb-1">Patient Notes</p>
-                        <p className="text-foreground whitespace-pre-wrap">{item.notes}</p>
-                      </div>
-                    )}
-                    {flags.length > 0 && (
-                      <div className="sm:col-span-2">
-                        <p className="text-amber-400 uppercase tracking-wider mb-1">Red Flags</p>
-                        <ul className="list-disc list-inside text-amber-300/80 space-y-1">
-                          {flags.map(f => <li key={f}>{f}</li>)}
-                        </ul>
-                      </div>
-                    )}
-                    <div>
-                      <p className="text-muted-foreground uppercase tracking-wider mb-1">Submitted</p>
-                      <p className="text-foreground">{new Date(item.createdAt).toLocaleString()}</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ── Types ────────────────────────────────────────────────────────────────────
-interface AriaAnalyticsRow {
-  id: number;
-  sessionId: string;
-  userMessage: string;
-  detectedIntent: string;
-  peptideMentioned: string | null;
-  userName: string | null;
-  createdAt: string;
-}
-
-interface AnalyticsSummary {
-  total: number;
-  intents: { intent: string; count: number }[];
-  topPeptides: { peptide: string | null; count: number }[];
-}
-
-const INTENT_COLORS: Record<string, string> = {
-  purchase:     "bg-emerald-500/20 text-emerald-300 border-emerald-500/30",
-  pricing:      "bg-blue-500/20 text-blue-300 border-blue-500/30",
-  consultation: "bg-primary/20 text-primary border-primary/30",
-  medical:      "bg-red-500/20 text-red-300 border-red-500/30",
-  general:      "bg-zinc-500/20 text-zinc-300 border-zinc-500/30",
-};
-
-const INTENT_LABELS: Record<string, string> = {
-  purchase:     "Purchase",
-  pricing:      "Pricing",
-  consultation: "Consultation",
-  medical:      "Medical",
-  general:      "General",
-};
-
-function IntentBadge({ intent }: { intent: string }) {
-  return (
-    <span className={`text-[10px] px-2 py-0.5 rounded-full border font-medium ${INTENT_COLORS[intent] ?? INTENT_COLORS.general}`}>
-      {INTENT_LABELS[intent] ?? intent}
-    </span>
-  );
-}
-
-function AriaAnalyticsTab({ adminKey }: { adminKey: string }) {
-  const headers = { "x-admin-key": adminKey };
-  const [intentFilter, setIntentFilter] = useState<string>("all");
-  const [dateFrom, setDateFrom] = useState<string>("");
-
-  const summaryParams = new URLSearchParams();
-  if (dateFrom) summaryParams.set("from", new Date(dateFrom).toISOString());
-
-  const logParams = new URLSearchParams();
-  if (intentFilter && intentFilter !== "all") logParams.set("intent", intentFilter);
-  if (dateFrom) logParams.set("from", new Date(dateFrom).toISOString());
-
-  const { data: summary, isLoading: summaryLoading } = useQuery<AnalyticsSummary>({
-    queryKey: ["aria-analytics-summary", dateFrom],
-    queryFn: async () => {
-      const res = await fetch(`/api/admin/aria-analytics/summary?${summaryParams}`, { headers });
-      if (!res.ok) throw new Error("Failed to fetch summary");
-      return res.json();
-    },
-    refetchInterval: 30000,
-  });
-
-  const { data: log = [], isLoading: logLoading } = useQuery<AriaAnalyticsRow[]>({
-    queryKey: ["aria-analytics-log", intentFilter, dateFrom],
-    queryFn: async () => {
-      const res = await fetch(`/api/admin/aria-analytics?${logParams}`, { headers });
-      if (!res.ok) throw new Error("Failed to fetch log");
-      return res.json();
-    },
-    refetchInterval: 30000,
-  });
-
-  const total = summary?.total ?? 0;
-  const intents = summary?.intents ?? [];
-  const topPeptides = summary?.topPeptides ?? [];
-
-  const getCount = (intent: string) => intents.find(i => i.intent === intent)?.count ?? 0;
-  const getPct = (intent: string) => total > 0 ? Math.round((getCount(intent) / total) * 100) : 0;
-
-  // Top questions: deduplicate by normalized message, keep highest count
-  const questionFreq: Record<string, { message: string; count: number }> = {};
-  for (const row of log) {
-    const key = row.userMessage.trim().toLowerCase().slice(0, 80);
-    if (!questionFreq[key]) questionFreq[key] = { message: row.userMessage.trim(), count: 0 };
-    questionFreq[key].count++;
-  }
-  const topQuestions = Object.values(questionFreq)
-    .sort((a, b) => b.count - a.count)
-    .slice(0, 10);
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-        <div>
-          <h2 className="text-2xl font-serif text-foreground mb-1">Aria Analytics</h2>
-          <p className="text-sm text-muted-foreground">
-            {total} messages logged — last 30 days by default
-          </p>
-        </div>
-        <div className="flex items-center gap-3 flex-wrap">
-          <input
-            type="date"
-            value={dateFrom}
-            onChange={e => setDateFrom(e.target.value)}
-            className="h-9 rounded-md border border-border/60 bg-card text-sm text-foreground px-3 focus:outline-none focus:border-primary/50"
-          />
-          {dateFrom && (
+        <nav className="flex-1 py-3 px-2 space-y-0.5 overflow-y-auto">
+          {visibleTabs.map(t => (
             <button
-              onClick={() => setDateFrom("")}
-              className="text-xs text-muted-foreground hover:text-foreground"
+              key={t.id}
+              onClick={() => setActiveTab(t.id)}
+              className={`w-full text-left px-3 py-2.5 rounded text-sm font-['DM_Sans'] transition-colors ${
+                activeTab === t.id
+                  ? "bg-[#C9A844]/15 text-[#C9A844]"
+                  : "text-white/45 hover:text-white/75 hover:bg-white/5"
+              }`}
             >
-              Clear date
+              {t.label}
+              {t.adminOnly && (
+                <span className="ml-1 text-[9px] text-white/20 uppercase tracking-wide align-middle">●</span>
+              )}
             </button>
-          )}
-        </div>
-      </div>
+          ))}
+        </nav>
 
-      {summaryLoading ? (
-        <div className="text-center py-12 text-muted-foreground text-sm">Loading analytics...</div>
-      ) : total === 0 ? (
-        <div className="text-center py-20 text-muted-foreground">
-          <BarChart2 className="w-12 h-12 mx-auto mb-4 opacity-30" />
-          <p>No chat data yet. Analytics populate as visitors chat with Aria.</p>
-        </div>
-      ) : (
-        <>
-          {/* Intent breakdown */}
-          <div className="grid grid-cols-2 sm:grid-cols-5 gap-3 mb-8">
-            {(["purchase", "pricing", "consultation", "medical", "general"] as const).map(intent => (
-              <div key={intent} className="bg-card/50 border border-border/60 rounded-lg p-4 text-center">
-                <p className="text-2xl font-bold text-foreground mb-1">{getPct(intent)}%</p>
-                <IntentBadge intent={intent} />
-                <p className="text-xs text-muted-foreground mt-1.5">{getCount(intent)} msgs</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-            {/* Top peptides */}
-            <div className="bg-card/50 border border-border/60 rounded-lg p-5">
-              <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
-                Most Mentioned Peptides
-              </h3>
-              {topPeptides.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No peptides mentioned yet.</p>
-              ) : (
-                <div className="space-y-2">
-                  {topPeptides.map(({ peptide, count }) => {
-                    const pct = total > 0 ? Math.round((count / total) * 100) : 0;
-                    return (
-                      <div key={peptide}>
-                        <div className="flex items-center justify-between text-xs mb-1">
-                          <span className="text-foreground/80">{peptide}</span>
-                          <span className="text-muted-foreground">{count} ({pct}%)</span>
-                        </div>
-                        <div className="h-1.5 bg-border/40 rounded-full overflow-hidden">
-                          <div className="h-full bg-primary/60 rounded-full" style={{ width: `${pct}%` }} />
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              )}
-            </div>
-
-            {/* Top questions */}
-            <div className="bg-card/50 border border-border/60 rounded-lg p-5">
-              <h3 className="text-sm font-medium text-foreground mb-4 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-teal-500 inline-block" />
-                Top Questions Asked
-              </h3>
-              {topQuestions.length === 0 ? (
-                <p className="text-xs text-muted-foreground">No data yet.</p>
-              ) : (
-                <ol className="space-y-2">
-                  {topQuestions.map(({ message, count }, i) => (
-                    <li key={i} className="flex items-start gap-2.5 text-xs">
-                      <span className="text-muted-foreground/50 tabular-nums w-4 shrink-0 pt-px">{i + 1}.</span>
-                      <span className="text-foreground/70 flex-1 line-clamp-2 leading-relaxed">{message}</span>
-                      {count > 1 && <span className="text-primary/60 shrink-0">×{count}</span>}
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </div>
-          </div>
-
-          {/* Full message log */}
-          <div>
-            <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
-              <h3 className="text-sm font-medium text-foreground">Full Message Log</h3>
-              <div className="flex gap-2 flex-wrap">
-                {(["all", "purchase", "pricing", "consultation", "medical", "general"] as const).map(f => (
-                  <button
-                    key={f}
-                    onClick={() => setIntentFilter(f)}
-                    className={`text-xs px-3 py-1.5 rounded-full border font-medium transition-colors ${
-                      intentFilter === f
-                        ? "bg-primary/15 text-primary border-primary/30"
-                        : "border-border/60 text-muted-foreground hover:text-foreground hover:border-border"
-                    }`}
-                  >
-                    {f === "all" ? "All" : INTENT_LABELS[f]}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {logLoading ? (
-              <div className="text-center py-8 text-muted-foreground text-sm">Loading...</div>
-            ) : log.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground text-sm">No messages match this filter.</div>
-            ) : (
-              <div className="space-y-1.5 max-h-[600px] overflow-y-auto pr-1">
-                {log.map(row => (
-                  <div key={row.id} className="bg-card/40 border border-border/40 rounded-lg px-4 py-3 flex items-start gap-3">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm text-foreground/80 leading-relaxed">{row.userMessage}</p>
-                      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-                        {row.userName && (
-                          <span className="text-[10px] text-muted-foreground/60">{row.userName}</span>
-                        )}
-                        {row.peptideMentioned && (
-                          <span className="text-[10px] text-teal-400/70 border border-teal-500/20 rounded px-1.5 py-px">{row.peptideMentioned}</span>
-                        )}
-                        <span className="text-[10px] text-muted-foreground/40">
-                          {new Date(row.createdAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-                        </span>
-                      </div>
-                    </div>
-                    <IntentBadge intent={row.detectedIntent} />
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        </>
-      )}
-    </div>
-  );
-}
-
-function AriaTab({ adminKey }: { adminKey: string }) {
-  const { toast } = useToast();
-  const [instructions, setInstructions] = useState("");
-  const [savedInstructions, setSavedInstructions] = useState("");
-  const [updatedAt, setUpdatedAt] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    fetch("/api/admin/aria-settings", { headers: { "x-admin-key": adminKey } })
-      .then(r => r.json())
-      .then(data => {
-        setInstructions(data.instructions ?? "");
-        setSavedInstructions(data.instructions ?? "");
-        setUpdatedAt(data.updatedAt ?? null);
-        setLoading(false);
-      })
-      .catch(() => setLoading(false));
-  }, [adminKey]);
-
-  const handleSave = async () => {
-    setSaving(true);
-    try {
-      const res = await fetch("/api/admin/aria-settings", {
-        method: "PUT",
-        headers: { "x-admin-key": adminKey, "Content-Type": "application/json" },
-        body: JSON.stringify({ instructions }),
-      });
-      if (!res.ok) throw new Error("Save failed");
-      const data = await res.json();
-      setSavedInstructions(instructions);
-      setUpdatedAt(data.updatedAt ?? null);
-      toast({ title: "Saved", description: "Aria's instructions are live." });
-    } catch {
-      toast({ title: "Error", description: "Failed to save. Please try again.", variant: "destructive" });
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  const handleLoadDefault = async () => {
-    try {
-      const res = await fetch("/api/admin/aria-settings/default", { headers: { "x-admin-key": adminKey } });
-      const data = await res.json();
-      setInstructions(data.instructions ?? "");
-      toast({ title: "Default loaded", description: "Click Save to apply." });
-    } catch {
-      toast({ title: "Error", description: "Could not load default.", variant: "destructive" });
-    }
-  };
-
-  const isDirty = instructions !== savedInstructions;
-
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-8 flex-wrap gap-4">
-        <div>
-          <h2 className="text-2xl font-serif text-foreground mb-1">Aria Instructions</h2>
-          <p className="text-sm text-muted-foreground">
-            Edit what Aria knows and how she responds. Changes go live immediately after saving.
-          </p>
-        </div>
-        <div className="flex gap-3">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleLoadDefault}
-            className="text-xs border-border/60 text-muted-foreground hover:text-foreground"
-          >
-            Load Default
-          </Button>
-          <Button
-            size="sm"
-            onClick={handleSave}
-            disabled={!isDirty || saving}
-            className="bg-primary text-primary-foreground text-xs disabled:opacity-40"
-          >
-            {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Save Changes"}
-          </Button>
-        </div>
-      </div>
-
-      {loading ? (
-        <div className="text-center py-20 text-muted-foreground text-sm">Loading...</div>
-      ) : (
-        <div className="space-y-3">
-          <div className="bg-primary/5 border border-primary/20 rounded-lg px-4 py-3 text-xs text-foreground/70 leading-relaxed">
-            <strong className="text-primary">How this works:</strong> Everything here — states, protocols, tone, escalation rules — is what Aria uses when talking to visitors. The visitor's name and business hours are injected automatically; everything else comes from this editor. Edit freely and hit Save.
-            {updatedAt && (
-              <span className="ml-2 text-muted-foreground/50">
-                · Last saved {new Date(updatedAt).toLocaleString("en-US", { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-              </span>
-            )}
-          </div>
-          <textarea
-            value={instructions}
-            onChange={e => setInstructions(e.target.value)}
-            className="w-full h-[600px] bg-card border border-border rounded-xl px-5 py-4 text-sm text-foreground/90 font-mono leading-relaxed resize-y focus:outline-none focus:border-primary/50 transition-colors"
-            spellCheck={false}
-          />
-          <div className="flex items-center justify-between text-xs text-muted-foreground/50">
-            <span>
-              {isDirty
-                ? <span className="text-amber-400/80">Unsaved changes — click Save to apply</span>
-                : <span className="text-emerald-500/60">All changes saved</span>
-              }
-            </span>
-            <span className="flex items-center gap-2">
-              {instructions.length >= 5000 && (
-                <span className="text-red-400/80">Instructions are very long — consider trimming for best results</span>
-              )}
-              {instructions.length >= 3000 && instructions.length < 5000 && (
-                <span className="text-amber-400/70">Long instructions may reduce Aria's response quality</span>
-              )}
-              <span className={
-                instructions.length >= 5000
-                  ? "text-red-400/80"
-                  : instructions.length >= 3000
-                  ? "text-amber-400/80"
-                  : "text-muted-foreground/50"
-              }>
-                {instructions.length.toLocaleString()} characters
-              </span>
-            </span>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-export default function Admin() {
-  useEffect(() => {
-    const meta = document.createElement("meta");
-    meta.name = "robots";
-    meta.content = "noindex, nofollow";
-    document.head.appendChild(meta);
-    return () => { document.head.removeChild(meta); };
-  }, []);
-
-  const [adminKey, setAdminKey] = useState<string>(() => sessionStorage.getItem(SESSION_KEY) ?? "");
-  const [tab, setTab] = useState<"consultations" | "inventory" | "escalations" | "aria" | "continuations" | "orders" | "analytics">("consultations");
-
-  const headers = { "x-admin-key": adminKey };
-
-  const { data: consultations = [] } = useQuery({
-    queryKey: getListConsultationsQueryKey(),
-    queryFn: () => listConsultations({ headers }),
-    enabled: !!adminKey,
-  });
-
-  const { data: continuations = [] } = useQuery<ProtocolContinuation[]>({
-    queryKey: ["admin-protocol-continuations"],
-    queryFn: async () => {
-      const res = await fetch("/api/admin/protocol-continuations", { headers });
-      if (!res.ok) throw new Error("Failed to fetch");
-      return res.json();
-    },
-    enabled: !!adminKey,
-  });
-
-  const newConsultationsCount = (consultations as Consultation[]).filter(c => c.status === "new").length;
-  const pendingContinuationsCount = continuations.filter(i => i.status === "pending").length;
-
-  const handleLogout = () => {
-    sessionStorage.removeItem(SESSION_KEY);
-    setAdminKey("");
-  };
-
-  if (!adminKey) {
-    return <LoginScreen onLogin={setAdminKey} />;
-  }
-
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="border-b border-border/60 bg-card/30 backdrop-blur-sm sticky top-0 z-10">
-        <div className="container mx-auto max-w-7xl px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <span className="text-primary font-serif tracking-widest text-lg">AURYX</span>
-            <span className="text-xs text-muted-foreground uppercase tracking-wider">Admin</span>
-            <nav className="flex gap-1 overflow-x-auto">
-              <button
-                data-testid="tab-consultations"
-                onClick={() => setTab("consultations")}
-                className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${tab === "consultations" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                <Users className="hidden sm:inline w-4 h-4 mr-2" />Consultations
-                {newConsultationsCount > 0 && (
-                  <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-[10px] w-4 h-4">{newConsultationsCount}</span>
-                )}
-              </button>
-              <button
-                data-testid="tab-inventory"
-                onClick={() => setTab("inventory")}
-                className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${tab === "inventory" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                <Package className="hidden sm:inline w-4 h-4 mr-2" />Inventory
-              </button>
-              <button
-                data-testid="tab-escalations"
-                onClick={() => setTab("escalations")}
-                className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${tab === "escalations" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                <MessageSquare className="hidden sm:inline w-4 h-4 mr-2" />Chat Escalations
-              </button>
-              <button
-                data-testid="tab-aria"
-                onClick={() => setTab("aria")}
-                className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${tab === "aria" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                <Bot className="hidden sm:inline w-4 h-4 mr-2" />Aria
-              </button>
-              <button
-                data-testid="tab-continuations"
-                onClick={() => setTab("continuations")}
-                className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${tab === "continuations" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                <ClipboardList className="hidden sm:inline w-4 h-4 mr-2" />Continuations
-                {pendingContinuationsCount > 0 && (
-                  <span className="ml-1.5 inline-flex items-center justify-center rounded-full bg-primary text-primary-foreground font-bold text-[10px] w-4 h-4">{pendingContinuationsCount}</span>
-                )}
-              </button>
-              <button
-                data-testid="tab-orders"
-                onClick={() => setTab("orders")}
-                className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${tab === "orders" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                <ShoppingBag className="hidden sm:inline w-4 h-4 mr-2" />Orders
-              </button>
-              <button
-                data-testid="tab-analytics"
-                onClick={() => setTab("analytics")}
-                className={`px-3 py-2 text-sm rounded-md transition-colors whitespace-nowrap ${tab === "analytics" ? "bg-primary/15 text-primary" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                <BarChart2 className="hidden sm:inline w-4 h-4 mr-2" />Aria Analytics
-              </button>
-            </nav>
-          </div>
+        <div className="px-4 py-4 border-t border-white/8">
+          <p className="text-xs text-white/50 font-['DM_Sans'] truncate">{user.name}</p>
+          <p className="text-[10px] text-white/20 font-['DM_Sans'] capitalize">{user.role}</p>
           <button
-            data-testid="button-logout"
-            onClick={handleLogout}
-            className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            onClick={async () => { await logout(); navigate("/admin/login"); }}
+            className="mt-3 text-xs text-white/25 hover:text-white/55 font-['DM_Sans'] transition-colors"
           >
-            <LogOut className="w-4 h-4" /> Sign out
+            Sign out →
           </button>
         </div>
-      </div>
+      </aside>
 
-      <div className="container mx-auto max-w-7xl px-6 py-12">
-        <motion.div key={tab} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
-          {tab === "consultations" && <ConsultationsTab adminKey={adminKey} />}
-          {tab === "inventory" && <InventoryTab adminKey={adminKey} />}
-          {tab === "escalations" && <EscalationsTab adminKey={adminKey} />}
-          {tab === "aria" && <AriaTab adminKey={adminKey} />}
-          {tab === "continuations" && <ContinuationsTab adminKey={adminKey} />}
-          {tab === "orders" && <OrdersTab adminKey={adminKey} />}
-          {tab === "analytics" && <AriaAnalyticsTab adminKey={adminKey} />}
-        </motion.div>
-      </div>
+      {/* Content */}
+      <main className="flex-1 ml-52 min-h-screen overflow-auto">
+        <div className="max-w-5xl mx-auto px-8 py-8">
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTab}
+              initial={{ opacity: 0, y: 4 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              {activeTab === "dashboard" && <DashboardTab />}
+              {activeTab === "orders" && <OrdersTab />}
+              {activeTab === "inventory" && <InventoryTab />}
+              {activeTab === "patients" && <PatientsTab />}
+              {activeTab === "aria" && <AriaTab />}
+              {activeTab === "users" && user.role === "admin" && <UsersTab />}
+              {activeTab === "financials" && user.role === "admin" && <FinancialsTab />}
+            </motion.div>
+          </AnimatePresence>
+        </div>
+      </main>
     </div>
   );
 }

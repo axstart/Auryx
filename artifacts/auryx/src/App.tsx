@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/home";
 import Admin from "@/pages/admin";
+import AdminLogin from "@/pages/admin-login";
 import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
 import ShopPage from "@/pages/shop";
@@ -22,6 +23,7 @@ import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
 import CartDrawer from "@/components/CartDrawer";
 import { CartProvider } from "@/context/CartContext";
+import { AdminAuthProvider } from "@/context/AdminAuthContext";
 
 const queryClient = new QueryClient();
 
@@ -36,6 +38,7 @@ function ScrollToTop() {
 function Router() {
   return (
     <Switch>
+      <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin" component={Admin} />
       <Route>
         <div className="flex min-h-screen flex-col">
@@ -71,11 +74,13 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <CartProvider>
-          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-            <ScrollToTop />
-            <Router />
-          </WouterRouter>
-          <Toaster />
+          <AdminAuthProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <ScrollToTop />
+              <Router />
+            </WouterRouter>
+            <Toaster />
+          </AdminAuthProvider>
         </CartProvider>
       </TooltipProvider>
     </QueryClientProvider>
