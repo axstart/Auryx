@@ -12,9 +12,18 @@ let stripePromise: ReturnType<typeof loadStripe> | null = null;
 async function getStripePromise() {
   if (!stripePromise) {
     const res = await fetch("/api/checkout/publishable-key");
-    if (!res.ok) throw new Error("Failed to load Stripe");
+    if (!res.ok) throw new Error("Failed to load Stripe key from server");
     const { publishableKey } = await res.json();
+    if (!publishableKey || !String(publishableKey).startsWith("pk_")) {
+      throw new Error("Stripe is not configured correctly — invalid publishable key");
+    }
     stripePromise = loadStripe(publishableKey);
+    // If loadStripe returns null, clear the cache so the next attempt retries
+    const resolved = await stripePromise;
+    if (!resolved) {
+      stripePromise = null;
+      throw new Error("Stripe failed to initialize");
+    }
   }
   return stripePromise;
 }
