@@ -66,6 +66,79 @@ function resolveItemPrice(item: z.infer<typeof CartItemSchema>): {
   return { priceCents, name: product.name, slug: product.slug, variantLabel: item.variantLabel };
 }
 
+// Status-change emails sent to customer
+function sendStatusEmail(order: typeof ordersTable.$inferSelect) {
+  const name = order.customerName;
+  const id = order.id;
+  const email = order.email;
+  const tracking = order.trackingNumber;
+
+  const templates: Partial<Record<OrderStatus, { subject: string; body: string[] }>> = {
+    approved: {
+      subject: `Auryx Order #${id} — Approved`,
+      body: [
+        `Hi ${name},`,
+        ``,
+        `Great news — your Auryx order #${id} has been approved and is being prepared for fulfillment.`,
+        ``,
+        `We'll send you another update when your order is sent to the pharmacy.`,
+        ``,
+        `Questions? Email us at admin@auryxlife.com`,
+        ``,
+        `— The Auryx Team`,
+      ],
+    },
+    sent_to_pharmacy: {
+      subject: `Auryx Order #${id} — Sent to Pharmacy`,
+      body: [
+        `Hi ${name},`,
+        ``,
+        `Your Auryx order #${id} has been sent to our compounding pharmacy for preparation.`,
+        ``,
+        `Once it ships, you'll receive a tracking number via email.`,
+        ``,
+        `Questions? Email us at admin@auryxlife.com`,
+        ``,
+        `— The Auryx Team`,
+      ],
+    },
+    shipped: {
+      subject: `Auryx Order #${id} — Shipped`,
+      body: [
+        `Hi ${name},`,
+        ``,
+        `Your Auryx order #${id} has shipped!`,
+        ``,
+        ...(tracking ? [`Tracking number: ${tracking}`, ``] : []),
+        `Thank you for choosing Auryx.`,
+        ``,
+        `— The Auryx Team`,
+      ],
+    },
+    delivered: {
+      subject: `Auryx Order #${id} — Delivered`,
+      body: [
+        `Hi ${name},`,
+        ``,
+        `Your Auryx order #${id} has been marked as delivered. We hope you're pleased with your protocol.`,
+        ``,
+        `For any questions about your protocol or to book a follow-up consultation, reply to this email.`,
+        ``,
+        `— The Auryx Team`,
+      ],
+    },
+  };
+
+  const tpl = templates[order.status as OrderStatus];
+  if (!tpl) return;
+
+  sendMail({
+    to: email,
+    subject: tpl.subject,
+    text: tpl.body.join("\n"),
+  }).catch(() => {});
+}
+
 const router = Router();
 
 router.get("/checkout/publishable-key", (_req, res) => {
@@ -108,7 +181,6 @@ router.post("/checkout/create-payment-intent", async (req, res) => {
       receipt_email: parsed.data.customerEmail,
       metadata: { items: JSON.stringify(lineItems) },
     });
-
     res.json({ clientSecret: intent.client_secret, totalCents });
   } catch (err) {
     req.log.error({ err }, "Stripe createPaymentIntent failed");
@@ -178,6 +250,7 @@ router.post("/checkout/complete", async (req, res) => {
   }).join("\n");
   const totalDisplay = `$${(totalCents / 100).toFixed(2)}`;
 
+  // Admin notification
   sendMail({
     subject: `New Order #${order.id} — ${customerName}`,
     text: [
@@ -205,6 +278,7 @@ router.post("/checkout/complete", async (req, res) => {
     ].join("\n"),
   }).catch(() => {});
 
+  // Customer confirmation
   sendMail({
     to: email,
     subject: `Your Auryx Order Confirmation — #${order.id}`,
@@ -265,43 +339,9 @@ router.patch("/orders/:id", sessionAuth, async (req, res) => {
 
   if (!order) { res.status(404).json({ error: "Not found" }); return; }
 
-  // If just approved — send confirmation email to customer
-  if (parsed.data.status === "approved") {
-    const o = order as typeof ordersTable.$inferSelect;
-    sendMail({
-      to: o.email,
-      subject: `Auryx Order #${o.id} — Approved`,
-      text: [
-        `Hi ${o.customerName},`,
-        ``,
-        `Great news — your Auryx order #${o.id} has been approved and is being prepared for fulfillment.`,
-        ``,
-        `We'll send you another update when your order ships.`,
-        ``,
-        `Questions? Email us at admin@auryxlife.com`,
-        ``,
-        `— The Auryx Team`,
-      ].join("\n"),
-    }).catch(() => {});
-  }
-
-  if (parsed.data.status === "shipped" && order.trackingNumber) {
-    const o = order as typeof ordersTable.$inferSelect;
-    sendMail({
-      to: o.email,
-      subject: `Auryx Order #${o.id} — Shipped`,
-      text: [
-        `Hi ${o.customerName},`,
-        ``,
-        `Your Auryx order #${o.id} has shipped!`,
-        ``,
-        `Tracking number: ${o.trackingNumber}`,
-        ``,
-        `Thank you for choosing Auryx.`,
-        ``,
-        `— The Auryx Team`,
-      ].join("\n"),
-    }).catch(() => {});
+  // Send customer email for every status change
+  if (parsed.data.status) {
+    sendStatusEmail(order);
   }
 
   res.json(order);

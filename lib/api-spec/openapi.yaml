@@ -53,12 +53,6 @@ paths:
       operationId: listConsultations
       tags: [consultations]
       summary: List all consultation requests (admin)
-      parameters:
-        - in: header
-          name: x-admin-key
-          required: true
-          schema:
-            type: string
       responses:
         "200":
           description: List of consultations
@@ -82,11 +76,6 @@ paths:
           required: true
           schema:
             type: integer
-        - in: header
-          name: x-admin-key
-          required: true
-          schema:
-            type: string
       requestBody:
         required: true
         content:
@@ -110,12 +99,6 @@ paths:
       operationId: listInventory
       tags: [inventory]
       summary: List all inventory items (admin)
-      parameters:
-        - in: header
-          name: x-admin-key
-          required: true
-          schema:
-            type: string
       responses:
         "200":
           description: List of inventory items
@@ -131,12 +114,6 @@ paths:
       operationId: createInventoryItem
       tags: [inventory]
       summary: Create an inventory item (admin)
-      parameters:
-        - in: header
-          name: x-admin-key
-          required: true
-          schema:
-            type: string
       requestBody:
         required: true
         content:
@@ -164,11 +141,6 @@ paths:
           required: true
           schema:
             type: integer
-        - in: header
-          name: x-admin-key
-          required: true
-          schema:
-            type: string
       requestBody:
         required: true
         content:
@@ -196,11 +168,6 @@ paths:
           required: true
           schema:
             type: integer
-        - in: header
-          name: x-admin-key
-          required: true
-          schema:
-            type: string
       responses:
         "204":
           description: Deleted
@@ -258,12 +225,6 @@ paths:
       operationId: listChatEscalations
       tags: [chat]
       summary: List all chat escalations (admin)
-      parameters:
-        - in: header
-          name: x-admin-key
-          required: true
-          schema:
-            type: string
       responses:
         "200":
           description: List of escalations
@@ -369,7 +330,7 @@ components:
 
     InventoryItem:
       type: object
-      required: [id, name, category, stock, unit, lowStockThreshold, updatedAt]
+      required: [id, name, category, stock, unit, lowStockThreshold, costPerUnit, updatedAt]
       properties:
         id:
           type: integer
@@ -383,6 +344,9 @@ components:
           type: string
         lowStockThreshold:
           type: integer
+        costPerUnit:
+          type: integer
+          description: Cost per unit in cents (e.g. 5000 = $50.00)
         notes:
           type: ["string", "null"]
         updatedAt:
@@ -408,6 +372,11 @@ components:
         lowStockThreshold:
           type: integer
           minimum: 0
+        costPerUnit:
+          type: integer
+          minimum: 0
+          default: 0
+          description: Cost per unit in cents
         notes:
           type: string
 
@@ -427,6 +396,10 @@ components:
         lowStockThreshold:
           type: integer
           minimum: 0
+        costPerUnit:
+          type: integer
+          minimum: 0
+          description: Cost per unit in cents
         notes:
           type: string
 
@@ -510,4 +483,3 @@ components:
           type: string
         disclaimer:
           type: string
-

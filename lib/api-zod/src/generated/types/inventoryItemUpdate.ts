@@ -15,5 +15,10 @@ export interface InventoryItemUpdate {
   unit?: string;
   /** @minimum 0 */
   lowStockThreshold?: number;
+  /**
+   * Cost per unit in cents
+   * @minimum 0
+   */
+  costPerUnit?: number;
   notes?: string;
 }

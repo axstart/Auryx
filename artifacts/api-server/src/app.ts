@@ -36,8 +36,7 @@ app.use(
   session({
     store: new PgSession({
       conString: process.env.DATABASE_URL,
-      tableName: "admin_sessions",
-      createTableIfMissing: true,
+      tableName: "session",
     }),
     secret: process.env.SESSION_SECRET ?? "auryx-dev-secret-change-in-prod",
     resave: false,

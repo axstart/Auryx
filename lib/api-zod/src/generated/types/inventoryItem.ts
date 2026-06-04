@@ -13,6 +13,8 @@ export interface InventoryItem {
   stock: number;
   unit: string;
   lowStockThreshold: number;
+  /** Cost per unit in cents (e.g. 5000 = $50.00) */
+  costPerUnit: number;
   /** @nullable */
   notes?: string | null;
   updatedAt: Date;

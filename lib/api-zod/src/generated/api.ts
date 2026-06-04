@@ -38,10 +38,6 @@ export const CreateConsultationBody = zod.object({
 /**
  * @summary List all consultation requests (admin)
  */
-export const ListConsultationsHeader = zod.object({
-  "x-admin-key": zod.string(),
-});
-
 export const ListConsultationsResponseItem = zod.object({
   id: zod.number(),
   name: zod.string(),
@@ -70,10 +66,6 @@ export const UpdateConsultationParams = zod.object({
   id: zod.coerce.number(),
 });
 
-export const UpdateConsultationHeader = zod.object({
-  "x-admin-key": zod.string(),
-});
-
 export const UpdateConsultationBody = zod.object({
   status: zod.enum(["new", "contacted", "complete"]).optional(),
 });
@@ -99,10 +91,6 @@ export const UpdateConsultationResponse = zod.object({
 /**
  * @summary List all inventory items (admin)
  */
-export const ListInventoryHeader = zod.object({
-  "x-admin-key": zod.string(),
-});
-
 export const ListInventoryResponseItem = zod.object({
   id: zod.number(),
   name: zod.string(),
@@ -110,6 +98,9 @@ export const ListInventoryResponseItem = zod.object({
   stock: zod.number(),
   unit: zod.string(),
   lowStockThreshold: zod.number(),
+  costPerUnit: zod
+    .number()
+    .describe("Cost per unit in cents (e.g. 5000 = $50.00)"),
   notes: zod.string().nullish(),
   updatedAt: zod.coerce.date(),
 });
@@ -118,13 +109,13 @@ export const ListInventoryResponse = zod.array(ListInventoryResponseItem);
 /**
  * @summary Create an inventory item (admin)
  */
-export const CreateInventoryItemHeader = zod.object({
-  "x-admin-key": zod.string(),
-});
 
 export const createInventoryItemBodyStockMin = 0;
 
 export const createInventoryItemBodyLowStockThresholdMin = 0;
+
+export const createInventoryItemBodyCostPerUnitDefault = 0;
+export const createInventoryItemBodyCostPerUnitMin = 0;
 
 export const CreateInventoryItemBody = zod.object({
   name: zod.string().min(1),
@@ -134,6 +125,11 @@ export const CreateInventoryItemBody = zod.object({
   lowStockThreshold: zod
     .number()
     .min(createInventoryItemBodyLowStockThresholdMin),
+  costPerUnit: zod
+    .number()
+    .min(createInventoryItemBodyCostPerUnitMin)
+    .default(createInventoryItemBodyCostPerUnitDefault)
+    .describe("Cost per unit in cents"),
   notes: zod.string().optional(),
 });
 
@@ -144,13 +140,11 @@ export const UpdateInventoryItemParams = zod.object({
   id: zod.coerce.number(),
 });
 
-export const UpdateInventoryItemHeader = zod.object({
-  "x-admin-key": zod.string(),
-});
-
 export const updateInventoryItemBodyStockMin = 0;
 
 export const updateInventoryItemBodyLowStockThresholdMin = 0;
+
+export const updateInventoryItemBodyCostPerUnitMin = 0;
 
 export const UpdateInventoryItemBody = zod.object({
   name: zod.string().min(1).optional(),
@@ -161,6 +155,11 @@ export const UpdateInventoryItemBody = zod.object({
     .number()
     .min(updateInventoryItemBodyLowStockThresholdMin)
     .optional(),
+  costPerUnit: zod
+    .number()
+    .min(updateInventoryItemBodyCostPerUnitMin)
+    .optional()
+    .describe("Cost per unit in cents"),
   notes: zod.string().optional(),
 });
 
@@ -171,6 +170,9 @@ export const UpdateInventoryItemResponse = zod.object({
   stock: zod.number(),
   unit: zod.string(),
   lowStockThreshold: zod.number(),
+  costPerUnit: zod
+    .number()
+    .describe("Cost per unit in cents (e.g. 5000 = $50.00)"),
   notes: zod.string().nullish(),
   updatedAt: zod.coerce.date(),
 });
@@ -180,10 +182,6 @@ export const UpdateInventoryItemResponse = zod.object({
  */
 export const DeleteInventoryItemParams = zod.object({
   id: zod.coerce.number(),
-});
-
-export const DeleteInventoryItemHeader = zod.object({
-  "x-admin-key": zod.string(),
 });
 
 /**
@@ -227,10 +225,6 @@ export const GetProtocolRecommendationResponse = zod.object({
 /**
  * @summary List all chat escalations (admin)
  */
-export const ListChatEscalationsHeader = zod.object({
-  "x-admin-key": zod.string(),
-});
-
 export const ListChatEscalationsResponseItem = zod.object({
   id: zod.number(),
   name: zod.string(),
