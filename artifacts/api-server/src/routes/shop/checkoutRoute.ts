@@ -2,12 +2,12 @@ import { Router } from "express";
 import Stripe from "stripe";
 import { z } from "zod";
 import { db } from "@workspace/db";
-import { ordersTable } from "@workspace/db/schema";
+import { ordersTable, inventoryItemsTable } from "@workspace/db/schema";
 import { sessionAuth } from "../../middlewares/sessionAuth.js";
 import { sendMail } from "../../lib/mailer.js";
 import { sendOrderStatusEmail } from "../../lib/orderEmail.js";
 import { getProductBySlug } from "./products.js";
-import { eq } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
   apiVersion: "2026-04-22.dahlia",
@@ -244,6 +244,18 @@ router.post("/checkout/complete", async (req, res) => {
   }).returning();
 
   req.log.info({ id: order.id, email }, "Order created");
+
+  // Deduct inventory stock for each ordered product (atomic, non-blocking)
+  const stockBySlug = new Map<string, number>();
+  for (const item of lineItems) {
+    stockBySlug.set(item.slug, (stockBySlug.get(item.slug) ?? 0) + item.quantity);
+  }
+  for (const [slug, qty] of stockBySlug) {
+    await db
+      .update(inventoryItemsTable)
+      .set({ stock: sql`GREATEST(0, ${inventoryItemsTable.stock} - ${qty})` })
+      .where(eq(inventoryItemsTable.slug, slug));
+  }
 
   const itemsList = lineItems.map(i => {
     const label = i.variantLabel ? ` (${i.variantLabel})` : "";

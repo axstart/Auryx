@@ -181,11 +181,12 @@ function CardVial() {
 
 /* ── Product card ───────────────────────────────────────────────────── */
 function ProductCard({
-  product, index, featured = false,
+  product, index, featured = false, outOfStock = false,
 }: {
   product: ProductSummary;
   index: number;
   featured?: boolean;
+  outOfStock?: boolean;
 }) {
   const { addToCart } = useCart();
   const [adding, setAdding] = useState(false);
@@ -281,7 +282,11 @@ function ProductCard({
               : `$${(product.priceCents / 100).toFixed(0)}`
             }
           </span>
-          {product.variants && product.variants.length > 1 ? (
+          {outOfStock ? (
+            <span className="h-8 px-4 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center bg-[#0A0A0A]/8 text-[#0A0A0A]/35 border border-[#0A0A0A]/10 cursor-not-allowed whitespace-nowrap select-none">
+              Out of Stock
+            </span>
+          ) : product.variants && product.variants.length > 1 ? (
             <Link
               href={`/shop/${product.slug}`}
               className={`h-8 px-3 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center gap-1.5 transition-all duration-200 whitespace-nowrap ${
@@ -331,6 +336,13 @@ export default function ShopPage() {
   const { data: products = [], isLoading, error } = useQuery({
     queryKey: ["products"],
     queryFn: fetchProducts,
+  });
+
+  const { data: stockMap = {} } = useQuery<Record<string, number>>({
+    queryKey: ["stock"],
+    queryFn: () => fetch("/api/stock").then(r => r.json()),
+    staleTime: 30_000,
+    refetchInterval: 60_000,
   });
 
   /* ── Filter + sort ── */
@@ -499,7 +511,7 @@ export default function ShopPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               {featured.map((p, i) => (
-                <ProductCard key={p.slug} product={p} index={i} featured />
+                <ProductCard key={p.slug} product={p} index={i} featured outOfStock={(stockMap[p.slug] ?? -1) === 0} />
               ))}
             </div>
           </div>
@@ -636,7 +648,7 @@ export default function ShopPage() {
                   className="grid grid-cols-1 lg:grid-cols-2 gap-5"
                 >
                   {sorted.map((product, i) => (
-                    <ProductCard key={product.slug} product={product} index={i} />
+                    <ProductCard key={product.slug} product={product} index={i} outOfStock={(stockMap[product.slug] ?? -1) === 0} />
                   ))}
                 </motion.div>
               </AnimatePresence>

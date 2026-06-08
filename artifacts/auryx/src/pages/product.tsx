@@ -44,6 +44,12 @@ async function fetchProduct(slug: string): Promise<Product> {
   return res.json();
 }
 
+async function fetchStock(): Promise<Record<string, number>> {
+  const res = await fetch("/api/stock");
+  if (!res.ok) return {};
+  return res.json();
+}
+
 function PeptideVial({ category }: { category: string }) {
   const isTeal = category.includes("Cogni") || category.includes("Immune");
   const accent = isTeal ? "#0D9488" : "#B8962E";
@@ -119,6 +125,15 @@ export default function ProductPage() {
     queryFn: () => fetchProduct(slug),
     enabled: !!slug,
   });
+
+  const { data: stockMap = {} } = useQuery<Record<string, number>>({
+    queryKey: ["stock"],
+    queryFn: fetchStock,
+    staleTime: 30_000,
+    refetchInterval: 60_000,
+  });
+
+  const outOfStock = slug in stockMap && stockMap[slug] === 0;
 
   useEffect(() => {
     setSelectedVariantIdx(0);
@@ -316,20 +331,26 @@ export default function ProductPage() {
                   </div>
                 </div>
 
-                <button
-                  onClick={handleAddToCart}
-                  className={`w-full h-13 py-3.5 rounded-xl text-sm font-medium tracking-wide uppercase flex items-center justify-center gap-2 transition-all ${
-                    added
-                      ? "bg-[#B8962E] text-white"
-                      : "bg-[#0A0A0A] text-white hover:bg-[#222]"
-                  }`}
-                >
-                  {added ? (
-                    <><CheckCircle2 className="w-4 h-4" /> Added to Cart</>
-                  ) : (
-                    <><ShoppingCart className="w-4 h-4" /> Add to Cart — ${((displayPriceCents * qty) / 100).toFixed(2)}</>
-                  )}
-                </button>
+                {outOfStock ? (
+                  <div className="w-full py-3.5 rounded-xl bg-[#0A0A0A]/6 border border-[#E8E8E4] flex items-center justify-center gap-2">
+                    <span className="text-sm text-[#0A0A0A]/35 font-medium tracking-widest uppercase">Out of Stock</span>
+                  </div>
+                ) : (
+                  <button
+                    onClick={handleAddToCart}
+                    className={`w-full h-13 py-3.5 rounded-xl text-sm font-medium tracking-wide uppercase flex items-center justify-center gap-2 transition-all ${
+                      added
+                        ? "bg-[#B8962E] text-white"
+                        : "bg-[#0A0A0A] text-white hover:bg-[#222]"
+                    }`}
+                  >
+                    {added ? (
+                      <><CheckCircle2 className="w-4 h-4" /> Added to Cart</>
+                    ) : (
+                      <><ShoppingCart className="w-4 h-4" /> Add to Cart — ${((displayPriceCents * qty) / 100).toFixed(2)}</>
+                    )}
+                  </button>
+                )}
               </div>
 
               {/* Expandable Sections */}
