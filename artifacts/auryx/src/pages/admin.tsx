@@ -18,6 +18,7 @@ interface Order {
   status: OrderStatus;
   trackingNumber?: string;
   requiresConsultation: boolean;
+  researchField?: string;
   createdAt: string;
 }
 
@@ -485,6 +486,13 @@ function OrdersTab() {
                             {order.shippingAddress.street}, {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zip}
                           </p>
                         </div>
+
+                        {order.researchField && (
+                          <div>
+                            <p className="text-xs tracking-widest uppercase text-white/30 mb-1 font-['DM_Sans']">Research Application</p>
+                            <p className="text-sm text-white/60 font-['DM_Sans']">{order.researchField}</p>
+                          </div>
+                        )}
 
                         <div className="flex gap-2 items-end">
                           <div className="flex-1">

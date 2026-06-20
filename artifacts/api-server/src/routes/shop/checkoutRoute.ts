@@ -56,6 +56,17 @@ const ShippingAddressSchema = z.object({
   country: z.string().default("US"),
 });
 
+const RESEARCH_FIELDS = [
+  "Longevity & healthspan research",
+  "Metabolic function & body composition research",
+  "Cognitive function & neuroprotection research",
+  "Muscle recovery & physical performance research",
+  "Immune function & cellular health research",
+  "Analytical chemistry & quality assurance",
+  "Academic or institutional research",
+  "Other research application",
+] as const;
+
 const CompleteOrderSchema = z.object({
   paymentIntentId: z.string(),
   customerName: z.string().min(1),
@@ -63,6 +74,7 @@ const CompleteOrderSchema = z.object({
   phone: z.string().optional(),
   shippingAddress: ShippingAddressSchema,
   items: z.array(CartItemSchema).min(1),
+  researchField: z.enum(RESEARCH_FIELDS),
 });
 
 const ORDER_STATUSES = ["pending", "approved", "sent_to_pharmacy", "shipped", "delivered"] as const;
@@ -297,7 +309,7 @@ router.post("/checkout/complete", async (req, res) => {
     return;
   }
 
-  const { paymentIntentId, customerName, email, phone, shippingAddress, items } = parsed.data;
+  const { paymentIntentId, customerName, email, phone, shippingAddress, items, researchField } = parsed.data;
 
   // Require verified email from session
   if (req.session.verifiedEmail !== email.toLowerCase()) {
@@ -348,6 +360,7 @@ router.post("/checkout/complete", async (req, res) => {
     status: "pending",
     stripePaymentIntentId: paymentIntentId,
     requiresConsultation,
+    researchField,
   }).returning();
 
   req.log.info({ id: order.id, email }, "Order created");
@@ -377,9 +390,10 @@ router.post("/checkout/complete", async (req, res) => {
       `New order received on Auryx.`,
       ``,
       `Order #${order.id}`,
-      `Customer: ${customerName}`,
-      `Email:    ${email}`,
-      `Phone:    ${phone ?? "—"}`,
+      `Customer:       ${customerName}`,
+      `Email:          ${email}`,
+      `Phone:          ${phone ?? "—"}`,
+      `Research Field: ${researchField}`,
       ``,
       `Items:`,
       itemsList,

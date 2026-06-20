@@ -30,10 +30,22 @@ function getStripePromise(): ReturnType<typeof loadStripe> {
   return _stripePromise;
 }
 
+const RESEARCH_FIELDS = [
+  "Longevity & healthspan research",
+  "Metabolic function & body composition research",
+  "Cognitive function & neuroprotection research",
+  "Muscle recovery & physical performance research",
+  "Immune function & cellular health research",
+  "Analytical chemistry & quality assurance",
+  "Academic or institutional research",
+  "Other research application",
+] as const;
+
 interface CheckoutForm {
   customerName: string;
   email: string;
   phone: string;
+  researchField: string;
   street: string;
   city: string;
   state: string;
@@ -114,6 +126,7 @@ function CheckoutPayment({ form, totalCents, onSuccess }: CheckoutPaymentProps) 
           customerName: form.customerName,
           email: form.email,
           phone: form.phone || undefined,
+          researchField: form.researchField,
           shippingAddress: {
             street: form.street,
             city: form.city,
@@ -207,7 +220,7 @@ export default function CheckoutPage() {
   const [stripeError, setStripeError] = useState(false);
   const [step, setStep] = useState<Step>("details");
   const [form, setForm] = useState<CheckoutForm>({
-    customerName: "", email: "", phone: "",
+    customerName: "", email: "", phone: "", researchField: "",
     street: "", city: "", state: "", zip: "",
   });
   const [errors, setErrors] = useState<Partial<CheckoutForm>>({});
@@ -233,6 +246,7 @@ export default function CheckoutPage() {
     const e: Partial<CheckoutForm> = {};
     if (!form.customerName.trim()) e.customerName = "Name required";
     if (!form.email.includes("@")) e.email = "Valid email required";
+    if (!form.researchField) e.researchField = "Please select your research application";
     if (!form.street.trim()) e.street = "Street required";
     if (!form.city.trim()) e.city = "City required";
     if (!form.state.trim()) e.state = "State required";
@@ -439,6 +453,34 @@ export default function CheckoutPage() {
                           <FieldLabel>Phone (optional)</FieldLabel>
                           <Input placeholder="+1 (555) 000-0000" type="tel" value={form.phone} onChange={set("phone")} className={inputCls} />
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Research Application */}
+                    <div>
+                      <h2 className="text-[10px] uppercase tracking-[0.25em] text-[#0A0A0A]/40 font-medium mb-5">
+                        Research Application
+                      </h2>
+                      <div>
+                        <FieldLabel>Intended Research Field *</FieldLabel>
+                        <select
+                          value={form.researchField}
+                          onChange={e => {
+                            setForm(f => ({ ...f, researchField: e.target.value }));
+                            setErrors(er => ({ ...er, researchField: undefined }));
+                          }}
+                          className="w-full h-11 bg-white border border-[#E8E8E4] text-[#0A0A0A] rounded-lg px-3 text-sm focus:border-[#0A0A0A] focus:outline-none focus:ring-0 appearance-none cursor-pointer"
+                          style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%230A0A0A' stroke-width='1.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center", backgroundSize: "16px", paddingRight: "36px" }}
+                        >
+                          <option value="" disabled>Select research application…</option>
+                          {RESEARCH_FIELDS.map(f => (
+                            <option key={f} value={f}>{f}</option>
+                          ))}
+                        </select>
+                        {errors.researchField && <p className="text-xs text-red-500 mt-1">{errors.researchField}</p>}
+                        <p className="text-[10px] text-[#0A0A0A]/35 mt-1.5 leading-relaxed">
+                          All products are sold for research purposes only and are not intended for human consumption.
+                        </p>
                       </div>
                     </div>
 
