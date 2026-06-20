@@ -15,6 +15,7 @@ export const ordersTable = pgTable("orders", {
   stripePaymentIntentId: text("stripe_payment_intent_id"),
   requiresConsultation: boolean("requires_consultation").notNull().default(false),
   researchField: text("research_field"),
+  termsAccepted: boolean("terms_accepted").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });

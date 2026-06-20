@@ -75,6 +75,7 @@ const CompleteOrderSchema = z.object({
   shippingAddress: ShippingAddressSchema,
   items: z.array(CartItemSchema).min(1),
   researchField: z.enum(RESEARCH_FIELDS),
+  termsAccepted: z.literal(true, { message: "You must accept the Terms of Service" }),
 });
 
 const ORDER_STATUSES = ["pending", "approved", "sent_to_pharmacy", "shipped", "delivered"] as const;
@@ -309,7 +310,7 @@ router.post("/checkout/complete", async (req, res) => {
     return;
   }
 
-  const { paymentIntentId, customerName, email, phone, shippingAddress, items, researchField } = parsed.data;
+  const { paymentIntentId, customerName, email, phone, shippingAddress, items, researchField, termsAccepted } = parsed.data;
 
   // Require verified email from session
   if (req.session.verifiedEmail !== email.toLowerCase()) {
@@ -361,6 +362,7 @@ router.post("/checkout/complete", async (req, res) => {
     stripePaymentIntentId: paymentIntentId,
     requiresConsultation,
     researchField,
+    termsAccepted,
   }).returning();
 
   req.log.info({ id: order.id, email }, "Order created");

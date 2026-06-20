@@ -50,6 +50,7 @@ interface CheckoutForm {
   city: string;
   state: string;
   zip: string;
+  termsAccepted: boolean;
 }
 
 interface CheckoutPaymentProps {
@@ -127,6 +128,7 @@ function CheckoutPayment({ form, totalCents, onSuccess }: CheckoutPaymentProps) 
           email: form.email,
           phone: form.phone || undefined,
           researchField: form.researchField,
+          termsAccepted: form.termsAccepted as true,
           shippingAddress: {
             street: form.street,
             city: form.city,
@@ -222,6 +224,7 @@ export default function CheckoutPage() {
   const [form, setForm] = useState<CheckoutForm>({
     customerName: "", email: "", phone: "", researchField: "",
     street: "", city: "", state: "", zip: "",
+    termsAccepted: false,
   });
   const [errors, setErrors] = useState<Partial<CheckoutForm>>({});
 
@@ -247,6 +250,7 @@ export default function CheckoutPage() {
     if (!form.customerName.trim()) e.customerName = "Name required";
     if (!form.email.includes("@")) e.email = "Valid email required";
     if (!form.researchField) e.researchField = "Please select your research application";
+    if (!form.termsAccepted) e.termsAccepted = "You must accept the Terms of Service to proceed" as unknown as boolean;
     if (!form.street.trim()) e.street = "Street required";
     if (!form.city.trim()) e.city = "City required";
     if (!form.state.trim()) e.state = "State required";
@@ -516,6 +520,52 @@ export default function CheckoutPage() {
                           {errors.zip && <p className="text-xs text-red-500 mt-1">{errors.zip}</p>}
                         </div>
                       </div>
+                    </div>
+
+                    {/* T&C checkbox */}
+                    <div className="space-y-2">
+                      <label className="flex items-start gap-3 cursor-pointer group">
+                        <div className="relative mt-0.5 shrink-0">
+                          <input
+                            type="checkbox"
+                            checked={form.termsAccepted}
+                            onChange={e => {
+                              setForm(f => ({ ...f, termsAccepted: e.target.checked }));
+                              setErrors(er => ({ ...er, termsAccepted: undefined }));
+                            }}
+                            className="sr-only peer"
+                          />
+                          <div className={`w-4.5 h-4.5 w-[18px] h-[18px] rounded border-2 flex items-center justify-center transition-colors ${
+                            form.termsAccepted
+                              ? "bg-[#0A0A0A] border-[#0A0A0A]"
+                              : errors.termsAccepted
+                              ? "bg-white border-red-400"
+                              : "bg-white border-[#E8E8E4] group-hover:border-[#0A0A0A]/40"
+                          }`}>
+                            {form.termsAccepted && (
+                              <svg className="w-2.5 h-2.5 text-white" fill="none" viewBox="0 0 12 10" stroke="currentColor" strokeWidth={2.5}>
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M1 5l3.5 3.5L11 1" />
+                              </svg>
+                            )}
+                          </div>
+                        </div>
+                        <span className="text-[11px] text-[#0A0A0A]/55 leading-relaxed">
+                          I confirm I am 21 years of age or older. I acknowledge that all products are sold strictly for legitimate research purposes and are not intended for human consumption. I have read and agree to the{" "}
+                          <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#B8962E] hover:underline">
+                            Terms of Service
+                          </a>{" "}
+                          and{" "}
+                          <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-[#B8962E] hover:underline">
+                            Privacy Policy
+                          </a>.
+                        </span>
+                      </label>
+                      {errors.termsAccepted && (
+                        <div className="flex items-center gap-1.5 pl-6">
+                          <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
+                          <p className="text-xs text-red-500">You must accept the Terms of Service to proceed.</p>
+                        </div>
+                      )}
                     </div>
 
                     <button
