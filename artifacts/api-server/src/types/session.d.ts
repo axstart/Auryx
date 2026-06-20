@@ -8,5 +8,6 @@ declare module "express-session" {
       name: string;
       role: "admin" | "staff";
     };
+    verifiedEmail?: string;
   }
 }

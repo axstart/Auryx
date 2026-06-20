@@ -1,17 +1,41 @@
 import { Router } from "express";
 import Stripe from "stripe";
 import { z } from "zod";
+import { createHash, randomInt } from "crypto";
 import { db } from "@workspace/db";
-import { ordersTable, inventoryItemsTable } from "@workspace/db/schema";
+import { ordersTable, inventoryItemsTable, emailVerificationsTable } from "@workspace/db/schema";
 import { sessionAuth } from "../../middlewares/sessionAuth.js";
 import { sendMail } from "../../lib/mailer.js";
 import { sendOrderStatusEmail } from "../../lib/orderEmail.js";
 import { getProductBySlug } from "./products.js";
-import { eq, sql } from "drizzle-orm";
+import { and, eq, isNull, sql } from "drizzle-orm";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
   apiVersion: "2026-04-22.dahlia",
 });
+
+// ── OTP helpers ────────────────────────────────────────────────────────────────
+
+function hashOtp(otp: string): string {
+  return createHash("sha256").update(otp).digest("hex");
+}
+
+// In-memory rate limiter: max 3 OTP requests per email per 10 minutes
+const otpRateMap = new Map<string, { count: number; windowStart: number }>();
+const OTP_WINDOW_MS = 10 * 60 * 1000;
+const OTP_MAX = 3;
+
+function checkOtpRate(email: string): boolean {
+  const now = Date.now();
+  const entry = otpRateMap.get(email);
+  if (!entry || now - entry.windowStart > OTP_WINDOW_MS) {
+    otpRateMap.set(email, { count: 1, windowStart: now });
+    return true;
+  }
+  if (entry.count >= OTP_MAX) return false;
+  entry.count++;
+  return true;
+}
 
 const CartItemSchema = z.object({
   slug: z.string(),
@@ -148,6 +172,83 @@ router.get("/checkout/publishable-key", (_req, res) => {
   res.json({ publishableKey: key });
 });
 
+// POST /checkout/request-otp — send 6-digit verification code to email
+router.post("/checkout/request-otp", async (req, res) => {
+  const parsed = z.object({ email: z.string().email() }).safeParse(req.body);
+  if (!parsed.success) { res.status(400).json({ error: "Valid email required" }); return; }
+
+  const email = parsed.data.email.toLowerCase();
+
+  if (!checkOtpRate(email)) {
+    res.status(429).json({ error: "Too many verification requests. Please wait 10 minutes." });
+    return;
+  }
+
+  const otp = String(randomInt(0, 1_000_000)).padStart(6, "0");
+  const otpHash = hashOtp(otp);
+  const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
+
+  await db.insert(emailVerificationsTable).values({ email, otpHash, expiresAt });
+
+  sendMail({
+    to: parsed.data.email,
+    subject: `Your Auryx verification code: ${otp}`,
+    text: [
+      `Your Auryx email verification code is:`,
+      ``,
+      `  ${otp}`,
+      ``,
+      `This code expires in 10 minutes.`,
+      `If you did not request this, you can safely ignore this email.`,
+      ``,
+      `— The Auryx Team`,
+    ].join("\n"),
+  }).catch(() => {});
+
+  res.json({ ok: true });
+});
+
+// POST /checkout/verify-otp — validate code and flag session as verified
+router.post("/checkout/verify-otp", async (req, res) => {
+  const parsed = z.object({
+    email: z.string().email(),
+    otp: z.string().length(6),
+  }).safeParse(req.body);
+  if (!parsed.success) { res.status(400).json({ error: "Email and 6-digit code required" }); return; }
+
+  const email = parsed.data.email.toLowerCase();
+  const otpHash = hashOtp(parsed.data.otp);
+
+  const [record] = await db.select()
+    .from(emailVerificationsTable)
+    .where(and(
+      eq(emailVerificationsTable.email, email),
+      isNull(emailVerificationsTable.verifiedAt),
+    ))
+    .orderBy(sql`created_at DESC`)
+    .limit(1);
+
+  if (!record) {
+    res.status(400).json({ error: "No pending verification found. Please request a new code." });
+    return;
+  }
+  if (new Date() > record.expiresAt) {
+    res.status(400).json({ error: "Code has expired. Please request a new one." });
+    return;
+  }
+  if (record.otpHash !== otpHash) {
+    res.status(400).json({ error: "Invalid code. Please try again." });
+    return;
+  }
+
+  await db.update(emailVerificationsTable)
+    .set({ verifiedAt: new Date() })
+    .where(eq(emailVerificationsTable.id, record.id));
+
+  req.session.verifiedEmail = email;
+  res.json({ ok: true });
+});
+
 router.post("/checkout/create-payment-intent", async (req, res) => {
   const parsed = CreatePaymentIntentSchema.safeParse(req.body);
   if (!parsed.success) {
@@ -197,6 +298,12 @@ router.post("/checkout/complete", async (req, res) => {
   }
 
   const { paymentIntentId, customerName, email, phone, shippingAddress, items } = parsed.data;
+
+  // Require verified email from session
+  if (req.session.verifiedEmail !== email.toLowerCase()) {
+    res.status(403).json({ error: "Email address has not been verified. Please complete email verification before placing an order." });
+    return;
+  }
 
   let intent;
   try {
@@ -316,6 +423,9 @@ router.post("/checkout/complete", async (req, res) => {
       `— The Auryx Team`,
     ].join("\n"),
   }).catch(() => {});
+
+  // Clear verified email — one-time use
+  req.session.verifiedEmail = undefined;
 
   res.status(201).json(order);
 });
