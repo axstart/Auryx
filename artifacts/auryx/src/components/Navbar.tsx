@@ -31,7 +31,25 @@ export default function Navbar() {
 
   return (
     <>
-      <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 border-b ${navBg} py-4 md:py-5`}>
+      <div className="fixed top-0 left-0 right-0 z-50 flex flex-col">
+        {/* ── Research disclaimer strip ── */}
+        <div
+          className={`w-full py-1.5 text-center border-b transition-colors duration-300 ${
+            light
+              ? "bg-[#F5F0E8] border-[#E4DDD0]"
+              : "bg-[#0D0D0B] border-white/[0.06]"
+          }`}
+        >
+          <p
+            className={`text-[9.5px] uppercase tracking-[0.22em] font-medium ${
+              light ? "text-[#8C7A5A]" : "text-white/32"
+            }`}
+          >
+            For Research Purposes Only &mdash; Not for Human Consumption
+          </p>
+        </div>
+
+      <nav className={`transition-all duration-300 border-b ${navBg} py-4 md:py-5`}>
         {/* 3-column grid: left | center | right */}
         <div className="grid grid-cols-3 items-center px-5 md:px-10">
 
@@ -96,10 +114,11 @@ export default function Navbar() {
           </div>
         </div>
       </nav>
+      </div>
 
       {/* Mobile menu drawer */}
       {menuOpen && (
-        <div className="fixed inset-0 z-40 flex flex-col pt-20" style={{ backgroundColor: "#0A0A0A" }}>
+        <div className="fixed inset-0 z-40 flex flex-col pt-28" style={{ backgroundColor: "#0A0A0A" }}>
           <nav className="flex flex-col gap-1 px-8 py-8">
             {[
               { label: "Shop", href: "/shop" },

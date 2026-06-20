@@ -13,7 +13,7 @@ export default function ProtocolFinder() {
     <div className="min-h-screen bg-background text-foreground">
 
       {/* Header band */}
-      <div className="pt-24 pb-8 px-6 md:px-16 border-b border-border/40">
+      <div className="pt-32 pb-8 px-6 md:px-16 border-b border-border/40">
         <div className="container mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 16 }}

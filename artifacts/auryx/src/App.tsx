@@ -22,6 +22,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
 import CartDrawer from "@/components/CartDrawer";
+import AgeGate from "@/components/AgeGate";
 import { CartProvider } from "@/context/CartContext";
 import { AdminAuthProvider } from "@/context/AdminAuthContext";
 
@@ -79,6 +80,7 @@ function App() {
               <ScrollToTop />
               <Router />
             </WouterRouter>
+            <AgeGate />
             <Toaster />
           </AdminAuthProvider>
         </CartProvider>

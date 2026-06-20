@@ -1,7 +1,7 @@
 export default function Terms() {
   return (
     <div className="min-h-screen bg-background text-foreground">
-      <div className="max-w-3xl mx-auto px-6 py-24 md:py-32">
+      <div className="max-w-3xl mx-auto px-6 pt-32 pb-24 md:pt-40 md:pb-32">
         <p className="text-xs tracking-[0.2em] uppercase text-primary/60 mb-4 font-light">Legal</p>
         <h1 className="font-serif text-4xl md:text-5xl text-foreground mb-3 font-light tracking-tight">
           Terms of Service

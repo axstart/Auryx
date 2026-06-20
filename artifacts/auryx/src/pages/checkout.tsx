@@ -265,7 +265,7 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen" style={{ background: "#FAFAF8" }}>
-      <div className="pt-24 pb-5 px-6 md:px-12 border-b border-[#E8E8E4]">
+      <div className="pt-32 pb-5 px-6 md:px-12 border-b border-[#E8E8E4]">
         <div className="container mx-auto max-w-5xl">
           <Link href="/shop" className="inline-flex items-center gap-1.5 text-xs text-[#0A0A0A]/40 hover:text-[#B8962E] transition-colors mb-4">
             <ArrowLeft className="w-3 h-3" /> Back to Shop
