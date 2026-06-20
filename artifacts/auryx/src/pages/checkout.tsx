@@ -460,7 +460,8 @@ export default function CheckoutPage() {
                       </div>
                     </div>
 
-                    {/* Research Application */}
+                    {/* Research Application — only shown when cart contains research-grade compounds */}
+                    {items.some(i => i.product.regulatoryStatus === "research") && (
                     <div>
                       <h2 className="text-[10px] uppercase tracking-[0.25em] text-[#0A0A0A]/40 font-medium mb-5">
                         Research Application
@@ -483,10 +484,11 @@ export default function CheckoutPage() {
                         </select>
                         {errors.researchField && <p className="text-xs text-red-500 mt-1">{errors.researchField}</p>}
                         <p className="text-[10px] text-[#0A0A0A]/35 mt-1.5 leading-relaxed">
-                          All products are sold for research purposes only and are not intended for human consumption.
+                          Research-grade compounds are sold strictly for legitimate scientific research and are not intended for human consumption.
                         </p>
                       </div>
                     </div>
+                    )}
 
                     {/* Shipping */}
                     <div>
@@ -550,7 +552,14 @@ export default function CheckoutPage() {
                           </div>
                         </div>
                         <span className="text-[11px] text-[#0A0A0A]/55 leading-relaxed">
-                          I confirm I am 21 years of age or older. I acknowledge that all products are sold strictly for legitimate research purposes and are not intended for human consumption. I have read and agree to the{" "}
+                          I confirm I am 21 years of age or older.{" "}
+                          {items.some(i => i.product.regulatoryStatus === "research") && (
+                            <>I acknowledge that research-grade compounds in this order are sold strictly for legitimate research purposes and are not intended for human consumption.{" "}</>
+                          )}
+                          {items.some(i => i.product.regulatoryStatus === "prescription") && (
+                            <>I understand that prescription compounds require a valid physician consultation and prescription before fulfillment.{" "}</>
+                          )}
+                          I have read and agree to the{" "}
                           <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#B8962E] hover:underline">
                             Terms of Service
                           </a>{" "}

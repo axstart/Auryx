@@ -114,8 +114,7 @@ export default function AgeGate() {
                   You must be 21 years of age or older to access this site.
                 </p>
                 <p className="text-white/22 text-[11px] leading-relaxed mb-10 max-w-[260px]">
-                  All products are sold for research purposes only and are not
-                  intended for human consumption.
+                  For licensed healthcare use only. Prescription required where applicable.
                 </p>
 
                 {/* Buttons */}

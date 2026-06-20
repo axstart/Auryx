@@ -249,9 +249,13 @@ function ProductCard({
             <span className="text-[9px] uppercase tracking-[0.18em] font-semibold text-[#B8962E] leading-none mt-0.5">
               {product.category}
             </span>
-            {product.requiresConsultation && (
-              <span className="text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-amber-100/80 border border-amber-200 text-amber-700 shrink-0">
+            {product.regulatoryStatus === "prescription" ? (
+              <span className="text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-teal-50 border border-teal-200 text-teal-700 shrink-0">
                 Rx
+              </span>
+            ) : (
+              <span className="text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-amber-50/80 border border-amber-200/60 text-amber-700 shrink-0">
+                Research
               </span>
             )}
           </div>

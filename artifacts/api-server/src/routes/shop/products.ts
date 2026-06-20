@@ -14,6 +14,7 @@ export interface Product {
   physicianNote?: string;
   priceCents: number;
   requiresConsultation: boolean;
+  regulatoryStatus: "prescription" | "research";
   variants?: ProductVariant[];
 }
 
@@ -23,6 +24,7 @@ export const PRODUCTS: Product[] = [
     slug: "tirzepatide",
     name: "Tirzepatide",
     category: "GLP-1 & Metabolic",
+    regulatoryStatus: "prescription",
     shortDescription: "Dual GLP-1/GIP agonist — superior fat loss and glycemic control.",
     fullDescription:
       "Tirzepatide activates both GLP-1 and GIP receptors simultaneously, delivering superior fat reduction and glycemic control compared to GLP-1 monotherapy alone. Clinical trials demonstrate greater weight reduction than any single-mechanism GLP-1 agent, with significant visceral fat targeting and lean mass preservation.",
@@ -50,6 +52,7 @@ export const PRODUCTS: Product[] = [
     slug: "semaglutide",
     name: "Semaglutide",
     category: "GLP-1 & Metabolic",
+    regulatoryStatus: "prescription",
     shortDescription: "Sustained fat loss and improved insulin sensitivity.",
     fullDescription:
       "Semaglutide is a GLP-1 receptor agonist that suppresses appetite, slows gastric emptying, and improves glycemic control. It delivers sustained fat loss while preserving lean mass, making it the gold standard for metabolic optimization in patients with excess adiposity or insulin resistance.",
@@ -72,6 +75,7 @@ export const PRODUCTS: Product[] = [
     slug: "retatrutide",
     name: "Retatrutide",
     category: "GLP-1 & Metabolic",
+    regulatoryStatus: "research",
     shortDescription: "Triple agonist — the frontier of body composition transformation.",
     fullDescription:
       "Retatrutide is a triple GLP-1/GIP/glucagon receptor agonist representing the cutting edge of metabolic pharmacology. By activating three distinct pathways, it drives unprecedented fat reduction, accelerates resting metabolic rate, and targets visceral adiposity with unmatched precision — ideal for patients who require aggressive metabolic intervention.",
@@ -98,6 +102,7 @@ export const PRODUCTS: Product[] = [
     slug: "tesofensine",
     name: "Tesofensine",
     category: "GLP-1 & Metabolic",
+    regulatoryStatus: "research",
     shortDescription: "Triple monoamine reuptake inhibitor for aggressive fat loss and appetite suppression.",
     fullDescription:
       "Tesofensine inhibits the reuptake of serotonin, dopamine, and norepinephrine simultaneously, producing powerful appetite suppression and a significant increase in resting metabolic rate. Clinical trials demonstrate weight loss of 10–14% over 24 weeks — superior to many single-mechanism agents — with added benefits of improved energy and mood.",
@@ -116,6 +121,7 @@ export const PRODUCTS: Product[] = [
     slug: "tesofensine-ipamorelin",
     name: "Tesofensine + Ipamorelin",
     category: "GLP-1 & Metabolic",
+    regulatoryStatus: "research",
     shortDescription: "Fat loss stack: appetite suppression combined with GH pulse amplification.",
     fullDescription:
       "This precision stack pairs Tesofensine's appetite suppression and metabolic boost with Ipamorelin's growth hormone stimulation and lean mass preservation. The combination attacks fat loss from two distinct pathways — reducing intake while simultaneously increasing GH-driven lipolysis and muscle retention — making it ideal for body recomposition.",
@@ -134,6 +140,7 @@ export const PRODUCTS: Product[] = [
     slug: "aod-9604",
     name: "AOD-9604",
     category: "GLP-1 & Metabolic",
+    regulatoryStatus: "research",
     shortDescription: "GH fragment for targeted fat burning without glucose or IGF-1 disruption.",
     fullDescription:
       "AOD-9604 is a modified fragment of the human growth hormone molecule (amino acids 176–191) that retains GH's fat-burning properties without raising IGF-1 or affecting blood glucose. It stimulates lipolysis — particularly in visceral and abdominal fat depots — and inhibits lipogenesis, making it the cleanest fat-targeting peptide available for patients who cannot use full GH secretagogues.",
@@ -154,9 +161,10 @@ export const PRODUCTS: Product[] = [
     slug: "sermorelin",
     name: "Sermorelin",
     category: "Growth Hormone",
+    regulatoryStatus: "research",
     shortDescription: "Natural GH stimulation for sleep, recovery, and lean body composition.",
     fullDescription:
-      "Sermorelin is a GHRH analogue that stimulates the pituitary gland to produce and release growth hormone naturally, preserving the body's own feedback mechanisms. It enhances GH pulsatility during deep sleep, improving sleep quality, accelerating recovery, and supporting lean body composition — making it an ideal entry-level growth hormone protocol for patients new to peptide therapy.",
+      "Sermorelin is a GHRH analogue that stimulates the pituitary gland to produce and release growth hormone naturally, preserving the body's own feedback mechanisms. It enhances GH pulsatility during deep sleep, improving sleep quality, accelerating recovery, and supporting lean body composition — making it an ideal entry-level growth hormone protocol.",
     benefits: [
       "Stimulates natural, pulsatile GH release",
       "Enhanced deep sleep quality and restoration",
@@ -174,6 +182,7 @@ export const PRODUCTS: Product[] = [
     slug: "tesamorelin",
     name: "Tesamorelin",
     category: "Growth Hormone",
+    regulatoryStatus: "prescription",
     shortDescription: "Clinically proven visceral fat reduction and elevated IGF-1.",
     fullDescription:
       "Tesamorelin is a stabilized GHRH analogue with the strongest clinical evidence base of any growth hormone secretagogue. FDA-approved for visceral adiposity in specific populations, it reliably elevates IGF-1, reduces trunk fat, and improves metabolic markers. Ideal for patients with documented visceral adiposity or declining IGF-1 levels.",
@@ -198,6 +207,7 @@ export const PRODUCTS: Product[] = [
     slug: "ipamorelin",
     name: "Ipamorelin",
     category: "Growth Hormone",
+    regulatoryStatus: "research",
     shortDescription: "Clean, selective GH pulse amplification with superior sleep and recovery.",
     fullDescription:
       "Ipamorelin is a highly selective growth hormone secretagogue that stimulates pulsatile GH release with minimal effect on cortisol or prolactin — making it the cleanest GH peptide available. Its selective mechanism preserves the natural GH feedback loop, making it safe for extended cycles and ideal for patients prioritising sleep quality, recovery, and lean mass gains without hormonal disruption.",
@@ -220,6 +230,7 @@ export const PRODUCTS: Product[] = [
     slug: "cjc-1295-ipamorelin",
     name: "CJC-1295 + Ipamorelin",
     category: "Growth Hormone",
+    regulatoryStatus: "research",
     shortDescription: "Deep sleep restoration, lean muscle, and broad anti-aging.",
     fullDescription:
       "CJC-1295 is a GHRH analogue that extends the half-life of endogenous growth hormone releasing hormone, while Ipamorelin is a selective GH secretagogue that amplifies GH pulse amplitude without elevating cortisol or prolactin. Together they produce sustained, physiological GH release — restoring deep sleep architecture, accelerating lean muscle, and delivering comprehensive anti-aging benefits.",
@@ -241,6 +252,7 @@ export const PRODUCTS: Product[] = [
     slug: "tesamorelin-ipamorelin",
     name: "Tesamorelin + Ipamorelin",
     category: "Growth Hormone",
+    regulatoryStatus: "prescription",
     shortDescription: "Premium stack: visceral fat targeting + GH pulse amplification.",
     fullDescription:
       "The premium Auryx growth hormone stack combines the visceral fat targeting and clinical potency of Tesamorelin with the GH pulse amplification and sleep enhancement of Ipamorelin. This combination delivers comprehensive body composition transformation, optimized recovery, and superior anti-aging outcomes.",
@@ -263,6 +275,7 @@ export const PRODUCTS: Product[] = [
     slug: "bpc-157",
     name: "BPC-157",
     category: "Recovery & Regeneration",
+    regulatoryStatus: "research",
     shortDescription: "Tendon, joint, and gut healing with systemic anti-inflammatory action.",
     fullDescription:
       "BPC-157 (Body Protection Compound 157) is a pentadecapeptide derived from a gastric protein that promotes healing across multiple tissue types. It accelerates tendon and ligament repair, resolves joint inflammation, restores gut mucosal integrity, and supports nerve regeneration — making it an essential component of any recovery or injury rehabilitation protocol.",
@@ -285,6 +298,7 @@ export const PRODUCTS: Product[] = [
     slug: "tb-500",
     name: "TB-500",
     category: "Recovery & Regeneration",
+    regulatoryStatus: "research",
     shortDescription: "Systemic injury recovery and reduced inflammation at speed.",
     fullDescription:
       "TB-500 (Thymosin Beta-4) is a naturally occurring protein that regulates actin, drives cell migration to injury sites, and promotes new blood vessel growth. It delivers systemic healing that BPC-157 cannot replicate — ideal for widespread inflammation, cardiovascular tissue repair, and neurological recovery after injury or surgery.",
@@ -307,6 +321,7 @@ export const PRODUCTS: Product[] = [
     slug: "bpc-157-tb-500",
     name: "BPC-157 + TB-500",
     category: "Recovery & Regeneration",
+    regulatoryStatus: "research",
     shortDescription: "Comprehensive tissue repair stack targeting systemic and local injury pathways.",
     fullDescription:
       "This synergistic stack combines BPC-157's localized tendon, gut, and joint healing with TB-500's systemic tissue regeneration and anti-inflammatory action. Together they address injury recovery from every angle — making this combination the definitive repair protocol for serious athletes, post-surgical patients, and anyone dealing with chronic musculoskeletal injury.",
@@ -325,6 +340,7 @@ export const PRODUCTS: Product[] = [
     slug: "kpv",
     name: "KPV",
     category: "Recovery & Regeneration",
+    regulatoryStatus: "research",
     shortDescription: "Anti-inflammatory, wound healing, and gut mucosal protection.",
     fullDescription:
       "KPV is a tripeptide fragment of alpha-melanocyte stimulating hormone with potent anti-inflammatory, wound healing, and gut protective properties. It modulates inflammatory cytokines, accelerates wound closure, protects gut mucosal integrity, and restores skin barrier function — making it valuable for both systemic and localized inflammatory conditions.",
@@ -345,6 +361,7 @@ export const PRODUCTS: Product[] = [
     slug: "pt-141",
     name: "PT-141",
     category: "Sexual Health & Vitality",
+    regulatoryStatus: "prescription",
     shortDescription: "Increased libido and arousal in men and women via central activation.",
     fullDescription:
       "PT-141 (Bremelanotide) is a melanocortin receptor agonist that acts centrally — directly activating the hypothalamic pathways governing libido and arousal. Unlike PDE5 inhibitors that work peripherally, PT-141 addresses the neurological root of sexual function, delivering enhanced libido, improved arousal, and improved erectile function without cardiovascular contraindications.",
@@ -363,6 +380,7 @@ export const PRODUCTS: Product[] = [
     slug: "kisspeptin",
     name: "Kisspeptin",
     category: "Sexual Health & Vitality",
+    regulatoryStatus: "research",
     shortDescription: "Natural testosterone and estrogen optimization with fertility support.",
     fullDescription:
       "Kisspeptin is a naturally occurring neuropeptide that stimulates the hypothalamic-pituitary-gonadal axis, driving endogenous testosterone and estrogen production. It represents a physiological approach to hormonal optimization — enhancing libido, sexual function, and fertility without suppressing the HPG axis as exogenous hormone therapy does.",
@@ -383,6 +401,7 @@ export const PRODUCTS: Product[] = [
     slug: "thymosin-alpha-1",
     name: "Thymosin Alpha-1",
     category: "Immune & Longevity",
+    regulatoryStatus: "research",
     shortDescription: "Immune fortification and pathogen resistance.",
     fullDescription:
       "Thymosin Alpha-1 is a thymic peptide that modulates and fortifies the immune system — enhancing T-cell activity, natural killer cell function, and antigen presentation. It has been used clinically in immunocompromised patients and offers powerful preventive and therapeutic benefits for immune optimization and chronic infection resistance.",
@@ -401,6 +420,7 @@ export const PRODUCTS: Product[] = [
     slug: "epithalon",
     name: "Epithalon",
     category: "Immune & Longevity",
+    regulatoryStatus: "research",
     shortDescription: "Telomere length preservation and circadian rhythm restoration.",
     fullDescription:
       "Epithalon (Epitalon) is a tetrapeptide derived from the pineal gland that activates telomerase, the enzyme responsible for telomere maintenance. It represents one of the most direct biological anti-aging interventions available — preserving chromosomal integrity, enhancing melatonin secretion, and restoring circadian rhythm at the epigenetic level.",
@@ -419,6 +439,7 @@ export const PRODUCTS: Product[] = [
     slug: "mots-c",
     name: "MOTS-c",
     category: "Immune & Longevity",
+    regulatoryStatus: "research",
     shortDescription: "Mitochondrial biogenesis and metabolic flexibility.",
     fullDescription:
       "MOTS-c is a mitochondrial-derived peptide that regulates metabolic homeostasis, activates AMPK, and drives mitochondrial biogenesis. It improves insulin sensitivity, enhances physical endurance, and activates longevity pathways that overlap with caloric restriction — making it a foundational longevity compound at the cellular energy level.",
@@ -437,6 +458,7 @@ export const PRODUCTS: Product[] = [
     slug: "nad-plus",
     name: "NAD+",
     category: "Immune & Longevity",
+    regulatoryStatus: "research",
     shortDescription: "Cellular energy restoration, DNA repair, and mental clarity.",
     fullDescription:
       "NAD+ (nicotinamide adenine dinucleotide) is a coenzyme central to cellular energy metabolism, DNA repair, and sirtuins activation. Levels decline 50% by age 50 — supplementing via IV or subcutaneous injection restores mitochondrial function, activates longevity pathways, improves mental clarity, and accelerates recovery from both physical and neurological stress.",
@@ -461,6 +483,7 @@ export const PRODUCTS: Product[] = [
     slug: "pinealon",
     name: "Pinealon",
     category: "Cognitive & Neuroprotective",
+    regulatoryStatus: "research",
     shortDescription: "Deep neuroprotection and circadian optimization.",
     fullDescription:
       "Pinealon is a tripeptide from the pineal gland that crosses the blood-brain barrier and exerts neuroprotective effects at the cellular level. It reduces oxidative stress in neuronal tissue, optimizes circadian signaling, and demonstrates marked cognitive preservation — particularly relevant as a preventive intervention against age-related neurodegeneration.",
@@ -479,6 +502,7 @@ export const PRODUCTS: Product[] = [
     slug: "semax",
     name: "Semax",
     category: "Cognitive & Neuroprotective",
+    regulatoryStatus: "research",
     shortDescription: "Elevated neuroplasticity, focus, and mood stabilization.",
     fullDescription:
       "Semax is a synthetic ACTH analogue that elevates BDNF (brain-derived neurotrophic factor), enhances neuroplasticity, and sharpens executive function. It improves working memory, focus, and verbal fluency while providing neuroprotection — originally developed for cognitive rehabilitation, now used for high-performance cognitive optimization.",
@@ -501,6 +525,7 @@ export const PRODUCTS: Product[] = [
     slug: "selank",
     name: "Selank",
     category: "Cognitive & Neuroprotective",
+    regulatoryStatus: "research",
     shortDescription: "Anxiety reduction without impairment and memory enhancement.",
     fullDescription:
       "Selank is a synthetic analogue of the endogenous tuftsin peptide with anxiolytic and nootropic properties. It modulates GABA and serotonin systems without causing sedation or dependence — delivering clean anxiety reduction, improved memory consolidation, and mood stabilization suitable for daily use.",
@@ -519,6 +544,7 @@ export const PRODUCTS: Product[] = [
     slug: "cortagen",
     name: "Cortagen",
     category: "Cognitive & Neuroprotective",
+    regulatoryStatus: "research",
     shortDescription: "Cardiac and vascular peptide bioregulator for heart function and longevity.",
     fullDescription:
       "Cortagen is a tetrapeptide bioregulator derived from cardiac tissue that supports the functional health of the heart and vascular system. It promotes cardiomyocyte regeneration, improves myocardial contractility, and exerts protective effects against oxidative stress in cardiac tissue — making it a cornerstone longevity compound for patients concerned with cardiovascular aging.",
@@ -537,6 +563,7 @@ export const PRODUCTS: Product[] = [
     slug: "cerebrolysin",
     name: "Cerebrolysin",
     category: "Cognitive & Neuroprotective",
+    regulatoryStatus: "research",
     shortDescription: "Robust neuroprotection, post-stroke repair, and memory enhancement.",
     fullDescription:
       "Cerebrolysin is a peptide mixture derived from porcine brain protein that crosses the blood-brain barrier and delivers neurotrophic and neuroprotective effects comparable to endogenous growth factors. It is used clinically for Alzheimer's treatment, post-stroke recovery, and TBI rehabilitation — and used in longevity medicine for memory enhancement and neurodegeneration prevention.",
@@ -557,6 +584,7 @@ export const PRODUCTS: Product[] = [
     slug: "glow-complex",
     name: "GLOW Complex",
     category: "Auryx Signature Complexes",
+    regulatoryStatus: "research",
     shortDescription: "Skin radiance, hair regeneration, and collagen synthesis.",
     fullDescription:
       "The Auryx GLOW Complex is a proprietary peptide blend targeting the skin, hair, and connective tissue pathways simultaneously. It drives collagen synthesis, stimulates hair follicle regeneration, and delivers a measurable improvement in skin radiance and elasticity — a comprehensive aesthetic longevity protocol.",
@@ -575,6 +603,7 @@ export const PRODUCTS: Product[] = [
     slug: "klow-complex",
     name: "KLOW Complex",
     category: "Auryx Signature Complexes",
+    regulatoryStatus: "research",
     shortDescription: "Inflammation reduction, metabolic enhancement, and cellular energy.",
     fullDescription:
       "The Auryx KLOW Complex is a proprietary multi-peptide formulation targeting systemic inflammation, metabolic rate, and cellular energy optimization. It combines anti-inflammatory, metabolic, and mitochondrial peptides into a single protocol designed for high-performance individuals seeking comprehensive physiological optimization.",

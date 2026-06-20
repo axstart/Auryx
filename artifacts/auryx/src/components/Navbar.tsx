@@ -32,7 +32,7 @@ export default function Navbar() {
   return (
     <>
       <div className="fixed top-0 left-0 right-0 z-50 flex flex-col">
-        {/* ── Research disclaimer strip ── */}
+        {/* ── Compliance disclaimer strip ── */}
         <div
           className={`w-full py-1.5 text-center border-b transition-colors duration-300 ${
             light
@@ -45,7 +45,7 @@ export default function Navbar() {
               light ? "text-[#8C7A5A]" : "text-white/32"
             }`}
           >
-            For Research Purposes Only &mdash; Not for Human Consumption
+            For Licensed Healthcare Use Only &mdash; Prescription Required
           </p>
         </div>
 
