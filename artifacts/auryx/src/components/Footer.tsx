@@ -49,7 +49,7 @@ export default function Footer() {
         {/* Disclaimer */}
         <div className="border-t border-white/8 pt-8 mb-6">
           <p className="text-[11px] text-white/28 leading-relaxed max-w-4xl">
-            These statements have not been evaluated by the Food and Drug Administration. This product is not intended to diagnose, treat, cure, or prevent any disease. This website is for educational purposes only and does not provide medical advice. Consult a licensed healthcare provider before starting any protocol.
+            <span className="text-white/40 font-medium">RESEARCH USE ONLY.</span> All compounds sold through AURYX are for legitimate scientific research purposes only and are not intended for human consumption. These products have not been evaluated by the Food and Drug Administration and are not intended to diagnose, treat, cure, or prevent any disease or condition. This website is for informational and educational purposes only and does not constitute medical advice.
           </p>
         </div>
 

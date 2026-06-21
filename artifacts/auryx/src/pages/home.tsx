@@ -180,24 +180,24 @@ function VialSVG({ name, tag }: { name: string; tag: string }) {
 const COLLECTIONS = [
   { icon: <IconMetabolic/>, title: "Metabolic Support", desc: "Support healthy metabolism and body composition." },
   { icon: <IconRecovery/>, title: "Recovery & Resilience", desc: "Optimize recovery and build long-term resilience." },
-  { icon: <IconSkin/>, title: "Skin & Healthy Aging", desc: "Support skin health and healthy aging at the cellular level." },
+  { icon: <IconSkin/>, title: "Skin & Cellular Health", desc: "Compounds studied for skin-related cellular and extracellular matrix mechanisms." },
   { icon: <IconEnergy/>, title: "Energy & Vitality", desc: "Sustain energy and daily mind-body vitality." },
-  { icon: <IconCognitive/>, title: "Cognitive Performance", desc: "Support focus, memory, and mental clarity." },
+  { icon: <IconCognitive/>, title: "Neuroprotection", desc: "Compounds studied for neuroprotective and CNS mechanisms." },
   { icon: <IconSleep/>, title: "Sleep & Restoration", desc: "Deeper sleep and daily restorative support." },
 ];
 
 const PEPTIDES = [
   { name: "TB-500", desc: "Supports tissue repair, recovery, and systemic regeneration.", tag: "RECOVERY", slug: "tb-500" },
   { name: "BPC-157", desc: "Supports recovery and tissue health.", tag: "RECOVERY", slug: "bpc-157" },
-  { name: "NAD+", desc: "Supports cellular energy and healthy aging.", tag: "ENERGY", slug: "nad-plus" },
+  { name: "NAD+", desc: "A coenzyme studied for cellular energy metabolism and DNA repair mechanisms.", tag: "ENERGY", slug: "nad-plus" },
   { name: "CJC-1295 + Ipamorelin", desc: "Supports growth hormone and metabolic vitality.", tag: "VITALITY", slug: "cjc-1295-ipamorelin" },
 ];
 
 const METHODOLOGY = [
-  { n: "01", title: "Goal Mapping", desc: "We begin by understanding your specific wellness priorities — recovery, vitality, cognitive performance, or healthy aging." },
+  { n: "01", title: "Goal Mapping", desc: "We begin by understanding your specific research priorities — the compounds, mechanisms, and biological pathways of interest." },
   { n: "02", title: "Lifestyle Review", desc: "Your daily rhythm, sleep patterns, nutrition, and activity inform which peptide protocols may best support your goals." },
   { n: "03", title: "Protocol Matching", desc: "We align your profile with AURYX's curated collection of evidence-informed peptide protocols." },
-  { n: "04", title: "Ongoing Rhythm", desc: "Longevity is a practice. We provide concierge support as your routine and goals evolve over time." },
+  { n: "04", title: "Ongoing Rhythm", desc: "Precision is a practice. We provide concierge support as your research protocol and goals evolve over time." },
 ];
 
 const TESTIMONIALS = [
@@ -380,7 +380,7 @@ export default function Home() {
                 Curated peptide protocols<br className="hidden md:block"/> for your next standard.
               </h2>
               <p className="text-[#111]/50 text-sm md:text-base leading-relaxed mt-5 max-w-md">
-                Explore targeted support for recovery, vitality, cognitive performance, skin health, and healthy aging.
+                Explore our curated collection of research-grade peptides — GLP-1 agonists, GH secretagogues, recovery compounds, and more.
               </p>
             </div>
             <Link href="/shop" className="hidden md:inline-flex items-center gap-2 text-[11px] font-semibold text-[#111] tracking-[0.18em] uppercase border-b border-[#111]/50 pb-0.5 hover:text-[#B8962E] hover:border-[#B8962E] transition-colors shrink-0">
@@ -646,8 +646,8 @@ export default function Home() {
             >
               <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-6 font-medium">Live With Intention</p>
               <h2 className="font-serif text-4xl md:text-5xl lg:text-[3.2rem] leading-[1.1] mb-8 font-light">
-                Longevity is a{" "}
-                <em className="not-italic text-[#C9A844]">lifestyle</em>,
+                Precision is a{" "}
+                <em className="not-italic text-[#C9A844]">practice</em>,
                 <br/>not a shortcut.
               </h2>
               <p className="text-white/50 text-base leading-relaxed mb-10 max-w-md">
@@ -671,7 +671,7 @@ export default function Home() {
             >
               <img
                 src="/Lifestyle.png"
-                alt="Longevity lifestyle"
+                alt="Research-grade peptide compounds"
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ objectPosition: "center 25%" }}
               />
@@ -685,8 +685,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ═══ 7. TESTIMONIALS ════════════════════════════════════════════ */}
-      <section id="results" className="relative py-20 md:py-28 px-6 md:px-14 lg:px-20 overflow-hidden" style={{ backgroundColor: "#0D0D0D" }}>
+      {/* ═══ 7. QUALITY ASSURANCE ════════════════════════════════════════ */}
+      <section id="quality" className="relative py-20 md:py-28 px-6 md:px-14 lg:px-20 overflow-hidden" style={{ backgroundColor: "#0D0D0D" }}>
         <GoldWave/>
         <div className="container mx-auto max-w-6xl relative z-10">
           <motion.div
@@ -695,15 +695,19 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-14 md:mb-16"
           >
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-4 font-medium">Results That Speak</p>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-4 font-medium">Compound Quality</p>
             <h2 className="font-serif text-4xl md:text-5xl font-light">
-              Real people.{" "}
-              <em className="not-italic text-[#C9A844]">Real results.</em>
+              Research-grade.{" "}
+              <em className="not-italic text-[#C9A844]">Verified.</em>
             </h2>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {TESTIMONIALS.map((t, i) => (
+            {[
+              { stat: "≥99%", label: "Purity verified by third-party HPLC analysis on every lot" },
+              { stat: "US-Only", label: "Sourced exclusively from FDA-registered US compounding facilities" },
+              { stat: "COA", label: "Certificate of Analysis available for every compound we supply" },
+            ].map((item, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 18 }}
@@ -712,10 +716,8 @@ export default function Home() {
                 transition={{ delay: i * 0.1 }}
                 className="flex flex-col gap-6 p-8 md:p-10 rounded-2xl border border-white/[0.08] bg-white/[0.03] hover:border-[#C9A844]/25 transition-colors duration-300"
               >
-                {/* Large quotation mark */}
-                <span className="font-serif text-6xl text-[#C9A844] leading-none opacity-60 select-none">"</span>
-                <p className="text-white/75 text-base md:text-lg leading-relaxed font-light -mt-4">{t.quote}</p>
-                <div className="h-px bg-white/[0.08] w-full"/>
+                <p className="font-serif text-5xl text-[#C9A844] font-light">{item.stat}</p>
+                <p className="text-white/60 text-sm leading-relaxed">{item.label}</p>
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 rounded-full border border-white/15 flex items-center justify-center flex-shrink-0">
                     <svg width="17" height="17" viewBox="0 0 16 16" fill="none">
@@ -724,9 +726,9 @@ export default function Home() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-white/80 font-medium">— {t.name}</p>
+                    <p className="text-sm text-white/80 font-medium">— AURYX Quality Standard</p>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                      <p className="text-xs text-white/30">{t.label}</p>
+                      <p className="text-xs text-white/30">Research Grade</p>
                       <CheckCircle className="w-3 h-3 text-[#C9A844] opacity-65"/>
                     </div>
                   </div>
@@ -737,7 +739,7 @@ export default function Home() {
 
           {/* Dot indicator */}
           <div className="flex items-center justify-center gap-2 mt-10">
-            {[0, 1, 2, 3, 4].map(i => (
+            {[0, 1, 2].map(i => (
               <div key={i} className={`rounded-full transition-all ${i === 0 ? "w-6 h-1.5 bg-[#C9A844]" : "w-1.5 h-1.5 bg-white/15"}`} />
             ))}
           </div>

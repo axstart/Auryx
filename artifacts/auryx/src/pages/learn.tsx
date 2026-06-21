@@ -10,8 +10,8 @@ const CATEGORIES = [
   "Growth Hormone",
   "Recovery & Regeneration",
   "Sexual Health & Vitality",
-  "Immune & Longevity",
-  "Cognitive & Neuroprotective",
+  "Immune & Cellular Biology",
+  "Neuroprotective & CNS",
 ];
 
 const CATEGORY_COLOR: Record<string, string> = {
@@ -19,8 +19,8 @@ const CATEGORY_COLOR: Record<string, string> = {
   "Growth Hormone":               "#0D9488",
   "Recovery & Regeneration":      "#7C6A4A",
   "Sexual Health & Vitality":     "#9B4E7E",
-  "Immune & Longevity":           "#2E7D6A",
-  "Cognitive & Neuroprotective":  "#4A6E9B",
+  "Immune & Cellular Biology":           "#2E7D6A",
+  "Neuroprotective & CNS":  "#4A6E9B",
 };
 
 interface PeptideEntry {
@@ -46,7 +46,7 @@ const PEPTIDES: PeptideEntry[] = [
     mechanism: "Semaglutide mimics glucagon-like peptide-1 (GLP-1), a gut hormone released after eating. By binding GLP-1 receptors in the pancreas, gut, and brain, it reduces hunger signals, delays gastric emptying, and improves glucose-dependent insulin secretion — creating a meaningful caloric deficit without direct stimulant effects.",
     benefits: ["Significant reduction in body weight and fat mass", "Improved fasting glucose and HbA1c", "Appetite suppression at neurological level", "Cardiovascular risk reduction in metabolic disease"],
     typicalUse: "Used for medically supervised weight loss and metabolic health improvement in individuals with obesity or metabolic syndrome.",
-    researchNote: "FDA-approved under brand names Ozempic and Wegovy for glycemic control and chronic weight management.",
+    researchNote: "Studied extensively in clinical research for its role in GLP-1 receptor biology and metabolic regulation.",
   },
   {
     slug: "tirzepatide",
@@ -57,7 +57,7 @@ const PEPTIDES: PeptideEntry[] = [
     mechanism: "Tirzepatide acts on both GLP-1 and GIP (glucose-dependent insulinotropic polypeptide) receptors simultaneously. GIP activation adds a distinct anabolic fat-storage inhibition pathway on top of GLP-1's appetite suppression, producing greater fat mass reduction than single-agonist protocols in clinical trials.",
     benefits: ["Greater average fat loss vs. semaglutide in head-to-head trials", "Superior HbA1c reduction", "Preservation of lean muscle mass during weight loss", "Improved lipid panel and blood pressure"],
     typicalUse: "Preferred for individuals who need aggressive fat loss or who have not achieved goals with GLP-1 monotherapy.",
-    researchNote: "FDA-approved under Mounjaro (T2D) and Zepbound (obesity). SURMOUNT trials demonstrated up to 22.5% mean body weight reduction.",
+    researchNote: "Investigated in multiple large-scale clinical trials as a dual GLP-1/GIP receptor agonist. Phase 3 data demonstrates significant differential effects compared to GLP-1 monotherapy.",
   },
   {
     slug: "retatrutide",
@@ -86,7 +86,7 @@ const PEPTIDES: PeptideEntry[] = [
     mechanism: "AOD-9604 contains the lipolytic sequence of hGH — the C-terminal end responsible for fat-burning signaling — without the metabolic side effects of full HGH. It activates β3 adrenergic receptors to stimulate lipolysis in adipose tissue, particularly visceral and subcutaneous fat, while having no impact on cell proliferation or insulin resistance.",
     benefits: ["Targeted fat oxidation without glucose disruption", "No IGF-1 elevation — safe for longer-term protocols", "Supports visceral fat reduction", "Well-tolerated with a favorable safety profile"],
     typicalUse: "Ideal for individuals focused on targeted fat reduction who want to avoid the metabolic effects of full GH or GLP-1 protocols.",
-    researchNote: "Studied in multiple human trials for obesity. Received GRAS (Generally Recognized As Safe) status in the US for food use.",
+    researchNote: "Subject of multiple research studies examining the lipolytic properties of the C-terminal fragment of human growth hormone. Received GRAS (Generally Recognized As Safe) status in the US for food applications.",
   },
   /* Growth Hormone */
   {
@@ -125,7 +125,7 @@ const PEPTIDES: PeptideEntry[] = [
     mechanism: "Tesamorelin is a stabilized GHRH analogue that potently stimulates pituitary GH secretion, leading to IGF-1 elevation. Its clinical distinction is a documented, statistically significant reduction in visceral abdominal fat — the metabolically dangerous fat surrounding organs — even independent of dietary changes.",
     benefits: ["Clinically proven visceral fat reduction (FDA-approved for HIV-related lipodystrophy)", "Elevated IGF-1 supporting anabolism and recovery", "Improved body composition without significant muscle loss", "Metabolic health improvements including lipid profiles"],
     typicalUse: "Preferred for clients with excess visceral fat, metabolic syndrome risk, or those seeking targeted abdominal body recomposition.",
-    researchNote: "FDA-approved under brand name Egrifta for HIV-associated lipodystrophy. Extensively studied in non-HIV populations for body composition.",
+    researchNote: "Originally studied in the context of lipodystrophy-associated visceral adiposity. Extensively studied in non-disease populations for its effects on the IGF-1 axis and adipose tissue dynamics.",
   },
   {
     slug: "tesamorelin-ipamorelin",
@@ -154,7 +154,7 @@ const PEPTIDES: PeptideEntry[] = [
     category: "Recovery & Regeneration",
     definition: "Thymosin Beta-4 analogue — a systemic repair peptide that upregulates actin to accelerate tissue regeneration and reduce inflammation body-wide.",
     mechanism: "TB-500 promotes actin polymerization, a critical process in cell migration and tissue repair. By upregulating actin and its associated repair pathways, it enables faster mobilization of repair cells to injury sites, reduces inflammation, promotes angiogenesis, and supports healing across muscle, connective tissue, and cardiac tissue.",
-    benefits: ["Systemic injury recovery — effective from a distance of the injection site", "Reduced chronic inflammation", "Improved flexibility and range of motion", "Accelerated healing of chronic injuries", "Cardiac tissue support in animal studies"],
+    benefits: ["Systemic regenerative activity at distal tissue sites", "Reduced pro-inflammatory cytokine signaling", "Improved fibroblast activity and tissue remodeling", "Accelerated healing markers in preclinical models", "Cardiac tissue support in animal studies"],
     typicalUse: "Preferred for systemic recovery protocols, chronic injuries, and post-surgical recovery. Often stacked with BPC-157 for comprehensive healing.",
   },
   {
@@ -176,7 +176,7 @@ const PEPTIDES: PeptideEntry[] = [
     mechanism: "PT-141 activates melanocortin-4 receptors (MC4R) in the hypothalamus — the brain's arousal center — triggering the neurological cascade of sexual desire without relying on vascular mechanisms. This makes it effective in both sexes and in individuals where PDE5 inhibitors (e.g., Viagra) have limited effect.",
     benefits: ["Increased libido and sexual desire in men and women", "Enhanced arousal independent of vascular function", "Rapid onset (1–4 hours after administration)", "Does not interact with cardiovascular system the way PDE5 inhibitors do"],
     typicalUse: "Used for hypoactive sexual desire disorder and arousal difficulties in both sexes. Particularly valuable when other approaches have failed.",
-    researchNote: "FDA-approved for premenopausal women with HSDD under the brand name Vyleesi (subcutaneous injection).",
+    researchNote: "Subject of multiple Phase 2 and Phase 3 clinical trials examining central melanocortin receptor agonism and its downstream effects on arousal neurocircuitry in both sexes.",
   },
   {
     slug: "kisspeptin",
@@ -187,31 +187,31 @@ const PEPTIDES: PeptideEntry[] = [
     benefits: ["Elevated testosterone in men with low-normal levels", "Improved estrogen regulation in women", "Fertility support (LH surge stimulation)", "Libido and energy improvement via natural hormone optimization", "Preserves HPG axis integrity vs. exogenous hormone replacement"],
     typicalUse: "Used for natural hormone optimization, fertility support, and in individuals seeking testosterone improvement without exogenous TRT.",
   },
-  /* Immune & Longevity */
+  /* Immune & Cellular Biology */
   {
     slug: "thymosin-alpha-1",
     name: "Thymosin Alpha-1",
-    category: "Immune & Longevity",
+    category: "Immune & Cellular Biology",
     definition: "A thymic peptide that enhances T-cell maturation, cytokine regulation, and adaptive immune response.",
     mechanism: "Thymosin Alpha-1 (Tα1) is naturally produced by the thymus gland. It stimulates T-lymphocyte differentiation, activates dendritic cells, and modulates cytokine production (increasing IFN-γ, IL-2 while reducing excess inflammatory cytokines). This dual immunostimulatory and immunomodulatory profile makes it effective for both immune deficiency and dysregulation.",
     benefits: ["Enhanced T-cell and NK cell activity", "Improved viral clearance and vaccine response", "Reduced susceptibility to chronic infections", "Supportive therapy in autoimmune conditions (immunomodulation)", "Potential anti-tumor immune support"],
     typicalUse: "Used for immune optimization, post-viral recovery, chronic infection resilience, and cancer-adjacent support protocols.",
-    researchNote: "Approved in over 37 countries for chronic hepatitis B and C, and studied extensively in COVID-19 severity reduction.",
+    researchNote: "Extensively studied in immunology research for its role in T-lymphocyte maturation and cytokine regulation. Subject of trials examining immune reconstitution and antiviral response mechanisms in preclinical and clinical settings.",
   },
   {
     slug: "epithalon",
     name: "Epithalon (Epitalon)",
-    category: "Immune & Longevity",
+    category: "Immune & Cellular Biology",
     definition: "A synthetic tetrapeptide (Ala-Glu-Asp-Gly) that activates telomerase, preserves telomere length, and restores circadian rhythm.",
     mechanism: "Epithalon was developed by the Russian Gerontology Institute and stimulates the pineal gland to produce melatonin while activating telomerase — the enzyme responsible for maintaining telomere length. Telomere shortening is a primary biomarker of cellular aging. By slowing this process, Epithalon supports cellular longevity and replication fidelity.",
     benefits: ["Telomere length preservation (anti-aging at cellular level)", "Improved melatonin production and circadian rhythm", "Antioxidant protection against oxidative stress", "Enhanced immune function in aging populations", "Neuroendocrine restoration"],
     typicalUse: "A flagship anti-aging and longevity peptide. Used in cyclical protocols for adults seeking cellular longevity and circadian optimization.",
-    researchNote: "Developed by Prof. Vladimir Khavinson. Over 100 published studies, including human trials showing increased lifespan markers.",
+    researchNote: "Developed by Prof. Vladimir Khavinson at the Saint Petersburg Institute of Bioregulation and Gerontology. Subject of over 100 published studies examining telomerase activity and cellular aging mechanisms.",
   },
   {
     slug: "pinealon",
     name: "Pinealon",
-    category: "Immune & Longevity",
+    category: "Immune & Cellular Biology",
     definition: "A neuroprotective tripeptide targeting the pineal gland and brain to reduce oxidative damage and optimize circadian function.",
     mechanism: "Pinealon (Glu-Asp-Arg) is a bioregulator peptide developed from pineal gland tissue. It penetrates the blood-brain barrier, reduces reactive oxygen species in neuronal tissue, and supports the synthesis of regulatory proteins involved in neurological repair. It also restores pineal gland function disrupted by aging, light pollution, and stress.",
     benefits: ["Neuroprotection against oxidative stress", "Circadian rhythm restoration and sleep improvement", "Support for age-related cognitive decline", "Brain tissue antioxidant activity", "Potential benefit in neurodegenerative prevention protocols"],
@@ -220,7 +220,7 @@ const PEPTIDES: PeptideEntry[] = [
   {
     slug: "mots-c",
     name: "MOTS-c",
-    category: "Immune & Longevity",
+    category: "Immune & Cellular Biology",
     definition: "A mitochondrial-derived peptide that activates AMPK pathways to improve metabolic flexibility, insulin sensitivity, and cellular energy.",
     mechanism: "MOTS-c is encoded in the mitochondrial genome and acts as a metabolic regulator by activating AMP-activated protein kinase (AMPK). This improves glucose uptake in muscle cells independent of insulin, increases fatty acid oxidation, reduces oxidative stress, and mimics some beneficial metabolic effects of exercise at the cellular level.",
     benefits: ["Improved insulin sensitivity and glucose regulation", "Increased fatty acid oxidation for energy", "Exercise-like metabolic effects at cellular level", "Longevity-associated pathway activation", "Anti-inflammatory and antioxidant effects"],
@@ -229,37 +229,37 @@ const PEPTIDES: PeptideEntry[] = [
   {
     slug: "nad-plus",
     name: "NAD+",
-    category: "Immune & Longevity",
+    category: "Immune & Cellular Biology",
     definition: "A coenzyme central to mitochondrial energy metabolism, DNA repair, and sirtuin activation — a foundational longevity molecule.",
     mechanism: "NAD+ (nicotinamide adenine dinucleotide) is required for over 500 enzymatic reactions including those in the electron transport chain (ATP production), DNA damage repair via PARP enzymes, and the activation of sirtuins — longevity proteins that regulate gene expression, metabolism, and stress resistance. NAD+ declines significantly with age.",
     benefits: ["Increased cellular energy production (ATP)", "Enhanced DNA repair capacity", "Sirtuin activation and epigenetic benefits", "Improved mitochondrial function and biogenesis", "Support for cognitive clarity and physical endurance"],
     typicalUse: "A foundational longevity protocol. Used for energy optimization, post-viral fatigue, cognitive enhancement, and anti-aging.",
   },
-  /* Cognitive & Neuroprotective */
+  /* Neuroprotective & CNS */
   {
     slug: "semax",
     name: "Semax",
-    category: "Cognitive & Neuroprotective",
+    category: "Neuroprotective & CNS",
     definition: "A synthetic ACTH 4–7 fragment that upregulates BDNF and improves working memory, focus, and neuroplasticity.",
     mechanism: "Semax is a heptapeptide derived from the ACTH 4–7 sequence with additional modifications for stability. It significantly upregulates brain-derived neurotrophic factor (BDNF) and nerve growth factor (NGF), promotes synaptogenesis, and modulates dopaminergic and serotonergic pathways. It also has neuroprotective effects in hypoxic and ischemic conditions.",
-    benefits: ["Enhanced working memory and executive function", "Increased BDNF for neuroplasticity", "Neuroprotection against stroke and hypoxia", "Improved stress resilience", "Fast onset when delivered intranasally"],
+    benefits: ["Enhanced working memory and executive function", "Increased BDNF for neuroplasticity", "Neuroprotection against stroke and hypoxia", "Improved stress resilience", "Rapid CNS bioavailability"],
     typicalUse: "Used by professionals and biohackers for cognitive performance, and clinically in Russia for post-stroke recovery and neurodegenerative support.",
-    researchNote: "Approved in Russia and Ukraine for neurological disorders. Extensive preclinical and clinical research base.",
+    researchNote: "Extensively studied for its effects on BDNF expression, neuroplasticity, and neuroprotection under hypoxic conditions in preclinical models. Significant published research base.",
   },
   {
     slug: "selank",
     name: "Selank",
-    category: "Cognitive & Neuroprotective",
+    category: "Neuroprotective & CNS",
     definition: "A synthetic anxiolytic peptide derived from tuftsin that reduces anxiety and improves cognitive clarity without sedation.",
     mechanism: "Selank modulates GABA-A receptor activity and increases expression of BDNF. It stabilizes enkephalin metabolism, raises serotonin and dopamine tone, and reduces cortisol output under stress — producing anxiolytic effects comparable to benzodiazepines without the dependency risk, sedation, or cognitive blunting.",
     benefits: ["Anxiety reduction without sedation or cognitive impairment", "Improved mood and emotional resilience", "Enhanced memory consolidation under stress", "BDNF upregulation supporting neuroplasticity", "Safe profile with no known dependency"],
     typicalUse: "Used for generalized anxiety, cognitive performance under pressure, and as an adjunct in protocols addressing stress-induced cognitive decline.",
-    researchNote: "Approved in Russia and Ukraine for anxiety disorders and as an immunomodulator.",
+    researchNote: "Studied for its anxiolytic and immunomodulatory properties in preclinical research, including effects on enkephalin metabolism and BDNF expression.",
   },
   {
     slug: "cortagen",
     name: "Cortagen",
-    category: "Cognitive & Neuroprotective",
+    category: "Neuroprotective & CNS",
     definition: "A cardioprotective and neuroprotective peptide bioregulator derived from heart tissue, supporting cardiac and vascular longevity.",
     mechanism: "Cortagen is a short bioregulator peptide that interacts with cardio-specific gene expression pathways. It reduces oxidative damage in cardiac myocytes, supports mitochondrial function in heart tissue, and has demonstrated neuroprotective effects by reducing neuronal apoptosis in aging brain tissue. Developed within the Russian peptide bioregulator program.",
     benefits: ["Cardiac muscle protection and regeneration support", "Vascular tissue anti-aging effects", "Reduction in cardiac oxidative stress", "Neuroprotective adjunct in longevity protocols", "Complementary to anti-aging peptide stacks"],
@@ -268,17 +268,17 @@ const PEPTIDES: PeptideEntry[] = [
   {
     slug: "cerebrolysin",
     name: "Cerebrolysin",
-    category: "Cognitive & Neuroprotective",
+    category: "Neuroprotective & CNS",
     definition: "A neuropeptide complex derived from porcine brain tissue that mimics NGF activity to support neuronal survival and cognitive function.",
     mechanism: "Cerebrolysin contains low-molecular-weight neuropeptides that cross the blood-brain barrier and mimic neurotrophic factors (NGF, BDNF, CNTF). It promotes neuronal survival, reduces amyloid toxicity, supports synaptic plasticity, and has demonstrated clinical efficacy in vascular dementia and Alzheimer's disease management.",
     benefits: ["Neuronal survival and neuroprotection", "Improved memory and learning capacity", "Potential benefit in early neurodegenerative conditions", "Post-stroke cognitive recovery support", "Synaptogenesis and synaptic density support"],
     typicalUse: "Used in cognitive optimization, post-neurological event recovery, and preventive neuroprotection in aging protocols.",
-    researchNote: "Approved in over 40 countries for Alzheimer's disease, vascular dementia, and stroke recovery.",
+    researchNote: "Studied extensively as a neuropeptide complex for its neurotrophic factor-mimetic activity, including effects on neuronal survival and synaptic plasticity in preclinical and clinical research.",
   },
   {
     slug: "glow-complex",
     name: "Glow Complex",
-    category: "Cognitive & Neuroprotective",
+    category: "Neuroprotective & CNS",
     definition: "An AURYX signature multi-peptide complex formulated for skin health, collagen support, and cellular regeneration.",
     mechanism: "The Glow Complex combines peptides targeting collagen synthesis (GHK-Cu analogs), wound-healing and skin barrier repair (BPC-derived fragments), and antioxidant protection. Together they support dermal extracellular matrix integrity, reduce oxidative skin aging, and promote tissue-level regeneration.",
     benefits: ["Collagen production and skin elasticity improvement", "Reduction in fine lines and skin oxidative damage", "Wound healing and barrier restoration", "Systemic antioxidant benefit", "Complements longevity protocols with aesthetic benefit"],
@@ -288,44 +288,44 @@ const PEPTIDES: PeptideEntry[] = [
 
 const FAQS = [
   {
-    q: "What is peptide therapy?",
-    a: "Peptide therapy uses short chains of amino acids — called peptides — to send precise signals to your cells. These signals can support fat loss, muscle recovery, better sleep, stronger immunity, and healthy aging. Peptide therapy is a form of precision medicine: instead of broad interventions, it targets specific biological pathways. At AURYX, all peptide therapy protocols are physician-supervised and compounded to pharmaceutical-grade standards.",
+    q: "What are research peptides?",
+    a: "Research peptides are short chains of amino acids studied for their biological activity in laboratory and preclinical settings. They are compounds of significant scientific interest for exploring molecular signaling pathways, receptor binding, cellular mechanisms, and biochemical processes. All compounds at AURYX are sold strictly for legitimate research purposes only and are not intended for human consumption.",
   },
   {
-    q: "Are peptides safe?",
-    a: "Most therapeutic peptides are structurally similar to molecules your body already produces naturally. That's why they tend to have good safety profiles. Several peptides in our catalog — including semaglutide, tirzepatide, and tesamorelin — are FDA-approved drugs with large clinical trial data sets. Others are available through physician-supervised compounding with established research bases. AURYX only offers compounds with documented safety and efficacy data, and every protocol includes clinical review.",
+    q: "What is the regulatory status of these compounds?",
+    a: "The compounds offered through AURYX are sold as research-grade peptides for laboratory use only. They have not been evaluated by the Food and Drug Administration for safety or efficacy in humans and are not intended to diagnose, treat, cure, or prevent any disease or condition. Buyers must acknowledge this prior to purchase.",
   },
   {
     q: "What is BPC-157?",
-    a: "BPC-157 (Body Protection Compound 157) is a 15-amino-acid peptide derived from a protein found in the stomach. It may support healing in tendons, ligaments, joints, and the gut lining. BPC-157 is one of the most studied recovery peptides in the literature, with hundreds of published animal studies showing potential benefits for injury repair, inflammation reduction, and angiogenesis (new blood vessel formation). It is available through AURYX's physician-supervised recovery protocols.",
+    a: "BPC-157 (Body Protection Compound 157) is a synthetic 15-amino-acid peptide originally derived from a protein sequence found in gastric secretion. It has been the subject of extensive preclinical investigation examining its effects on angiogenesis, fibroblast activity, nitric oxide signaling, and tissue-level biological mechanisms. It is available at AURYX strictly for research purposes.",
   },
   {
     q: "What is semaglutide?",
-    a: "Semaglutide is a GLP-1 receptor agonist — a class of compounds that mimic a gut hormone called glucagon-like peptide-1. It works by reducing appetite, slowing digestion, and improving how the body manages blood sugar. Semaglutide is FDA-approved under the brand names Ozempic (for type 2 diabetes) and Wegovy (for obesity). In clinical trials, it produced an average 14.9% reduction in body weight. At AURYX, semaglutide is available through a physician-supervised metabolic protocol.",
+    a: "Semaglutide is a GLP-1 receptor agonist — a peptide compound that binds and activates glucagon-like peptide-1 receptors. It has been extensively studied in preclinical and clinical settings for its effects on glucose metabolism, gastric motility, and appetite-regulating neurocircuitry. It is available at AURYX strictly for research purposes.",
   },
   {
-    q: "How do growth hormone peptides work?",
-    a: "Growth hormone peptides like CJC-1295 and ipamorelin work by stimulating your pituitary gland to release more of your own growth hormone — not by adding synthetic GH from outside. CJC-1295 is a GHRH analogue that extends the duration of growth hormone release. Ipamorelin is a GHRP that triggers a clean GH pulse without raising cortisol. When used together, CJC-1295 + ipamorelin produces synergistic GH elevation that may support better sleep, faster recovery, lean muscle, and fat loss.",
+    q: "How do GHRH and GHRP compounds work?",
+    a: "Growth hormone-releasing hormone (GHRH) analogues such as CJC-1295 bind GHRH receptors in the anterior pituitary, stimulating endogenous growth hormone secretion. Growth hormone-releasing peptides (GHRPs) such as ipamorelin act on ghrelin receptors to amplify GH pulses through a complementary mechanism. Both classes are of significant research interest for their effects on the somatotropic axis.",
   },
   {
     q: "What is NAD+?",
-    a: "NAD+ (nicotinamide adenine dinucleotide) is a coenzyme your cells need to produce energy, repair DNA, and activate longevity proteins called sirtuins. NAD+ levels drop by roughly 50% between your 40s and 60s, which is linked to fatigue, slower metabolism, and cognitive decline. NAD+ therapy — delivered intravenously or subcutaneously — may support cellular energy, mitochondrial function, and healthy aging. It is a foundational compound in many longevity protocols.",
+    a: "NAD+ (nicotinamide adenine dinucleotide) is a coenzyme central to numerous biochemical processes, including those involved in cellular energy metabolism, electron transport, and DNA repair mechanisms. It is a highly active area of research in molecular biology and cellular aging science. It is available at AURYX strictly for research purposes.",
   },
   {
-    q: "How is AURYX different from other peptide providers?",
-    a: "AURYX is a physician-supervised telehealth peptide clinic — not a supplement store or research chemical supplier. Every protocol starts with a clinical intake assessment, and all compounds are compounded at FDA-registered US pharmacies to ≥99% purity with third-party testing. We offer concierge guidance through Aria, our AI health concierge, plus direct access to our medical team. We do not sell peptides for self-directed or research use.",
+    q: "Who are AURYX's compounds intended for?",
+    a: "AURYX sells research-grade peptides exclusively to qualified researchers who acknowledge that all compounds are for legitimate scientific research purposes only — not for human consumption. Every buyer is required to confirm their research application, designate a research field, and agree to our terms of service prior to purchase.",
   },
   {
-    q: "Do I need a prescription for peptide therapy?",
-    a: "Some peptides require a prescription — including GLP-1 agonists like semaglutide, tirzepatide, and retatrutide. Others are available through physician-supervised compounding without a traditional prescription. At AURYX, every order goes through a clinical review process, regardless of the compound. This is what separates a legitimate telehealth peptide clinic from an unregulated research chemical supplier.",
+    q: "What quality standards do AURYX compounds meet?",
+    a: "All compounds supplied by AURYX are sourced from US-based, FDA-registered compounding facilities and verified to ≥99% purity by independent third-party HPLC analysis. A Certificate of Analysis (COA) is available for every product and provided with every order.",
   },
   {
-    q: "How long until I see results from peptide therapy?",
-    a: "It depends on the compound and your goal. BPC-157 for injury recovery may show results in 2–4 weeks. Semaglutide or tirzepatide for weight loss typically produces noticeable changes by weeks 4–8. Growth hormone peptides like CJC-1295 + ipamorelin usually take 8–12 weeks for visible body composition changes — though sleep improvements often come sooner. Longevity protocols like epithalon are designed for long-term biological effects measured over months.",
+    q: "What are the ordering requirements?",
+    a: "All orders require account creation with email verification, research field designation, and written acknowledgment of research-only terms prior to fulfillment. Orders are reviewed before shipment. We ship to physical addresses only within the United States — P.O. Box delivery is not accepted.",
   },
   {
-    q: "Is peptide therapy available in my state?",
-    a: "AURYX operates as a nationwide telehealth peptide clinic serving patients across the United States. Availability of specific compounds may vary based on state regulations and individual clinical review. Our intake process determines which protocols are appropriate for you based on your location, health history, and goals. We currently serve patients in all 50 states for most protocols.",
+    q: "Where does AURYX ship?",
+    a: "AURYX ships to physical addresses in all 50 US states. International shipping is not currently available. P.O. Box addresses are not accepted. All shipments are reviewed for compliance prior to dispatch.",
   },
 ];
 
@@ -512,7 +512,7 @@ export default function LearnPage() {
               <em className="not-italic text-[#C9A844]">Explained.</em>
             </h1>
             <p className="text-white/55 text-sm md:text-base leading-relaxed mb-10 max-w-md">
-              A physician-reviewed guide to every compound in the AURYX collection — what each peptide does, how it works, and what the clinical evidence shows. From semaglutide and BPC-157 to CJC-1295 ipamorelin and NAD+, each entry is written to help you make informed decisions about your longevity protocol.
+              A scientific reference guide to every compound in the AURYX catalog — molecular mechanisms, receptor targets, and published research properties. From semaglutide and BPC-157 to CJC-1295 ipamorelin and NAD+, each entry is a research resource for qualified scientists. All compounds sold for research purposes only.
             </p>
             <div className="flex flex-col gap-3 max-w-[300px]">
               <Link
@@ -541,21 +541,21 @@ export default function LearnPage() {
           <FadeIn>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="md:col-span-1">
-                <p className="text-[9px] uppercase tracking-[0.45em] text-[#B8962E] mb-3 font-semibold">What is Peptide Therapy?</p>
+                <p className="text-[9px] uppercase tracking-[0.45em] text-[#B8962E] mb-3 font-semibold">What Are Research Peptides?</p>
                 <p className="text-[13px] text-[#111]/60 leading-relaxed">
-                  Peptide therapy uses short amino acid chains to send targeted signals to your cells — supporting fat loss, tissue repair, immune function, hormone optimization, and healthy aging. All protocols at AURYX are physician-supervised and compounded to pharmaceutical-grade standards.
+                  Research peptides are short chains of amino acids studied for their biological activity at the receptor and cellular level. All compounds in the AURYX collection are sold strictly for legitimate scientific research purposes only. Not intended for human consumption.
                 </p>
               </div>
               <div className="md:col-span-1">
-                <p className="text-[9px] uppercase tracking-[0.45em] text-[#B8962E] mb-3 font-semibold">How to Use This Guide</p>
+                <p className="text-[9px] uppercase tracking-[0.45em] text-[#B8962E] mb-3 font-semibold">How to Use This Reference</p>
                 <p className="text-[13px] text-[#111]/60 leading-relaxed">
-                  Browse all 26 compounds below, or filter by category — Metabolic &amp; GLP-1, Recovery, Growth Hormone, Longevity, Immune, or Cognitive. Each entry covers the mechanism, key benefits, typical use, and links directly to its protocol page.
+                  Browse all 26 compounds below, or filter by category — GLP-1 &amp; Metabolic, Growth Hormone, Recovery, Sexual Health, Immune, or Neuroprotective. Each entry covers molecular mechanism and observed research properties.
                 </p>
               </div>
               <div className="md:col-span-1">
-                <p className="text-[9px] uppercase tracking-[0.45em] text-[#B8962E] mb-3 font-semibold">Physician-Supervised Protocols</p>
+                <p className="text-[9px] uppercase tracking-[0.45em] text-[#B8962E] mb-3 font-semibold">Quality &amp; Sourcing</p>
                 <p className="text-[13px] text-[#111]/60 leading-relaxed">
-                  AURYX is a telehealth peptide clinic serving patients nationwide. Every order includes clinical review by Romy Fontoura, MD. Compounded peptides are sourced from US-based, FDA-registered pharmacies with ≥99% purity verified by third-party HPLC testing.
+                  All compounds are sourced from US-based, FDA-registered compounding facilities and verified to ≥99% purity by independent third-party HPLC analysis. A Certificate of Analysis is available for every product.
                 </p>
               </div>
             </div>
@@ -651,7 +651,7 @@ export default function LearnPage() {
                             <p className="text-[12px] text-[#111]/55 leading-relaxed">{p.mechanism}</p>
                           </div>
                           <div>
-                            <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#111]/40 mb-2.5">Key Benefits</p>
+                            <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#111]/40 mb-2.5">Research Properties</p>
                             <ul className="space-y-1.5">
                               {p.benefits.map((b, bi) => (
                                 <li key={bi} className="flex items-start gap-2 text-[12px] text-[#111]/60">
@@ -660,10 +660,6 @@ export default function LearnPage() {
                                 </li>
                               ))}
                             </ul>
-                          </div>
-                          <div>
-                            <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#111]/40 mb-1.5">Typical Use</p>
-                            <p className="text-[12px] text-[#111]/50 leading-relaxed">{p.typicalUse}</p>
                           </div>
                           {p.researchNote && (
                             <div className="bg-[#F9F5EC] rounded-xl px-4 py-3">

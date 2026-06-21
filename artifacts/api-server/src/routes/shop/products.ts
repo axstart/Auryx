@@ -396,11 +396,11 @@ export const PRODUCTS: Product[] = [
     priceCents: 22900,
   },
 
-  // ── Immune & Longevity ─────────────────────────────────────────────────────
+  // ── Immune & Cellular Biology ─────────────────────────────────────────────────────
   {
     slug: "thymosin-alpha-1",
     name: "Thymosin Alpha-1",
-    category: "Immune & Longevity",
+    category: "Immune & Cellular Biology",
     regulatoryStatus: "research",
     shortDescription: "Immune fortification and pathogen resistance.",
     fullDescription:
@@ -419,7 +419,7 @@ export const PRODUCTS: Product[] = [
   {
     slug: "epithalon",
     name: "Epithalon",
-    category: "Immune & Longevity",
+    category: "Immune & Cellular Biology",
     regulatoryStatus: "research",
     shortDescription: "Telomere length preservation and circadian rhythm restoration.",
     fullDescription:
@@ -438,7 +438,7 @@ export const PRODUCTS: Product[] = [
   {
     slug: "mots-c",
     name: "MOTS-c",
-    category: "Immune & Longevity",
+    category: "Immune & Cellular Biology",
     regulatoryStatus: "research",
     shortDescription: "Mitochondrial biogenesis and metabolic flexibility.",
     fullDescription:
@@ -457,7 +457,7 @@ export const PRODUCTS: Product[] = [
   {
     slug: "nad-plus",
     name: "NAD+",
-    category: "Immune & Longevity",
+    category: "Immune & Cellular Biology",
     regulatoryStatus: "research",
     shortDescription: "Cellular energy restoration, DNA repair, and mental clarity.",
     fullDescription:
@@ -478,11 +478,11 @@ export const PRODUCTS: Product[] = [
     ],
   },
 
-  // ── Cognitive & Neuroprotective ────────────────────────────────────────────
+  // ── Neuroprotective & CNS ────────────────────────────────────────────
   {
     slug: "pinealon",
     name: "Pinealon",
-    category: "Cognitive & Neuroprotective",
+    category: "Neuroprotective & CNS",
     regulatoryStatus: "research",
     shortDescription: "Deep neuroprotection and circadian optimization.",
     fullDescription:
@@ -501,7 +501,7 @@ export const PRODUCTS: Product[] = [
   {
     slug: "semax",
     name: "Semax",
-    category: "Cognitive & Neuroprotective",
+    category: "Neuroprotective & CNS",
     regulatoryStatus: "research",
     shortDescription: "Elevated neuroplasticity, focus, and mood stabilization.",
     fullDescription:
@@ -524,7 +524,7 @@ export const PRODUCTS: Product[] = [
   {
     slug: "selank",
     name: "Selank",
-    category: "Cognitive & Neuroprotective",
+    category: "Neuroprotective & CNS",
     regulatoryStatus: "research",
     shortDescription: "Anxiety reduction without impairment and memory enhancement.",
     fullDescription:
@@ -543,7 +543,7 @@ export const PRODUCTS: Product[] = [
   {
     slug: "cortagen",
     name: "Cortagen",
-    category: "Cognitive & Neuroprotective",
+    category: "Neuroprotective & CNS",
     regulatoryStatus: "research",
     shortDescription: "Cardiac and vascular peptide bioregulator for heart function and longevity.",
     fullDescription:
@@ -562,7 +562,7 @@ export const PRODUCTS: Product[] = [
   {
     slug: "cerebrolysin",
     name: "Cerebrolysin",
-    category: "Cognitive & Neuroprotective",
+    category: "Neuroprotective & CNS",
     regulatoryStatus: "research",
     shortDescription: "Robust neuroprotection, post-stroke repair, and memory enhancement.",
     fullDescription:

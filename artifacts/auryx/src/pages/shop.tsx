@@ -48,18 +48,18 @@ const CATEGORIES = [
   "Growth Hormone",
   "Recovery & Regeneration",
   "Sexual Health & Vitality",
-  "Immune & Longevity",
-  "Cognitive & Neuroprotective",
+  "Immune & Cellular Biology",
+  "Neuroprotective & CNS",
   "Auryx Signature Complexes",
 ];
 
 const GOAL_CARDS = [
   { category: "GLP-1 & Metabolic",           tagline: "Body composition & metabolic support",     Icon: Flame },
-  { category: "Growth Hormone",               tagline: "Recovery, lean mass & healthy aging",      Icon: TrendingUp },
+  { category: "Growth Hormone",               tagline: "Recovery, lean mass & performance",        Icon: TrendingUp },
   { category: "Recovery & Regeneration",      tagline: "Tissue repair & physical restoration",     Icon: RefreshCw },
   { category: "Sexual Health & Vitality",     tagline: "Drive, vitality & hormonal balance",       Icon: Heart },
-  { category: "Immune & Longevity",           tagline: "Cellular health & immune resilience",      Icon: Shield },
-  { category: "Cognitive & Neuroprotective",  tagline: "Mental clarity & neuroprotection",         Icon: Brain },
+  { category: "Immune & Cellular Biology",           tagline: "Cellular health & immune resilience",      Icon: Shield },
+  { category: "Neuroprotective & CNS",  tagline: "Neuroprotection & CNS mechanisms",         Icon: Brain },
   { category: "Auryx Signature Complexes",    tagline: "Bespoke multi-peptide protocols",          Icon: Sparkles },
 ];
 
