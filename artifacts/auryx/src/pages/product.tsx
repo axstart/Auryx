@@ -394,8 +394,19 @@ export default function ProductPage() {
                 </Accordion>
 
                 <Accordion title="Dosing Protocol">
-                  <p className="text-sm text-[#0A0A0A]/65 leading-relaxed">{product.dosingInfo}</p>
-                  <p className="text-xs text-[#0A0A0A]/35 mt-3">All dosing confirmed and supervised by your Auryx physician before fulfillment.</p>
+                  {product.regulatoryStatus === "prescription" ? (
+                    <>
+                      <p className="text-sm text-[#0A0A0A]/65 leading-relaxed">{product.dosingInfo}</p>
+                      <p className="text-xs text-[#0A0A0A]/35 mt-3">All dosing confirmed and supervised by your Auryx physician before fulfillment.</p>
+                    </>
+                  ) : (
+                    <div className="bg-[#F5F0E8] rounded-xl p-4">
+                      <p className="text-sm text-[#0A0A0A]/65 leading-relaxed">
+                        Dosing guidance for this compound is provided privately during your consultation, following review of your health history and research objectives. Specific dosing information is not published publicly in accordance with applicable guidelines.
+                      </p>
+                      <p className="text-xs text-[#0A0A0A]/35 mt-3">Book a consultation to discuss your protocol with an Auryx physician.</p>
+                    </div>
+                  )}
                 </Accordion>
 
                 {product.physicianNote && (

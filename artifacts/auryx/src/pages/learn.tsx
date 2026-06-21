@@ -63,7 +63,6 @@ const PEPTIDES: PeptideEntry[] = [
     slug: "retatrutide",
     name: "Retatrutide",
     category: "GLP-1 & Metabolic",
-    rx: true,
     definition: "A triple agonist targeting GLP-1, GIP, and glucagon receptors — the most advanced metabolic peptide in its class.",
     mechanism: "Adding glucagon receptor agonism to dual GLP-1/GIP action increases hepatic fat oxidation and energy expenditure, producing fat loss through three distinct pathways. Retatrutide addresses metabolic dysfunction at a breadth that earlier agonists cannot match.",
     benefits: ["Highest average weight reduction observed in class (up to 24% in Phase 2)", "Liver fat reduction (potential NASH application)", "Improved metabolic flexibility", "Appetite suppression with increased caloric output"],
@@ -121,6 +120,7 @@ const PEPTIDES: PeptideEntry[] = [
     slug: "tesamorelin",
     name: "Tesamorelin",
     category: "Growth Hormone",
+    rx: true,
     definition: "A clinically proven, FDA-referenced GHRH analogue specifically effective at reducing visceral adipose tissue and elevating IGF-1.",
     mechanism: "Tesamorelin is a stabilized GHRH analogue that potently stimulates pituitary GH secretion, leading to IGF-1 elevation. Its clinical distinction is a documented, statistically significant reduction in visceral abdominal fat — the metabolically dangerous fat surrounding organs — even independent of dietary changes.",
     benefits: ["Clinically proven visceral fat reduction (FDA-approved for HIV-related lipodystrophy)", "Elevated IGF-1 supporting anabolism and recovery", "Improved body composition without significant muscle loss", "Metabolic health improvements including lipid profiles"],
@@ -131,6 +131,7 @@ const PEPTIDES: PeptideEntry[] = [
     slug: "tesamorelin-ipamorelin",
     name: "Tesamorelin + Ipamorelin",
     category: "Growth Hormone",
+    rx: true,
     definition: "A premium GH stack combining Tesamorelin's visceral fat targeting with Ipamorelin's clean, selective GH pulse amplification.",
     mechanism: "This stack leverages complementary mechanisms: Tesamorelin provides sustained GHRH stimulation and visceral fat reduction via IGF-1 elevation, while Ipamorelin adds a clean ghrelin-mimetic GH pulse without cortisol or prolactin elevation. Together they produce broader, more comprehensive GH and IGF-1 support than either compound alone.",
     benefits: ["Visceral fat reduction + systemic GH optimization", "Superior recovery and sleep outcomes vs. either alone", "Lean body composition improvements across multiple pathways", "Anti-aging effects on skin, energy, and cognition"],
@@ -170,6 +171,7 @@ const PEPTIDES: PeptideEntry[] = [
     slug: "pt-141",
     name: "PT-141 (Bremelanotide)",
     category: "Sexual Health & Vitality",
+    rx: true,
     definition: "A melanocortin receptor agonist that increases sexual desire and arousal in both men and women through central nervous system activation.",
     mechanism: "PT-141 activates melanocortin-4 receptors (MC4R) in the hypothalamus — the brain's arousal center — triggering the neurological cascade of sexual desire without relying on vascular mechanisms. This makes it effective in both sexes and in individuals where PDE5 inhibitors (e.g., Viagra) have limited effect.",
     benefits: ["Increased libido and sexual desire in men and women", "Enhanced arousal independent of vascular function", "Rapid onset (1–4 hours after administration)", "Does not interact with cardiovascular system the way PDE5 inhibitors do"],
@@ -180,7 +182,6 @@ const PEPTIDES: PeptideEntry[] = [
     slug: "kisspeptin",
     name: "Kisspeptin",
     category: "Sexual Health & Vitality",
-    rx: true,
     definition: "A neuropeptide that stimulates GnRH secretion, driving natural testosterone and estrogen production with fertility support benefits.",
     mechanism: "Kisspeptin binds the KiSS1-derived peptide receptor (KISS1R) in the hypothalamus, triggering pulsatile GnRH secretion — the master hormone governing the entire HPG axis. This leads to LH and FSH release, which drive gonadal testosterone and estrogen production. Unlike exogenous hormones, kisspeptin works through the body's own regulatory axis.",
     benefits: ["Elevated testosterone in men with low-normal levels", "Improved estrogen regulation in women", "Fertility support (LH surge stimulation)", "Libido and energy improvement via natural hormone optimization", "Preserves HPG axis integrity vs. exogenous hormone replacement"],
@@ -627,7 +628,7 @@ export default function LearnPage() {
                                 {p.category}
                               </span>
                               {p.rx && (
-                                <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-amber-100 border border-amber-200 text-amber-700">
+                                <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-50 border border-teal-200 text-teal-700">
                                   Rx Required
                                 </span>
                               )}

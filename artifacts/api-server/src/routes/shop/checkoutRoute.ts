@@ -48,13 +48,18 @@ const CreatePaymentIntentSchema = z.object({
   customerEmail: z.string().email().optional(),
 });
 
+const PO_BOX_RE = /^\s*(p\.?\s*o\.?\s*box|post\s+office\s+box|po\s+box)\b/i;
+
 const ShippingAddressSchema = z.object({
   street: z.string().min(1),
   city: z.string().min(1),
   state: z.string().min(1),
   zip: z.string().min(1),
   country: z.string().default("US"),
-});
+}).refine(
+  (addr) => !PO_BOX_RE.test(addr.street),
+  { message: "P.O. Box addresses are not accepted. Please provide a physical shipping address.", path: ["street"] },
+);
 
 const RESEARCH_FIELDS = [
   "Longevity & healthspan research",
@@ -74,8 +79,20 @@ const CompleteOrderSchema = z.object({
   phone: z.string().optional(),
   shippingAddress: ShippingAddressSchema,
   items: z.array(CartItemSchema).min(1),
-  researchField: z.enum(RESEARCH_FIELDS),
+  researchField: z.enum(RESEARCH_FIELDS).optional(),
   termsAccepted: z.literal(true, { message: "You must accept the Terms of Service" }),
+}).superRefine((data, ctx) => {
+  const hasResearchItems = data.items.some(item => {
+    const product = getProductBySlug(item.slug);
+    return product?.regulatoryStatus === "research";
+  });
+  if (hasResearchItems && !data.researchField) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: "Research application field is required for research-grade compounds",
+      path: ["researchField"],
+    });
+  }
 });
 
 const ORDER_STATUSES = ["pending", "approved", "sent_to_pharmacy", "shipped", "delivered"] as const;
