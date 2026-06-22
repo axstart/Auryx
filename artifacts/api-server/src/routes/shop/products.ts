@@ -423,6 +423,9 @@ export const PRODUCTS: Product[] = [
       "1–2 mg subcutaneous injection 1–2 hours before activity, as needed. Limit to 2–3 uses per week. Titrate from 0.5 mg to assess individual response.",
     requiresConsultation: false,
     priceCents: 24900,
+    coas: [
+      { label: "10 mg", accession: "2606120626", lab: "Freedom Diagnostics Testing", purity: "99.82%", url: "/coa/pt-141-10mg.pdf" },
+    ],
   },
   {
     slug: "kisspeptin",
@@ -504,6 +507,9 @@ export const PRODUCTS: Product[] = [
       "5–10 mg subcutaneous injection once daily, 3–5 days per week. Protocol duration: 8–12 weeks, repeat 1–2 times per year.",
     requiresConsultation: false,
     priceCents: 26900,
+    coas: [
+      { label: "10 mg", accession: "2606030523", lab: "Freedom Diagnostics Testing", purity: "99.30%", url: "/coa/mots-c-10mg.pdf" },
+    ],
   },
   {
     slug: "nad-plus",
@@ -527,6 +533,9 @@ export const PRODUCTS: Product[] = [
       { label: "500 mg",  priceCents: 29900 },
       { label: "1000 mg", priceCents: 29900 },
     ],
+    coas: [
+      { label: "1000 mg", accession: "2605080253", lab: "Freedom Diagnostics Testing", purity: "99.93%", url: "/coa/nad-plus-1g.pdf" },
+    ],
   },
 
   // ── Neuroprotective & CNS ────────────────────────────────────────────
@@ -548,6 +557,9 @@ export const PRODUCTS: Product[] = [
       "0.1–0.2 mg/kg subcutaneous injection, once daily for 10 days per cycle. Two cycles per year recommended.",
     requiresConsultation: false,
     priceCents: 19900,
+    coas: [
+      { label: "20 mg", accession: "2509290026", lab: "Freedom Diagnostics Testing", purity: "99.949%", url: "/coa/pinealon-20mg.pdf" },
+    ],
   },
   {
     slug: "semax",
@@ -571,6 +583,9 @@ export const PRODUCTS: Product[] = [
       { label: "5 mg",  priceCents: 22900 },
       { label: "30 mg", priceCents: 22900 },
     ],
+    coas: [
+      { label: "30 mg", accession: "2606030517", lab: "Freedom Diagnostics Testing", purity: "99.39%", url: "/coa/semax-30mg.pdf" },
+    ],
   },
   {
     slug: "selank",
@@ -590,6 +605,9 @@ export const PRODUCTS: Product[] = [
       "100–300 mcg intranasal administration, 1–2 times daily. Can be cycled alongside Semax for synergistic cognitive-anxiolytic benefit.",
     requiresConsultation: false,
     priceCents: 19900,
+    coas: [
+      { label: "10 mg", accession: "2605210086", lab: "Freedom Diagnostics Testing", purity: "99.82%", url: "/coa/selank-10mg.pdf" },
+    ],
   },
   {
     slug: "cerebrolysin",
@@ -609,6 +627,9 @@ export const PRODUCTS: Product[] = [
       "5–30 mL intravenous or intramuscular injection, daily for 10–20 day cycles. Protocol designed individually based on neurological goals.",
     requiresConsultation: true,
     priceCents: 29900,
+    coas: [
+      { label: "1200 mg", accession: "K2G5FD9F1885", lab: "Chromate Analytics", url: "/coa/cerebrolysin-1200mg.png" },
+    ],
   },
 
   // ── Auryx Signature Complexes ──────────────────────────────────────────────
@@ -649,6 +670,9 @@ export const PRODUCTS: Product[] = [
       "Administered per individualized Auryx protocol. Contact our clinical team for dosing schedule.",
     requiresConsultation: true,
     priceCents: 42900,
+    coas: [
+      { label: "GHK-Cu/KPV/BPC-157/TB-500", accession: "2602240140", lab: "Freedom Diagnostics Testing", url: "/coa/klow-complex.pdf" },
+    ],
   },
 ];
 
