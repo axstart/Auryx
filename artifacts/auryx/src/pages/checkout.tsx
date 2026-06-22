@@ -556,9 +556,6 @@ export default function CheckoutPage() {
                           {items.some(i => i.product.regulatoryStatus === "research") && (
                             <>I acknowledge that research-grade compounds in this order are sold strictly for legitimate research purposes and are not intended for human consumption.{" "}</>
                           )}
-                          {items.some(i => i.product.regulatoryStatus === "prescription") && (
-                            <>I understand that prescription compounds require a valid physician consultation and prescription before fulfillment.{" "}</>
-                          )}
                           I have read and agree to the{" "}
                           <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-[#B8962E] hover:underline">
                             Terms of Service

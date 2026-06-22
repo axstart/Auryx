@@ -257,28 +257,16 @@ export default function ProductPage() {
                 </div>
               </div>
 
-              {/* Regulatory status badge */}
-              {product.regulatoryStatus === "prescription" ? (
-                <div className="flex items-start gap-3 bg-teal-50 border border-teal-200 rounded-xl p-4">
-                  <AlertCircle className="w-4 h-4 text-teal-600 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-teal-800 mb-0.5">Prescription Compound</p>
-                    <p className="text-xs text-teal-700/70 leading-relaxed">
-                      This compound has FDA-approved applications and requires a valid physician consultation and prescription before fulfillment.
-                    </p>
-                  </div>
+              {/* Regulatory status notice */}
+              <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
+                <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
+                <div>
+                  <p className="text-sm font-medium text-amber-800 mb-0.5">Research Compound</p>
+                  <p className="text-xs text-amber-700/70 leading-relaxed">
+                    Sold strictly for legitimate scientific research purposes. Not intended for human consumption. Not approved for clinical use in the United States.
+                  </p>
                 </div>
-              ) : (
-                <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">
-                  <AlertCircle className="w-4 h-4 text-amber-500 shrink-0 mt-0.5" />
-                  <div>
-                    <p className="text-sm font-medium text-amber-800 mb-0.5">Research Compound</p>
-                    <p className="text-xs text-amber-700/70 leading-relaxed">
-                      Sold strictly for legitimate scientific research purposes. Not intended for human consumption. Not approved for clinical use in the United States.
-                    </p>
-                  </div>
-                </div>
-              )}
+              </div>
 
               {product.requiresConsultation && (
                 <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-xl p-4">

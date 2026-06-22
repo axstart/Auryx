@@ -45,7 +45,7 @@ export default function Navbar() {
               light ? "text-[#8C7A5A]" : "text-white/32"
             }`}
           >
-            For Licensed Healthcare Use Only &mdash; Prescription Required
+            Physician-Guided Longevity Protocols &mdash; For Wellness Use Only
           </p>
         </div>
 
