@@ -46,15 +46,12 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "Weekly subcutaneous injection, 2.5 mg titrating up to 15 mg over 12–20 weeks. Protocol duration: 16–32 weeks. All dosing supervised by Auryx physicians.",
     requiresConsultation: true,
-    priceCents: 32900,
+    priceCents: 19900,
     variants: [
-      { label: "10 mg", priceCents: 32900 },
-      { label: "20 mg", priceCents: 34900 },
-      { label: "30 mg", priceCents: 57900 },
-      { label: "40 mg", priceCents: 62900 },
-      { label: "50 mg", priceCents: 87900 },
-      { label: "60 mg", priceCents: 99900 },
-      { label: "90 mg", priceCents: 139900 },
+      { label: "10 mg", priceCents: 19900 },
+      { label: "30 mg", priceCents: 44900 },
+      { label: "60 mg", priceCents: 74900 },
+      { label: "90 mg", priceCents: 99900 },
     ],
     coas: [
       { label: "10 mg", accession: "2605140082", lab: "Freedom Diagnostics Testing", purity: "99.94%", url: "/coa/tirzepatide-10mg.pdf" },
@@ -78,10 +75,10 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "Weekly subcutaneous injection, 0.25 mg titrating to 1–2.4 mg over 4–8 weeks as tolerated. Protocol duration: 12–24 weeks minimum. All dosing supervised by Auryx physicians.",
     requiresConsultation: true,
-    priceCents: 34900,
+    priceCents: 12900,
     variants: [
-      { label: "12.5 mg", priceCents: 34900 },
-      { label: "20 mg",   priceCents: 34900 },
+      { label: "5 mg",  priceCents: 12900 },
+      { label: "20 mg", priceCents: 46900 },
     ],
     coas: [
       { label: "5 mg",  accession: "25082100012", lab: "Freedom Diagnostics Testing", url: "/coa/semaglutide-5mg.pdf" },
@@ -107,57 +104,16 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "Weekly subcutaneous injection, 2 mg titrating to 12 mg over 24 weeks. Protocol duration: 24–48 weeks. Requires comprehensive metabolic panel prior to initiation.",
     requiresConsultation: true,
-    priceCents: 44900,
+    priceCents: 34900,
     variants: [
-      { label: "10 mg", priceCents: 44900 },
-      { label: "12 mg", priceCents: 44900 },
-      { label: "20 mg", priceCents: 44900 },
-      { label: "24 mg", priceCents: 44900 },
-      { label: "30 mg", priceCents: 44900 },
-      { label: "40 mg", priceCents: 44900 },
+      { label: "12 mg", priceCents: 34900 },
+      { label: "24 mg", priceCents: 57900 },
+      { label: "50 mg", priceCents: 99900 },
     ],
     coas: [
       { label: "12 mg", accession: "2602020260", lab: "Freedom Diagnostics Testing", purity: "99.94%",  url: "/coa/retatrutide-12mg.pdf" },
       { label: "24 mg", accession: "2602240131", lab: "Freedom Diagnostics Testing", purity: "99.617%", url: "/coa/retatrutide-24mg.pdf" },
     ],
-  },
-  {
-    slug: "tesofensine",
-    name: "Tesofensine",
-    category: "GLP-1 & Metabolic",
-    regulatoryStatus: "research",
-    shortDescription: "Triple monoamine reuptake inhibitor for aggressive fat loss and appetite suppression.",
-    fullDescription:
-      "Tesofensine inhibits the reuptake of serotonin, dopamine, and norepinephrine simultaneously, producing powerful appetite suppression and a significant increase in resting metabolic rate. Clinical trials demonstrate weight loss of 10–14% over 24 weeks — superior to many single-mechanism agents — with added benefits of improved energy and mood.",
-    benefits: [
-      "Potent appetite suppression via triple monoamine inhibition",
-      "10–14% weight reduction in clinical trials",
-      "Elevated resting metabolic rate",
-      "Improved energy levels and mood",
-    ],
-    dosingInfo:
-      "0.25–0.5 mg oral daily, taken in the morning. Titrate from 0.25 mg over 4 weeks. Protocol duration: 12–24 weeks.",
-    requiresConsultation: false,
-    priceCents: 27900,
-  },
-  {
-    slug: "tesofensine-ipamorelin",
-    name: "Tesofensine + Ipamorelin",
-    category: "GLP-1 & Metabolic",
-    regulatoryStatus: "research",
-    shortDescription: "Fat loss stack: appetite suppression combined with GH pulse amplification.",
-    fullDescription:
-      "This precision stack pairs Tesofensine's appetite suppression and metabolic boost with Ipamorelin's growth hormone stimulation and lean mass preservation. The combination attacks fat loss from two distinct pathways — reducing intake while simultaneously increasing GH-driven lipolysis and muscle retention — making it ideal for body recomposition.",
-    benefits: [
-      "Dual-pathway fat loss via appetite suppression and GH lipolysis",
-      "Preserved lean muscle mass during caloric restriction",
-      "Elevated GH pulsatility and IGF-1",
-      "Enhanced recovery and sleep quality",
-    ],
-    dosingInfo:
-      "Tesofensine 0.25–0.5 mg oral morning + Ipamorelin 200 mcg subcutaneous nightly. Protocol duration: 12–24 weeks.",
-    requiresConsultation: false,
-    priceCents: 34900,
   },
   {
     slug: "aod-9604",
@@ -176,7 +132,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "300–600 mcg subcutaneous injection daily, ideally 30 minutes before exercise or upon waking on an empty stomach. Protocol duration: 12–24 weeks.",
     requiresConsultation: false,
-    priceCents: 22900,
+    priceCents: 18900,
   },
 
   // ── Growth Hormone ─────────────────────────────────────────────────────────
@@ -199,7 +155,7 @@ export const PRODUCTS: Product[] = [
     physicianNote:
       "Sermorelin is our recommended starting point for patients new to growth hormone optimization. Its shorter half-life and pituitary-driven mechanism make it the safest and most physiological GH secretagogue available.",
     requiresConsultation: false,
-    priceCents: 22900,
+    priceCents: 9900,
     coas: [
       { label: "10 mg", accession: "SPL-2785", lab: "TrustPointe Analytics", url: "/coa/sermorelin-10mg.pdf" },
     ],
@@ -223,10 +179,9 @@ export const PRODUCTS: Product[] = [
     physicianNote:
       "Tesamorelin carries the strongest evidence base of any GH secretagogue — its clinical trial data on visceral fat reduction is unambiguous. We recommend it for patients with measurable VAT or documented IGF-1 decline.",
     requiresConsultation: false,
-    priceCents: 27900,
+    priceCents: 18900,
     variants: [
-      { label: "10 mg", priceCents: 27900 },
-      { label: "20 mg", priceCents: 27900 },
+      { label: "10 mg", priceCents: 18900 },
     ],
     coas: [
       { label: "10 mg", accession: "2606120629", lab: "Freedom Diagnostics Testing", purity: "99.94%", url: "/coa/tesamorelin-10mg.pdf" },
@@ -250,13 +205,57 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "200–300 mcg subcutaneous injection 5 nights per week, administered before sleep. Can be stacked with CJC-1295 for amplified GH release. Protocol duration: 12–24 weeks.",
     requiresConsultation: false,
-    priceCents: 22900,
+    priceCents: 13900,
     variants: [
-      { label: "5 mg",  priceCents: 22900 },
-      { label: "10 mg", priceCents: 22900 },
+      { label: "10 mg", priceCents: 13900 },
     ],
     coas: [
       { label: "10 mg", accession: "2508220022", lab: "Freedom Diagnostics Testing", purity: "99.76%", url: "/coa/ipamorelin-10mg.pdf" },
+    ],
+  },
+  {
+    slug: "cjc-1295",
+    name: "CJC-1295 (no DAC)",
+    category: "Growth Hormone",
+    regulatoryStatus: "research",
+    shortDescription: "Physiological GHRH analogue for pulsatile growth hormone release.",
+    fullDescription:
+      "CJC-1295 without DAC (Drug Affinity Complex) is a GHRH analogue with a short half-life of approximately 30 minutes, producing a natural, pulsatile GH release that closely mirrors the body's own secretion patterns. It is most effective when paired with a GHRP such as Ipamorelin, amplifying the GH pulse without disrupting the natural feedback loop or causing supraphysiological hormone levels.",
+    benefits: [
+      "Natural pulsatile GH release preserving feedback mechanisms",
+      "Enhanced GH amplitude when combined with a GHRP",
+      "Improved sleep architecture and overnight recovery",
+      "Lean mass support and body composition optimization",
+    ],
+    dosingInfo:
+      "100–200 mcg subcutaneous injection 5 nights per week before sleep. Most effective when co-administered with Ipamorelin. Protocol duration: 12–24 weeks.",
+    physicianNote:
+      "The no-DAC formulation is preferred for patients who want the most physiological GH release pattern. Its short half-life means it acts only during the injection window, making it ideal for mimicking natural nocturnal GH pulses.",
+    requiresConsultation: false,
+    priceCents: 11900,
+  },
+  {
+    slug: "cjc-1295-dac",
+    name: "CJC-1295 (DAC)",
+    category: "Growth Hormone",
+    regulatoryStatus: "research",
+    shortDescription: "Extended-release GHRH analogue for sustained IGF-1 elevation and GH output.",
+    fullDescription:
+      "CJC-1295 with DAC (Drug Affinity Complex) binds to albumin in the bloodstream, extending its half-life to approximately 6–8 days. A single weekly injection sustains elevated growth hormone levels throughout the week — producing consistently elevated IGF-1, improved lean mass, and accelerated recovery. Ideal for patients seeking convenience and steady-state GH optimization.",
+    benefits: [
+      "Once-weekly dosing with sustained GH elevation",
+      "Consistent IGF-1 elevation for tissue repair and metabolism",
+      "Lean mass accretion and body recomposition support",
+      "Improved skin quality, collagen synthesis, and recovery",
+    ],
+    dosingInfo:
+      "1–2 mg subcutaneous injection once weekly. Protocol duration: 12–24 weeks. IGF-1 monitoring recommended at 8 weeks to guide dose adjustment.",
+    physicianNote:
+      "The DAC formulation suits patients who prefer once-weekly protocols and consistent hormone levels. Note that its prolonged action produces a less pulsatile GH profile — a meaningful clinical distinction from the no-DAC version.",
+    requiresConsultation: false,
+    priceCents: 26900,
+    variants: [
+      { label: "10 mg", priceCents: 26900 },
     ],
   },
   {
@@ -279,7 +278,7 @@ export const PRODUCTS: Product[] = [
     physicianNote:
       "CJC-1295 + Ipamorelin is our most prescribed entry-level growth hormone protocol. The combination maximizes pulsatile GH release while maintaining hormonal safety — avoiding the flat, supraphysiological levels seen with exogenous HGH.",
     requiresConsultation: false,
-    priceCents: 29900,
+    priceCents: 17900,
     coas: [
       { label: "5/5 mg", accession: "2602130491", lab: "Freedom Diagnostics Testing", purity: "99.829%", url: "/coa/cjc-ipamorelin.pdf" },
     ],
@@ -303,7 +302,7 @@ export const PRODUCTS: Product[] = [
     physicianNote:
       "This is our flagship GH protocol — the combination produces synergistic effects that neither compound achieves alone. We prescribe it for patients seeking maximal anti-aging and body composition results.",
     requiresConsultation: false,
-    priceCents: 39900,
+    priceCents: 22900,
     coas: [
       { label: "10/2 mg", accession: "2606030541", lab: "Freedom Diagnostics Testing", purity: "99.50%", url: "/coa/tesamorelin-ipamorelin.pdf" },
     ],
@@ -327,10 +326,10 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "200–500 mcg subcutaneous or intramuscular injection, once daily near the injury site. Oral dosing available for gut applications (500–1000 mcg). Protocol duration: 4–12 weeks.",
     requiresConsultation: false,
-    priceCents: 24900,
+    priceCents: 9900,
     variants: [
-      { label: "10 mg", priceCents: 24900 },
-      { label: "20 mg", priceCents: 24900 },
+      { label: "10 mg", priceCents: 9900 },
+      { label: "20 mg", priceCents: 18900 },
     ],
     coas: [
       { label: "10 mg", accession: "2605140090", lab: "Freedom Diagnostics Testing", purity: "99.84%", url: "/coa/bpc-157-10mg.pdf" },
@@ -353,10 +352,9 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "2.5–5 mg subcutaneous injection twice weekly for 4–6 weeks loading phase, then 2.5 mg weekly for maintenance. Protocol duration: 8–16 weeks.",
     requiresConsultation: false,
-    priceCents: 24900,
+    priceCents: 18900,
     variants: [
-      { label: "5 mg",  priceCents: 24900 },
-      { label: "10 mg", priceCents: 24900 },
+      { label: "10 mg", priceCents: 18900 },
     ],
     coas: [
       { label: "10 mg", accession: "2606030532", lab: "Freedom Diagnostics Testing", purity: "99.79%", url: "/coa/tb-500-10mg.pdf" },
@@ -398,9 +396,31 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "500 mcg–1 mg subcutaneous injection once daily, or oral capsule 500 mcg–2 mg for gut applications. Protocol duration: 4–8 weeks.",
     requiresConsultation: false,
-    priceCents: 19900,
+    priceCents: 11900,
     coas: [
       { label: "10 mg", accession: "2605140084", lab: "Freedom Diagnostics Testing", purity: "99.42%", url: "/coa/kpv-10mg.pdf" },
+    ],
+  },
+  {
+    slug: "ghk-cu",
+    name: "GHK-Cu",
+    category: "Recovery & Regeneration",
+    regulatoryStatus: "research",
+    shortDescription: "Copper peptide for collagen synthesis, wound repair, and tissue regeneration.",
+    fullDescription:
+      "GHK-Cu (glycyl-L-histidyl-L-lysine copper) is a naturally occurring copper-binding peptide with well-documented roles in tissue repair, collagen and elastin synthesis, angiogenesis, and anti-inflammatory signaling. It activates fibroblasts, accelerates wound healing, stimulates hair follicle activity, and exerts antioxidant effects — making it a foundational peptide for skin regeneration, connective tissue repair, and aesthetic longevity protocols.",
+    benefits: [
+      "Collagen and elastin synthesis stimulation",
+      "Accelerated wound healing and tissue repair",
+      "Hair follicle activation and density improvement",
+      "Antioxidant and anti-inflammatory signaling",
+    ],
+    dosingInfo:
+      "200–500 mcg subcutaneous or topical application once daily. For systemic tissue repair, subcutaneous injection near the target area is preferred. Protocol duration: 8–16 weeks.",
+    requiresConsultation: false,
+    priceCents: 9900,
+    variants: [
+      { label: "50 mg", priceCents: 9900 },
     ],
   },
 
@@ -422,7 +442,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "1–2 mg subcutaneous injection 1–2 hours before activity, as needed. Limit to 2–3 uses per week. Titrate from 0.5 mg to assess individual response.",
     requiresConsultation: false,
-    priceCents: 24900,
+    priceCents: 11900,
     coas: [
       { label: "10 mg", accession: "2606120626", lab: "Freedom Diagnostics Testing", purity: "99.82%", url: "/coa/pt-141-10mg.pdf" },
     ],
@@ -444,7 +464,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "0.3–1 nmol/kg subcutaneous injection, 2–3 times per week. Protocol duration: 8–16 weeks. Hormone panel recommended at baseline.",
     requiresConsultation: true,
-    priceCents: 22900,
+    priceCents: 19900,
   },
 
   // ── Immune & Cellular Biology ─────────────────────────────────────────────────────
@@ -465,7 +485,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "1.6 mg subcutaneous injection twice weekly. Protocol duration: 8–16 weeks for immune optimization; ongoing for maintenance.",
     requiresConsultation: false,
-    priceCents: 29900,
+    priceCents: 19900,
     coas: [
       { label: "10 mg", accession: "2602130489", lab: "Freedom Diagnostics Testing", purity: "99.22%", url: "/coa/thymosin-alpha-1-10mg.pdf" },
     ],
@@ -487,7 +507,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "5–10 mg subcutaneous injection once daily for 10–20 days, 1–2 cycles per year. Best administered in the evening.",
     requiresConsultation: false,
-    priceCents: 22900,
+    priceCents: 12900,
   },
   {
     slug: "mots-c",
@@ -506,7 +526,11 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "5–10 mg subcutaneous injection once daily, 3–5 days per week. Protocol duration: 8–12 weeks, repeat 1–2 times per year.",
     requiresConsultation: false,
-    priceCents: 26900,
+    priceCents: 12900,
+    variants: [
+      { label: "10 mg", priceCents: 12900 },
+      { label: "30 mg", priceCents: 33900 },
+    ],
     coas: [
       { label: "10 mg", accession: "2606030523", lab: "Freedom Diagnostics Testing", purity: "99.30%", url: "/coa/mots-c-10mg.pdf" },
     ],
@@ -528,14 +552,52 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "250–500 mg IV infusion over 2–4 hours, 1–3 times per week during loading phase; 250 mg subcutaneous weekly for maintenance. Administer slowly to minimize discomfort.",
     requiresConsultation: false,
-    priceCents: 29900,
+    priceCents: 14900,
     variants: [
-      { label: "500 mg",  priceCents: 29900 },
-      { label: "1000 mg", priceCents: 29900 },
+      { label: "500 mg",  priceCents: 14900 },
+      { label: "1000 mg", priceCents: 24900 },
     ],
     coas: [
       { label: "1000 mg", accession: "2605080253", lab: "Freedom Diagnostics Testing", purity: "99.93%", url: "/coa/nad-plus-1g.pdf" },
     ],
+  },
+  {
+    slug: "glutathione",
+    name: "Glutathione",
+    category: "Immune & Cellular Biology",
+    regulatoryStatus: "research",
+    shortDescription: "Master antioxidant for cellular detoxification, immune function, and oxidative stress reduction.",
+    fullDescription:
+      "Glutathione is the body's most abundant endogenous antioxidant — a tripeptide (glutamate, cysteine, glycine) that neutralizes reactive oxygen species, regenerates vitamins C and E, and drives phase II hepatic detoxification. Levels decline with age, chronic illness, and environmental toxin exposure. IV and subcutaneous administration delivers systemic antioxidant capacity that oral supplementation cannot match, supporting immune resilience, skin luminance, and mitochondrial protection.",
+    benefits: [
+      "Systemic oxidative stress reduction and cellular protection",
+      "Phase II hepatic detoxification support",
+      "Enhanced immune function and NK cell activity",
+      "Skin brightening and melanin regulation research",
+    ],
+    dosingInfo:
+      "600–1200 mg IV push or slow IV infusion, 1–3 times per week. Subcutaneous dosing 200–400 mg daily as an alternative. Protocol duration: 8–16 weeks.",
+    requiresConsultation: false,
+    priceCents: 19900,
+  },
+  {
+    slug: "ss-31",
+    name: "SS-31",
+    category: "Immune & Cellular Biology",
+    regulatoryStatus: "research",
+    shortDescription: "Mitochondria-targeted antioxidant researched for cardioprotection and cellular energy.",
+    fullDescription:
+      "SS-31 (Elamipretide) is a mitochondria-targeted tetrapeptide that selectively concentrates in the inner mitochondrial membrane, where it stabilizes cardiolipin and reduces mitochondrial reactive oxygen species production. It is one of the most researched compounds for mitochondrial dysfunction — with published data on heart failure, renal ischemia, age-related mitochondrial decline, and neurodegenerative conditions.",
+    benefits: [
+      "Inner mitochondrial membrane stabilization via cardiolipin binding",
+      "Mitochondrial ROS reduction and bioenergetics optimization",
+      "Cardioprotective and renoprotective research applications",
+      "Age-related mitochondrial decline research",
+    ],
+    dosingInfo:
+      "0.05–0.25 mg/kg subcutaneous injection once daily. Protocol duration: 8–16 weeks, with periodic cycling. Clinical monitoring recommended for cardiometabolic indications.",
+    requiresConsultation: false,
+    priceCents: 14900,
   },
 
   // ── Neuroprotective & CNS ────────────────────────────────────────────
@@ -556,7 +618,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "0.1–0.2 mg/kg subcutaneous injection, once daily for 10 days per cycle. Two cycles per year recommended.",
     requiresConsultation: false,
-    priceCents: 19900,
+    priceCents: 14900,
     coas: [
       { label: "20 mg", accession: "2509290026", lab: "Freedom Diagnostics Testing", purity: "99.949%", url: "/coa/pinealon-20mg.pdf" },
     ],
@@ -578,10 +640,9 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "100–300 mcg intranasal administration, 1–2 times daily. Protocol duration: 2–4 weeks on, 2 weeks off.",
     requiresConsultation: false,
-    priceCents: 22900,
+    priceCents: 7900,
     variants: [
-      { label: "5 mg",  priceCents: 22900 },
-      { label: "30 mg", priceCents: 22900 },
+      { label: "30 mg", priceCents: 7900 },
     ],
     coas: [
       { label: "30 mg", accession: "2606030517", lab: "Freedom Diagnostics Testing", purity: "99.39%", url: "/coa/semax-30mg.pdf" },
@@ -604,7 +665,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "100–300 mcg intranasal administration, 1–2 times daily. Can be cycled alongside Semax for synergistic cognitive-anxiolytic benefit.",
     requiresConsultation: false,
-    priceCents: 19900,
+    priceCents: 16900,
     coas: [
       { label: "10 mg", accession: "2605210086", lab: "Freedom Diagnostics Testing", purity: "99.82%", url: "/coa/selank-10mg.pdf" },
     ],
@@ -650,7 +711,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "Administered per individualized Auryx protocol. Contact our clinical team for dosing schedule.",
     requiresConsultation: true,
-    priceCents: 39900,
+    priceCents: 28900,
   },
   {
     slug: "klow-complex",
@@ -669,7 +730,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "Administered per individualized Auryx protocol. Contact our clinical team for dosing schedule.",
     requiresConsultation: true,
-    priceCents: 42900,
+    priceCents: 28900,
     coas: [
       { label: "GHK-Cu/KPV/BPC-157/TB-500", accession: "2602240140", lab: "Freedom Diagnostics Testing", url: "/coa/klow-complex.pdf" },
     ],
