@@ -14,11 +14,20 @@ export interface ProductSummary {
   variants?: ProductVariant[];
 }
 
+export interface ProductCOA {
+  label: string;
+  accession: string;
+  lab: string;
+  purity?: string;
+  url: string;
+}
+
 export interface Product extends ProductSummary {
   fullDescription: string;
   benefits: string[];
   dosingInfo: string;
   physicianNote?: string;
+  coas?: ProductCOA[];
 }
 
 export interface CartItem {

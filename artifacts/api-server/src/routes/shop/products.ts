@@ -3,6 +3,14 @@ export interface ProductVariant {
   priceCents: number;
 }
 
+export interface ProductCOA {
+  label: string;
+  accession: string;
+  lab: string;
+  purity?: string;
+  url: string;
+}
+
 export interface Product {
   slug: string;
   name: string;
@@ -16,6 +24,7 @@ export interface Product {
   requiresConsultation: boolean;
   regulatoryStatus: "prescription" | "research";
   variants?: ProductVariant[];
+  coas?: ProductCOA[];
 }
 
 export const PRODUCTS: Product[] = [
@@ -47,6 +56,10 @@ export const PRODUCTS: Product[] = [
       { label: "60 mg", priceCents: 99900 },
       { label: "90 mg", priceCents: 139900 },
     ],
+    coas: [
+      { label: "10 mg", accession: "2605140082", lab: "Freedom Diagnostics Testing", purity: "99.94%", url: "/coa/tirzepatide-10mg.pdf" },
+      { label: "30 mg", accession: "2605190056", lab: "Freedom Diagnostics Testing", purity: "99.93%", url: "/coa/tirzepatide-30mg.pdf" },
+    ],
   },
   {
     slug: "semaglutide",
@@ -69,6 +82,12 @@ export const PRODUCTS: Product[] = [
     variants: [
       { label: "12.5 mg", priceCents: 34900 },
       { label: "20 mg",   priceCents: 34900 },
+    ],
+    coas: [
+      { label: "5 mg",  accession: "25082100012", lab: "Freedom Diagnostics Testing", url: "/coa/semaglutide-5mg.pdf" },
+      { label: "10 mg", accession: "2510130019",  lab: "Freedom Diagnostics Testing", url: "/coa/semaglutide-10mg.pdf" },
+      { label: "20 mg", accession: "2512080052",  lab: "Freedom Diagnostics Testing", url: "/coa/semaglutide-20mg.pdf" },
+      { label: "25 mg", accession: "2510270070",  lab: "Freedom Diagnostics Testing", url: "/coa/semaglutide-25mg.pdf" },
     ],
   },
   {
@@ -96,6 +115,10 @@ export const PRODUCTS: Product[] = [
       { label: "24 mg", priceCents: 44900 },
       { label: "30 mg", priceCents: 44900 },
       { label: "40 mg", priceCents: 44900 },
+    ],
+    coas: [
+      { label: "12 mg", accession: "2602020260", lab: "Freedom Diagnostics Testing", purity: "99.94%",  url: "/coa/retatrutide-12mg.pdf" },
+      { label: "24 mg", accession: "2602240131", lab: "Freedom Diagnostics Testing", purity: "99.617%", url: "/coa/retatrutide-24mg.pdf" },
     ],
   },
   {
@@ -177,6 +200,9 @@ export const PRODUCTS: Product[] = [
       "Sermorelin is our recommended starting point for patients new to growth hormone optimization. Its shorter half-life and pituitary-driven mechanism make it the safest and most physiological GH secretagogue available.",
     requiresConsultation: false,
     priceCents: 22900,
+    coas: [
+      { label: "10 mg", accession: "SPL-2785", lab: "TrustPointe Analytics", url: "/coa/sermorelin-10mg.pdf" },
+    ],
   },
   {
     slug: "tesamorelin",
@@ -202,6 +228,10 @@ export const PRODUCTS: Product[] = [
       { label: "10 mg", priceCents: 27900 },
       { label: "20 mg", priceCents: 27900 },
     ],
+    coas: [
+      { label: "10 mg", accession: "2606120629", lab: "Freedom Diagnostics Testing", purity: "99.94%", url: "/coa/tesamorelin-10mg.pdf" },
+      { label: "20 mg", accession: "SPL-1565",   lab: "TrustPointe Analytics",       url: "/coa/tesamorelin-20mg.pdf" },
+    ],
   },
   {
     slug: "ipamorelin",
@@ -225,6 +255,9 @@ export const PRODUCTS: Product[] = [
       { label: "5 mg",  priceCents: 22900 },
       { label: "10 mg", priceCents: 22900 },
     ],
+    coas: [
+      { label: "10 mg", accession: "2508220022", lab: "Freedom Diagnostics Testing", purity: "99.76%", url: "/coa/ipamorelin-10mg.pdf" },
+    ],
   },
   {
     slug: "cjc-1295-ipamorelin",
@@ -247,6 +280,9 @@ export const PRODUCTS: Product[] = [
       "CJC-1295 + Ipamorelin is our most prescribed entry-level growth hormone protocol. The combination maximizes pulsatile GH release while maintaining hormonal safety — avoiding the flat, supraphysiological levels seen with exogenous HGH.",
     requiresConsultation: false,
     priceCents: 29900,
+    coas: [
+      { label: "5/5 mg", accession: "2602130491", lab: "Freedom Diagnostics Testing", purity: "99.829%", url: "/coa/cjc-ipamorelin.pdf" },
+    ],
   },
   {
     slug: "tesamorelin-ipamorelin",
@@ -268,6 +304,9 @@ export const PRODUCTS: Product[] = [
       "This is our flagship GH protocol — the combination produces synergistic effects that neither compound achieves alone. We prescribe it for patients seeking maximal anti-aging and body composition results.",
     requiresConsultation: false,
     priceCents: 39900,
+    coas: [
+      { label: "10/2 mg", accession: "2606030541", lab: "Freedom Diagnostics Testing", purity: "99.50%", url: "/coa/tesamorelin-ipamorelin.pdf" },
+    ],
   },
 
   // ── Recovery & Regeneration ────────────────────────────────────────────────
@@ -293,6 +332,9 @@ export const PRODUCTS: Product[] = [
       { label: "10 mg", priceCents: 24900 },
       { label: "20 mg", priceCents: 24900 },
     ],
+    coas: [
+      { label: "10 mg", accession: "2605140090", lab: "Freedom Diagnostics Testing", purity: "99.84%", url: "/coa/bpc-157-10mg.pdf" },
+    ],
   },
   {
     slug: "tb-500",
@@ -315,6 +357,9 @@ export const PRODUCTS: Product[] = [
     variants: [
       { label: "5 mg",  priceCents: 24900 },
       { label: "10 mg", priceCents: 24900 },
+    ],
+    coas: [
+      { label: "10 mg", accession: "2606030532", lab: "Freedom Diagnostics Testing", purity: "99.79%", url: "/coa/tb-500-10mg.pdf" },
     ],
   },
   {
@@ -354,6 +399,9 @@ export const PRODUCTS: Product[] = [
       "500 mcg–1 mg subcutaneous injection once daily, or oral capsule 500 mcg–2 mg for gut applications. Protocol duration: 4–8 weeks.",
     requiresConsultation: false,
     priceCents: 19900,
+    coas: [
+      { label: "10 mg", accession: "2605140084", lab: "Freedom Diagnostics Testing", purity: "99.42%", url: "/coa/kpv-10mg.pdf" },
+    ],
   },
 
   // ── Sexual Health & Vitality ───────────────────────────────────────────────
@@ -415,6 +463,9 @@ export const PRODUCTS: Product[] = [
       "1.6 mg subcutaneous injection twice weekly. Protocol duration: 8–16 weeks for immune optimization; ongoing for maintenance.",
     requiresConsultation: false,
     priceCents: 29900,
+    coas: [
+      { label: "10 mg", accession: "2602130489", lab: "Freedom Diagnostics Testing", purity: "99.22%", url: "/coa/thymosin-alpha-1-10mg.pdf" },
+    ],
   },
   {
     slug: "epithalon",
@@ -537,25 +588,6 @@ export const PRODUCTS: Product[] = [
     ],
     dosingInfo:
       "100–300 mcg intranasal administration, 1–2 times daily. Can be cycled alongside Semax for synergistic cognitive-anxiolytic benefit.",
-    requiresConsultation: false,
-    priceCents: 19900,
-  },
-  {
-    slug: "cortagen",
-    name: "Cortagen",
-    category: "Immune & Cellular Biology",
-    regulatoryStatus: "research",
-    shortDescription: "Tetrapeptide bioregulator derived from cardiac tissue, researched for cardiovascular cellular biology.",
-    fullDescription:
-      "Cortagen is a tetrapeptide bioregulator derived from cardiac tissue and studied within the Russian peptide bioregulator research program. Researchers investigate its effects on cardiac cellular gene expression, oxidative stress reduction in myocardial tissue, and vascular cellular maintenance as part of broader cardiovascular aging research.",
-    benefits: [
-      "Cardiac cellular gene expression research",
-      "Oxidative stress modulation in myocardial tissue",
-      "Vascular cellular biology studies",
-      "Cardiovascular aging research applications",
-    ],
-    dosingInfo:
-      "10 mg subcutaneous injection daily for 10-day cycles, 2–3 times per year. For preventive cardiac longevity protocols.",
     requiresConsultation: false,
     priceCents: 19900,
   },

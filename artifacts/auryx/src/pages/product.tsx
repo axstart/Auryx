@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { useRoute } from "wouter";
 import { motion } from "framer-motion";
-import { ArrowLeft, ShoppingCart, AlertCircle, CheckCircle2, ChevronDown, ChevronUp } from "lucide-react";
+import { ArrowLeft, ShoppingCart, AlertCircle, CheckCircle2, ChevronDown, ChevronUp, FileText } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
@@ -414,6 +414,37 @@ export default function ProductPage() {
                     <div className="bg-[#F5F0E8] rounded-xl p-4">
                       <p className="text-sm text-[#0A0A0A]/70 italic leading-relaxed">"{product.physicianNote}"</p>
                     </div>
+                  </Accordion>
+                )}
+
+                {product.coas && product.coas.length > 0 && (
+                  <Accordion title="Certificate of Analysis">
+                    <div className="space-y-3">
+                      {product.coas.map((coa, i) => (
+                        <div key={i} className="flex items-center justify-between bg-[#F5F0E8] rounded-xl p-4 gap-4">
+                          <div className="min-w-0">
+                            <p className="text-[11px] font-semibold text-[#0A0A0A]/80 uppercase tracking-wider">{coa.label}</p>
+                            <p className="text-[11px] text-[#0A0A0A]/50 mt-0.5">{coa.lab}</p>
+                            <p className="text-[11px] text-[#0A0A0A]/40 mt-0.5">Accession #{coa.accession}</p>
+                            {coa.purity && (
+                              <p className="text-[11px] text-[#B8962E] font-semibold mt-1">HPLC Purity: {coa.purity}</p>
+                            )}
+                          </div>
+                          <a
+                            href={coa.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="shrink-0 flex items-center gap-1.5 text-[11px] font-medium text-[#B8962E] hover:text-[#0A0A0A] transition-colors uppercase tracking-wider"
+                          >
+                            <FileText className="w-3.5 h-3.5" />
+                            View COA
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="text-[10px] text-[#0A0A0A]/30 mt-3 leading-relaxed">
+                      All certificates are issued by FDA-registered, ISO-accredited third-party analytical laboratories. Results are independently verifiable via the lab's online verification portals.
+                    </p>
                   </Accordion>
                 )}
               </div>

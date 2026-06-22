@@ -257,15 +257,6 @@ const PEPTIDES: PeptideEntry[] = [
     researchNote: "Studied for its anxiolytic and immunomodulatory properties in preclinical research, including effects on enkephalin metabolism and BDNF expression.",
   },
   {
-    slug: "cortagen",
-    name: "Cortagen",
-    category: "Immune & Cellular Biology",
-    definition: "A tetrapeptide bioregulator derived from cardiac tissue, researched for cardiovascular cellular biology and vascular aging mechanisms.",
-    mechanism: "Cortagen is a short peptide bioregulator studied within the Russian peptide bioregulator research program. Researchers investigate its interactions with cardio-specific gene expression pathways, oxidative stress reduction in myocardial tissue, and mitochondrial function in cardiac cells.",
-    benefits: ["Cardiac cellular gene expression research", "Oxidative stress modulation in myocardial tissue", "Vascular cellular biology studies", "Cardiovascular aging research applications", "Bioregulator peptide science research"],
-    typicalUse: "Researched as a cardiac cellular bioregulator, studied particularly in the context of cardiovascular aging and cellular longevity mechanisms.",
-  },
-  {
     slug: "cerebrolysin",
     name: "Cerebrolysin",
     category: "Neuroprotective & CNS",
