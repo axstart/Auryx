@@ -25,11 +25,11 @@ export const PRODUCTS: Product[] = [
     name: "Tirzepatide",
     category: "GLP-1 & Metabolic",
     regulatoryStatus: "prescription",
-    shortDescription: "Dual GLP-1/GIP agonist — superior fat loss and glycemic control.",
+    shortDescription: "Dual GLP-1/GIP receptor agonist researched for metabolic and glycemic parameters.",
     fullDescription:
-      "Tirzepatide activates both GLP-1 and GIP receptors simultaneously, delivering superior fat reduction and glycemic control compared to GLP-1 monotherapy alone. Clinical trials demonstrate greater weight reduction than any single-mechanism GLP-1 agent, with significant visceral fat targeting and lean mass preservation.",
+      "Tirzepatide activates both GLP-1 and GIP receptors simultaneously, and is researched for its effects on metabolic parameters and glycemic control. Published trial data investigates differential outcomes compared to single-mechanism GLP-1 agents, including effects on visceral adipose tissue and lean mass.",
     benefits: [
-      "Greater fat loss vs. single-mechanism GLP-1 agents",
+      "Dual-receptor mechanism studied vs. single-mechanism GLP-1 agents",
       "Superior glycemic control for insulin-resistant patients",
       "Preserved lean muscle mass during weight loss",
       "Visceral fat reduction with cardiovascular benefits",
@@ -381,14 +381,14 @@ export const PRODUCTS: Product[] = [
     name: "Kisspeptin",
     category: "Sexual Health & Vitality",
     regulatoryStatus: "research",
-    shortDescription: "Natural testosterone and estrogen optimization with fertility support.",
+    shortDescription: "Neuropeptide modulating the HPG axis and endogenous gonadotropin signaling.",
     fullDescription:
-      "Kisspeptin is a naturally occurring neuropeptide that stimulates the hypothalamic-pituitary-gonadal axis, driving endogenous testosterone and estrogen production. It represents a physiological approach to hormonal optimization — enhancing libido, sexual function, and fertility without suppressing the HPG axis as exogenous hormone therapy does.",
+      "Kisspeptin is a naturally occurring neuropeptide that activates the hypothalamic-pituitary-gonadal (HPG) axis, stimulating pulsatile GnRH secretion and downstream gonadotropin release. Researchers study its role in endogenous hormone signaling, sexual function, and HPG axis regulation as an alternative to exogenous hormone interventions.",
     benefits: [
-      "Endogenous testosterone and estrogen optimization",
-      "Enhanced libido and sexual function",
-      "Fertility support through HPG axis stimulation",
-      "Maintains natural hormonal feedback loops",
+      "HPG axis activation and gonadotropin signaling research",
+      "Endogenous hormone pathway modulation",
+      "Sexual function and libido research applications",
+      "Preservation of natural hormonal feedback mechanisms",
     ],
     dosingInfo:
       "0.3–1 nmol/kg subcutaneous injection, 2–3 times per week. Protocol duration: 8–16 weeks. Hormone panel recommended at baseline.",
@@ -402,14 +402,14 @@ export const PRODUCTS: Product[] = [
     name: "Thymosin Alpha-1",
     category: "Immune & Cellular Biology",
     regulatoryStatus: "research",
-    shortDescription: "Immune fortification and pathogen resistance.",
+    shortDescription: "Thymic peptide researched for T-cell modulation and immune system signaling.",
     fullDescription:
-      "Thymosin Alpha-1 is a thymic peptide that modulates and fortifies the immune system — enhancing T-cell activity, natural killer cell function, and antigen presentation. It has been used clinically in immunocompromised patients and offers powerful preventive and therapeutic benefits for immune optimization and chronic infection resistance.",
+      "Thymosin Alpha-1 is a thymic peptide studied for its role in immune system modulation — including T-cell activity, natural killer cell function, and antigen presentation. It is an active area of research in immunology, particularly regarding immune system signaling and cytokine balance.",
     benefits: [
-      "Enhanced T-cell and NK cell activity",
-      "Improved resistance to viral and bacterial pathogens",
-      "Autoimmune modulation and cytokine balance",
-      "Adjunctive benefit during and after illness",
+      "T-cell and NK cell activity research",
+      "Immune system signaling and cytokine modulation",
+      "Autoimmune pathway and cytokine balance research",
+      "Thymic peptide immune regulation studies",
     ],
     dosingInfo:
       "1.6 mg subcutaneous injection twice weekly. Protocol duration: 8–16 weeks for immune optimization; ongoing for maintenance.",
@@ -459,14 +459,14 @@ export const PRODUCTS: Product[] = [
     name: "NAD+",
     category: "Immune & Cellular Biology",
     regulatoryStatus: "research",
-    shortDescription: "Cellular energy restoration, DNA repair, and mental clarity.",
+    shortDescription: "Metabolic coenzyme researched for mitochondrial function and sirtuin pathway activity.",
     fullDescription:
-      "NAD+ (nicotinamide adenine dinucleotide) is a coenzyme central to cellular energy metabolism, DNA repair, and sirtuins activation. Levels decline 50% by age 50 — supplementing via IV or subcutaneous injection restores mitochondrial function, activates longevity pathways, improves mental clarity, and accelerates recovery from both physical and neurological stress.",
+      "NAD+ (nicotinamide adenine dinucleotide) is a coenzyme central to cellular energy metabolism, NAD-dependent enzyme activity, and sirtuin pathway research. Levels decline with age — researchers study supplementation for its potential effects on mitochondrial function, metabolic signaling, and cellular maintenance mechanisms.",
     benefits: [
-      "Mitochondrial energy production restoration",
-      "DNA repair and sirtuin longevity pathway activation",
-      "Enhanced mental clarity and cognitive function",
-      "Accelerated physical and neurological recovery",
+      "Mitochondrial energy metabolism research",
+      "NAD-dependent sirtuin pathway activity",
+      "Cellular maintenance mechanism studies",
+      "Metabolic coenzyme replenishment research",
     ],
     dosingInfo:
       "250–500 mg IV infusion over 2–4 hours, 1–3 times per week during loading phase; 250 mg subcutaneous weekly for maintenance. Administer slowly to minimize discomfort.",
@@ -543,16 +543,16 @@ export const PRODUCTS: Product[] = [
   {
     slug: "cortagen",
     name: "Cortagen",
-    category: "Neuroprotective & CNS",
+    category: "Immune & Cellular Biology",
     regulatoryStatus: "research",
-    shortDescription: "Cardiac and vascular peptide bioregulator for heart function and longevity.",
+    shortDescription: "Tetrapeptide bioregulator derived from cardiac tissue, researched for cardiovascular cellular biology.",
     fullDescription:
-      "Cortagen is a tetrapeptide bioregulator derived from cardiac tissue that supports the functional health of the heart and vascular system. It promotes cardiomyocyte regeneration, improves myocardial contractility, and exerts protective effects against oxidative stress in cardiac tissue — making it a cornerstone longevity compound for patients concerned with cardiovascular aging.",
+      "Cortagen is a tetrapeptide bioregulator derived from cardiac tissue and studied within the Russian peptide bioregulator research program. Researchers investigate its effects on cardiac cellular gene expression, oxidative stress reduction in myocardial tissue, and vascular cellular maintenance as part of broader cardiovascular aging research.",
     benefits: [
-      "Cardiomyocyte regeneration and cardiac tissue repair",
-      "Improved myocardial contractility and heart rate variability",
-      "Vascular protection and reduced oxidative stress",
-      "Longevity-focused cardiovascular maintenance",
+      "Cardiac cellular gene expression research",
+      "Oxidative stress modulation in myocardial tissue",
+      "Vascular cellular biology studies",
+      "Cardiovascular aging research applications",
     ],
     dosingInfo:
       "10 mg subcutaneous injection daily for 10-day cycles, 2–3 times per year. For preventive cardiac longevity protocols.",
@@ -564,13 +564,13 @@ export const PRODUCTS: Product[] = [
     name: "Cerebrolysin",
     category: "Neuroprotective & CNS",
     regulatoryStatus: "research",
-    shortDescription: "Robust neuroprotection, post-stroke repair, and memory enhancement.",
+    shortDescription: "Neuropeptide complex researched for neuronal survival, neurotrophic signaling, and cognitive function.",
     fullDescription:
-      "Cerebrolysin is a peptide mixture derived from porcine brain protein that crosses the blood-brain barrier and delivers neurotrophic and neuroprotective effects comparable to endogenous growth factors. It is used clinically for Alzheimer's treatment, post-stroke recovery, and TBI rehabilitation — and used in longevity medicine for memory enhancement and neurodegeneration prevention.",
+      "Cerebrolysin is a low-molecular-weight neuropeptide complex derived from porcine brain protein that crosses the blood-brain barrier. Researchers study its neurotrophic factor-mimetic activity — including potential effects on neuronal survival, synaptic plasticity, and cognitive function. It is an active area of research in neuroscience and neurological aging.",
     benefits: [
-      "Neurotrophic effects comparable to BDNF and NGF",
-      "Alzheimer's prevention and cognitive preservation",
-      "Post-stroke and TBI neurological repair",
+      "Neurotrophic factor-mimetic activity research",
+      "Neuronal survival and synaptic plasticity studies",
+      "Cognitive aging and neurodegenerative research applications",
       "Enhanced long-term memory and recall",
     ],
     dosingInfo:

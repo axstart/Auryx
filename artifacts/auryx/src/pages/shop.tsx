@@ -172,8 +172,7 @@ function CardVial() {
       <rect x="34" y="28" width="32" height="52" rx="5" fill="#C9A844" opacity="0.09" />
       <rect x="32" y="26" width="9" height="88" rx="4" fill="white" opacity="0.55" />
       <rect x="35" y="70" width="30" height="30" rx="3" fill="#F5EDD0" opacity="0.7" />
-      <text x="50" y="83" textAnchor="middle" fontSize="6.5" fill="#C9A844" opacity="0.9" fontFamily="Georgia, serif" letterSpacing="1.5" fontWeight="600">AURYX</text>
-      <text x="50" y="93" textAnchor="middle" fontSize="4.5" fill="#B8962E" opacity="0.65" fontFamily="Georgia, serif" letterSpacing="0.5">PEPTIDE</text>
+      <text x="50" y="88" textAnchor="middle" fontSize="6.5" fill="#C9A844" opacity="0.9" fontFamily="Georgia, serif" letterSpacing="1.5" fontWeight="600">AURYX</text>
       <ellipse cx="50" cy="118" rx="22" ry="4" fill="#C9A844" opacity="0.08" />
     </svg>
   );
