@@ -113,7 +113,7 @@ try {
       currency_code: "USD",
       metadata: { test: true, source: "smoke-test" },
     },
-  ) as { _id: string; status: string };
+  ) as { id: string; status: string };
 
   if (chargeResult.status !== "success") {
     console.error("✗ Charge returned non-success status:", chargeResult.status);
@@ -121,7 +121,7 @@ try {
     process.exit(1);
   }
 
-  chargeId = chargeResult._id;
+  chargeId = chargeResult.id;
   console.log("✓ Charge successful");
   console.log("  payment_id:", chargeId);
   console.log("  status:", chargeResult.status);
@@ -139,13 +139,7 @@ sep("STEP 3 — Refund $1.00");
 try {
   const refundResult = await post(
     `${API_HOST}/payments/integration-api/payments/${chargeId}/refund`,
-    {
-      amount: 100,
-      order_id: TEST_ORDER_ID,
-      payment_method_id: paymentMethodId,
-      currency_code: "USD",
-      metadata: { test: true, reason: "smoke-test-refund" },
-    },
+    { amount: 100 },
   ) as { _id: string; refunded: boolean };
 
   console.log("✓ Refund complete");

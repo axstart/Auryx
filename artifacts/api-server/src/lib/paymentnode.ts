@@ -33,21 +33,21 @@ export interface ChargeParams {
   metadata?: Record<string, unknown>;
 }
 
-export interface RefundParams {
-  amount: number;
-  order_id: string;
-  payment_method_id: string;
-  currency_code: string;
-  metadata?: Record<string, unknown>;
-}
 
 export interface TokenizeResult {
   payment_method_id: string;
 }
 
 export interface ChargeResult {
-  _id: string;
+  id: string;
   status: string;
+  refundable: boolean;
+  refunded: boolean;
+  payment_method_id: string;
+  order_id: string;
+  amount: number;
+  currency_code: string;
+  created_at: string;
   [key: string]: unknown;
 }
 
@@ -190,7 +190,7 @@ export async function chargePayment(params: ChargeParams): Promise<ChargeResult>
     );
   }
 
-  logger.info({ order_id: params.order_id, payment_id: result._id },
+  logger.info({ order_id: params.order_id, payment_id: result.id },
     "paymentnode: charge successful");
   return result;
 }
@@ -200,17 +200,16 @@ export async function chargePayment(params: ChargeParams): Promise<ChargeResult>
  */
 export async function refundPayment(
   paymentId: string,
-  params: RefundParams,
+  amount: number,
 ): Promise<RefundResult> {
   const { basicAuth, apiHost } = getConfig();
 
-  logger.info({ payment_id: paymentId, order_id: params.order_id, amount: params.amount },
-    "paymentnode: initiating refund");
+  logger.info({ payment_id: paymentId, amount }, "paymentnode: initiating refund");
 
   const result = await pnPost(
     `${apiHost}/payments/integration-api/payments/${paymentId}/refund`,
     basicAuth,
-    params,
+    { amount },
   ) as RefundResult;
 
   logger.info({ payment_id: paymentId, refunded: result.refunded },
