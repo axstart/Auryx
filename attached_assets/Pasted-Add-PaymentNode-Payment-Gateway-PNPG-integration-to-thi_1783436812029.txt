@@ -1,0 +1,23 @@
+Add PaymentNode Payment Gateway (PNPG) integration to this project.
+
+First, add these to Replit Secrets (I will paste the values myself, just tell me the exact key names to create):
+- PAYMENTNODE_MERCHANT_ID
+- PAYMENTNODE_MERCHANT_SECRET
+- PAYMENTNODE_PUBLIC_KEY
+- PAYMENTNODE_VAULT_HOST = https://vault.sandbox.paymentnode.io
+- PAYMENTNODE_API_HOST = https://api.sandbox.paymentnode.io
+
+Create a new server-side module `paymentnode.js` (or equivalent for our backend structure) that exports three functions:
+
+1. `tokenizePaymentMethod(cardDetails)` — POST to `${PAYMENTNODE_VAULT_HOST}/payments/integration-api/payment-methods` using HTTP Basic auth built from `Buffer.from(`${merchantId}:${merchantSecret}`).toString('base64')`. Body follows this schema: channel_id ("CREDIT_CARD"), credit_card_info { name, email, phone, address: { city, country, line1, line2, postal_code, province }, number, expiry_date (MM/YY), cvd, type, last4digits }. Return response.id as payment_method_id.
+
+2. `chargePayment({ amount, order_id, payment_method_id, currency_code, metadata })` — POST to `${PAYMENTNODE_API_HOST}/payments/integration-api/payments` with Basic auth. Return the full response; treat status !== "success" as a failed charge and do not fulfill the order in that case.
+
+3. `refundPayment(payment_id, { amount, order_id, payment_method_id, currency_code, metadata })` — POST to `${PAYMENTNODE_API_HOST}/payments/integration-api/payments/${payment_id}/refund` with Basic auth. Return { _id, refunded }.
+
+Rules to follow:
+- All requests use Content-Type: application/json.
+- Never log raw card number or cvd anywhere, not even in error logs.
+- Never send the Merchant Secret to any front-end code or client-side bundle.
+- Wrap each fetch/axios call in try/catch and surface non-2xx responses as thrown errors with the response body attached.
+- Do not build this UI yet — just the backend module and a quick internal test script I can run to confirm the credentials work using the test card 4242 4242 4242 4242, expiry 12/29, cvd 123.

@@ -48,6 +48,8 @@ externalPort = 3000
 [userenv.shared]
 ADMIN_KEY = "auryx-admin-olawmgskdy"
 NOTIFY_PHONE_NUMBER = "+12147104882"
+PAYMENTNODE_VAULT_HOST = "https://vault.sandbox.paymentnode.io"
+PAYMENTNODE_API_HOST = "https://api.sandbox.paymentnode.io"
 
 [nix]
 channel = "stable-25_05"
