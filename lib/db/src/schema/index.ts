@@ -28,3 +28,4 @@ export * from "./adminUsers";
 export * from "./adminSessions";
 export * from "./patientStages";
 export * from "./emailVerifications";
+export * from "./paymentEvents";
