@@ -56,8 +56,9 @@ app.use(
   }),
 );
 
-// Stripe webhook requires raw body for signature verification — must be before express.json()
+// Webhook routes require raw body for HMAC signature verification — must be before express.json()
 app.use("/api/stripe/webhook", express.raw({ type: "application/json" }));
+app.use("/api/webhooks/paymentnode", express.raw({ type: "*/*" }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
