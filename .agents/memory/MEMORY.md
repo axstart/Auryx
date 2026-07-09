@@ -1,2 +1,3 @@
 - [PaymentNode client-side checkout](paymentnode-checkout.md) — tokenize card in-browser against vault.sandbox.paymentnode.io; never send raw card data through our backend.
 - [Testing OTP-gated flows without email access](otp-testing-without-email.md) — brute-force the 6-digit hash from the DB to get the code when no email inbox is reachable in tests.
+- [Webhook signing secret trimming](webhook-secret-trimming.md) — always `.trim()` webhook signing secrets before HMAC use; pasted secrets can carry invisible trailing whitespace that silently breaks every signature match.

@@ -70,7 +70,10 @@ router.post("/webhooks/paymentnode", async (req, res) => {
   const timestampHeader = headerValue(req.headers["x-timestamp"]);
   const signatureHeader = headerValue(req.headers["x-signature"]);
 
-  const secret = process.env.PAYMENTNODE_WEBHOOK_SECRET;
+  // Trim defensively — secret values pasted into env/secrets managers can pick
+  // up a trailing newline/space, which would otherwise silently break every
+  // signature comparison.
+  const secret = process.env.PAYMENTNODE_WEBHOOK_SECRET?.trim();
   if (!secret) {
     logger.error("PAYMENTNODE_WEBHOOK_SECRET not set — rejecting webhook (cannot verify signature)");
     res.status(401).json({ error: "Webhook verification not configured" });

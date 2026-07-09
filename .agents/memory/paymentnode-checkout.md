@@ -9,7 +9,7 @@ Flow:
 1. Frontend fetches a public key from our backend (`GET /api/checkout/paymentnode-public-key`, backed by `PAYMENTNODE_PUBLIC_KEY` secret).
 2. Frontend POSTs card + billing details directly from the browser to `https://vault.sandbox.paymentnode.io/payments/integration-api/payment-methods/tokenize` using that public key as a Bearer token. This request never touches our servers.
 3. The response `_id` becomes `payment_method_id`, sent to our existing `/api/checkout/charge` endpoint along with order/customer/shipping data. The backend resolves prices itself and never trusts client-supplied amounts.
-4. PaymentNode sends an async webhook (`POST /api/webhooks/paymentnode`) with headers `x-signature`, `x-timestamp`, `x-webhook-event` (e.g. `PAYMENT_TRANSACTION_SUCCEEDED`). Signature verification is not yet implemented — the route is in "discovery mode," logging raw headers/body to `payment_events` for later signature-scheme confirmation.
+4. PaymentNode sends an async webhook (`POST /api/webhooks/paymentnode`) with headers `x-signature`, `x-timestamp`, `x-webhook-event`, `x-webhook-id`, `x-idempotency-key`. Signature verification is implemented: HMAC-SHA256 over the raw body using `PAYMENTNODE_WEBHOOK_SECRET`, base64url-encoded, constant-time compared to `x-signature`. Also enforces a ±5min timestamp replay window and dedupes by `x-idempotency-key` against `payment_events`. See `webhook-secret-trimming.md` for a gotcha that cost a lot of debugging time.
 
 **Why:** Stripe was rejected for this project on compliance grounds; PaymentNode was chosen instead, with a hard requirement that card data flow browser→vault directly (no backend proxying of card data).
 
