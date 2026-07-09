@@ -1,0 +1,20 @@
+We're now moving card tokenization to the client side using PaymentNode's Public Key (API 1B), instead of sending raw card data through our own backend (API 1).
+
+Changes needed:
+
+1. Expose PAYMENTNODE_PUBLIC_KEY safely to the front-end (as a build-time env var or public config — this key is designed to be public, per PaymentNode's docs, but never expose PAYMENTNODE_MERCHANT_SECRET this way).
+
+2. On the checkout page, replace the current flow (raw card fields posted to our own POST /api/checkout/tokenize) with a direct browser-side call to:
+   POST https://vault.sandbox.paymentnode.io/payments/integration-api/payment-methods/tokenize
+   Header: Authorization: Bearer <PAYMENTNODE_PUBLIC_KEY>
+   Body: { channel_id: "CREDIT_CARD", credit_card_info: { name, email, phone, address: { country, city, line1, line2, postal_code, province }, number, cvd, expiry_date, type } }
+   
+   This call happens entirely in the browser — raw card number and CVD should never be sent to our own server at any point.
+
+3. The response only returns { _id }. Treat that as payment_method_id and send ONLY that id (never raw card data) to our existing POST /api/checkout/charge route, which continues to work exactly as it does now (server-side charge using Basic auth).
+
+4. Once this is live, retire the server-side POST /api/checkout/tokenize route (API 1) entirely, or keep it disabled/unused — we don't want two paths for handling raw card data, since only the client-side path (API 1B) should touch card numbers now.
+
+5. Handle the documented error cases from API 1B: 401 (invalid/outdated public key), 400 VALIDATION_ERROR (bad request body), 400 PAYMENT_METHOD_CHANNEL_NOT_SUPPORTED. Show a user-friendly error on the checkout form for each.
+
+Test the full flow end to end with the test card 4242 4242 4242 4242 / 12/29 / 123, confirming: (a) the network tab shows the card data going straight to vault.sandbox.paymentnode.io from the browser, not to our own backend, and (b) the resulting payment_method_id successfully charges through our existing /api/checkout/charge route.
