@@ -1,13 +1,15 @@
 import { Router } from "express";
 import Stripe from "stripe";
 import { z } from "zod";
-import { createHash, randomInt } from "crypto";
+import { createHash, randomBytes, randomInt } from "crypto";
 import { db } from "@workspace/db";
 import { ordersTable, inventoryItemsTable, emailVerificationsTable } from "@workspace/db/schema";
 import { sessionAuth } from "../../middlewares/sessionAuth.js";
 import { sendMail } from "../../lib/mailer.js";
 import { sendOrderStatusEmail } from "../../lib/orderEmail.js";
 import { getProductBySlug } from "./products.js";
+import { getIp } from "../../lib/loginRateLimiter.js";
+import { checkPersistentRateLimit } from "../../lib/otpRateLimiter.js";
 import { and, eq, isNull, sql } from "drizzle-orm";
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
@@ -16,26 +18,35 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY ?? "", {
 
 // ── OTP helpers ────────────────────────────────────────────────────────────────
 
-function hashOtp(otp: string): string {
-  return createHash("sha256").update(otp).digest("hex");
+/**
+ * Salted SHA-256. The salt is per-record (stored alongside the hash) — this is
+ * defense in depth against precomputed/rainbow-table lookups. The primary
+ * defense against brute force is the attempt counter + rate limits below,
+ * since the salt alone doesn't change the fact that the OTP space is only
+ * 10^6 and SHA-256 is fast to compute.
+ */
+function hashOtp(otp: string, salt: string): string {
+  return createHash("sha256").update(`${salt}:${otp}`).digest("hex");
 }
 
-// In-memory rate limiter: max 3 OTP requests per email per 10 minutes
-const otpRateMap = new Map<string, { count: number; windowStart: number }>();
-const OTP_WINDOW_MS = 10 * 60 * 1000;
-const OTP_MAX = 3;
-
-function checkOtpRate(email: string): boolean {
-  const now = Date.now();
-  const entry = otpRateMap.get(email);
-  if (!entry || now - entry.windowStart > OTP_WINDOW_MS) {
-    otpRateMap.set(email, { count: 1, windowStart: now });
-    return true;
-  }
-  if (entry.count >= OTP_MAX) return false;
-  entry.count++;
-  return true;
+function generateOtpSalt(): string {
+  return randomBytes(16).toString("hex");
 }
+
+// Persistent (DB-backed) rate limits — survive restarts and work across
+// multiple server instances, unlike an in-memory Map.
+const OTP_REQUEST_WINDOW_MS = 10 * 60 * 1000;
+const OTP_REQUEST_MAX = 3; // max /request-otp calls per email per window
+
+const OTP_VERIFY_WINDOW_MS = 10 * 60 * 1000;
+const OTP_VERIFY_MAX_PER_EMAIL = 15; // max /verify-otp calls per email per window
+const OTP_VERIFY_MAX_PER_IP = 30; // max /verify-otp calls per IP per window, across all emails
+
+// Per-record attempt limit — once a single OTP record has this many wrong
+// guesses, it's permanently locked and a fresh code must be requested. This
+// is the primary defense: it caps any single code's exposure regardless of
+// how the attempts are distributed across time/IPs.
+const MAX_OTP_ATTEMPTS = 5;
 
 const CartItemSchema = z.object({
   slug: z.string(),
@@ -218,16 +229,18 @@ router.post("/checkout/request-otp", async (req, res) => {
 
   const email = parsed.data.email.toLowerCase();
 
-  if (!checkOtpRate(email)) {
+  const allowed = await checkPersistentRateLimit(`otp-request:${email}`, OTP_REQUEST_MAX, OTP_REQUEST_WINDOW_MS);
+  if (!allowed) {
     res.status(429).json({ error: "Too many verification requests. Please wait 10 minutes." });
     return;
   }
 
   const otp = String(randomInt(0, 1_000_000)).padStart(6, "0");
-  const otpHash = hashOtp(otp);
+  const otpSalt = generateOtpSalt();
+  const otpHash = hashOtp(otp, otpSalt);
   const expiresAt = new Date(Date.now() + 10 * 60 * 1000);
 
-  await db.insert(emailVerificationsTable).values({ email, otpHash, expiresAt });
+  await db.insert(emailVerificationsTable).values({ email, otpHash, otpSalt, expiresAt });
 
   sendMail({
     to: parsed.data.email,
@@ -256,7 +269,20 @@ router.post("/checkout/verify-otp", async (req, res) => {
   if (!parsed.success) { res.status(400).json({ error: "Email and 6-digit code required" }); return; }
 
   const email = parsed.data.email.toLowerCase();
-  const otpHash = hashOtp(parsed.data.otp);
+  const ip = getIp(req as Parameters<typeof getIp>[0]);
+
+  // Rate limit verify attempts themselves (independent of the per-record
+  // attempt counter below) so an attacker can't sidestep a single record's
+  // lockout by requesting fresh codes for many target emails, or hammer one
+  // email from many IPs.
+  const [emailAllowed, ipAllowed] = await Promise.all([
+    checkPersistentRateLimit(`otp-verify-email:${email}`, OTP_VERIFY_MAX_PER_EMAIL, OTP_VERIFY_WINDOW_MS),
+    checkPersistentRateLimit(`otp-verify-ip:${ip}`, OTP_VERIFY_MAX_PER_IP, OTP_VERIFY_WINDOW_MS),
+  ]);
+  if (!emailAllowed || !ipAllowed) {
+    res.status(429).json({ error: "Too many verification attempts. Please wait a while and request a new code." });
+    return;
+  }
 
   const [record] = await db.select()
     .from(emailVerificationsTable)
@@ -271,12 +297,29 @@ router.post("/checkout/verify-otp", async (req, res) => {
     res.status(400).json({ error: "No pending verification found. Please request a new code." });
     return;
   }
+  if (record.lockedAt || record.attemptCount >= MAX_OTP_ATTEMPTS) {
+    res.status(400).json({ error: "Too many incorrect attempts. Please request a new code." });
+    return;
+  }
   if (new Date() > record.expiresAt) {
     res.status(400).json({ error: "Code has expired. Please request a new one." });
     return;
   }
+
+  const otpHash = hashOtp(parsed.data.otp, record.otpSalt);
   if (record.otpHash !== otpHash) {
-    res.status(400).json({ error: "Invalid code. Please try again." });
+    // Atomically bump the attempt counter; lock the record once it hits the limit.
+    const newAttemptCount = record.attemptCount + 1;
+    const nowLocked = newAttemptCount >= MAX_OTP_ATTEMPTS;
+    await db.update(emailVerificationsTable)
+      .set({ attemptCount: newAttemptCount, ...(nowLocked ? { lockedAt: new Date() } : {}) })
+      .where(eq(emailVerificationsTable.id, record.id));
+
+    if (nowLocked) {
+      res.status(400).json({ error: "Too many incorrect attempts. Please request a new code." });
+    } else {
+      res.status(400).json({ error: "Invalid code. Please try again." });
+    }
     return;
   }
 

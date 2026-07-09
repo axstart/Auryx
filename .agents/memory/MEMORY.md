@@ -1,3 +1,5 @@
 - [PaymentNode client-side checkout](paymentnode-checkout.md) — tokenize card in-browser against vault.sandbox.paymentnode.io; never send raw card data through our backend.
 - [Testing OTP-gated flows without email access](otp-testing-without-email.md) — brute-force the 6-digit hash from the DB to get the code when no email inbox is reachable in tests.
 - [Webhook signing secret trimming](webhook-secret-trimming.md) — always `.trim()` webhook signing secrets before HMAC use; pasted secrets can carry invisible trailing whitespace that silently breaks every signature match.
+- [OTP security pattern](otp-security-pattern.md) — persistent DB-backed rate limiting + per-record attempt lockout is the standard for any OTP/code-verification flow in this app.
+- [drizzle-kit push interactive prompts](drizzle-push-interactive-prompts.md) — `db run push` can block on a TUI confirmation prompt; piping stdin doesn't work, use `script -qc` for a pty.
