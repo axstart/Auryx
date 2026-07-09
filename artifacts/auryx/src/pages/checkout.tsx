@@ -1,33 +1,111 @@
 import { useState, useEffect, useCallback, useRef } from "react";
-import { loadStripe } from "@stripe/stripe-js";
-import { Elements, PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft, ShieldCheck, AlertCircle, Loader2, CheckCircle2, Mail } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { Input } from "@/components/ui/input";
 import { Link, useLocation } from "wouter";
 
-let _stripePromise: ReturnType<typeof loadStripe> | null = null;
+// ── PaymentNode client-side tokenization (API 1B) ───────────────────────────
+// Card data is tokenized directly in the browser against PaymentNode's vault
+// (vault.sandbox.paymentnode.io) and never touches our backend. Stripe has been
+// retired from this checkout page per compliance decision.
 
-function getStripePromise(): ReturnType<typeof loadStripe> {
-  if (!_stripePromise) {
-    _stripePromise = fetch("/api/checkout/publishable-key")
+let _paymentNodePublicKeyPromise: Promise<string> | null = null;
+
+function getPaymentNodePublicKey(): Promise<string> {
+  if (!_paymentNodePublicKeyPromise) {
+    _paymentNodePublicKeyPromise = fetch("/api/checkout/paymentnode-public-key")
       .then(r => {
-        if (!r.ok) throw new Error("Failed to load Stripe key");
+        if (!r.ok) throw new Error("Failed to load PaymentNode public key");
         return r.json();
       })
-      .then(({ publishableKey }: { publishableKey: string }) => {
-        if (!publishableKey || !publishableKey.startsWith("pk_")) {
-          throw new Error("Invalid Stripe publishable key");
-        }
-        return loadStripe(publishableKey);
+      .then(({ publicKey }: { publicKey: string }) => {
+        if (!publicKey) throw new Error("Invalid PaymentNode public key");
+        return publicKey;
       })
       .catch(err => {
-        _stripePromise = null;
+        _paymentNodePublicKeyPromise = null;
         throw err;
-      }) as ReturnType<typeof loadStripe>;
+      });
   }
-  return _stripePromise;
+  return _paymentNodePublicKeyPromise;
+}
+
+const PAYMENTNODE_VAULT_URL = "https://vault.sandbox.paymentnode.io/payments/integration-api/payment-methods/tokenize";
+
+interface PaymentNodeTokenizeParams {
+  publicKey: string;
+  name: string;
+  email: string;
+  phone: string;
+  address: {
+    country: string;
+    city: string;
+    line1: string;
+    line2: string;
+    postal_code: string;
+    province: string;
+  };
+  number: string;
+  cvd: string;
+  expiry_date: string;
+  type: string;
+}
+
+class PaymentNodeTokenizeError extends Error {
+  status: number;
+  code?: string;
+  constructor(message: string, status: number, code?: string) {
+    super(message);
+    this.status = status;
+    this.code = code;
+  }
+}
+
+async function tokenizeCardClientSide(params: PaymentNodeTokenizeParams): Promise<string> {
+  const { publicKey, name, email, phone, address, number, cvd, expiry_date, type } = params;
+
+  const res = await fetch(PAYMENTNODE_VAULT_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${publicKey}`,
+    },
+    body: JSON.stringify({
+      channel_id: "CREDIT_CARD",
+      credit_card_info: { name, email, phone, address, number, cvd, expiry_date, type },
+    }),
+  });
+
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}) as Record<string, unknown>);
+    const code = typeof body.code === "string" ? body.code : undefined;
+
+    if (res.status === 401) {
+      throw new PaymentNodeTokenizeError("Payment system is temporarily unavailable. Please try again shortly.", 401, code);
+    }
+    if (res.status === 400 && code === "PAYMENT_METHOD_CHANNEL_NOT_SUPPORTED") {
+      throw new PaymentNodeTokenizeError("Card payments aren't currently supported. Please contact support.", 400, code);
+    }
+    if (res.status === 400) {
+      const msg = typeof body.message === "string" ? body.message : "Please check your card details and try again.";
+      throw new PaymentNodeTokenizeError(msg, 400, code);
+    }
+    throw new PaymentNodeTokenizeError("Card tokenization failed. Please try again.", res.status, code);
+  }
+
+  const data = await res.json() as { _id?: string };
+  if (!data._id) throw new PaymentNodeTokenizeError("Unexpected response from payment provider.", 502);
+  return data._id;
+}
+
+function detectCardType(number: string): string {
+  const n = number.replace(/\s+/g, "");
+  if (/^4/.test(n)) return "visa";
+  if (/^5[1-5]/.test(n) || /^2[2-7]/.test(n)) return "mastercard";
+  if (/^3[47]/.test(n)) return "amex";
+  if (/^6(?:011|5)/.test(n)) return "discover";
+  return "visa";
 }
 
 const RESEARCH_FIELDS = [
@@ -53,81 +131,101 @@ interface CheckoutForm {
   termsAccepted: boolean;
 }
 
+interface BillingAddressForm {
+  line1: string;
+  line2: string;
+  city: string;
+  province: string;
+  postal_code: string;
+  country: string;
+}
+
 interface CheckoutPaymentProps {
   form: CheckoutForm;
   totalCents: number;
   onSuccess: () => void;
 }
 
-function CheckoutPayment({ form, totalCents, onSuccess }: CheckoutPaymentProps) {
-  const stripe = useStripe();
-  const elements = useElements();
+function PaymentNodePayment({ form, totalCents, onSuccess }: CheckoutPaymentProps) {
   const { items, clearCart } = useCart();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const [sameAsShipping, setSameAsShipping] = useState(true);
+  const [cardNumber, setCardNumber] = useState("");
+  const [expiry, setExpiry] = useState("");
+  const [cvv, setCvv] = useState("");
+  const [billing, setBilling] = useState<BillingAddressForm>({
+    line1: "", line2: "", city: "", province: "", postal_code: "", country: "US",
+  });
+  const [cardErrors, setCardErrors] = useState<Record<string, string>>({});
+
+  const setBillingField = (k: keyof BillingAddressForm) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    setBilling(b => ({ ...b, [k]: e.target.value }));
+    setCardErrors(er => ({ ...er, [k]: "" }));
+  };
+
+  function validateCard(): boolean {
+    const errs: Record<string, string> = {};
+    const digits = cardNumber.replace(/\s+/g, "");
+    if (!/^\d{13,19}$/.test(digits)) errs.cardNumber = "Enter a valid card number";
+    if (!/^\d{2}\/\d{2}$/.test(expiry)) errs.expiry = "Use MM/YY";
+    if (!/^\d{3,4}$/.test(cvv)) errs.cvv = "Enter a valid CVV";
+
+    const addr = sameAsShipping
+      ? { line1: form.street, city: form.city, province: form.state, postal_code: form.zip }
+      : billing;
+    if (!addr.line1.trim()) errs.line1 = "Billing address required";
+    if (!addr.city.trim()) errs.city = "City required";
+    if (!addr.province.trim()) errs.province = "State required";
+    if (!addr.postal_code.trim()) errs.postal_code = "ZIP required";
+
+    setCardErrors(errs);
+    return Object.keys(errs).length === 0;
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!stripe || !elements) return;
+    if (!validateCard()) return;
 
     setLoading(true);
     setError(null);
 
-    const { error: submitError } = await elements.submit();
-    if (submitError) {
-      setError(submitError.message ?? `Submit error (${submitError.type ?? "unknown"})`);
-      setLoading(false);
-      return;
-    }
+    const digits = cardNumber.replace(/\s+/g, "");
+    const addr = sameAsShipping
+      ? { line1: form.street, line2: "", city: form.city, province: form.state, postal_code: form.zip, country: "US" }
+      : billing;
 
-    const res = await fetch("/api/checkout/create-payment-intent", {
-      method: "POST",
-      credentials: "include",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        items: items.map(i => ({
-          slug: i.product.slug,
-          quantity: i.quantity,
-          ...(i.variantLabel ? { variantLabel: i.variantLabel } : {}),
-        })),
-        customerEmail: form.email,
-      }),
-    });
+    try {
+      const publicKey = await getPaymentNodePublicKey();
 
-    if (!res.ok) {
-      setError("Payment initialization failed. Please try again.");
-      setLoading(false);
-      return;
-    }
+      // Raw card data goes straight from the browser to PaymentNode's vault —
+      // it never touches our own backend.
+      const paymentMethodId = await tokenizeCardClientSide({
+        publicKey,
+        name: form.customerName,
+        email: form.email,
+        phone: form.phone,
+        address: addr,
+        number: digits,
+        cvd: cvv,
+        expiry_date: expiry,
+        type: detectCardType(digits),
+      });
 
-    const { clientSecret } = await res.json();
+      const orderId = crypto.randomUUID();
 
-    const { error: confirmError, paymentIntent } = await stripe.confirmPayment({
-      elements,
-      clientSecret,
-      confirmParams: { return_url: window.location.origin + "/checkout/success" },
-      redirect: "if_required",
-    });
-
-    if (confirmError) {
-      const msg = confirmError.message
-        ?? `Payment error (${confirmError.type ?? "unknown"} / ${confirmError.code ?? "no-code"})`;
-      setError(msg);
-      setLoading(false);
-      return;
-    }
-
-    if (paymentIntent?.status === "succeeded") {
-      const orderRes = await fetch("/api/checkout/complete", {
+      const chargeRes = await fetch("/api/checkout/charge", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          paymentIntentId: paymentIntent.id,
+          payment_method_id: paymentMethodId,
+          order_id: orderId,
           customerName: form.customerName,
           email: form.email,
           phone: form.phone || undefined,
-          researchField: form.researchField,
+          researchField: form.researchField || undefined,
           termsAccepted: form.termsAccepted as true,
           shippingAddress: {
             street: form.street,
@@ -144,23 +242,118 @@ function CheckoutPayment({ form, totalCents, onSuccess }: CheckoutPaymentProps) 
         }),
       });
 
-      if (!orderRes.ok) {
-        setError("Order could not be saved. Please contact support with your payment receipt.");
+      const chargeBody = await chargeRes.json().catch(() => ({}) as Record<string, unknown>);
+
+      if (!chargeRes.ok || chargeBody.success !== true) {
+        setError(typeof chargeBody.error === "string" ? chargeBody.error : "Payment charge failed. Please try again.");
         setLoading(false);
         return;
       }
 
       clearCart();
       onSuccess();
+    } catch (err: unknown) {
+      if (err instanceof PaymentNodeTokenizeError) {
+        setError(err.message);
+      } else {
+        setError("Payment failed. Please try again.");
+      }
+      setLoading(false);
+      return;
     }
 
     setLoading(false);
   };
 
+  const cardInputCls = "bg-white border-[#E8E8E4] text-[#0A0A0A] h-11 rounded-lg focus:border-[#0A0A0A] focus:ring-0 placeholder:text-[#0A0A0A]/30 text-sm";
+
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      <div className="border border-[#E8E8E4] rounded-xl overflow-hidden bg-white p-5">
-        <PaymentElement options={{ layout: "accordion" }} />
+      <div className="border border-[#E8E8E4] rounded-xl bg-white p-5 space-y-3">
+        <h3 className="text-[10px] uppercase tracking-[0.25em] text-[#0A0A0A]/40 font-medium mb-2">Card Details</h3>
+        <div>
+          <FieldLabel>Card Number *</FieldLabel>
+          <Input
+            placeholder="4242 4242 4242 4242"
+            inputMode="numeric"
+            autoComplete="cc-number"
+            value={cardNumber}
+            onChange={e => { setCardNumber(e.target.value); setCardErrors(er => ({ ...er, cardNumber: "" })); }}
+            className={cardInputCls}
+          />
+          {cardErrors.cardNumber && <p className="text-xs text-red-500 mt-1">{cardErrors.cardNumber}</p>}
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <FieldLabel>Expiry (MM/YY) *</FieldLabel>
+            <Input
+              placeholder="12/29"
+              inputMode="numeric"
+              autoComplete="cc-exp"
+              value={expiry}
+              onChange={e => { setExpiry(e.target.value); setCardErrors(er => ({ ...er, expiry: "" })); }}
+              className={cardInputCls}
+            />
+            {cardErrors.expiry && <p className="text-xs text-red-500 mt-1">{cardErrors.expiry}</p>}
+          </div>
+          <div>
+            <FieldLabel>CVV *</FieldLabel>
+            <Input
+              placeholder="123"
+              inputMode="numeric"
+              autoComplete="cc-csc"
+              value={cvv}
+              onChange={e => { setCvv(e.target.value); setCardErrors(er => ({ ...er, cvv: "" })); }}
+              className={cardInputCls}
+            />
+            {cardErrors.cvv && <p className="text-xs text-red-500 mt-1">{cardErrors.cvv}</p>}
+          </div>
+        </div>
+      </div>
+
+      <div className="border border-[#E8E8E4] rounded-xl bg-white p-5 space-y-3">
+        <div className="flex items-center justify-between">
+          <h3 className="text-[10px] uppercase tracking-[0.25em] text-[#0A0A0A]/40 font-medium">Billing Address</h3>
+          <label className="flex items-center gap-2 text-xs text-[#0A0A0A]/55 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={sameAsShipping}
+              onChange={e => setSameAsShipping(e.target.checked)}
+              className="rounded border-[#E8E8E4]"
+            />
+            Same as shipping
+          </label>
+        </div>
+        {!sameAsShipping && (
+          <div className="space-y-3">
+            <div>
+              <FieldLabel>Address Line 1 *</FieldLabel>
+              <Input placeholder="123 Main Street" value={billing.line1} onChange={setBillingField("line1")} className={cardInputCls} />
+              {cardErrors.line1 && <p className="text-xs text-red-500 mt-1">{cardErrors.line1}</p>}
+            </div>
+            <div>
+              <FieldLabel>Address Line 2 (optional)</FieldLabel>
+              <Input placeholder="Apt, suite, etc." value={billing.line2} onChange={setBillingField("line2")} className={cardInputCls} />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div>
+                <FieldLabel>City *</FieldLabel>
+                <Input placeholder="New York" value={billing.city} onChange={setBillingField("city")} className={cardInputCls} />
+                {cardErrors.city && <p className="text-xs text-red-500 mt-1">{cardErrors.city}</p>}
+              </div>
+              <div>
+                <FieldLabel>State *</FieldLabel>
+                <Input placeholder="NY" value={billing.province} onChange={setBillingField("province")} className={cardInputCls} />
+                {cardErrors.province && <p className="text-xs text-red-500 mt-1">{cardErrors.province}</p>}
+              </div>
+            </div>
+            <div>
+              <FieldLabel>ZIP Code *</FieldLabel>
+              <Input placeholder="10001" value={billing.postal_code} onChange={setBillingField("postal_code")} className={`${cardInputCls} max-w-[160px]`} />
+              {cardErrors.postal_code && <p className="text-xs text-red-500 mt-1">{cardErrors.postal_code}</p>}
+            </div>
+          </div>
+        )}
       </div>
 
       {error && (
@@ -172,7 +365,7 @@ function CheckoutPayment({ form, totalCents, onSuccess }: CheckoutPaymentProps) 
 
       <button
         type="submit"
-        disabled={!stripe || loading}
+        disabled={loading}
         className="w-full h-13 py-3.5 bg-[#0A0A0A] text-white text-sm font-medium tracking-wide uppercase rounded-xl flex items-center justify-center gap-2 hover:bg-[#222] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading && <Loader2 className="w-4 h-4 animate-spin" />}
@@ -181,29 +374,11 @@ function CheckoutPayment({ form, totalCents, onSuccess }: CheckoutPaymentProps) 
 
       <div className="flex items-center justify-center gap-2 text-xs text-[#0A0A0A]/40">
         <ShieldCheck className="w-3.5 h-3.5 text-[#0D9488]" />
-        Secured by Stripe · 256-bit TLS encryption
+        256-bit TLS encryption · Card data never touches our servers
       </div>
     </form>
   );
 }
-
-const STRIPE_APPEARANCE = {
-  theme: "stripe" as const,
-  variables: {
-    colorPrimary: "#0A0A0A",
-    colorBackground: "#ffffff",
-    colorText: "#0A0A0A",
-    colorDanger: "#dc2626",
-    fontFamily: "DM Sans, sans-serif",
-    borderRadius: "8px",
-    colorBorder: "#E8E8E4",
-  },
-  rules: {
-    ".Input": { border: "1px solid #E8E8E4", boxShadow: "none" },
-    ".Input:focus": { border: "1px solid #0A0A0A", boxShadow: "none" },
-    ".Label": { color: "#0A0A0A", fontWeight: "500" },
-  },
-};
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
@@ -218,8 +393,6 @@ type Step = "details" | "verify" | "payment";
 export default function CheckoutPage() {
   const { items, totalCents, totalItems } = useCart();
   const [, navigate] = useLocation();
-  const [stripeP] = useState<ReturnType<typeof loadStripe>>(() => getStripePromise());
-  const [stripeError, setStripeError] = useState(false);
   const [step, setStep] = useState<Step>("details");
   const [form, setForm] = useState<CheckoutForm>({
     customerName: "", email: "", phone: "", researchField: "",
@@ -236,10 +409,6 @@ export default function CheckoutPage() {
   const [resendCooldown, setResendCooldown] = useState(0);
   const [verifiedEmail, setVerifiedEmail] = useState<string | null>(null);
   const cooldownRef = useRef<ReturnType<typeof setInterval> | null>(null);
-
-  useEffect(() => {
-    stripeP.catch(() => setStripeError(true));
-  }, [stripeP]);
 
   useEffect(() => {
     return () => { if (cooldownRef.current) clearInterval(cooldownRef.current); };
@@ -687,27 +856,11 @@ export default function CheckoutPage() {
                       </button>
                     </div>
 
-                    {stripeError ? (
-                      <div className="bg-red-50 border border-red-200 rounded-xl p-4 text-sm text-red-600">
-                        Unable to load payment form. Please refresh and try again.
-                      </div>
-                    ) : (
-                      <Elements
-                        stripe={stripeP}
-                        options={{
-                          mode: "payment",
-                          amount: totalCents,
-                          currency: "usd",
-                          appearance: STRIPE_APPEARANCE,
-                        }}
-                      >
-                        <CheckoutPayment
-                          form={form}
-                          totalCents={totalCents}
-                          onSuccess={() => navigate("/checkout/success")}
-                        />
-                      </Elements>
-                    )}
+                    <PaymentNodePayment
+                      form={form}
+                      totalCents={totalCents}
+                      onSuccess={() => navigate("/checkout/success")}
+                    />
                   </motion.div>
                 )}
 

@@ -202,6 +202,15 @@ router.get("/checkout/publishable-key", (_req, res) => {
   res.json({ publishableKey: key });
 });
 
+// GET /checkout/paymentnode-public-key — PaymentNode's public key is designed to be
+// exposed client-side (used for browser-side card tokenization, API 1B). Never expose
+// PAYMENTNODE_MERCHANT_SECRET this way.
+router.get("/checkout/paymentnode-public-key", (_req, res) => {
+  const key = process.env.PAYMENTNODE_PUBLIC_KEY;
+  if (!key) { res.status(500).json({ error: "PaymentNode not configured" }); return; }
+  res.json({ publicKey: key });
+});
+
 // POST /checkout/request-otp — send 6-digit verification code to email
 router.post("/checkout/request-otp", async (req, res) => {
   const parsed = z.object({ email: z.string().email() }).safeParse(req.body);
