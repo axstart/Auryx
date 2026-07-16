@@ -62,7 +62,7 @@ router.post("/consultation-form", async (req, res): Promise<void> => {
       "other-cancer": "History of other cancer",
       "cancer-treatment": "Currently undergoing cancer treatment",
       "cardiovascular-disease": "Significant cardiovascular disease",
-      "diabetes": "Diabetes \u2014 Type 1 or Type 2",
+      "diabetes": "Diabetes — Type 1 or Type 2",
       "thyroid-disorder": "Thyroid disorder",
       "autoimmune": "Autoimmune condition",
       "kidney-liver-disease": "Kidney or liver disease",
@@ -79,16 +79,16 @@ router.post("/consultation-form", async (req, res): Promise<void> => {
 
     // Send notification email to admin
     sendMail({
-      subject: `New Consultation Request \u2014 Order #${data.orderId} \u2014 ${data.patientName}`,
+      subject: `New Consultation Request — Order #${data.orderId} — ${data.patientName}`,
       text: [
         `New consultation intake form submitted.`,
         ``,
         `Order: #${data.orderId}`,
         `Patient: ${data.patientName}`,
-        `DOB: ${data.dob ?? "\u2014"}`,
-        `Height: ${data.height ?? "\u2014"}`,
-        `Weight: ${data.weight ?? "\u2014"}`,
-        `Goal: ${data.goal ?? "\u2014"}`,
+        `DOB: ${data.dob ?? "—"}`,
+        `Height: ${data.height ?? "—"}`,
+        `Weight: ${data.weight ?? "—"}`,
+        `Goal: ${data.goal ?? "—"}`,
         `Prior peptide use: ${data.priorPeptideUse ? "Yes" : "No"}`,
         data.priorPeptidesDetail ? `Prior peptides: ${data.priorPeptidesDetail}` : "",
         ``,
@@ -96,13 +96,13 @@ router.post("/consultation-form", async (req, res): Promise<void> => {
         conditionsText,
         ``,
         `Current medications:`,
-        data.medications ?? "\u2014",
+        data.medications ?? "—",
         ``,
         `Allergies:`,
-        data.allergies ?? "\u2014",
+        data.allergies ?? "—",
         ``,
         `Additional notes:`,
-        data.notes ?? "\u2014",
+        data.notes ?? "—",
       ].join("\n"),
     }).catch((err) => logger.error({ err }, "Failed to send consultation email"));
 

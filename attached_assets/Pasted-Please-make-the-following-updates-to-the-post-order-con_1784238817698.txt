@@ -1,0 +1,54 @@
+Please make the following updates to the post-order consultation intake form and confirmation page:
+
+1. REMOVE $50 CONSULTATION FEE — completely:
+- Remove the cart popup asking about consultation
+- Remove the $50 line item from checkout summary
+- Remove any $50 added to the PaymentNode charge
+- Remove all references to consultation fee anywhere in the codebase
+
+2. FIX UNICODE ESCAPE CODES on the confirmation page:
+- "You\u2019ll" → "You'll"
+- "Optional \u2014" → "Optional —"
+Use proper characters directly in JSX or HTML entities.
+
+3. UPDATE confirmation page text:
+Change: "If your order includes any consultation-required protocols, a member of our team will reach out to schedule a brief physician review."
+To: "If you'd like a personalized protocol review by our physician, complete the optional intake form below. Our medical director will evaluate your profile and follow up via email within 24–48 hours."
+
+4. REPLACE free-text "Medical Conditions" field with structured checkboxes:
+Remove the open text area for medical conditions and replace with a checklist titled "Medical History — Select all that apply":
+
+Checkboxes (each with a short subtitle):
+- History of hormone-sensitive cancer (Breast, prostate, ovarian, endometrial, or other hormone-driven cancers)
+- History of other cancer (Any malignancy not listed above, past or present)
+- Currently undergoing cancer treatment (Chemotherapy, radiation, immunotherapy, or targeted therapy)
+- Significant cardiovascular disease (Heart attack, stroke, heart failure, or serious arrhythmia)
+- Diabetes — Type 1 or Type 2 (Insulin-dependent or diet/medication-controlled)
+- Thyroid disorder (Hypothyroidism, hyperthyroidism, Hashimoto's, Graves' disease)
+- Autoimmune condition (Lupus, MS, rheumatoid arthritis, IBD, or similar diagnosis)
+- Kidney or liver disease (Chronic kidney disease, hepatitis, cirrhosis, or similar)
+- History of eating disorder (Anorexia, bulimia, binge eating disorder, or similar)
+- Active psychiatric condition (Depression, anxiety, bipolar disorder, schizophrenia, or similar — currently under treatment)
+- Pregnant or nursing (Current pregnancy or breastfeeding)
+- Other (free text field that appears when selected — patient describes condition not listed above)
+- None of the above (I do not have any of the conditions listed)
+
+Style: match the dark-themed checkbox cards from the Protocol Finder / "Find My Protocol" feature. "None of the above" automatically deselects all others when selected, and selecting any condition deselects "None of the above". "Other" shows a free text field dynamically when selected.
+
+5. UPDATE DATABASE SCHEMA:
+Change the medical_conditions column in consultation_forms from a text field to a JSON array to store selected checkbox values plus any "Other" free text.
+
+6. UPDATE ADMIN VIEW:
+Display medical conditions as a formatted list of selected conditions, not raw JSON.
+
+7. KEEP EVERYTHING ELSE:
+- All other form fields remain the same
+- Form still submits to POST /api/consultation-form
+- Admin badges and form viewer remain
+- Intake form is still optional and free
+
+After implementing, confirm:
+- No $50 anywhere in codebase
+- Unicode fixes applied
+- New checkbox medical history renders correctly
+- "None of the above" and "Other" mutual exclusion

@@ -782,7 +782,7 @@ function OrdersTab() {
                                       "other-cancer": "History of other cancer",
                                       "cancer-treatment": "Currently undergoing cancer treatment",
                                       "cardiovascular-disease": "Significant cardiovascular disease",
-                                      "diabetes": "Diabetes \u2014 Type 1 or Type 2",
+                                      "diabetes": "Diabetes — Type 1 or Type 2",
                                       "thyroid-disorder": "Thyroid disorder",
                                       "autoimmune": "Autoimmune condition",
                                       "kidney-liver-disease": "Kidney or liver disease",

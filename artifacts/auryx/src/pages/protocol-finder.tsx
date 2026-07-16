@@ -7,7 +7,7 @@ import { CheckCircle2 } from "lucide-react";
 
 export default function ProtocolFinder() {
   useEffect(() => {
-    document.title = "Protocol Finder | AURYX \u2014 Personalized Peptide Recommendations";
+    document.title = "Protocol Finder | AURYX — Personalized Peptide Recommendations";
     const el = document.querySelector('meta[name="description"]');
     if (el) el.setAttribute("content", "Answer a few questions and get a personalized peptide protocol recommendation from AURYX's clinical team.");
   }, []);

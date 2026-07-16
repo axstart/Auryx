@@ -121,12 +121,12 @@ export function sendOrderApprovedEmail(order: OrderEmailData): void {
     ``,
     `If you have any questions, reply to this email or contact us at concierge@auryxlife.com.`,
     ``,
-    `\u2014 The Auryx Team | auryxlife.com`,
+    `— The Auryx Team | auryxlife.com`,
   ].join("\n");
 
   sendMail({
     to: order.email,
-    subject: `Your Auryx order has been approved \u2014 Order #${order.id}`,
+    subject: `Your Auryx order has been approved — Order #${order.id}`,
     html,
     text,
   }).catch(() => {});
@@ -146,11 +146,11 @@ export function sendOrderCancelledEmail(data: CancelEmailData): void {
     : `If you have questions about this decision, please contact our team at concierge@auryxlife.com.`;
 
   const refundHtml = data.refunded
-    ? `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#AAAAAA;">A full refund has been issued to your original payment method. Please allow <strong style="color:#EEEEEE;">5\u201310 business days</strong> for the refund to appear on your statement.</p>`
+    ? `<p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#AAAAAA;">A full refund has been issued to your original payment method. Please allow <strong style="color:#EEEEEE;">5–10 business days</strong> for the refund to appear on your statement.</p>`
     : "";
 
   const refundText = data.refunded
-    ? `A full refund has been issued to your original payment method. Please allow 5\u201310 business days for the refund to appear on your statement.`
+    ? `A full refund has been issued to your original payment method. Please allow 5–10 business days for the refund to appear on your statement.`
     : "";
 
   const html = buildHtml([
@@ -170,12 +170,12 @@ export function sendOrderCancelledEmail(data: CancelEmailData): void {
     reasonText,
     ...(data.refunded ? [``, refundText] : []),
     ``,
-    `\u2014 The Auryx Team | auryxlife.com`,
+    `— The Auryx Team | auryxlife.com`,
   ];
 
   sendMail({
     to: data.email,
-    subject: `Update on your Auryx order \u2014 Order #${data.id}`,
+    subject: `Update on your Auryx order — Order #${data.id}`,
     html,
     text: textLines.join("\n"),
   }).catch(() => {});
@@ -188,7 +188,7 @@ export function sendOrderStatusEmail(order: OrderEmailData): void {
 
   const templates: Partial<Record<OrderStatus, { subject: string; html: string; text: string }>> = {
     approved: {
-      subject: `Order #${order.id} Approved \u2014 Auryx`,
+      subject: `Order #${order.id} Approved — Auryx`,
       html: buildHtml([
         h(`Your order has been approved.`),
         orderMeta(order.id, items),
@@ -202,16 +202,16 @@ export function sendOrderStatusEmail(order: OrderEmailData): void {
         ``,
         `We'll send another update when your order is sent to the pharmacy.`,
         ``,
-        `\u2014 The Auryx Team | auryxlife.com`,
+        `— The Auryx Team | auryxlife.com`,
       ].join("\n"),
     },
     sent_to_pharmacy: {
-      subject: `Order #${order.id} \u2014 Sent to Pharmacy`,
+      subject: `Order #${order.id} — Sent to Pharmacy`,
       html: buildHtml([
         h(`Your order is at the pharmacy.`),
         orderMeta(order.id, items),
         p(`Hi ${firstName}, your Auryx order has been sent to our compounding pharmacy partner for preparation.`),
-        p(`Compounding typically takes 3\u20137 business days. You'll receive a tracking number as soon as it ships.`),
+        p(`Compounding typically takes 3–7 business days. You'll receive a tracking number as soon as it ships.`),
       ].join("")),
       text: [
         `Hi ${firstName},`,
@@ -220,16 +220,16 @@ export function sendOrderStatusEmail(order: OrderEmailData): void {
         ``,
         `You'll receive a tracking number as soon as it ships.`,
         ``,
-        `\u2014 The Auryx Team | auryxlife.com`,
+        `— The Auryx Team | auryxlife.com`,
       ].join("\n"),
     },
     shipped: {
-      subject: `Order #${order.id} Has Shipped \u2014 Auryx`,
+      subject: `Order #${order.id} Has Shipped — Auryx`,
       html: buildHtml([
         h(`Your order is on its way.`),
         orderMeta(order.id, items),
         ...(order.trackingNumber ? [trackingBlock(order.trackingNumber)] : []),
-        p(`Hi ${firstName}, great news \u2014 your Auryx order has shipped and is on its way to you.`),
+        p(`Hi ${firstName}, great news — your Auryx order has shipped and is on its way to you.`),
         p(`${order.trackingNumber ? "Use the tracking number above to follow your shipment." : "Tracking information will be available shortly."}`),
         p(`If you have any questions about your protocol, reply to this email or contact us at <a href="mailto:concierge@auryxlife.com" style="color:#C9A844;">concierge@auryxlife.com</a>.`),
       ].join("")),
@@ -239,11 +239,11 @@ export function sendOrderStatusEmail(order: OrderEmailData): void {
         `Your Auryx order #${order.id} has shipped!`,
         ``,
         ...(order.trackingNumber ? [`Tracking number: ${order.trackingNumber}`, ``] : []),
-        `\u2014 The Auryx Team | auryxlife.com`,
+        `— The Auryx Team | auryxlife.com`,
       ].join("\n"),
     },
     delivered: {
-      subject: `Order #${order.id} Delivered \u2014 Welcome to Your Protocol`,
+      subject: `Order #${order.id} Delivered — Welcome to Your Protocol`,
       html: buildHtml([
         h(`Your order has arrived.`),
         orderMeta(order.id, items),
@@ -258,7 +258,7 @@ export function sendOrderStatusEmail(order: OrderEmailData): void {
         ``,
         `Reply to this email if you have any questions.`,
         ``,
-        `\u2014 The Auryx Team | auryxlife.com`,
+        `— The Auryx Team | auryxlife.com`,
       ].join("\n"),
     },
   };

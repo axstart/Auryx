@@ -206,8 +206,8 @@ router.post("/admin/orders/:id/email", requireAdmin, async (req, res) => {
   try {
     await sendMail({
       to: order.email,
-      subject: `Auryx \u2014 ${subject}`,
-      text: `Hi ${firstName},\n\n${message}\n\n\u2014 The Auryx Team | auryxlife.com`,
+      subject: `Auryx — ${subject}`,
+      text: `Hi ${firstName},\n\n${message}\n\n— The Auryx Team | auryxlife.com`,
       html,
     });
     res.json({ success: true });

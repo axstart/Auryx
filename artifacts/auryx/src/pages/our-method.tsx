@@ -92,7 +92,7 @@ function FadeIn({ children, delay = 0, className = "" }: { children: React.React
 
 export default function OurMethodPage() {
   useEffect(() => {
-    document.title = "Our Method | AURYX \u2014 Precision Longevity Protocols";
+    document.title = "Our Method | AURYX — Precision Longevity Protocols";
     const el = document.querySelector('meta[name="description"]');
     if (el) el.setAttribute("content", "Discover AURYX's evidence-based methodology: biomarker assessment, MD-led protocol design, US compounding pharmacy fulfillment, and ongoing clinical monitoring.");
   }, []);
