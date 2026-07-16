@@ -51,11 +51,11 @@ async function buildSystemPrompt(
 
   const instructions = await getAriaInstructions();
 
-  return `You are Aria, the Auryx AI health concierge — warm, precise, and exceptionally polished. You guide visitors through Auryx, a luxury precision longevity and peptide therapy practice.
+  return `${instructions}
 
 ${nameIntro}
 
-${instructions}`;
+You are Aria, the Auryx AI health concierge — warm, precise, and exceptionally polished. You guide visitors through Auryx, a luxury precision longevity and peptide therapy practice.`;
 }
 
 // ── SMS alert ───────────────────────────────────────────────────────────────
@@ -150,7 +150,7 @@ router.post("/chat/message", async (req, res) => {
     const systemPrompt = await buildSystemPrompt(userInfo?.name);
 
     const stream = await openai.chat.completions.create({
-      model: "gpt-4o-mini",
+      model: "gpt-4o",
       max_tokens: 8192,
       messages: [
         { role: "system", content: systemPrompt },

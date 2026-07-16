@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect } from "react";
 import {
   MessageCircle, X, Send, ChevronRight, ArrowRight,
-  Loader2, User, Mail, Clock,
+  Loader2, User, Mail, Clock, ShoppingCart,
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ConsultationModal } from "./ConsultationModal";
+import { useCart } from "@/context/CartContext";
 
 interface Message {
   role: "user" | "assistant";
@@ -99,6 +100,7 @@ export default function ChatWidget() {
   const [showSuggested, setShowSuggested]   = useState(true);
   const [labelVisible, setLabelVisible]     = useState(true);
   const [consultOpen, setConsultOpen]       = useState(false);
+  const { openCart }                        = useCart();
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLInputElement>(null);
@@ -324,26 +326,53 @@ export default function ChatWidget() {
               {/* Messages */}
               <div className="flex-1 overflow-y-auto px-4 py-4 space-y-4 min-h-0">
                 {messages.map((msg, i) => (
-                  <div key={i} className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
-                    {msg.role === "assistant" && (
-                      <div className="w-6 h-6 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center mr-2 mt-1 shrink-0">
-                        <span className="text-primary text-[9px] font-serif font-bold">A</span>
+                  <div key={i}>
+                    <div className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}>
+                      {msg.role === "assistant" && (
+                        <div className="w-6 h-6 rounded-full bg-primary/20 border border-primary/30 flex items-center justify-center mr-2 mt-1 shrink-0">
+                          <span className="text-primary text-[9px] font-serif font-bold">A</span>
+                        </div>
+                      )}
+                      <div className={`max-w-[82%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${
+                        msg.role === "user"
+                          ? "bg-primary text-primary-foreground rounded-tr-sm"
+                          : "bg-background border border-border text-foreground/90 rounded-tl-sm"
+                      }`}>
+                        {msg.content}
+                        {msg.role === "assistant" && msg.content === "" && loading && (
+                          <span className="inline-flex gap-1 items-center">
+                            <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce [animation-delay:0ms]" />
+                            <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce [animation-delay:150ms]" />
+                            <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce [animation-delay:300ms]" />
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                    {/* Sales CTA — guaranteed action below every assistant response */}
+                    {msg.role === "assistant" && msg.content !== "" && !loading && (
+                      <div className="flex gap-2 mt-2 pl-9">
+                        <button
+                          onClick={() => {
+                            setOpen(false);
+                            openCart();
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-[11px] text-primary font-medium transition-colors"
+                        >
+                          <ShoppingCart className="w-3 h-3" />
+                          Browse Shop
+                        </button>
+                        <button
+                          onClick={() => {
+                            setOpen(false);
+                            setConsultOpen(true);
+                          }}
+                          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-[11px] text-primary font-medium transition-colors"
+                        >
+                          <ArrowRight className="w-3 h-3" />
+                          Book Consultation
+                        </button>
                       </div>
                     )}
-                    <div className={`max-w-[82%] rounded-2xl px-4 py-3 text-sm leading-relaxed whitespace-pre-wrap ${
-                      msg.role === "user"
-                        ? "bg-primary text-primary-foreground rounded-tr-sm"
-                        : "bg-background border border-border text-foreground/90 rounded-tl-sm"
-                    }`}>
-                      {msg.content}
-                      {msg.role === "assistant" && msg.content === "" && loading && (
-                        <span className="inline-flex gap-1 items-center">
-                          <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce [animation-delay:0ms]" />
-                          <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce [animation-delay:150ms]" />
-                          <span className="w-1.5 h-1.5 bg-primary/60 rounded-full animate-bounce [animation-delay:300ms]" />
-                        </span>
-                      )}
-                    </div>
                   </div>
                 ))}
 
