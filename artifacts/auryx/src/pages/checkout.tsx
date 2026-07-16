@@ -419,11 +419,13 @@ export default function CheckoutPage() {
     return () => { if (cooldownRef.current) clearInterval(cooldownRef.current); };
   }, []);
 
+  const hasResearchItems = items.some(i => i.product.regulatoryStatus === "research");
+
   const validate = useCallback(() => {
     const e: Partial<CheckoutForm> = {};
     if (!form.customerName.trim()) e.customerName = "Name required";
     if (!form.email.includes("@")) e.email = "Valid email required";
-    if (!form.researchField) e.researchField = "Please select your research application";
+    if (hasResearchItems && !form.researchField) e.researchField = "Please select your research application";
     if (!form.termsAccepted) e.termsAccepted = "You must accept the Terms of Service to proceed" as unknown as boolean;
     if (!form.street.trim()) e.street = "Street required";
     if (!form.city.trim()) e.city = "City required";
@@ -431,7 +433,7 @@ export default function CheckoutPage() {
     if (!form.zip.trim()) e.zip = "ZIP required";
     setErrors(e);
     return Object.keys(e).length === 0;
-  }, [form]);
+  }, [form, hasResearchItems]);
 
   const set = (k: keyof CheckoutForm) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm(f => ({ ...f, [k]: e.target.value }));
