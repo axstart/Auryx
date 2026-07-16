@@ -25,6 +25,7 @@ export interface Product {
   regulatoryStatus: "prescription" | "research" | "standard";
   variants?: ProductVariant[];
   coas?: ProductCOA[];
+  requiresColdShipping?: boolean;
 }
 
 export const PRODUCTS: Product[] = [
@@ -77,7 +78,15 @@ export const PRODUCTS: Product[] = [
     physicianNote:
       "The addition of B12 and Glycine to Tirzepatide addresses two common gaps in GLP-1 therapy: energy depletion and muscle preservation. B12 supports the mitochondrial energy demands of rapid metabolic change, while Glycine provides glucagon buffering that stabilizes blood sugar during fasting windows. We recommend this formulation for patients with documented B12 deficiency, those experiencing fatigue on standard GLP-1 protocols, or anyone seeking maximal metabolic optimization beyond single-mechanism approaches.",
     requiresConsultation: true,
-    priceCents: 24900,
+    priceCents: 31000,
+    variants: [
+      { label: "3 mg",  priceCents: 31000 },
+      { label: "6 mg",  priceCents: 38500 },
+      { label: "9 mg",  priceCents: 46000 },
+      { label: "12 mg", priceCents: 58500 },
+      { label: "15 mg", priceCents: 66000 },
+    ],
+    requiresColdShipping: true,
   },
   {
     slug: "semaglutide",

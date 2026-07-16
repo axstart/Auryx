@@ -9,8 +9,8 @@ const router = Router();
 router.get("/products", (_req, res) => {
   const summaries = PRODUCTS
     .filter(p => p.slug !== "test-charge")
-    .map(({ slug, name, category, shortDescription, priceCents, requiresConsultation, variants }) => ({
-      slug, name, category, shortDescription, priceCents, requiresConsultation, variants,
+    .map(({ slug, name, category, shortDescription, priceCents, requiresConsultation, requiresColdShipping, variants }) => ({
+      slug, name, category, shortDescription, priceCents, requiresConsultation, requiresColdShipping, variants,
     }));
   res.json(summaries);
 });

@@ -12,6 +12,7 @@ export interface ProductSummary {
   requiresConsultation: boolean;
   regulatoryStatus: "prescription" | "research" | "standard";
   variants?: ProductVariant[];
+  requiresColdShipping?: boolean;
 }
 
 export interface ProductCOA {
