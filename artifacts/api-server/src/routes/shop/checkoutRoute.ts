@@ -214,12 +214,15 @@ router.get("/checkout/publishable-key", (_req, res) => {
 });
 
 // GET /checkout/paymentnode-public-key — PaymentNode's public key is designed to be
-// exposed client-side (used for browser-side card tokenization, API 1B). Never expose
-// PAYMENTNODE_MERCHANT_SECRET this way.
+// exposed client-side (used for browser-side card tokenization, API 1B). Also serves
+// the vault tokenization URL so no environment-specific URL is hardcoded in the frontend.
+// Never expose PAYMENTNODE_MERCHANT_SECRET this way.
 router.get("/checkout/paymentnode-public-key", (_req, res) => {
   const key = process.env.PAYMENTNODE_PUBLIC_KEY;
+  const vaultHost = process.env.PAYMENTNODE_VAULT_HOST ?? "https://vault.paymentnode.io";
   if (!key) { res.status(500).json({ error: "PaymentNode not configured" }); return; }
-  res.json({ publicKey: key });
+  const vaultUrl = `${vaultHost}/payments/integration-api/payment-methods/tokenize`;
+  res.json({ publicKey: key, vaultUrl });
 });
 
 // POST /checkout/request-otp — send 6-digit verification code to email

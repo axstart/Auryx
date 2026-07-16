@@ -7,31 +7,35 @@ import { Link, useLocation } from "wouter";
 
 // ── PaymentNode client-side tokenization (API 1B) ───────────────────────────
 // Card data is tokenized directly in the browser against PaymentNode's vault
-// (vault.sandbox.paymentnode.io) and never touches our backend. Stripe has been
-// retired from this checkout page per compliance decision.
+// (URL served dynamically from /api/checkout/paymentnode-public-key) and never
+// touches our backend. Stripe has been retired from this checkout page per compliance decision.
 
-let _paymentNodePublicKeyPromise: Promise<string> | null = null;
+interface PaymentNodeConfig {
+  publicKey: string;
+  vaultUrl: string;
+}
 
-function getPaymentNodePublicKey(): Promise<string> {
-  if (!_paymentNodePublicKeyPromise) {
-    _paymentNodePublicKeyPromise = fetch("/api/checkout/paymentnode-public-key")
+let _paymentNodeConfigPromise: Promise<PaymentNodeConfig> | null = null;
+
+function getPaymentNodeConfig(): Promise<PaymentNodeConfig> {
+  if (!_paymentNodeConfigPromise) {
+    _paymentNodeConfigPromise = fetch("/api/checkout/paymentnode-public-key")
       .then(r => {
-        if (!r.ok) throw new Error("Failed to load PaymentNode public key");
+        if (!r.ok) throw new Error("Failed to load PaymentNode configuration");
         return r.json();
       })
-      .then(({ publicKey }: { publicKey: string }) => {
+      .then(({ publicKey, vaultUrl }: { publicKey: string; vaultUrl: string }) => {
         if (!publicKey) throw new Error("Invalid PaymentNode public key");
-        return publicKey;
+        if (!vaultUrl) throw new Error("Invalid PaymentNode vault URL");
+        return { publicKey, vaultUrl };
       })
       .catch(err => {
-        _paymentNodePublicKeyPromise = null;
+        _paymentNodeConfigPromise = null;
         throw err;
       });
   }
-  return _paymentNodePublicKeyPromise;
+  return _paymentNodeConfigPromise;
 }
-
-const PAYMENTNODE_VAULT_URL = "https://vault.sandbox.paymentnode.io/payments/integration-api/payment-methods/tokenize";
 
 interface PaymentNodeTokenizeParams {
   publicKey: string;
@@ -62,10 +66,10 @@ class PaymentNodeTokenizeError extends Error {
   }
 }
 
-async function tokenizeCardClientSide(params: PaymentNodeTokenizeParams): Promise<string> {
-  const { publicKey, name, email, phone, address, number, cvd, expiry_date, type } = params;
+async function tokenizeCardClientSide(params: PaymentNodeTokenizeParams & { vaultUrl: string }): Promise<string> {
+  const { publicKey, vaultUrl, name, email, phone, address, number, cvd, expiry_date, type } = params;
 
-  const res = await fetch(PAYMENTNODE_VAULT_URL, {
+  const res = await fetch(vaultUrl, {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
@@ -197,12 +201,13 @@ function PaymentNodePayment({ form, totalCents, onSuccess }: CheckoutPaymentProp
       : billing;
 
     try {
-      const publicKey = await getPaymentNodePublicKey();
+      const { publicKey, vaultUrl } = await getPaymentNodeConfig();
 
       // Raw card data goes straight from the browser to PaymentNode's vault —
       // it never touches our own backend.
       const paymentMethodId = await tokenizeCardClientSide({
         publicKey,
+        vaultUrl,
         name: form.customerName,
         email: form.email,
         phone: form.phone,
