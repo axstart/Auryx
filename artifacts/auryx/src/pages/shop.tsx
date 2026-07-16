@@ -54,6 +54,7 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "klow-complex": "/products/klow-complex.png",
   "aod-9604": "/products/aod-9604.png",
   "reconstitution-kit": "/products/reconstitution-kit.png",
+  "tirzepatide-b12-glycine": "/products/tirzepatide-b12-glycine.png",
 };
 
 /* ── Categories & config ────────────────────────────────────────────── */

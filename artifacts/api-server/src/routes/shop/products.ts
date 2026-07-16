@@ -59,6 +59,27 @@ export const PRODUCTS: Product[] = [
     ],
   },
   {
+    slug: "tirzepatide-b12-glycine",
+    name: "Tirzepatide + B12 + Glycine",
+    category: "GLP-1 & Metabolic",
+    regulatoryStatus: "research",
+    shortDescription: "Triple-action metabolic protocol combining dual-receptor agonism with mitochondrial energy support and glycemic buffering.",
+    fullDescription:
+      "This proprietary Auryx formulation combines Tirzepatide's dual GLP-1/GIP receptor agonism with Methylcobalamin B12 and Glycine to create a comprehensive metabolic optimization protocol. Tirzepatide drives fat reduction and glycemic control through dual-receptor activation. Methylcobalamin B12 supports mitochondrial energy metabolism, neurological function, and methylation pathways critical for metabolic health. Glycine acts as a glucagon-buffering agent, supports collagen synthesis, and enhances insulin sensitivity through AMPK modulation. Together, these three compounds address metabolic dysfunction from multiple angles — appetite regulation, energy production, insulin signaling, and tissue repair — making this combination ideal for patients seeking maximal metabolic transformation.",
+    benefits: [
+      "Dual GLP-1/GIP receptor activation for superior fat reduction and glycemic control",
+      "Methylcobalamin B12 for mitochondrial energy metabolism and neurological support",
+      "Glycine for insulin sensitivity enhancement and glucagon buffering",
+      "Triple-mechanism approach addressing metabolic dysfunction from multiple pathways",
+    ],
+    dosingInfo:
+      "Weekly subcutaneous injection of Tirzepatide 2.5–15 mg titrated over 12–20 weeks, co-formulated with Methylcobalamin B12 (1 mg) and Glycine (100 mg) per dose. Protocol duration: 16–32 weeks. All dosing supervised by Auryx physicians. Baseline metabolic panel and B12 levels recommended prior to initiation.",
+    physicianNote:
+      "The addition of B12 and Glycine to Tirzepatide addresses two common gaps in GLP-1 therapy: energy depletion and muscle preservation. B12 supports the mitochondrial energy demands of rapid metabolic change, while Glycine provides glucagon buffering that stabilizes blood sugar during fasting windows. We recommend this formulation for patients with documented B12 deficiency, those experiencing fatigue on standard GLP-1 protocols, or anyone seeking maximal metabolic optimization beyond single-mechanism approaches.",
+    requiresConsultation: true,
+    priceCents: 24900,
+  },
+  {
     slug: "semaglutide",
     name: "Semaglutide",
     category: "GLP-1 & Metabolic",
