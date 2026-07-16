@@ -28,6 +28,22 @@ export async function verifyMailer(): Promise<void> {
   }
 }
 
+const TEST_DOMAINS = new Set([
+  "example.com",
+  "test.com",
+  "fake.com",
+  "mock.com",
+  "mailinator.com",
+  "localhost",
+]);
+
+function isTestEmail(email: string): boolean {
+  const domain = email.split("@").pop()?.toLowerCase() ?? "";
+  if (TEST_DOMAINS.has(domain)) return true;
+  if (domain.endsWith(".test") || domain.endsWith(".local")) return true;
+  return false;
+}
+
 export async function sendMail(opts: {
   to?: string;
   subject: string;
@@ -40,6 +56,11 @@ export async function sendMail(opts: {
 
   if (!to || !from || !process.env.ZOHO_PASSWORD) {
     console.warn("[mailer] sendMail skipped — missing env vars");
+    return;
+  }
+
+  if (isTestEmail(to)) {
+    console.info(`[mailer] skipped email to test address: ${to}`);
     return;
   }
 

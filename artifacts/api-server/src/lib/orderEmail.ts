@@ -126,7 +126,7 @@ export function sendOrderApprovedEmail(order: OrderEmailData): void {
 
   sendMail({
     to: order.email,
-    subject: `Your Auryx order has been approved — Order #${order.id}`,
+    subject: `Order #${order.id} approved - Auryx`,
     html,
     text,
   }).catch(() => {});
@@ -175,7 +175,7 @@ export function sendOrderCancelledEmail(data: CancelEmailData): void {
 
   sendMail({
     to: data.email,
-    subject: `Update on your Auryx order — Order #${data.id}`,
+    subject: `Order #${data.id} cancelled - Auryx`,
     html,
     text: textLines.join("\n"),
   }).catch(() => {});
@@ -188,7 +188,7 @@ export function sendOrderStatusEmail(order: OrderEmailData): void {
 
   const templates: Partial<Record<OrderStatus, { subject: string; html: string; text: string }>> = {
     approved: {
-      subject: `Order #${order.id} Approved — Auryx`,
+      subject: `Order #${order.id} approved - Auryx`,
       html: buildHtml([
         h(`Your order has been approved.`),
         orderMeta(order.id, items),
@@ -206,7 +206,7 @@ export function sendOrderStatusEmail(order: OrderEmailData): void {
       ].join("\n"),
     },
     sent_to_pharmacy: {
-      subject: `Order #${order.id} — Sent to Pharmacy`,
+      subject: `Order #${order.id} sent to pharmacy - Auryx`,
       html: buildHtml([
         h(`Your order is at the pharmacy.`),
         orderMeta(order.id, items),
@@ -224,7 +224,7 @@ export function sendOrderStatusEmail(order: OrderEmailData): void {
       ].join("\n"),
     },
     shipped: {
-      subject: `Order #${order.id} Has Shipped — Auryx`,
+      subject: `Order #${order.id} shipped - Auryx`,
       html: buildHtml([
         h(`Your order is on its way.`),
         orderMeta(order.id, items),
@@ -243,7 +243,7 @@ export function sendOrderStatusEmail(order: OrderEmailData): void {
       ].join("\n"),
     },
     delivered: {
-      subject: `Order #${order.id} Delivered — Welcome to Your Protocol`,
+      subject: `Order #${order.id} delivered - Auryx`,
       html: buildHtml([
         h(`Your order has arrived.`),
         orderMeta(order.id, items),
