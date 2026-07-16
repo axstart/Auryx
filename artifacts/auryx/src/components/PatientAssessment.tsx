@@ -640,16 +640,28 @@ function AIResultScreen({
     staleTime: 5 * 60 * 1000,
   });
 
+  function protocolSearchScore(item: ProtocolRecommendation["protocols"][number], q: string): number {
+    const query = q.toLowerCase();
+    const name = item.protocol.toLowerCase();
+    if (name === query) return 100;
+    if (name.startsWith(query)) return 50;
+    if (name.includes(query)) return 10;
+    if (item.tagline.toLowerCase().includes(query)) return 2;
+    if (item.why.toLowerCase().includes(query)) return 1;
+    if (item.peptides.some(p => p.toLowerCase().includes(query))) return 1;
+    return 0;
+  }
+
   const filteredProtocols = searchQuery.trim()
-    ? result.protocols.filter(item => {
-        const q = searchQuery.toLowerCase();
-        return (
-          item.protocol.toLowerCase().includes(q) ||
-          item.tagline.toLowerCase().includes(q) ||
-          item.why.toLowerCase().includes(q) ||
-          item.peptides.some(p => p.toLowerCase().includes(q))
-        );
-      })
+    ? (() => {
+        const q = searchQuery.trim();
+        const scored = result.protocols.map(item => ({ item, score: protocolSearchScore(item, q) })).filter(s => s.score > 0);
+        const nameMatches = scored.filter(s => s.score >= 10);
+        if (nameMatches.length >= 3) {
+          return nameMatches.map(s => s.item);
+        }
+        return scored.map(s => s.item);
+      })()
     : result.protocols;
 
   function handleAdd(product: ProductSummary) {

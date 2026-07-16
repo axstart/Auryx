@@ -363,16 +363,38 @@ export default function ShopPage() {
     refetchInterval: 60_000,
   });
 
+  /* ── Search scoring ── */
+  function searchScore(p: ProductSummary, q: string): number {
+    const name = p.name.toLowerCase();
+    const desc = p.shortDescription.toLowerCase();
+    const query = q.toLowerCase();
+    if (name === query) return 100;
+    if (name.startsWith(query)) return 50;
+    if (name.includes(query)) return 10;
+    if (desc.includes(query)) return 1;
+    return 0;
+  }
+
   /* ── Filter + sort ── */
-  const filtered = products
-    .filter(p => activeCategory === "All" || p.category === activeCategory)
-    .filter(p => {
-      if (!searchQuery.trim()) return true;
-      const q = searchQuery.toLowerCase();
-      return p.name.toLowerCase().includes(q) || p.shortDescription.toLowerCase().includes(q);
-    });
+  const categoryFiltered = products.filter(p => activeCategory === "All" || p.category === activeCategory);
+
+  const filtered = searchQuery.trim()
+    ? (() => {
+        const q = searchQuery.trim();
+        const scored = categoryFiltered.map(p => ({ product: p, score: searchScore(p, q) })).filter(s => s.score > 0);
+        const nameMatches = scored.filter(s => s.score >= 10);
+        if (nameMatches.length >= 3) {
+          return nameMatches.map(s => s.product);
+        }
+        return scored.map(s => s.product);
+      })()
+    : categoryFiltered;
 
   const sorted = [...filtered].sort((a, b) => {
+    if (searchQuery.trim()) {
+      const diff = searchScore(b, searchQuery.trim()) - searchScore(a, searchQuery.trim());
+      if (diff !== 0) return diff;
+    }
     if (sortBy === "price-asc")  return a.priceCents - b.priceCents;
     if (sortBy === "price-desc") return b.priceCents - a.priceCents;
     if (sortBy === "az")         return a.name.localeCompare(b.name);
