@@ -735,6 +735,20 @@ export const PRODUCTS: Product[] = [
       { label: "GHK-Cu/KPV/BPC-157/TB-500", accession: "2602240140", lab: "Freedom Diagnostics Testing", url: "/coa/klow-complex.pdf" },
     ],
   },
+
+  // ── Temporary smoke-test product — remove after production test confirmed ──
+  {
+    slug: "test-charge",
+    name: "TEST",
+    category: "Research Peptides",
+    regulatoryStatus: "research",
+    shortDescription: "Temporary $1.00 product for production smoke testing. Do not purchase.",
+    fullDescription: "Temporary product used for production payment smoke testing. This product will be removed once the test charge is confirmed.",
+    benefits: [],
+    dosingInfo: "N/A",
+    requiresConsultation: false,
+    priceCents: 100,
+  },
 ];
 
 export const getProductBySlug = (slug: string): Product | undefined =>
