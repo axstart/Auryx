@@ -1,12 +1,11 @@
 import { Router } from "express";
-import Anthropic from "@anthropic-ai/sdk";
+import { openai } from "@workspace/integrations-openai-ai-server";
 import { db } from "@workspace/db";
 import { chatEscalationsTable, ariaAnalyticsTable } from "@workspace/db/schema";
 import { sessionAuth } from "../../middlewares/sessionAuth.js";
 import { getAriaInstructions } from "./instructionsCache.js";
 import { detectIntent, detectPeptide } from "../analytics/index.js";
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const router = Router();
 
 const BUSINESS_START = 8;   // 8 AM Eastern
@@ -150,19 +149,20 @@ router.post("/chat/message", async (req, res) => {
   try {
     const systemPrompt = await buildSystemPrompt(userInfo?.name);
 
-    const stream = anthropic.messages.stream({
-      model: "claude-haiku-4-5-20251001",
+    const stream = await openai.chat.completions.create({
+      model: "gpt-4o-mini",
       max_tokens: 8192,
-      system: systemPrompt,
-      messages: messages.map(m => ({ role: m.role, content: m.content })),
+      messages: [
+        { role: "system", content: systemPrompt },
+        ...messages.map(m => ({ role: m.role, content: m.content })),
+      ],
+      stream: true,
     });
 
-    for await (const event of stream) {
-      if (
-        event.type === "content_block_delta" &&
-        event.delta.type === "text_delta"
-      ) {
-        res.write(`data: ${JSON.stringify({ content: event.delta.text })}\n\n`);
+    for await (const chunk of stream) {
+      const delta = chunk.choices[0]?.delta?.content;
+      if (delta) {
+        res.write(`data: ${JSON.stringify({ content: delta })}\n\n`);
       }
     }
 

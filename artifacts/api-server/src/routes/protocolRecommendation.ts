@@ -1,8 +1,7 @@
 import { Router } from "express";
-import Anthropic from "@anthropic-ai/sdk";
+import { openai } from "@workspace/integrations-openai-ai-server";
 import { z } from "zod/v4";
 
-const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
 const router = Router();
 
 const InputSchema = z.object({
@@ -67,10 +66,13 @@ router.post("/protocol-recommendation", async (req, res) => {
     .filter(Boolean)
     .join("\n");
 
-  const message = await anthropic.messages.create({
-    model: "claude-haiku-4-5-20251001",
+  const completion = await openai.chat.completions.create({
+    model: "gpt-4o-mini",
     max_tokens: 1200,
-    system: `You are Aria, the AURYX protocol recommendation AI. AURYX is a luxury precision peptide therapy practice.
+    messages: [
+      {
+        role: "system",
+        content: `You are Aria, the AURYX protocol recommendation AI. AURYX is a luxury precision peptide therapy practice.
 
 ${AURYX_PROTOCOLS}
 
@@ -90,7 +92,7 @@ Respond ONLY with a valid JSON object, no markdown, no preamble:
   "nextStep": "One clear action sentence. If they selected consultation, direct them there. Otherwise, guide them to explore the protocols or speak with the team.",
   "disclaimer": "This recommendation is for educational guidance only and does not constitute medical advice. Consult a licensed healthcare provider before beginning any protocol."
 }`,
-    messages: [
+      },
       {
         role: "user",
         content: `Recommend an AURYX protocol for this person:\n\n${userContext}`,
@@ -98,19 +100,15 @@ Respond ONLY with a valid JSON object, no markdown, no preamble:
     ],
   });
 
-  const content = message.content[0];
-  if (content.type !== "text") {
-    res.status(500).json({ error: "Unexpected AI response format" });
-    return;
-  }
+  const text = completion.choices[0]?.message?.content ?? "";
 
   try {
-    const jsonMatch = content.text.match(/\{[\s\S]*\}/);
+    const jsonMatch = text.match(/\{[\s\S]*\}/);
     if (!jsonMatch) throw new Error("No JSON object in response");
     const recommendation = JSON.parse(jsonMatch[0]);
     res.json(recommendation);
   } catch {
-    req.log.error({ text: content.text }, "Failed to parse AI protocol recommendation");
+    req.log.error({ text }, "Failed to parse AI protocol recommendation");
     res.status(500).json({ error: "Failed to parse AI response" });
   }
 });

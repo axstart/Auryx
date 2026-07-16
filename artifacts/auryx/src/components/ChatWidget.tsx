@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { ConsultationModal } from "./ConsultationModal";
 
 interface Message {
   role: "user" | "assistant";
@@ -97,6 +98,7 @@ export default function ChatWidget() {
   const [escLoading, setEscLoading]         = useState(false);
   const [showSuggested, setShowSuggested]   = useState(true);
   const [labelVisible, setLabelVisible]     = useState(true);
+  const [consultOpen, setConsultOpen]       = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLInputElement>(null);
@@ -404,7 +406,7 @@ export default function ChatWidget() {
                 <button
                   onClick={() => {
                     setOpen(false);
-                    window.dispatchEvent(new CustomEvent("auryx:open-consultation"));
+                    setConsultOpen(true);
                   }}
                   className="w-full flex items-center justify-center gap-2 text-primary text-xs font-medium py-1.5 hover:opacity-80 transition-opacity"
                 >
@@ -458,6 +460,7 @@ export default function ChatWidget() {
           )}
         </div>
       )}
+      <ConsultationModal open={consultOpen} onOpenChange={setConsultOpen} />
     </>
   );
 }
