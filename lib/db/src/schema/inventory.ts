@@ -13,6 +13,7 @@ export const inventoryItemsTable = pgTable("inventory_items", {
   costPerUnit: integer("cost_per_unit").notNull().default(0),
   sellPriceCents: integer("sell_price_cents").notNull().default(0),
   notes: text("notes"),
+  variantLabel: text("variant_label"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow().$onUpdate(() => new Date()),
 });
 

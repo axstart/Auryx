@@ -18,6 +18,8 @@ export interface InventoryItem {
   /** Sell price per unit in cents (e.g. 32900 = $329.00) */
   sellPriceCents: number;
   /** @nullable */
+  variantLabel?: string | null;
+  /** @nullable */
   notes?: string | null;
   updatedAt: Date;
 }

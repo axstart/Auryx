@@ -17,7 +17,7 @@ router.get("/inventory", sessionAuth, async (req, res): Promise<void> => {
   const records = await db
     .select()
     .from(inventoryItemsTable)
-    .orderBy(inventoryItemsTable.name);
+    .orderBy(inventoryItemsTable.name, inventoryItemsTable.variantLabel);
   res.json(ListInventoryResponse.parse(records));
 });
 

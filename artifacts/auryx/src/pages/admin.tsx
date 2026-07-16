@@ -34,6 +34,7 @@ interface InventoryItem {
   costPerUnit: number;
   sellPriceCents: number;
   notes?: string;
+  variantLabel?: string;
 }
 
 interface Consultation {
@@ -823,7 +824,7 @@ function InventoryTab() {
   const [saving, setSaving] = useState(false);
 
   function startNew() {
-    setForm({ name: "", category: "", stock: 0, unit: "vials", lowStockThreshold: 5, costPerUnit: 0, sellPriceCents: 0 });
+    setForm({ name: "", variantLabel: "", category: "", stock: 0, unit: "vials", lowStockThreshold: 5, costPerUnit: 0, sellPriceCents: 0 });
     setEditingId("new");
   }
 
@@ -867,6 +868,7 @@ function InventoryTab() {
 
   const fields: { label: string; key: keyof InventoryItem; type: string; hint?: string }[] = [
     { label: "Name", key: "name", type: "text" },
+    { label: "Variant Label", key: "variantLabel", type: "text" },
     { label: "Category", key: "category", type: "text" },
     { label: "Stock", key: "stock", type: "number" },
     { label: "Unit", key: "unit", type: "text" },
@@ -960,6 +962,7 @@ function InventoryTab() {
             <thead>
               <tr className="text-left text-white/30 text-xs tracking-widest uppercase border-b border-white/8">
                 <th className="pb-3 pr-4 font-normal">Item</th>
+                <th className="pb-3 pr-4 font-normal">Variant</th>
                 <th className="pb-3 pr-4 font-normal">Category</th>
                 <th className="pb-3 pr-4 font-normal">Status</th>
                 <th className="pb-3 pr-4 text-right font-normal">Stock</th>
@@ -980,6 +983,7 @@ function InventoryTab() {
                 return (
                   <tr key={item.id}>
                     <td className="py-3 pr-4 text-white/80">{item.name}</td>
+                    <td className="py-3 pr-4 text-white/40">{item.variantLabel ?? <span className="text-white/15">—</span>}</td>
                     <td className="py-3 pr-4 text-white/40">{item.category}</td>
                     <td className="py-3 pr-4">
                       {outOfStock

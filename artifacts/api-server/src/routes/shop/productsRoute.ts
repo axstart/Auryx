@@ -24,16 +24,24 @@ router.get("/products/:slug", (req, res) => {
   res.json(product);
 });
 
-// Public endpoint — returns slug→stock mapping for all tracked inventory items
+// Public endpoint — returns slug→stock mapping for all tracked inventory items.
+// For variant items (variantLabel set), key is "slug:variantLabel".
 router.get("/stock", async (_req, res): Promise<void> => {
   const items = await db
-    .select({ slug: inventoryItemsTable.slug, stock: inventoryItemsTable.stock })
+    .select({
+      slug: inventoryItemsTable.slug,
+      variantLabel: inventoryItemsTable.variantLabel,
+      stock: inventoryItemsTable.stock,
+    })
     .from(inventoryItemsTable)
     .where(isNotNull(inventoryItemsTable.slug));
 
   const stockMap: Record<string, number> = {};
   for (const item of items) {
-    if (item.slug !== null) stockMap[item.slug] = item.stock;
+    if (item.slug !== null) {
+      const key = item.variantLabel ? `${item.slug}:${item.variantLabel}` : item.slug;
+      stockMap[key] = item.stock;
+    }
   }
   res.json(stockMap);
 });

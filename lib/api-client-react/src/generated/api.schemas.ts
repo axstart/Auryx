@@ -83,6 +83,8 @@ export interface InventoryItem {
   /** Sell price per unit in cents (e.g. 32900 = $329.00) */
   sellPriceCents: number;
   /** @nullable */
+  variantLabel?: string | null;
+  /** @nullable */
   notes?: string | null;
   updatedAt: string;
 }
@@ -109,6 +111,7 @@ export interface InventoryItemInput {
    */
   sellPriceCents?: number;
   notes?: string;
+  variantLabel?: string;
 }
 
 export interface InventoryItemUpdate {
@@ -131,6 +134,7 @@ export interface InventoryItemUpdate {
    */
   sellPriceCents?: number;
   notes?: string;
+  variantLabel?: string;
 }
 
 export interface ChatEscalateInput {

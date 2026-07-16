@@ -28,4 +28,5 @@ export interface InventoryItemInput {
    */
   sellPriceCents?: number;
   notes?: string;
+  variantLabel?: string;
 }

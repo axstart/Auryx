@@ -26,4 +26,5 @@ export interface InventoryItemUpdate {
    */
   sellPriceCents?: number;
   notes?: string;
+  variantLabel?: string;
 }

@@ -198,12 +198,13 @@ function CardVial() {
 
 /* ── Product card ───────────────────────────────────────────────────── */
 function ProductCard({
-  product, index, featured = false, outOfStock = false,
+  product, index, featured = false, outOfStock = false, stockMap = {},
 }: {
   product: ProductSummary;
   index: number;
   featured?: boolean;
   outOfStock?: boolean;
+  stockMap?: Record<string, number>;
 }) {
   const { addToCart } = useCart();
   const [adding, setAdding] = useState(false);
@@ -302,17 +303,26 @@ function ProductCard({
               Out of Stock
             </span>
           ) : product.variants && product.variants.length > 1 ? (
-            <Link
-              href={`/shop/${product.slug}`}
-              className={`h-8 px-3 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center gap-1.5 transition-all duration-200 whitespace-nowrap ${
-                adding
-                  ? "bg-[#B8962E] text-white"
-                  : "bg-[#0A0A0A] text-white hover:bg-[#1a1a1a] hover:ring-1 hover:ring-[#C9A844]/40"
-              }`}
-            >
-              <ChevronRight className="w-3 h-3" />
-              Select Dose
-            </Link>
+            <>
+              {/* Check if any variant is in stock */}
+              {product.variants.some(v => (stockMap[`${product.slug}:${v.label}`] ?? 1) > 0) ? (
+                <Link
+                  href={`/shop/${product.slug}`}
+                  className={`h-8 px-3 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center gap-1.5 transition-all duration-200 whitespace-nowrap ${
+                    adding
+                      ? "bg-[#B8962E] text-white"
+                      : "bg-[#0A0A0A] text-white hover:bg-[#1a1a1a] hover:ring-1 hover:ring-[#C9A844]/40"
+                  }`}
+                >
+                  <ChevronRight className="w-3 h-3" />
+                  Select Dose
+                </Link>
+              ) : (
+                <span className="h-8 px-4 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center bg-[#0A0A0A]/8 text-[#0A0A0A]/35 border border-[#0A0A0A]/10 cursor-not-allowed whitespace-nowrap select-none">
+                  Out of Stock
+                </span>
+              )}
+            </>
           ) : (
             <>
               <Link
@@ -575,7 +585,7 @@ export default function ShopPage() {
 
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
               {featured.map((p, i) => (
-                <ProductCard key={p.slug} product={p} index={i} featured outOfStock={(stockMap[p.slug] ?? -1) === 0} />
+                <ProductCard key={p.slug} product={p} index={i} featured stockMap={stockMap} outOfStock={(stockMap[p.slug] ?? -1) === 0} />
               ))}
             </div>
           </div>
@@ -712,7 +722,7 @@ export default function ShopPage() {
                   className="grid grid-cols-1 lg:grid-cols-2 gap-5"
                 >
                   {sorted.map((product, i) => (
-                    <ProductCard key={product.slug} product={product} index={i} outOfStock={(stockMap[product.slug] ?? -1) === 0} />
+                    <ProductCard key={product.slug} product={product} index={i} stockMap={stockMap} outOfStock={(stockMap[product.slug] ?? -1) === 0} />
                   ))}
                 </motion.div>
               </AnimatePresence>

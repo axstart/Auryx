@@ -350,6 +350,8 @@ components:
         sellPriceCents:
           type: integer
           description: Sell price per unit in cents (e.g. 32900 = $329.00)
+        variantLabel:
+          type: ["string", "null"]
         notes:
           type: ["string", "null"]
         updatedAt:
@@ -387,6 +389,8 @@ components:
           description: Sell price per unit in cents
         notes:
           type: string
+        variantLabel:
+          type: string
 
     InventoryItemUpdate:
       type: object
@@ -413,6 +417,8 @@ components:
           minimum: 0
           description: Sell price per unit in cents
         notes:
+          type: string
+        variantLabel:
           type: string
 
     ChatEscalateInput:

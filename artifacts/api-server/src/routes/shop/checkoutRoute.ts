@@ -439,16 +439,28 @@ router.post("/checkout/complete", async (req, res) => {
 
   req.log.info({ id: order.id, email }, "Order created");
 
-  // Deduct inventory stock for each ordered product (atomic, non-blocking)
-  const stockBySlug = new Map<string, number>();
+  // Deduct inventory stock for each ordered product/variant combo (atomic, non-blocking)
+  const stockKey = (slug: string, variantLabel?: string) =>
+    variantLabel ? `${slug}:${variantLabel}` : slug;
+  const stockByKey = new Map<string, { slug: string; variantLabel?: string; qty: number }>();
   for (const item of lineItems) {
-    stockBySlug.set(item.slug, (stockBySlug.get(item.slug) ?? 0) + item.quantity);
+    const key = stockKey(item.slug, item.variantLabel);
+    const existing = stockByKey.get(key);
+    if (existing) {
+      existing.qty += item.quantity;
+    } else {
+      stockByKey.set(key, { slug: item.slug, variantLabel: item.variantLabel, qty: item.quantity });
+    }
   }
-  for (const [slug, qty] of stockBySlug) {
+  for (const { slug, variantLabel, qty } of stockByKey.values()) {
     await db
       .update(inventoryItemsTable)
       .set({ stock: sql`GREATEST(0, ${inventoryItemsTable.stock} - ${qty})` })
-      .where(eq(inventoryItemsTable.slug, slug));
+      .where(
+        variantLabel
+          ? and(eq(inventoryItemsTable.slug, slug), eq(inventoryItemsTable.variantLabel, variantLabel))
+          : and(eq(inventoryItemsTable.slug, slug), isNull(inventoryItemsTable.variantLabel))
+      );
   }
 
   const itemsList = lineItems.map(i => {

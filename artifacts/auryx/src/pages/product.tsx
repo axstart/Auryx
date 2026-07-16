@@ -137,8 +137,6 @@ export default function ProductPage() {
     refetchInterval: 60_000,
   });
 
-  const outOfStock = slug in stockMap && stockMap[slug] === 0;
-
   useEffect(() => {
     setSelectedVariantIdx(0);
   }, [slug]);
@@ -155,6 +153,12 @@ export default function ProductPage() {
   const selectedVariant = hasVariants ? product!.variants![selectedVariantIdx] : null;
   const displayPriceCents = selectedVariant ? selectedVariant.priceCents : (product?.priceCents ?? 0);
   const variantLabel = selectedVariant?.label;
+
+  // Per-variant stock lookup (must be after variantLabel is declared)
+  const variantStock = (vLabel: string) => stockMap[`${slug}:${vLabel}`];
+  const selectedVariantKey = variantLabel ? `${slug}:${variantLabel}` : slug;
+  const selectedStock = selectedVariantKey in stockMap ? stockMap[selectedVariantKey] : undefined;
+  const selectedOutOfStock = selectedStock === 0;
 
   const handleAddToCart = () => {
     if (!product) return;
@@ -320,14 +324,20 @@ export default function ProductPage() {
                         <button
                           key={v.label}
                           onClick={() => setSelectedVariantIdx(i)}
+                          disabled={variantStock(v.label) === 0}
                           className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all duration-150 ${
                             selectedVariantIdx === i
                               ? "bg-[#0A0A0A] text-white border-[#0A0A0A] shadow-sm"
-                              : "bg-white text-[#0A0A0A]/70 border-[#D8D4CC] hover:border-[#B8962E]/60 hover:text-[#B8962E]"
+                              : variantStock(v.label) === 0
+                                ? "bg-white/50 text-[#0A0A0A]/25 border-[#D8D4CC]/50 cursor-not-allowed"
+                                : "bg-white text-[#0A0A0A]/70 border-[#D8D4CC] hover:border-[#B8962E]/60 hover:text-[#B8962E]"
                           }`}
                         >
                           {v.label}
-                          {v.priceCents !== product.variants![0].priceCents && (
+                          {variantStock(v.label) === 0 && (
+                            <span className="ml-1.5 text-[10px] text-red-400/70">Out of Stock</span>
+                          )}
+                          {v.priceCents !== product.variants![0].priceCents && variantStock(v.label) !== 0 && (
                             <span className={`ml-1.5 text-[11px] ${selectedVariantIdx === i ? "text-white/60" : "text-[#0A0A0A]/40"}`}>
                               ${(v.priceCents / 100).toFixed(0)}
                             </span>
@@ -381,7 +391,7 @@ export default function ProductPage() {
                   </div>
                 </div>
 
-                {outOfStock ? (
+                {selectedOutOfStock ? (
                   <div className="w-full py-3.5 rounded-xl bg-[#0A0A0A]/6 border border-[#E8E8E4] flex items-center justify-center gap-2">
                     <span className="text-sm text-[#0A0A0A]/35 font-medium tracking-widest uppercase">Out of Stock</span>
                   </div>
