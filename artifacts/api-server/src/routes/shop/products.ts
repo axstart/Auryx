@@ -757,6 +757,19 @@ export const PRODUCTS: Product[] = [
     priceCents: 3500,
   },
 
+  // ── Admin test product — hidden from shop listing, accessible at /shop/test ──
+  {
+    slug: "test-charge",
+    name: "TEST",
+    category: "Research Peptides",
+    regulatoryStatus: "standard",
+    shortDescription: "Internal admin test product for payment smoke testing.",
+    fullDescription: "Internal test product for payment flow validation. Not visible in the shop catalog.",
+    benefits: [],
+    dosingInfo: "N/A",
+    requiresConsultation: false,
+    priceCents: 100,
+  },
 ];
 
 export const getProductBySlug = (slug: string): Product | undefined =>
