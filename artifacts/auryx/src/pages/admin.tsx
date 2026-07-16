@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useLocation } from "wouter";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { motion, AnimatePresence } from "framer-motion";
+import { useToast } from "@/hooks/use-toast";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -397,6 +398,16 @@ function OrdersTab() {
   } | null>(null);
   const [consultationForms, setConsultationForms] = useState<Record<number, ConsultationForm>>({});
   const [loadingForm, setLoadingForm] = useState<number | null>(null);
+  const [emailDialog, setEmailDialog] = useState<{
+    open: boolean;
+    orderId: number;
+    email: string;
+    customerName: string;
+    subject: string;
+    message: string;
+  } | null>(null);
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const { toast } = useToast();
 
   async function updateOrder(id: number, body: object) {
     setSaving(id);
@@ -495,6 +506,71 @@ function OrdersTab() {
                 }`}
               >
                 {saving === confirmDialog.orderId ? "Processing…" : confirmDialog.action === "approve" ? "Approve & Charge" : "Cancel Order"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Email Compose Dialog */}
+      {emailDialog?.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="bg-[#111] border border-white/10 rounded-xl p-6 w-full max-w-lg mx-4">
+            <p className="text-xs tracking-widest uppercase text-white/30 mb-1 font-['DM_Sans']">To</p>
+            <p className="text-sm text-white/80 font-['DM_Sans'] mb-4">{emailDialog.customerName} &lt;{emailDialog.email}&gt;</p>
+
+            <label className="text-xs tracking-widest uppercase text-white/30 mb-1 block font-['DM_Sans']">Subject</label>
+            <input
+              value={emailDialog.subject}
+              onChange={e => setEmailDialog(p => p ? { ...p, subject: e.target.value } : null)}
+              placeholder="e.g. Update on your order"
+              className="w-full bg-white/5 border border-white/10 text-white/80 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40 mb-4"
+            />
+
+            <label className="text-xs tracking-widest uppercase text-white/30 mb-1 block font-['DM_Sans']">Message</label>
+            <textarea
+              value={emailDialog.message}
+              onChange={e => setEmailDialog(p => p ? { ...p, message: e.target.value } : null)}
+              placeholder="Type your message to the customer..."
+              rows={6}
+              className="w-full bg-white/5 border border-white/10 text-white/80 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40 resize-none mb-5"
+            />
+
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => setEmailDialog(null)}
+                disabled={sendingEmail}
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={async () => {
+                  if (!emailDialog.subject.trim() || !emailDialog.message.trim()) return;
+                  setSendingEmail(true);
+                  try {
+                    const res = await apiFetch(`/admin/orders/${emailDialog.orderId}/email`, {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ subject: emailDialog.subject, message: emailDialog.message }),
+                    });
+                    if (res.ok) {
+                      toast({ title: "Email sent", description: `Message sent to ${emailDialog.email}.` });
+                      setEmailDialog(null);
+                    } else {
+                      const body = await res.json().catch(() => ({} as Record<string, unknown>));
+                      toast({ title: "Send failed", description: typeof body.error === "string" ? body.error : "Could not send email.", variant: "destructive" });
+                    }
+                  } catch {
+                    toast({ title: "Send failed", description: "Network error. Please try again.", variant: "destructive" });
+                  } finally {
+                    setSendingEmail(false);
+                  }
+                }}
+                disabled={sendingEmail || !emailDialog.subject.trim() || !emailDialog.message.trim()}
+                className="px-4 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
+              >
+                {sendingEmail ? "Sending…" : "Send"}
               </button>
             </div>
           </div>
@@ -728,10 +804,12 @@ function OrdersTab() {
                                 open: true,
                                 action: "approve",
                                 orderId: order.id,
-                                title: "Approve & Charge Order",
-                                message: `Charge the customer’s card for ${fmt$(order.totalCents)} and approve order #${order.id}?`,
+                                title: order.paynodePaymentId ? "Approve Order" : "Approve & Charge Order",
+                                message: order.paynodePaymentId
+                                  ? `Order #${order.id} has already been charged. Mark it as approved?`
+                                  : `Charge the customer’s card for ${fmt$(order.totalCents)} and approve order #${order.id}?`,
                                 detail: order.paynodePaymentId
-                                  ? "This order was already charged. Are you sure?"
+                                  ? "No additional charge will be processed."
                                   : "This will process the charge via PaymentNode.",
                               })}
                               disabled={saving === order.id}
@@ -752,12 +830,12 @@ function OrdersTab() {
                             </button>
                           )}
 
-                          <a
-                            href={`mailto:${order.email}`}
+                          <button
+                            onClick={() => setEmailDialog({ open: true, orderId: order.id, email: order.email, customerName: order.customerName, subject: "", message: "" })}
                             className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors"
                           >
                             Email Customer
-                          </a>
+                          </button>
 
                           {/* Cancel Order — all non-terminal states */}
                           {!["cancelled", "refunded", "delivered"].includes(order.status) && (
