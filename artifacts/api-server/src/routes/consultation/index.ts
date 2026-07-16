@@ -45,9 +45,13 @@ router.post("/consultation-form", async (req, res): Promise<void> => {
 
   // Save form to DB
   try {
+    const insertData = {
+      ...data,
+      conditions: data.conditions ? JSON.stringify(data.conditions) : undefined,
+    };
     const [formRecord] = await db
       .insert(consultationFormsTable)
-      .values(data)
+      .values(insertData)
       .returning();
 
     // Mark order as form submitted
@@ -131,7 +135,22 @@ router.get("/consultation-form/:orderId", async (req, res): Promise<void> => {
     return;
   }
 
-  res.json(form);
+  // Parse conditions JSON string back to array for the client
+  const parsedForm = {
+    ...form,
+    conditions: (() => {
+      const raw = form.conditions;
+      if (!raw) return null;
+      try {
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : null;
+      } catch {
+        return null;
+      }
+    })(),
+  };
+
+  res.json(parsedForm);
 });
 
 export default router;

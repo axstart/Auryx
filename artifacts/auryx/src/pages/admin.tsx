@@ -775,8 +775,18 @@ function OrdersTab() {
                                 <div>
                                   <span className="text-white/30">Conditions:</span>{" "}
                                   {(() => {
-                                    const conds = consultationForms[order.id]!.conditions;
-                                    if (!conds || !Array.isArray(conds) || conds.length === 0) return "None listed";
+                                    const raw = consultationForms[order.id]!.conditions;
+                                    if (!raw) return "None listed";
+                                    let conds: string[] | null = null;
+                                    if (typeof raw === "string") {
+                                      try {
+                                        const parsed = JSON.parse(raw);
+                                        if (Array.isArray(parsed)) conds = parsed;
+                                      } catch { /* not valid JSON */ }
+                                    } else if (Array.isArray(raw)) {
+                                      conds = raw;
+                                    }
+                                    if (!conds || conds.length === 0) return "None listed";
                                     const labels: Record<string, string> = {
                                       "hormone-sensitive-cancer": "History of hormone-sensitive cancer",
                                       "other-cancer": "History of other cancer",
