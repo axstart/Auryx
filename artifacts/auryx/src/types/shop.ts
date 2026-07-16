@@ -10,7 +10,7 @@ export interface ProductSummary {
   shortDescription: string;
   priceCents: number;
   requiresConsultation: boolean;
-  regulatoryStatus: "prescription" | "research";
+  regulatoryStatus: "prescription" | "research" | "standard";
   variants?: ProductVariant[];
 }
 

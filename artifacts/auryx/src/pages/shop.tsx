@@ -53,6 +53,7 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "glow-complex": "/products/glow-complex.png",
   "klow-complex": "/products/klow-complex.png",
   "aod-9604": "/products/aod-9604.png",
+  "reconstitution-kit": "/products/reconstitution-kit.png",
 };
 
 /* ── Categories & config ────────────────────────────────────────────── */
@@ -65,6 +66,7 @@ const CATEGORIES = [
   "Immune & Cellular Biology",
   "Neuroprotective & CNS",
   "Auryx Signature Complexes",
+  "Accessories",
 ];
 
 const GOAL_CARDS = [
@@ -73,8 +75,9 @@ const GOAL_CARDS = [
   { category: "Recovery & Regeneration",      tagline: "Tissue repair & physical restoration",     Icon: RefreshCw },
   { category: "Sexual Health & Vitality",     tagline: "Drive, vitality & hormonal balance",       Icon: Heart },
   { category: "Immune & Cellular Biology",           tagline: "Cellular health & immune resilience",      Icon: Shield },
-  { category: "Neuroprotective & CNS",  tagline: "Neuroprotection & CNS mechanisms",         Icon: Brain },
-  { category: "Auryx Signature Complexes",    tagline: "Bespoke multi-peptide protocols",          Icon: Sparkles },
+  { category: "Neuroprotective & CNS",       tagline: "Neuroprotection & CNS mechanisms",         Icon: Brain },
+  { category: "Auryx Signature Complexes",   tagline: "Bespoke multi-peptide protocols",          Icon: Sparkles },
+  { category: "Accessories",                  tagline: "Reconstitution kits & supplies",           Icon: ShoppingCart },
 ];
 
 const FEATURED_SLUGS = ["sermorelin", "bpc-157", "nad-plus", "cjc-1295-ipamorelin"];

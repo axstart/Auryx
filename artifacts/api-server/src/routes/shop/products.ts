@@ -22,7 +22,7 @@ export interface Product {
   physicianNote?: string;
   priceCents: number;
   requiresConsultation: boolean;
-  regulatoryStatus: "prescription" | "research";
+  regulatoryStatus: "prescription" | "research" | "standard";
   variants?: ProductVariant[];
   coas?: ProductCOA[];
 }
@@ -734,6 +734,27 @@ export const PRODUCTS: Product[] = [
     coas: [
       { label: "GHK-Cu/KPV/BPC-157/TB-500", accession: "2602240140", lab: "Freedom Diagnostics Testing", url: "/coa/klow-complex.pdf" },
     ],
+  },
+
+  // ── Accessories ───────────────────────────────────────────────────────────
+  {
+    slug: "reconstitution-kit",
+    name: "Reconstitution Kit",
+    category: "Accessories",
+    regulatoryStatus: "standard",
+    shortDescription: "Everything you need to safely reconstitute your peptides.",
+    fullDescription:
+      "Each Auryx Reconstitution Kit includes all essentials for proper peptide preparation: 1x Bacteriostatic Water (30ml), 10x Alcohol Prep Pads, and 10x Insulin Syringes (0.5cc, 31G, 5/16in, individually wrapped). All items are US-sourced, sterile, and individually packaged for safety and convenience.",
+    benefits: [
+      "Bacteriostatic water for safe peptide reconstitution",
+      "Sterile alcohol prep pads for injection site preparation",
+      "Precision insulin syringes (0.5cc, 31G) for accurate dosing",
+      "Individually wrapped for sterility and convenience",
+    ],
+    dosingInfo:
+      "This is a supply kit for peptide reconstitution and administration. Follow your physician's protocol for reconstitution ratios and injection technique.",
+    requiresConsultation: false,
+    priceCents: 3500,
   },
 
   // ── Temporary smoke-test product — remove after production test confirmed ──

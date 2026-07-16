@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ShieldCheck, AlertCircle, Loader2, CheckCircle2, Mail } from "lucide-react";
+import { ArrowLeft, ShieldCheck, AlertCircle, Loader2, CheckCircle2, Mail, Plus } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { Input } from "@/components/ui/input";
 import { Link, useLocation } from "wouter";
@@ -401,7 +401,7 @@ export default function CheckoutPage() {
     const el = document.querySelector('meta[name="description"]');
     if (el) el.setAttribute("content", "Complete your AURYX order. Secure checkout for research-grade peptide compounds.");
   }, []);
-  const { items, totalCents, totalItems } = useCart();
+  const { items, totalCents, totalItems, addToCart } = useCart();
   const [, navigate] = useLocation();
   const [step, setStep] = useState<Step>("details");
   const [form, setForm] = useState<CheckoutForm>({
@@ -897,6 +897,47 @@ export default function CheckoutPage() {
                     </div>
                   ))}
                 </div>
+
+                {/* ── Add-on: Reconstitution Kit ── */}
+                {step === "details" && !items.some(i => i.product.slug === "reconstitution-kit") && items.some(i => i.product.regulatoryStatus !== "standard") && (
+                  <div className="mb-5 bg-[#F9F5EC] border border-[#E8E8E4] rounded-xl p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-white border border-[#E8E8E4] flex items-center justify-center shrink-0 overflow-hidden">
+                        <img
+                          src="/products/reconstitution-kit.png"
+                          alt="Reconstitution Kit"
+                          className="w-10 h-10 object-contain"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-[#0A0A0A] leading-tight">Reconstitution Kit</p>
+                        <p className="text-[11px] text-[#0A0A0A]/50 mt-0.5 leading-relaxed">
+                          Bacteriostatic water, alcohol pads & insulin syringes for safe peptide preparation.
+                        </p>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-sm font-medium text-[#0A0A0A]">$35.00</span>
+                          <button
+                            onClick={() => {
+                              addToCart({
+                                slug: "reconstitution-kit",
+                                name: "Reconstitution Kit",
+                                category: "Accessories",
+                                shortDescription: "Everything you need to safely reconstitute your peptides.",
+                                priceCents: 3500,
+                                requiresConsultation: false,
+                                regulatoryStatus: "standard",
+                              }, 1);
+                            }}
+                            className="inline-flex items-center gap-1.5 text-[11px] font-medium text-[#0A0A0A] bg-white border border-[#0A0A0A]/15 hover:border-[#B8962E] hover:text-[#B8962E] rounded-lg px-3 py-1.5 transition-colors"
+                          >
+                            <Plus className="w-3 h-3" />
+                            Add
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 <div className="border-t border-[#E8E8E4] pt-4 space-y-2.5">
                   <div className="flex justify-between text-sm">
