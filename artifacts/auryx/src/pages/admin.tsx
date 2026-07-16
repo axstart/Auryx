@@ -394,6 +394,7 @@ function OrdersTab() {
     title: string;
     message: string;
     detail?: string;
+    reason?: string;
   } | null>(null);
   const [consultationForms, setConsultationForms] = useState<Record<number, ConsultationForm>>({});
   const [loadingForm, setLoadingForm] = useState<number | null>(null);
@@ -438,10 +439,14 @@ function OrdersTab() {
     }
   }
 
-  async function cancelOrder(id: number) {
+  async function cancelOrder(id: number, reason?: string) {
     setSaving(id);
     try {
-      const res = await apiFetch(`/admin/orders/${id}/cancel`, { method: "POST" });
+      const res = await apiFetch(`/admin/orders/${id}/cancel`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reason: reason?.trim() || undefined }),
+      });
       if (!res.ok) {
         const body = await res.json().catch(() => ({} as Record<string, unknown>));
         alert(typeof body.error === "string" ? body.error : "Cancel failed.");
@@ -484,18 +489,35 @@ function OrdersTab() {
             {confirmDialog.detail && (
               <p className="text-xs text-white/40 font-['DM_Sans'] mb-4">{confirmDialog.detail}</p>
             )}
-            <div className="flex gap-3 justify-end mt-5">
+
+            {/* Cancel reason field */}
+            {confirmDialog.action === "cancel" && (
+              <div className="mt-3 mb-4">
+                <label className="text-[10px] tracking-widest uppercase text-white/30 mb-1.5 block font-['DM_Sans']">
+                  Reason for cancellation (optional — will be included in customer email)
+                </label>
+                <textarea
+                  value={confirmDialog.reason ?? ""}
+                  onChange={e => setConfirmDialog(p => p ? { ...p, reason: e.target.value } : null)}
+                  rows={3}
+                  placeholder="e.g. Out of stock, prescription required, customer request..."
+                  className="w-full bg-white/5 border border-white/10 text-white/70 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40 resize-none"
+                />
+              </div>
+            )}
+
+            <div className="flex gap-3 justify-end">
               <button
                 onClick={() => setConfirmDialog(null)}
                 disabled={saving === confirmDialog.orderId}
                 className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors disabled:opacity-50"
               >
-                Back
+                Keep Order
               </button>
               <button
                 onClick={() => confirmDialog.action === "approve"
                   ? approveOrder(confirmDialog.orderId)
-                  : cancelOrder(confirmDialog.orderId)
+                  : cancelOrder(confirmDialog.orderId, confirmDialog.reason)
                 }
                 disabled={saving === confirmDialog.orderId}
                 className={`px-4 py-2 text-sm rounded font-['DM_Sans'] font-medium transition-colors disabled:opacity-50 ${
@@ -504,7 +526,7 @@ function OrdersTab() {
                     : "bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30"
                 }`}
               >
-                {saving === confirmDialog.orderId ? "Processing…" : confirmDialog.action === "approve" ? "Approve & Charge" : "Cancel Order"}
+                {saving === confirmDialog.orderId ? "Processing…" : confirmDialog.action === "approve" ? "Approve & Charge" : "Confirm Cancellation"}
               </button>
             </div>
           </div>
