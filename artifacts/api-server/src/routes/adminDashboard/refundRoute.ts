@@ -26,10 +26,14 @@ router.post("/admin/refund", requireAdmin, async (req, res) => {
 
   const { payment_id, amount } = parsed.data;
 
+  // PaymentNode expects amounts in major currency units (dollars), not cents.
+  // `amount` arrives in cents (our internal unit) — divide by 100 before sending.
+  const amountDollars = amount / 100;
+
   // Issue the refund via PaymentNode
   let refundResult;
   try {
-    refundResult = await refundPayment(payment_id, amount);
+    refundResult = await refundPayment(payment_id, amountDollars);
   } catch (err: unknown) {
     const e = err as Error & { status?: number; responseBody?: unknown };
     req.log.error({ err: e.message, payment_id }, "paymentnode: refund failed");

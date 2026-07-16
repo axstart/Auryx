@@ -168,11 +168,13 @@ router.post("/checkout/charge", async (req, res) => {
     if (product?.requiresConsultation) requiresConsultation = true;
   }
 
-  // Charge via PaymentNode
+  // Charge via PaymentNode.
+  // PaymentNode expects amounts in major currency units (dollars), not cents.
+  // We store prices in cents internally — divide by 100 before sending.
   let chargeResult;
   try {
     chargeResult = await chargePayment({
-      amount: totalCents,
+      amount: totalCents / 100,
       order_id,
       payment_method_id,
       currency_code: "USD",

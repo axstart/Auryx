@@ -107,7 +107,7 @@ try {
   const chargeResult = await post(
     `${API_HOST}/payments/integration-api/payments`,
     {
-      amount: 100,
+      amount: 1, // PaymentNode expects dollars (major units), not cents
       order_id: TEST_ORDER_ID,
       payment_method_id: paymentMethodId,
       currency_code: "USD",
@@ -139,7 +139,7 @@ sep("STEP 3 — Refund $1.00");
 try {
   const refundResult = await post(
     `${API_HOST}/payments/integration-api/payments/${chargeId}/refund`,
-    { amount: 100 },
+    { amount: 1 }, // PaymentNode expects dollars (major units), not cents
   ) as { _id: string; refunded: boolean };
 
   console.log("✓ Refund complete");
