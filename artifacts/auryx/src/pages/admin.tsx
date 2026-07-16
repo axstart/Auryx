@@ -159,20 +159,25 @@ function useApi<T>(path: string | null) {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(!!path);
   const [error, setError] = useState<string | null>(null);
+  const [status, setStatus] = useState<number | null>(null);
 
   const reload = useCallback(() => {
     if (!path) return;
     setLoading(true);
+    setError(null);
     apiFetch(path)
-      .then(r => r.ok ? r.json() : Promise.reject(r.statusText))
+      .then(r => {
+        setStatus(r.status);
+        return r.ok ? r.json() : Promise.reject(new Error(`${r.status} ${r.statusText}`));
+      })
       .then(setData)
-      .catch(e => setError(String(e)))
+      .catch(e => setError(e instanceof Error ? e.message : String(e)))
       .finally(() => setLoading(false));
   }, [path]);
 
   useEffect(() => { reload(); }, [reload]);
 
-  return { data, loading, error, reload };
+  return { data, loading, error, status, reload };
 }
 
 // ── Small reusable pieces ─────────────────────────────────────────────────────
@@ -242,10 +247,39 @@ function SubTabs<T extends string>({ tabs, active, onChange }: {
 // ── Dashboard ────────────────────────────────────────────────────────────────
 
 function DashboardTab() {
-  const { data, loading } = useApi<DashboardData>("/admin/dashboard");
+  const { logout } = useAdminAuth();
+  const [, navigate] = useLocation();
+  const { data, loading, error, status, reload } = useApi<DashboardData>("/admin/dashboard");
 
   if (loading) return <Spinner />;
-  if (!data) return <EmptyState message="Could not load dashboard." />;
+  if (!data) {
+    const isAuthError = status === 401 || status === 403;
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <p className="text-white/40 font-['DM_Sans'] text-sm">
+          {isAuthError ? "Your session has expired. Please sign in again." : "Could not load dashboard."}
+        </p>
+        {error && !isAuthError && (
+          <p className="text-white/20 font-['DM_Sans'] text-xs">{error}</p>
+        )}
+        {isAuthError ? (
+          <button
+            onClick={() => { logout().then(() => navigate("/admin/login")); }}
+            className="px-4 py-2 bg-[#C9A844] text-black text-xs font-medium rounded font-['DM_Sans'] hover:bg-[#b8973d] transition-colors"
+          >
+            Sign In Again
+          </button>
+        ) : (
+          <button
+            onClick={reload}
+            className="px-4 py-2 border border-white/10 text-white/50 text-xs font-medium rounded font-['DM_Sans'] hover:border-white/20 hover:text-white/70 transition-colors"
+          >
+            Retry
+          </button>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8">
