@@ -220,7 +220,7 @@ function PaymentNodePayment({ form, totalCents, onSuccess }: CheckoutPaymentProp
 
       const orderId = crypto.randomUUID();
 
-      const chargeRes = await fetch("/api/checkout/charge", {
+      const chargeRes = await fetch("/api/checkout/place-order", {
         method: "POST",
         credentials: "include",
         headers: { "Content-Type": "application/json" },

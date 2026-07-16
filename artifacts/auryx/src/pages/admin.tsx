@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
-type OrderStatus = "pending" | "approved" | "sent_to_pharmacy" | "shipped" | "delivered";
+type OrderStatus = "pending" | "approved" | "sent_to_pharmacy" | "shipped" | "delivered" | "cancelled" | "refunded";
 
 interface Order {
   id: number;
@@ -19,6 +19,8 @@ interface Order {
   trackingNumber?: string;
   requiresConsultation: boolean;
   researchField?: string;
+  paymentMethodId?: string;
+  paynodePaymentId?: string;
   createdAt: string;
 }
 
@@ -86,7 +88,7 @@ type PatientStage = "lead" | "consultation" | "active_patient" | "churned";
 
 interface PatientOrder {
   id: number;
-  status: string;
+  status: OrderStatus;
   totalCents: number;
   createdAt: string;
   items: { name: string; quantity: number; priceCents: number; variantLabel?: string }[];
@@ -135,13 +137,15 @@ const fmt$ = (cents: number) =>
 const fmtDate = (s: string) =>
   new Date(s).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 
-const STATUS_ORDER: OrderStatus[] = ["pending", "approved", "sent_to_pharmacy", "shipped", "delivered"];
+const STATUS_ORDER: OrderStatus[] = ["pending", "approved", "sent_to_pharmacy", "shipped", "delivered", "cancelled", "refunded"];
 const STATUS_LABEL: Record<OrderStatus, string> = {
   pending: "Pending",
   approved: "Approved",
   sent_to_pharmacy: "Sent to Pharmacy",
   shipped: "Shipped",
   delivered: "Delivered",
+  cancelled: "Cancelled",
+  refunded: "Refunded",
 };
 const STATUS_COLOR: Record<OrderStatus, string> = {
   pending: "text-amber-400 bg-amber-400/10",
@@ -149,6 +153,8 @@ const STATUS_COLOR: Record<OrderStatus, string> = {
   sent_to_pharmacy: "text-blue-400 bg-blue-400/10",
   shipped: "text-purple-400 bg-purple-400/10",
   delivered: "text-green-400 bg-green-400/10",
+  cancelled: "text-white/40 bg-white/5",
+  refunded: "text-red-400 bg-red-400/10",
 };
 
 function apiFetch(path: string, opts?: RequestInit) {
@@ -361,6 +367,14 @@ function OrdersTab() {
   const [search, setSearch] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
+  const [confirmDialog, setConfirmDialog] = useState<{
+    open: boolean;
+    action: "approve" | "cancel";
+    orderId: number;
+    title: string;
+    message: string;
+    detail?: string;
+  } | null>(null);
 
   async function updateOrder(id: number, body: object) {
     setSaving(id);
@@ -373,6 +387,38 @@ function OrdersTab() {
       reload();
     } finally {
       setSaving(null);
+    }
+  }
+
+  async function approveOrder(id: number) {
+    setSaving(id);
+    try {
+      const res = await apiFetch(`/admin/orders/${id}/approve`, { method: "POST" });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({} as Record<string, unknown>));
+        alert(typeof body.error === "string" ? body.error : "Approval charge failed.");
+      } else {
+        reload();
+      }
+    } finally {
+      setSaving(null);
+      setConfirmDialog(null);
+    }
+  }
+
+  async function cancelOrder(id: number) {
+    setSaving(id);
+    try {
+      const res = await apiFetch(`/admin/orders/${id}/cancel`, { method: "POST" });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({} as Record<string, unknown>));
+        alert(typeof body.error === "string" ? body.error : "Cancel failed.");
+      } else {
+        reload();
+      }
+    } finally {
+      setSaving(null);
+      setConfirmDialog(null);
     }
   }
 
@@ -397,8 +443,44 @@ function OrdersTab() {
 
   return (
     <div className="space-y-4">
+      {/* Confirmation Dialog */}
+      {confirmDialog?.open && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
+          <div className="bg-[#111] border border-white/10 rounded-xl p-6 w-full max-w-md mx-4">
+            <h3 className="text-lg font-['Cormorant_Garamond'] text-white/90 mb-2">{confirmDialog.title}</h3>
+            <p className="text-sm text-white/60 font-['DM_Sans'] mb-1">{confirmDialog.message}</p>
+            {confirmDialog.detail && (
+              <p className="text-xs text-white/40 font-['DM_Sans'] mb-4">{confirmDialog.detail}</p>
+            )}
+            <div className="flex gap-3 justify-end mt-5">
+              <button
+                onClick={() => setConfirmDialog(null)}
+                disabled={saving === confirmDialog.orderId}
+                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors disabled:opacity-50"
+              >
+                Back
+              </button>
+              <button
+                onClick={() => confirmDialog.action === "approve"
+                  ? approveOrder(confirmDialog.orderId)
+                  : cancelOrder(confirmDialog.orderId)
+                }
+                disabled={saving === confirmDialog.orderId}
+                className={`px-4 py-2 text-sm rounded font-['DM_Sans'] font-medium transition-colors disabled:opacity-50 ${
+                  confirmDialog.action === "approve"
+                    ? "bg-[#C9A844] hover:bg-[#b8973d] text-black"
+                    : "bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30"
+                }`}
+              >
+                {saving === confirmDialog.orderId ? "Processing…" : confirmDialog.action === "approve" ? "Approve & Charge" : "Cancel Order"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Status metric cards */}
-      <div className="grid grid-cols-5 gap-2">
+      <div className="grid grid-cols-7 gap-2">
         {STATUS_ORDER.map(s => (
           <button
             key={s}
@@ -461,8 +543,10 @@ function OrdersTab() {
         <div className="space-y-2">
           {filtered.map(order => {
             const isExpanded = expanded === order.id;
-            const currentIdx = STATUS_ORDER.indexOf(order.status);
-            const nextStatus = currentIdx < STATUS_ORDER.length - 1 ? STATUS_ORDER[currentIdx + 1] : null;
+            // Normal workflow progression only (excludes cancelled/refunded)
+            const WORKFLOW_STATUSES: OrderStatus[] = ["pending", "approved", "sent_to_pharmacy", "shipped", "delivered"];
+            const currentIdx = WORKFLOW_STATUSES.indexOf(order.status);
+            const nextStatus = currentIdx >= 0 && currentIdx < WORKFLOW_STATUSES.length - 1 ? WORKFLOW_STATUSES[currentIdx + 1] : null;
 
             return (
               <div key={order.id} className="bg-white/[0.02] border border-white/10 rounded-lg overflow-hidden">
@@ -549,8 +633,37 @@ function OrdersTab() {
                           </button>
                         </div>
 
+                        {/* Charge status indicator */}
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-white/25 font-['DM_Sans'] tracking-wider uppercase">Payment</span>
+                          <span className={`text-xs px-2 py-0.5 rounded font-['DM_Sans'] ${order.paynodePaymentId ? "text-green-400 bg-green-400/10" : "text-amber-400 bg-amber-400/10"}`}>
+                            {order.paynodePaymentId ? "Charged" : "Stored (not charged)"}
+                          </span>
+                        </div>
+
                         <div className="flex gap-2 flex-wrap">
-                          {nextStatus && (
+                          {/* Approve & Charge — only for pending orders */}
+                          {order.status === "pending" && (
+                            <button
+                              onClick={() => setConfirmDialog({
+                                open: true,
+                                action: "approve",
+                                orderId: order.id,
+                                title: "Approve & Charge Order",
+                                message: `Charge the customer’s card for ${fmt$(order.totalCents)} and approve order #${order.id}?`,
+                                detail: order.paynodePaymentId
+                                  ? "This order was already charged. Are you sure?"
+                                  : "This will process the charge via PaymentNode.",
+                              })}
+                              disabled={saving === order.id}
+                              className="px-4 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
+                            >
+                              Approve & Charge
+                            </button>
+                          )}
+
+                          {/* Next status progression (skip for pending — use Approve instead) */}
+                          {nextStatus && order.status !== "pending" && (
                             <button
                               onClick={() => updateOrder(order.id, { status: nextStatus })}
                               disabled={saving === order.id}
@@ -559,12 +672,32 @@ function OrdersTab() {
                               {saving === order.id ? "Updating…" : `Mark as ${STATUS_LABEL[nextStatus]}`}
                             </button>
                           )}
+
                           <a
                             href={`mailto:${order.email}`}
                             className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors"
                           >
                             Email Customer
                           </a>
+
+                          {/* Cancel Order — all non-terminal states */}
+                          {!["cancelled", "refunded", "delivered"].includes(order.status) && (
+                            <button
+                              onClick={() => setConfirmDialog({
+                                open: true,
+                                action: "cancel",
+                                orderId: order.id,
+                                title: order.paynodePaymentId ? "Refund & Cancel Order" : "Cancel Order",
+                                message: order.paynodePaymentId
+                                  ? `Order #${order.id} has already been charged. This will issue a full refund of ${fmt$(order.totalCents)} via PaymentNode and mark the order as refunded.`
+                                  : `Cancel order #${order.id}? No charge has been processed, so no refund is needed.`,
+                              })}
+                              disabled={saving === order.id}
+                              className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm rounded font-['DM_Sans'] transition-colors disabled:opacity-50 border border-red-500/20"
+                            >
+                              {order.paynodePaymentId ? "Refund & Cancel" : "Cancel Order"}
+                            </button>
+                          )}
                         </div>
 
                         <p className="text-xs text-white/20 font-['DM_Sans']">

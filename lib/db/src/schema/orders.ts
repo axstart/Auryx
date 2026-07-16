@@ -13,6 +13,7 @@ export const ordersTable = pgTable("orders", {
   status: text("status").notNull().default("pending"),
   trackingNumber: text("tracking_number"),
   stripePaymentIntentId: text("stripe_payment_intent_id"),
+  paymentMethodId: text("payment_method_id"),
   paynodePaymentId: text("paynode_payment_id"),
   requiresConsultation: boolean("requires_consultation").notNull().default(false),
   researchField: text("research_field"),

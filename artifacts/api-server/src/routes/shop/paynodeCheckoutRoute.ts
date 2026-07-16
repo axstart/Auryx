@@ -120,6 +120,140 @@ router.post("/checkout/tokenize", async (req, res) => {
 });
 
 /**
+ * POST /checkout/place-order
+ * Creates a pending order WITHOUT charging. Stores payment_method_id for
+ * later admin approval. Deducts inventory (reservation).
+ */
+router.post("/checkout/place-order", async (req, res) => {
+  const parsed = ChargeSchema.safeParse(req.body);
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten().fieldErrors });
+    return;
+  }
+
+  const {
+    payment_method_id,
+    customerName,
+    email,
+    phone,
+    shippingAddress,
+    items,
+    researchField,
+    termsAccepted,
+  } = parsed.data;
+
+  // Resolve and compute total server-side
+  const lineItems: { slug: string; name: string; quantity: number; priceCents: number; variantLabel?: string }[] = [];
+  let totalCents = 0;
+  let requiresConsultation = false;
+
+  for (const item of items) {
+    const resolved = resolveItemPrice(item);
+    if (resolved.error) {
+      res.status(400).json({ error: resolved.error });
+      return;
+    }
+    totalCents += resolved.priceCents * item.quantity;
+    lineItems.push({
+      slug: resolved.slug,
+      name: resolved.name,
+      quantity: item.quantity,
+      priceCents: resolved.priceCents,
+      ...(resolved.variantLabel ? { variantLabel: resolved.variantLabel } : {}),
+    });
+    const product = getProductBySlug(item.slug);
+    if (product?.requiresConsultation) requiresConsultation = true;
+  }
+
+  // Create pending order (charge deferred until admin approval)
+  let order;
+  try {
+    [order] = await db.insert(ordersTable).values({
+      customerName,
+      email,
+      phone: phone ?? null,
+      shippingAddress,
+      items: lineItems,
+      totalCents,
+      status: "pending",
+      paymentMethodId: payment_method_id,
+      paynodePaymentId: null,
+      requiresConsultation,
+      researchField,
+      termsAccepted,
+    }).returning();
+  } catch (err) {
+    req.log.error({ err }, "Order DB insert failed during place-order");
+    res.status(500).json({ error: "Failed to save order. Please try again." });
+    return;
+  }
+
+  // Deduct inventory stock (items are reserved)
+  const stockBySlug = new Map<string, number>();
+  for (const item of lineItems) {
+    stockBySlug.set(item.slug, (stockBySlug.get(item.slug) ?? 0) + item.quantity);
+  }
+  for (const [slug, qty] of stockBySlug) {
+    await db
+      .update(inventoryItemsTable)
+      .set({ stock: sql`GREATEST(0, ${inventoryItemsTable.stock} - ${qty})` })
+      .where(eq(inventoryItemsTable.slug, slug));
+  }
+
+  const itemsList = lineItems.map(i => {
+    const label = i.variantLabel ? ` (${i.variantLabel})` : "";
+    return `  • ${i.name}${label} ×${i.quantity} — $${(i.priceCents / 100).toFixed(2)}`;
+  }).join("\n");
+  const totalDisplay = `$${(totalCents / 100).toFixed(2)}`;
+
+  sendMail({
+    subject: `New Order #${order.id} — ${customerName} (Pending Review)`,
+    text: [
+      `New order received on Auryx and is awaiting clinical review.`,
+      ``,
+      `Order #${order.id}`,
+      `Customer: ${customerName}`,
+      `Email:    ${email}`,
+      `Phone:    ${phone ?? "—"}`,
+      ``,
+      `Items:`,
+      itemsList,
+      `Total: ${totalDisplay}`,
+      ``,
+      requiresConsultation ? `⚠️  CONSULTATION REQUIRED before fulfillment.` : `No consultation required.`,
+      ``,
+      `Status: Pending clinical review — charge not yet processed.`,
+    ].join("\n"),
+  }).catch(() => {});
+
+  sendMail({
+    to: email,
+    subject: `Your Auryx Order #${order.id} — Awaiting Review`,
+    text: [
+      `Hi ${customerName},`,
+      ``,
+      `Thank you for your order. We've received it and it is currently under clinical review.`,
+      ``,
+      `Order #${order.id}`,
+      ``,
+      `Items:`,
+      itemsList,
+      `Total: ${totalDisplay}`,
+      ``,
+      requiresConsultation
+        ? `One or more items in your order require a physician consultation before fulfillment. A member of our clinical team will reach out to you.`
+        : `Your order is being reviewed by our clinical team. You will receive a confirmation once it is approved.`,
+      ``,
+      `Questions? Email us at admin@auryxlife.com`,
+      ``,
+      `— The Auryx Team`,
+    ].join("\n"),
+  }).catch(() => {});
+
+  res.status(201).json({ success: true, orderId: order.id });
+});
+
+/**
  * POST /checkout/charge
  * Accepts { payment_method_id, order_id, customerName, email, phone,
  *           shippingAddress, items, researchField, termsAccepted, metadata? }.

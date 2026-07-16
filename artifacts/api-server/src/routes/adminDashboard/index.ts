@@ -20,17 +20,18 @@ router.get("/admin/dashboard", sessionAuth, async (_req, res) => {
     recentOrders,
     lowStockItems,
   ] = await Promise.all([
-    // Monthly revenue from delivered/shipped/approved orders
+    // Monthly revenue from delivered/shipped/approved orders only
     db.select({ total: sql<number>`coalesce(sum(total_cents), 0)` })
       .from(ordersTable)
       .where(and(
         gte(ordersTable.createdAt, startOfMonth),
         lt(ordersTable.createdAt, startOfNextMonth),
+        sql`status NOT IN ('cancelled', 'refunded')`,
       )),
-    // Active orders (not yet delivered)
+    // Active orders (not yet delivered, not cancelled/refunded)
     db.select({ count: sql<number>`count(*)` })
       .from(ordersTable)
-      .where(sql`status NOT IN ('delivered')`),
+      .where(sql`status NOT IN ('delivered', 'cancelled', 'refunded')`),
     // Pending orders
     db.select({ count: sql<number>`count(*)` })
       .from(ordersTable)
@@ -69,8 +70,10 @@ router.get("/admin/dashboard", sessionAuth, async (_req, res) => {
 router.get("/admin/financials", requireAdmin, async (_req, res) => {
   const now = new Date();
 
-  // All-time revenue
-  const [allTime] = await db.select({ total: sql<number>`coalesce(sum(total_cents), 0)` }).from(ordersTable);
+  // All-time revenue (excluding cancelled/refunded)
+  const [allTime] = await db.select({ total: sql<number>`coalesce(sum(total_cents), 0)` })
+    .from(ordersTable)
+    .where(sql`status NOT IN ('cancelled', 'refunded')`);
 
   // Monthly revenue for last 12 months — single query
   const monthlyRows = await db.execute(sql`
@@ -81,6 +84,7 @@ router.get("/admin/financials", requireAdmin, async (_req, res) => {
       count(*) AS order_count
     FROM orders
     WHERE created_at >= date_trunc('month', now()) - interval '11 months'
+      AND status NOT IN ('cancelled', 'refunded')
     GROUP BY date_trunc('month', created_at)
     ORDER BY month_start
   `);
@@ -101,7 +105,7 @@ router.get("/admin/financials", requireAdmin, async (_req, res) => {
     months.push({ month: label, ...found });
   }
 
-  // Orders by status
+  // Orders by status (excluding cancelled/refunded from totals)
   const byStatus = await db.select({
     status: ordersTable.status,
     count: sql<number>`count(*)`,
@@ -115,6 +119,7 @@ router.get("/admin/financials", requireAdmin, async (_req, res) => {
       sum((item->>'priceCents')::int * (item->>'quantity')::int) AS revenue_cents,
       sum((item->>'quantity')::int) AS units_sold
     FROM orders, jsonb_array_elements(items) AS item
+    WHERE status NOT IN ('cancelled', 'refunded')
     GROUP BY item->>'name'
     ORDER BY revenue_cents DESC
     LIMIT 10

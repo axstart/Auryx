@@ -106,7 +106,7 @@ const CompleteOrderSchema = z.object({
   }
 });
 
-const ORDER_STATUSES = ["pending", "approved", "sent_to_pharmacy", "shipped", "delivered"] as const;
+const ORDER_STATUSES = ["pending", "approved", "sent_to_pharmacy", "shipped", "delivered", "cancelled", "refunded"] as const;
 type OrderStatus = (typeof ORDER_STATUSES)[number];
 
 function resolveItemPrice(item: z.infer<typeof CartItemSchema>): {
@@ -522,7 +522,20 @@ router.post("/checkout/complete", async (req, res) => {
 
 router.get("/orders", sessionAuth, async (_req, res) => {
   const orders = await db.select().from(ordersTable).orderBy(ordersTable.createdAt);
-  res.json(orders);
+  // Don’t leak payment_method_id in the general list
+  const safeOrders = orders.map(o => {
+    const { paymentMethodId, ...rest } = o;
+    return rest;
+  });
+  res.json(safeOrders);
+});
+
+router.get("/orders/:id", sessionAuth, async (req, res) => {
+  const id = parseInt(req.params["id"] as string, 10);
+  if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
+  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, id));
+  if (!order) { res.status(404).json({ error: "Not found" }); return; }
+  res.json(order);
 });
 
 router.patch("/orders/:id", sessionAuth, async (req, res) => {
