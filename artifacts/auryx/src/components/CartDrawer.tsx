@@ -1,10 +1,10 @@
-import { X, ShoppingBag, Plus, Minus, Trash2, ArrowRight } from "lucide-react";
+import { X, ShoppingBag, Plus, Minus, Trash2, ArrowRight, Stethoscope } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/context/CartContext";
 import { useLocation } from "wouter";
 
 export default function CartDrawer() {
-  const { items, isOpen, closeCart, removeFromCart, updateQuantity, totalCents, totalItems } = useCart();
+  const { items, isOpen, closeCart, removeFromCart, updateQuantity, totalCents, totalItems, consultationRequested, setConsultation } = useCart();
   const [, navigate] = useLocation();
 
   return (
@@ -130,6 +130,30 @@ export default function CartDrawer() {
             {/* Footer */}
             {items.length > 0 && (
               <div className="px-6 py-5 border-t border-white/10 shrink-0 space-y-4">
+                {items.some(i => i.product.requiresConsultation) && (
+                  <div className="bg-white/5 border border-white/10 rounded-lg p-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Stethoscope className="w-3.5 h-3.5 text-[#C9A844]" />
+                        <span className="text-xs text-white/70 font-['DM_Sans']">Physician Consultation</span>
+                      </div>
+                      <span className="text-xs text-[#C9A844] font-medium">$50</span>
+                    </div>
+                    <div className="flex items-center justify-between mt-2">
+                      <span className="text-[10px] text-white/30">1-on-1 review before fulfillment</span>
+                      <button
+                        onClick={() => setConsultation(!consultationRequested)}
+                        className={`text-[10px] font-medium px-2.5 py-1 rounded-md transition-colors ${
+                          consultationRequested
+                            ? "bg-[#C9A844]/20 text-[#C9A844]"
+                            : "bg-white/5 text-white/40 hover:text-white/60"
+                        }`}
+                      >
+                        {consultationRequested ? "Added" : "Add +$50"}
+                      </button>
+                    </div>
+                  </div>
+                )}
                 <div className="flex justify-between items-baseline">
                   <span className="text-sm text-white/40 uppercase tracking-wider">Subtotal</span>
                   <span className="text-[#B8962E] font-semibold text-xl font-serif">${(totalCents / 100).toFixed(2)}</span>

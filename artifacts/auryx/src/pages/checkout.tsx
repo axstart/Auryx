@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ShieldCheck, AlertCircle, Loader2, CheckCircle2, Mail, Plus } from "lucide-react";
+import { ArrowLeft, ShieldCheck, AlertCircle, Loader2, CheckCircle2, Mail, Plus, Stethoscope } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { Input } from "@/components/ui/input";
 import { Link, useLocation } from "wouter";
@@ -151,7 +151,7 @@ interface CheckoutPaymentProps {
 }
 
 function PaymentNodePayment({ form, totalCents, onSuccess }: CheckoutPaymentProps) {
-  const { items, clearCart } = useCart();
+  const { items, clearCart, consultationRequested } = useCart();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -232,6 +232,7 @@ function PaymentNodePayment({ form, totalCents, onSuccess }: CheckoutPaymentProp
           phone: form.phone || undefined,
           researchField: form.researchField || undefined,
           termsAccepted: form.termsAccepted as true,
+          consultation: consultationRequested,
           shippingAddress: {
             street: form.street,
             city: form.city,
@@ -256,6 +257,9 @@ function PaymentNodePayment({ form, totalCents, onSuccess }: CheckoutPaymentProp
       }
 
       clearCart();
+      if (chargeBody.orderId) {
+        try { localStorage.setItem("auryx_last_order", String(chargeBody.orderId)); } catch {}
+      }
       onSuccess();
     } catch (err: unknown) {
       if (err instanceof PaymentNodeTokenizeError) {
@@ -401,7 +405,7 @@ export default function CheckoutPage() {
     const el = document.querySelector('meta[name="description"]');
     if (el) el.setAttribute("content", "Complete your AURYX order. Secure checkout for research-grade peptide compounds.");
   }, []);
-  const { items, totalCents, totalItems, addToCart } = useCart();
+  const { items, totalCents, totalItems, addToCart, consultationRequested, setConsultation } = useCart();
   const [, navigate] = useLocation();
   const [step, setStep] = useState<Step>("details");
   const [form, setForm] = useState<CheckoutForm>({
@@ -896,6 +900,17 @@ export default function CheckoutPage() {
                       </span>
                     </div>
                   ))}
+
+                  {/* ── Consultation line item ── */}
+                  {consultationRequested && (
+                    <div className="flex justify-between items-start gap-3 py-2 border-t border-dashed border-[#E8E8E4]">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm text-[#0A0A0A] font-medium leading-tight">Physician Consultation</p>
+                        <p className="text-xs text-[#0D9488] mt-0.5">1-on-1 physician review</p>
+                      </div>
+                      <span className="text-sm text-[#0A0A0A] font-medium shrink-0">$50.00</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* ── Add-on: Reconstitution Kit ── */}
@@ -932,6 +947,40 @@ export default function CheckoutPage() {
                           >
                             <Plus className="w-3 h-3" />
                             Add
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── Consultation upsell toggle ── */}
+                {step === "details" && items.some(i => i.product.requiresConsultation) && (
+                  <div className="mb-5 bg-[#F9F5EC] border border-[#E8E8E4] rounded-xl p-4">
+                    <div className="flex items-start gap-3">
+                      <div className="w-12 h-12 rounded-lg bg-white border border-[#E8E8E4] flex items-center justify-center shrink-0" style={{ background: "rgba(201,168,68,0.08)" }}>
+                        <Stethoscope className="w-5 h-5 text-[#C9A844]" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-[#0A0A0A] leading-tight">Physician Consultation</p>
+                        <p className="text-[11px] text-[#0A0A0A]/50 mt-0.5 leading-relaxed">
+                          1-on-1 review tailored to your protocol, medical history, and goals.
+                        </p>
+                        <div className="flex items-center justify-between mt-2">
+                          <span className="text-sm font-medium text-[#0A0A0A]">$50.00</span>
+                          <button
+                            onClick={() => setConsultation(!consultationRequested)}
+                            className={`inline-flex items-center gap-1.5 text-[11px] font-medium rounded-lg px-3 py-1.5 transition-colors border ${
+                              consultationRequested
+                                ? "bg-[#C9A844] text-black border-[#C9A844]"
+                                : "bg-white text-[#0A0A0A] border-[#0A0A0A]/15 hover:border-[#B8962E] hover:text-[#B8962E]"
+                            }`}
+                          >
+                            {consultationRequested ? (
+                              <><CheckCircle2 className="w-3 h-3" /> Added</>
+                            ) : (
+                              <><Plus className="w-3 h-3" /> Add</>
+                            )}
                           </button>
                         </div>
                       </div>

@@ -18,6 +18,8 @@ interface Order {
   status: OrderStatus;
   trackingNumber?: string;
   requiresConsultation: boolean;
+  consultationRequested: boolean;
+  consultationFormSubmitted: boolean;
   researchField?: string;
   paymentMethodId?: string;
   paynodePaymentId?: string;
@@ -35,6 +37,23 @@ interface InventoryItem {
   sellPriceCents: number;
   notes?: string;
   variantLabel?: string;
+}
+
+interface ConsultationForm {
+  id: number;
+  orderId: number;
+  patientName: string;
+  dob?: string | null;
+  height?: string | null;
+  weight?: string | null;
+  conditions?: string | null;
+  medications?: string | null;
+  goal?: string | null;
+  priorPeptideUse: boolean;
+  priorPeptidesDetail?: string | null;
+  allergies?: string | null;
+  notes?: string | null;
+  submittedAt: string;
 }
 
 interface Consultation {
@@ -376,6 +395,8 @@ function OrdersTab() {
     message: string;
     detail?: string;
   } | null>(null);
+  const [consultationForms, setConsultationForms] = useState<Record<number, ConsultationForm>>({});
+  const [loadingForm, setLoadingForm] = useState<number | null>(null);
 
   async function updateOrder(id: number, body: object) {
     setSaving(id);
@@ -563,7 +584,17 @@ function OrdersTab() {
                     </div>
                     {order.requiresConsultation && (
                       <span className="text-xs text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded font-['DM_Sans'] shrink-0">
-                        Consult
+                        Rx Required
+                      </span>
+                    )}
+                    {order.consultationRequested && (
+                      <span className="text-xs text-[#C9A844] bg-[#C9A844]/10 px-2 py-0.5 rounded font-['DM_Sans'] shrink-0">
+                        Consultation Requested
+                      </span>
+                    )}
+                    {order.consultationFormSubmitted && (
+                      <span className="text-xs text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded font-['DM_Sans'] shrink-0">
+                        Form Submitted
                       </span>
                     )}
                   </div>
@@ -610,6 +641,53 @@ function OrdersTab() {
                           <div>
                             <p className="text-xs tracking-widest uppercase text-white/30 mb-1 font-['DM_Sans']">Research Application</p>
                             <p className="text-sm text-white/60 font-['DM_Sans']">{order.researchField}</p>
+                          </div>
+                        )}
+
+                        {/* Consultation Intake Form */}
+                        {order.consultationFormSubmitted && (
+                          <div className="border border-[#C9A844]/20 rounded p-3 bg-[#C9A844]/5">
+                            <div className="flex items-center justify-between mb-2">
+                              <p className="text-xs tracking-widest uppercase text-[#C9A844]/70 font-['DM_Sans']">Physician Consultation Intake</p>
+                              {!consultationForms[order.id] && (
+                                <button
+                                  onClick={async () => {
+                                    setLoadingForm(order.id);
+                                    try {
+                                      const res = await apiFetch(`/consultation-form/${order.id}`);
+                                      if (res.ok) {
+                                        const form = await res.json();
+                                        setConsultationForms(prev => ({ ...prev, [order.id]: form }));
+                                      }
+                                    } finally {
+                                      setLoadingForm(null);
+                                    }
+                                  }}
+                                  disabled={loadingForm === order.id}
+                                  className="text-xs text-[#C9A844] hover:text-[#b8973d] font-['DM_Sans'] underline disabled:opacity-50"
+                                >
+                                  {loadingForm === order.id ? "Loading…" : "View Intake Form"}
+                                </button>
+                              )}
+                            </div>
+                            {consultationForms[order.id] && (
+                              <div className="space-y-1 text-xs font-['DM_Sans'] text-white/60">
+                                <div className="grid grid-cols-2 gap-2">
+                                  <span><span className="text-white/30">Name:</span> {consultationForms[order.id]!.patientName}</span>
+                                  <span><span className="text-white/30">DOB:</span> {consultationForms[order.id]!.dob ?? "N/A"}</span>
+                                  <span><span className="text-white/30">Height:</span> {consultationForms[order.id]!.height ?? "N/A"}</span>
+                                  <span><span className="text-white/30">Weight:</span> {consultationForms[order.id]!.weight ?? "N/A"}</span>
+                                </div>
+                                <div><span className="text-white/30">Goal:</span> {consultationForms[order.id]!.goal ?? "N/A"}</div>
+                                <div><span className="text-white/30">Prior Peptide Use:</span> {consultationForms[order.id]!.priorPeptideUse ? "Yes" : "No"} {consultationForms[order.id]!.priorPeptidesDetail ? `(${consultationForms[order.id]!.priorPeptidesDetail})` : ""}</div>
+                                <div><span className="text-white/30">Conditions:</span> {consultationForms[order.id]!.conditions ?? "None listed"}</div>
+                                <div><span className="text-white/30">Medications:</span> {consultationForms[order.id]!.medications ?? "None listed"}</div>
+                                <div><span className="text-white/30">Allergies:</span> {consultationForms[order.id]!.allergies ?? "None listed"}</div>
+                                {consultationForms[order.id]!.notes && (
+                                  <div><span className="text-white/30">Notes:</span> {consultationForms[order.id]!.notes}</div>
+                                )}
+                              </div>
+                            )}
                           </div>
                         )}
 

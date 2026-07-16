@@ -16,6 +16,8 @@ export const ordersTable = pgTable("orders", {
   paymentMethodId: text("payment_method_id"),
   paynodePaymentId: text("paynode_payment_id"),
   requiresConsultation: boolean("requires_consultation").notNull().default(false),
+  consultationRequested: boolean("consultation_requested").notNull().default(false),
+  consultationFormSubmitted: boolean("consultation_form_submitted").notNull().default(false),
   researchField: text("research_field"),
   termsAccepted: boolean("terms_accepted").notNull().default(false),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),

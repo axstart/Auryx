@@ -1,22 +1,93 @@
-import { useEffect } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { CheckCircle2, ArrowRight } from "lucide-react";
+import { CheckCircle2, ArrowRight, Stethoscope, Loader2, AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 
+const GOALS = [
+  "Weight Loss",
+  "Recovery & Regeneration",
+  "Anti-Aging & Longevity",
+  "Growth Hormone Optimization",
+  "Cognitive Enhancement",
+  "Sexual Health & Vitality",
+  "Immune Support",
+  "Other",
+] as const;
+
 export default function CheckoutSuccessPage() {
+  const [orderId, setOrderId] = useState<number | null>(null);
+  const [showForm, setShowForm] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const [form, setForm] = useState({
+    patientName: "",
+    dob: "",
+    height: "",
+    weight: "",
+    conditions: "",
+    medications: "",
+    goal: "",
+    priorPeptideUse: false,
+    priorPeptidesDetail: "",
+    allergies: "",
+    notes: "",
+  });
+
   useEffect(() => {
     document.title = "Order Confirmed | AURYX";
     const el = document.querySelector('meta[name="description"]');
     if (el) el.setAttribute("content", "Your AURYX order has been received and is under clinical review.");
+
+    const stored = localStorage.getItem("auryx_last_order");
+    if (stored) {
+      const id = parseInt(stored, 10);
+      if (!isNaN(id)) setOrderId(id);
+    }
   }, []);
 
+  const setField = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const val = e.target.type === "checkbox" ? (e.target as HTMLInputElement).checked : e.target.value;
+    setForm(f => ({ ...f, [k]: val }));
+    setFormError(null);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!orderId) return;
+    if (!form.patientName.trim()) {
+      setFormError("Please enter your full name.");
+      return;
+    }
+    setSubmitting(true);
+    setFormError(null);
+    try {
+      const res = await fetch("/api/consultation-form", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ orderId, ...form }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setFormError(typeof data.error === "string" ? data.error : "Failed to submit. Please try again.");
+        setSubmitting(false);
+        return;
+      }
+      setSubmitted(true);
+      setSubmitting(false);
+    } catch {
+      setFormError("Failed to submit. Please try again.");
+      setSubmitting(false);
+    }
+  };
+
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-6">
+    <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="max-w-md w-full text-center"
+        className="max-w-lg w-full text-center"
       >
         <motion.div
           initial={{ scale: 0 }}
@@ -32,7 +103,7 @@ export default function CheckoutSuccessPage() {
         <p className="text-xs uppercase tracking-[0.3em] text-primary mb-3">Order Confirmed</p>
         <h1 className="text-4xl font-serif text-foreground mb-4">Your order is in review.</h1>
         <p className="text-muted-foreground text-sm leading-relaxed mb-3">
-          Our clinical team reviews every order before fulfillment. You'll receive a confirmation email shortly.
+          Our clinical team reviews every order before fulfillment. You\u2019ll receive a confirmation email shortly.
         </p>
         <p className="text-muted-foreground text-sm leading-relaxed mb-8">
           If your order includes any consultation-required protocols, a member of our team will reach out to schedule a brief physician review.
@@ -41,7 +112,7 @@ export default function CheckoutSuccessPage() {
         <div className="bg-card/50 border border-border rounded-xl p-5 mb-8 text-left space-y-2">
           <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3">What happens next</p>
           {[
-            { step: "1", text: "Clinical review (24–48 hours)" },
+            { step: "1", text: "Clinical review (24\u201348 hours)" },
             { step: "2", text: "Physician approval + personalized dosing confirmation" },
             { step: "3", text: "Shipped from US-licensed compounding pharmacy" },
             { step: "4", text: "Discreet delivery to your door" },
@@ -54,6 +125,191 @@ export default function CheckoutSuccessPage() {
             </div>
           ))}
         </div>
+
+        {/* ── Consultation intake form ── */}
+        {orderId && !showForm && !submitted && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 bg-[#0A0A0A] border border-[#C9A844]/20 rounded-2xl p-6 text-left"
+          >
+            <div className="flex items-start gap-3 mb-4">
+              <div className="w-10 h-10 rounded-lg bg-[#C9A844]/10 flex items-center justify-center shrink-0">
+                <Stethoscope className="w-5 h-5 text-[#C9A844]" />
+              </div>
+              <div>
+                <h3 className="text-white text-sm font-medium font-['DM_Sans']">Complete Your Consultation Intake</h3>
+                <p className="text-white/40 text-[11px] font-['DM_Sans'] mt-0.5">Optional \u2014 helps us prepare for your physician review</p>
+              </div>
+            </div>
+            <button
+              onClick={() => setShowForm(true)}
+              className="w-full h-11 rounded-xl bg-[#C9A844] hover:bg-[#b8973d] text-black text-sm font-medium font-['DM_Sans'] transition-colors"
+            >
+              Start Intake Form
+            </button>
+          </motion.div>
+        )}
+
+        {showForm && !submitted && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 bg-white border border-[#E8E8E4] rounded-2xl p-6 text-left"
+          >
+            <h3 className="text-[10px] uppercase tracking-[0.25em] text-[#0A0A0A]/40 font-medium mb-5">Physician Consultation Intake</h3>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/40 font-medium mb-1.5">Full Name *</label>
+                <input
+                  value={form.patientName}
+                  onChange={setField("patientName")}
+                  className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"
+                  placeholder="Dr. Smith will see this"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/40 font-medium mb-1.5">Date of Birth</label>
+                  <input
+                    type="date"
+                    value={form.dob}
+                    onChange={setField("dob")}
+                    className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/40 font-medium mb-1.5">Primary Goal</label>
+                  <select
+                    value={form.goal}
+                    onChange={setField("goal")}
+                    className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"
+                  >
+                    <option value="">Select a goal</option>
+                    {GOALS.map(g => <option key={g} value={g}>{g}</option>)}
+                  </select>
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/40 font-medium mb-1.5">Height</label>
+                  <input
+                    value={form.height}
+                    onChange={setField("height")}
+                    className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"
+                    placeholder="e.g. 5'10"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/40 font-medium mb-1.5">Weight</label>
+                  <input
+                    value={form.weight}
+                    onChange={setField("weight")}
+                    className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"
+                    placeholder="e.g. 175 lbs"
+                  />
+                </div>
+              </div>
+              <div>
+                <label className="block text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/40 font-medium mb-1.5">Medical Conditions</label>
+                <textarea
+                  value={form.conditions}
+                  onChange={setField("conditions")}
+                  rows={3}
+                  className="w-full bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 py-2 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844] resize-none"
+                  placeholder="List any diagnosed conditions or health concerns"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/40 font-medium mb-1.5">Current Medications</label>
+                <textarea
+                  value={form.medications}
+                  onChange={setField("medications")}
+                  rows={2}
+                  className="w-full bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 py-2 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844] resize-none"
+                  placeholder="List any medications, supplements, or therapies"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <input
+                  id="priorPeptideUse"
+                  type="checkbox"
+                  checked={form.priorPeptideUse}
+                  onChange={setField("priorPeptideUse")}
+                  className="w-4 h-4 rounded border-[#E8E8E4] accent-[#C9A844]"
+                />
+                <label htmlFor="priorPeptideUse" className="text-sm text-[#0A0A0A]/70">I have used peptides before</label>
+              </div>
+              {form.priorPeptideUse && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }}>
+                  <textarea
+                    value={form.priorPeptidesDetail}
+                    onChange={setField("priorPeptidesDetail")}
+                    rows={2}
+                    className="w-full bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 py-2 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844] resize-none"
+                    placeholder="Which peptides? Duration and results?"
+                  />
+                </motion.div>
+              )}
+              <div>
+                <label className="block text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/40 font-medium mb-1.5">Allergies</label>
+                <input
+                  value={form.allergies}
+                  onChange={setField("allergies")}
+                  className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"
+                  placeholder="Drug or substance allergies"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/40 font-medium mb-1.5">Additional Notes</label>
+                <textarea
+                  value={form.notes}
+                  onChange={setField("notes")}
+                  rows={2}
+                  className="w-full bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 py-2 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844] resize-none"
+                  placeholder="Anything else our physician should know"
+                />
+              </div>
+
+              {formError && (
+                <div className="flex items-start gap-2 bg-red-50 border border-red-200 rounded-lg p-3">
+                  <AlertCircle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
+                  <p className="text-xs text-red-600">{formError}</p>
+                </div>
+              )}
+
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setShowForm(false)}
+                  className="flex-1 h-11 rounded-xl border border-[#E8E8E4] text-[#0A0A0A]/50 text-sm font-medium hover:bg-[#FAFAF8] transition-colors"
+                >
+                  Skip
+                </button>
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 h-11 rounded-xl bg-[#0A0A0A] text-white text-sm font-medium hover:bg-[#222] transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                >
+                  {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {submitting ? "Submitting..." : "Submit Intake"}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        )}
+
+        {submitted && (
+          <motion.div
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-8 bg-[#0A0A0A] border border-[#C9A844]/20 rounded-2xl p-6 text-center"
+          >
+            <CheckCircle2 className="w-8 h-8 text-[#C9A844] mx-auto mb-3" />
+            <h3 className="text-white text-sm font-medium font-['DM_Sans']">Intake Submitted</h3>
+            <p className="text-white/40 text-[11px] font-['DM_Sans'] mt-1">Our clinical team will review your information before scheduling your physician consultation.</p>
+          </motion.div>
+        )}
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link href="/shop">

@@ -39,6 +39,10 @@ interface CartContextValue {
   kitPopupOpen: boolean;
   dismissKitPopup: () => void;
   removeKitAndDismiss: () => void;
+  consultationRequested: boolean;
+  setConsultation: (val: boolean) => void;
+  consultationPopupOpen: boolean;
+  dismissConsultationPopup: () => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -62,6 +66,20 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   });
   const [isOpen, setIsOpen] = useState(false);
   const [kitPopupOpen, setKitPopupOpen] = useState(false);
+  const [consultationPopupOpen, setConsultationPopupOpen] = useState(false);
+  const [consultationDismissed, setConsultationDismissed] = useState(false);
+  const [consultationRequested, setConsultationRequested] = useState(() => {
+    try { return localStorage.getItem("auryx_consultation") === "true"; } catch { return false; }
+  });
+
+  const setConsultation = useCallback((val: boolean) => {
+    setConsultationRequested(val);
+    try { localStorage.setItem("auryx_consultation", String(val)); } catch {}
+  }, []);
+  const dismissConsultationPopup = useCallback(() => {
+    setConsultationPopupOpen(false);
+    setConsultationDismissed(true);
+  }, []);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
@@ -98,8 +116,15 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (needsKit) {
       setKitPopupOpen(true);
     }
+
+    // Show consultation upsell once per session (until dismissed or added)
+    const hasRx = product.requiresConsultation || items.some(i => i.product.requiresConsultation);
+    if (hasRx && !consultationDismissed && !consultationRequested) {
+      setConsultationPopupOpen(true);
+    }
+
     setIsOpen(true);
-  }, [items]);
+  }, [items, consultationDismissed, consultationRequested]);
 
   const removeFromCart = useCallback((cartKey: string) => {
     setItems(prev => prev.filter(i => i.cartKey !== cartKey));
@@ -115,7 +140,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
-  const clearCart = useCallback(() => setItems([]), []);
+  const clearCart = useCallback(() => {
+    setItems([]);
+    setConsultationRequested(false);
+    try { localStorage.removeItem("auryx_consultation"); } catch {}
+  }, [setConsultation]);
 
   const dismissKitPopup = useCallback(() => setKitPopupOpen(false), []);
 
@@ -127,7 +156,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
   const totalCents = items.reduce(
     (sum, i) => sum + (i.variantPriceCents ?? i.product.priceCents) * i.quantity,
     0,
-  );
+  ) + (consultationRequested ? 5000 : 0);
   const totalItems = items.reduce((sum, i) => sum + i.quantity, 0);
 
   return (
@@ -139,6 +168,10 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       kitPopupOpen,
       dismissKitPopup,
       removeKitAndDismiss,
+      consultationRequested,
+      setConsultation,
+      consultationPopupOpen,
+      dismissConsultationPopup,
     }}>
       {children}
     </CartContext.Provider>

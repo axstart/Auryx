@@ -92,6 +92,7 @@ const CompleteOrderSchema = z.object({
   items: z.array(CartItemSchema).min(1),
   researchField: z.enum(RESEARCH_FIELDS).optional(),
   termsAccepted: z.literal(true, { message: "You must accept the Terms of Service" }),
+  consultation: z.boolean().optional().default(false),
 }).superRefine((data, ctx) => {
   const hasResearchItems = data.items.some(item => {
     const product = getProductBySlug(item.slug);
@@ -382,7 +383,7 @@ router.post("/checkout/complete", async (req, res) => {
     return;
   }
 
-  const { paymentIntentId, customerName, email, phone, shippingAddress, items, researchField, termsAccepted } = parsed.data;
+  const { paymentIntentId, customerName, email, phone, shippingAddress, items, researchField, termsAccepted, consultation } = parsed.data;
 
   // Require verified email from session
   if (req.session.verifiedEmail !== email.toLowerCase()) {
@@ -423,6 +424,18 @@ router.post("/checkout/complete", async (req, res) => {
     if (product?.requiresConsultation) requiresConsultation = true;
   }
 
+  const CONSULTATION_PRICE_CENTS = 5000;
+  const consultationRequested = consultation ?? false;
+  if (consultationRequested) {
+    totalCents += CONSULTATION_PRICE_CENTS;
+    lineItems.push({
+      slug: "physician-consultation",
+      name: "Physician Consultation",
+      quantity: 1,
+      priceCents: CONSULTATION_PRICE_CENTS,
+    });
+  }
+
   const [order] = await db.insert(ordersTable).values({
     customerName,
     email,
@@ -433,6 +446,7 @@ router.post("/checkout/complete", async (req, res) => {
     status: "pending",
     stripePaymentIntentId: paymentIntentId,
     requiresConsultation,
+    consultationRequested,
     researchField,
     termsAccepted,
   }).returning();

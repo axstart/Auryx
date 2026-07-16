@@ -1,0 +1,53 @@
+Please implement a medical consultation upsell flow with the following steps:
+
+STEP 1 — CART POPUP (first peptide added)
+When any peptide is added to the cart for the first time in a session, show a one-time popup asking:
+
+Title: "Would you like to add a physician consultation?"
+Body: "Our medical director will personally review your protocol and health profile before fulfillment. Recommended for first-time users or anyone with existing health conditions."
+Buttons:
+- "Yes, add consultation" → registers consultation: true on the cart session
+- "No thanks, continue without" → registers consultation: false
+This popup should only appear once per cart session, regardless of how many products are added after.
+
+STEP 2 — CHECKOUT SUMMARY
+If consultation: true is selected, show a consultation line item in the order summary:
+- Label: "Physician Consultation"
+- Sublabel (small text below): "Includes intake form access + personal protocol review by our medical director"
+- Price: $50.00
+- This is separate from the peptide total — show it as its own line item above the order total
+- The final charge via PaymentNode should include the $50 in the total amount
+
+STEP 3 — POST-ORDER CONFIRMATION PAGE
+After the order is confirmed (on the "Order is in review" confirmation screen), if the order includes a consultation, show a prominent card/section:
+
+Title: "Complete Your Consultation"
+Body: "Your $50 physician consultation fee has been included in your order. Please complete the intake form below so our medical director can begin your protocol review. You'll receive a personalized response via email within 24–48 hours."
+
+Then show an inline intake form with these fields:
+- Full name (pre-filled from order if available)
+- Date of birth
+- Height and weight
+- Existing medical conditions (text area)
+- Current medications (text area)
+- Primary goal with this protocol (dropdown: Weight Loss, Recovery & Regeneration, Anti-Aging & Longevity, Growth Hormone Optimization, Cognitive Enhancement, Sexual Health & Vitality, Immune Support, Other)
+- Have you used peptides before? (Yes / No toggle — if Yes, show: "Which ones and for how long?" text area)
+- Known allergies (text area)
+- Additional notes (text area)
+- Submit button: "Submit Intake Form"
+
+On successful submission:
+- Show confirmation: "Thank you! Dr. Fontoura will review your intake form and reach out via email within 24–48 hours."
+- Send the form data to admin@auryxlife.com with subject: "New Consultation Request — Order #[order_id] — [patient name]"
+- Save the form submission to a new DB table: consultation_requests (order_id, patient_name, dob, height, weight, conditions, medications, goal, prior_peptide_use, prior_peptides_detail, allergies, notes, submitted_at)
+
+STEP 4 — ADMIN VISIBILITY
+In the admin Orders view, show a "Consultation Requested" badge on orders that include a consultation, and a "Form Submitted" badge when the intake form has been completed. Admin should be able to click to view the full intake form submission.
+
+IMPORTANT TECHNICAL NOTES:
+- The $50 consultation fee must be included in the PaymentNode charge total (not a separate charge)
+- The consultation item should be clearly visible in the order record in the DB
+- The intake form is only shown post-payment — never before
+- Pre-fill name and email from the order data where possible
+
+Please confirm the DB schema changes needed and implement everything. Show me the post-order confirmation screen design before finalizing.
