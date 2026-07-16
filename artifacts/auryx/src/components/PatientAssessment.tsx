@@ -657,6 +657,11 @@ function AIResultScreen({
         const q = searchQuery.trim();
         const scored = result.protocols.map(item => ({ item, score: protocolSearchScore(item, q) })).filter(s => s.score > 0);
         const nameMatches = scored.filter(s => s.score >= 10);
+        // Short queries (≤3 chars) = name-only, never show description matches
+        if (q.length <= 3) {
+          return nameMatches.map(s => s.item);
+        }
+        // Longer queries: suppress description-only matches if 3+ name matches
         if (nameMatches.length >= 3) {
           return nameMatches.map(s => s.item);
         }
