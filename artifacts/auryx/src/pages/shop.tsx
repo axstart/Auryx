@@ -10,6 +10,17 @@ import { useCart } from "@/context/CartContext";
 import { Link } from "wouter";
 import type { ProductSummary } from "@/types/shop";
 
+function setPageMeta({ title, description }: { title: string; description: string }) {
+  document.title = title;
+  const el = document.querySelector('meta[name="description"]');
+  if (el) el.setAttribute("content", description);
+}
+
+/* ── Page meta ──────────────────────────────────────────────────────── */
+
+const PAGE_TITLE = "Shop | AURYX — Research-Grade Peptides";
+const PAGE_DESC = "Browse AURYX's curated collection of physician-prescribed peptide compounds. GLP-1 agonists, growth hormone secretagogues, recovery peptides, cognitive enhancers, and longevity protocols.";
+
 /* ── Product image map ──────────────────────────────────────────────── */
 const PRODUCT_IMAGES: Record<string, string> = {
   "semaglutide": "/products/semaglutide.png",
@@ -324,6 +335,9 @@ function ProductCard({
 
 /* ── Page ───────────────────────────────────────────────────────────── */
 export default function ShopPage() {
+  useEffect(() => {
+    setPageMeta({ title: PAGE_TITLE, description: PAGE_DESC });
+  }, []);
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery,    setSearchQuery]    = useState("");
   const [sortBy,         setSortBy]         = useState("featured");

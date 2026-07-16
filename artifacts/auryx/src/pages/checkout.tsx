@@ -396,6 +396,11 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 type Step = "details" | "verify" | "payment";
 
 export default function CheckoutPage() {
+  useEffect(() => {
+    document.title = "Checkout | AURYX";
+    const el = document.querySelector('meta[name="description"]');
+    if (el) el.setAttribute("content", "Complete your AURYX order. Secure checkout for research-grade peptide compounds.");
+  }, []);
   const { items, totalCents, totalItems } = useCart();
   const [, navigate] = useLocation();
   const [step, setStep] = useState<Step>("details");

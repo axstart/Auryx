@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { ConsultationModal } from "@/components/ConsultationModal";
 import { ProtocolContinuationModal } from "@/components/ProtocolContinuationModal";
@@ -6,6 +6,11 @@ import { PatientAssessment } from "@/components/PatientAssessment";
 import { CheckCircle2 } from "lucide-react";
 
 export default function ProtocolFinder() {
+  useEffect(() => {
+    document.title = "Protocol Finder | AURYX \u2014 Personalized Peptide Recommendations";
+    const el = document.querySelector('meta[name="description"]');
+    if (el) el.setAttribute("content", "Answer a few questions and get a personalized peptide protocol recommendation from AURYX's clinical team.");
+  }, []);
   const [modalOpen, setModalOpen] = useState(false);
   const [continuationOpen, setContinuationOpen] = useState(false);
 

@@ -1,9 +1,16 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { CheckCircle2, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 
 export default function CheckoutSuccessPage() {
+  useEffect(() => {
+    document.title = "Order Confirmed | AURYX";
+    const el = document.querySelector('meta[name="description"]');
+    if (el) el.setAttribute("content", "Your AURYX order has been received and is under clinical review.");
+  }, []);
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center px-6">
       <motion.div

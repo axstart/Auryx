@@ -1,4 +1,12 @@
+import { useEffect } from "react";
+
 export default function Privacy() {
+  useEffect(() => {
+    document.title = "Privacy Policy | AURYX";
+    const el = document.querySelector('meta[name="description"]');
+    if (el) el.setAttribute("content", "AURYX Privacy Policy. Learn how we collect, use, and protect your personal information when using auryxlife.com.");
+  }, []);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-3xl mx-auto px-6 pt-32 pb-24 md:pt-40 md:pb-32">

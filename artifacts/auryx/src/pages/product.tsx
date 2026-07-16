@@ -139,6 +139,14 @@ export default function ProductPage() {
     setSelectedVariantIdx(0);
   }, [slug]);
 
+  useEffect(() => {
+    if (product?.name) {
+      document.title = `${product.name} | AURYX Shop`;
+      const el = document.querySelector('meta[name="description"]');
+      if (el && product.shortDescription) el.setAttribute("content", product.shortDescription);
+    }
+  }, [product]);
+
   const hasVariants = !!(product?.variants && product.variants.length > 1);
   const selectedVariant = hasVariants ? product!.variants![selectedVariantIdx] : null;
   const displayPriceCents = selectedVariant ? selectedVariant.priceCents : (product?.priceCents ?? 0);

@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { ArrowRight, CheckCircle2 } from "lucide-react";
@@ -90,6 +91,12 @@ function FadeIn({ children, delay = 0, className = "" }: { children: React.React
 }
 
 export default function OurMethodPage() {
+  useEffect(() => {
+    document.title = "Our Method | AURYX \u2014 Precision Longevity Protocols";
+    const el = document.querySelector('meta[name="description"]');
+    if (el) el.setAttribute("content", "Discover AURYX's evidence-based methodology: biomarker assessment, MD-led protocol design, US compounding pharmacy fulfillment, and ongoing clinical monitoring.");
+  }, []);
+
   return (
     <div className="w-full bg-[#0A0A0A] text-white overflow-x-hidden">
 

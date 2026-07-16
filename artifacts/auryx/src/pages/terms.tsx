@@ -1,4 +1,12 @@
+import { useEffect } from "react";
+
 export default function Terms() {
+  useEffect(() => {
+    document.title = "Terms of Service | AURYX";
+    const el = document.querySelector('meta[name="description"]');
+    if (el) el.setAttribute("content", "AURYX Terms of Service. Read our terms for using auryxlife.com and our telemedicine peptide therapy services.");
+  }, []);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="max-w-3xl mx-auto px-6 pt-32 pb-24 md:pt-40 md:pb-32">
