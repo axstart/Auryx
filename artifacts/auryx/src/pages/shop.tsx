@@ -510,6 +510,30 @@ export default function ShopPage() {
         </div>
       </section>
 
+      {/* ══ SEARCH ═════════════════════════════════════════════════════ */}
+      <section className="px-6 md:px-12 pb-4" style={{ background: "#FAFAF8" }}>
+        <div className="container mx-auto max-w-7xl">
+          <div className="relative max-w-md">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#0A0A0A]/25" />
+            <input
+              type="text"
+              placeholder="Search protocols by name, benefit, or goal…"
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-3 text-[13px] rounded-xl border border-[#E8E4DC] bg-white text-[#0A0A0A] placeholder:text-[#0A0A0A]/30 focus:outline-none focus:border-[#C9A844]/60 focus:ring-1 focus:ring-[#C9A844]/20 transition-all shadow-sm"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0A0A0A]/30 hover:text-[#B8962E] text-xs transition-colors"
+              >
+                Clear
+              </button>
+            )}
+          </div>
+        </div>
+      </section>
+
       {/* ══ FEATURED PROTOCOLS ═══════════════════════════════════════════ */}
       {!isLoading && featured.length > 0 && activeCategory === "All" && !searchQuery && (
         <section className="py-4 pb-16 px-6 md:px-12">
