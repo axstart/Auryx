@@ -86,6 +86,9 @@ export default function CartDrawer() {
                           <p className="text-[10px] text-[#B8962E]/80 mt-0.5 font-medium">{variantLabel}</p>
                         )}
                         <p className="text-[10px] text-white/35 mt-0.5 uppercase tracking-wide">{product.category}</p>
+                        {product.slug === "reconstitution-kit" && (
+                          <p className="text-[10px] text-white/30 mt-0.5 italic">Auto-added — required for peptide preparation</p>
+                        )}
                         {product.requiresConsultation && (
                           <p className="text-[10px] text-amber-400/80 mt-1">Consultation required</p>
                         )}

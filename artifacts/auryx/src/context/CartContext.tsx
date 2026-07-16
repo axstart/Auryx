@@ -5,6 +5,26 @@ function makeCartKey(slug: string, variantLabel?: string): string {
   return variantLabel ? `${slug}:${variantLabel}` : slug;
 }
 
+const RECONSTITUTION_KIT: ProductSummary = {
+  slug: "reconstitution-kit",
+  name: "Reconstitution Kit",
+  category: "Accessories",
+  shortDescription: "Everything you need to safely reconstitute your peptides.",
+  priceCents: 3500,
+  requiresConsultation: false,
+  regulatoryStatus: "standard",
+};
+
+const EXEMPT_SLUGS = new Set([
+  "reconstitution-kit",
+  "tirzepatide-b12-glycine",
+  "test-charge",
+]);
+
+function isExempt(product: ProductSummary): boolean {
+  return EXEMPT_SLUGS.has(product.slug) || product.category === "Accessories";
+}
+
 interface CartContextValue {
   items: CartItem[];
   addToCart: (product: ProductSummary, quantity?: number, variantLabel?: string, variantPriceCents?: number) => void;
@@ -16,6 +36,9 @@ interface CartContextValue {
   isOpen: boolean;
   openCart: () => void;
   closeCart: () => void;
+  kitPopupOpen: boolean;
+  dismissKitPopup: () => void;
+  removeKitAndDismiss: () => void;
 }
 
 const CartContext = createContext<CartContextValue | null>(null);
@@ -38,6 +61,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     }
   });
   const [isOpen, setIsOpen] = useState(false);
+  const [kitPopupOpen, setKitPopupOpen] = useState(false);
 
   useEffect(() => {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
@@ -50,6 +74,11 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     variantPriceCents?: number,
   ) => {
     const cartKey = makeCartKey(product.slug, variantLabel);
+    const kitKey = makeCartKey(RECONSTITUTION_KIT.slug);
+
+    // Determine kit need BEFORE setItems so popup triggers correctly
+    const needsKit = !isExempt(product) && !items.some(i => i.cartKey === kitKey);
+
     setItems(prev => {
       const existing = prev.find(i => i.cartKey === cartKey);
       if (existing) {
@@ -59,10 +88,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
             : i
         );
       }
-      return [...prev, { cartKey, product, quantity, variantLabel, variantPriceCents }];
+      const newItems = [...prev, { cartKey, product, quantity, variantLabel, variantPriceCents }];
+      if (needsKit) {
+        newItems.push({ cartKey: kitKey, product: RECONSTITUTION_KIT, quantity: 1 });
+      }
+      return newItems;
     });
+
+    if (needsKit) {
+      setKitPopupOpen(true);
+    }
     setIsOpen(true);
-  }, []);
+  }, [items]);
 
   const removeFromCart = useCallback((cartKey: string) => {
     setItems(prev => prev.filter(i => i.cartKey !== cartKey));
@@ -80,6 +117,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
   const clearCart = useCallback(() => setItems([]), []);
 
+  const dismissKitPopup = useCallback(() => setKitPopupOpen(false), []);
+
+  const removeKitAndDismiss = useCallback(() => {
+    setItems(prev => prev.filter(i => i.cartKey !== makeCartKey(RECONSTITUTION_KIT.slug)));
+    setKitPopupOpen(false);
+  }, []);
+
   const totalCents = items.reduce(
     (sum, i) => sum + (i.variantPriceCents ?? i.product.priceCents) * i.quantity,
     0,
@@ -92,6 +136,9 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       totalCents, totalItems, isOpen,
       openCart: () => setIsOpen(true),
       closeCart: () => setIsOpen(false),
+      kitPopupOpen,
+      dismissKitPopup,
+      removeKitAndDismiss,
     }}>
       {children}
     </CartContext.Provider>

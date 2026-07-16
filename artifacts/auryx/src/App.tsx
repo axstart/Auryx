@@ -22,8 +22,9 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
 import CartDrawer from "@/components/CartDrawer";
+import ReconstitutionKitPopup from "@/components/ReconstitutionKitPopup";
 import AgeGate from "@/components/AgeGate";
-import { CartProvider } from "@/context/CartContext";
+import { CartProvider, useCart } from "@/context/CartContext";
 import { AdminAuthProvider } from "@/context/AdminAuthContext";
 
 const queryClient = new QueryClient();
@@ -34,6 +35,17 @@ function ScrollToTop() {
     window.scrollTo(0, 0);
   }, [location]);
   return null;
+}
+
+function KitPopupWrapper() {
+  const { kitPopupOpen, dismissKitPopup, removeKitAndDismiss } = useCart();
+  return (
+    <ReconstitutionKitPopup
+      open={kitPopupOpen}
+      onDismiss={dismissKitPopup}
+      onRemove={removeKitAndDismiss}
+    />
+  );
 }
 
 function Router() {
@@ -65,6 +77,7 @@ function Router() {
         </div>
         <ChatWidget />
         <CartDrawer />
+        <KitPopupWrapper />
       </Route>
     </Switch>
   );
