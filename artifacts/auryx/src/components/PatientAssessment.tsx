@@ -4,7 +4,7 @@ import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ChevronRight, ChevronLeft, ShieldAlert, CheckCircle2, ArrowRight, Sparkles, RotateCcw, X, ShoppingCart } from "lucide-react";
+import { ChevronRight, ChevronLeft, ShieldAlert, CheckCircle2, ArrowRight, Sparkles, RotateCcw, X, ShoppingCart, Search } from "lucide-react";
 import { useGetProtocolRecommendation } from "@workspace/api-client-react";
 import type { ProtocolRecommendation } from "@workspace/api-client-react";
 import { useCart } from "@/context/CartContext";
@@ -633,11 +633,24 @@ function AIResultScreen({
 }) {
   const { addToCart } = useCart();
   const [addedSlugs, setAddedSlugs] = useState<Set<string>>(new Set());
+  const [searchQuery, setSearchQuery] = useState("");
   const { data: products = [] } = useQuery<ProductSummary[]>({
     queryKey: ["products"],
     queryFn: fetchProducts,
     staleTime: 5 * 60 * 1000,
   });
+
+  const filteredProtocols = searchQuery.trim()
+    ? result.protocols.filter(item => {
+        const q = searchQuery.toLowerCase();
+        return (
+          item.protocol.toLowerCase().includes(q) ||
+          item.tagline.toLowerCase().includes(q) ||
+          item.why.toLowerCase().includes(q) ||
+          item.peptides.some(p => p.toLowerCase().includes(q))
+        );
+      })
+    : result.protocols;
 
   function handleAdd(product: ProductSummary) {
     addToCart(product);
@@ -666,9 +679,29 @@ function AIResultScreen({
         {result.summary}
       </p>
 
+      {/* Search recommendations */}
+      <div className="relative max-w-md mx-auto mb-6">
+        <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/25" />
+        <input
+          type="text"
+          placeholder="Search your recommendations…"
+          value={searchQuery}
+          onChange={e => setSearchQuery(e.target.value)}
+          className="w-full pl-10 pr-4 py-2.5 text-[13px] rounded-xl border border-[#C9A844]/20 bg-[#161510] text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-[#C9A844]/60 focus:ring-1 focus:ring-[#C9A844]/15 transition-all"
+        />
+        {searchQuery && (
+          <button
+            onClick={() => setSearchQuery("")}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/25 hover:text-primary text-xs transition-colors"
+          >
+            Clear
+          </button>
+        )}
+      </div>
+
       {/* Protocol cards */}
       <div className="grid gap-3 mb-6">
-        {result.protocols.map((item, i) => {
+        {filteredProtocols.map((item, i) => {
           const product = matchProduct(item.protocol, products);
           const isAdded = product ? addedSlugs.has(product.slug) : false;
           return (
