@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { CheckCircle2, ArrowRight, Stethoscope, Loader2, AlertCircle } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { CheckCircle2, ArrowRight, Stethoscope, Loader2, AlertCircle, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 
@@ -15,18 +15,87 @@ const GOALS = [
   "Other",
 ] as const;
 
+const MEDICAL_HISTORY_OPTIONS = [
+  {
+    key: "hormone-sensitive-cancer",
+    title: "History of hormone-sensitive cancer",
+    subtitle: "Breast, prostate, ovarian, endometrial, or other hormone-driven cancers",
+  },
+  {
+    key: "other-cancer",
+    title: "History of other cancer",
+    subtitle: "Any malignancy not listed above, past or present",
+  },
+  {
+    key: "cancer-treatment",
+    title: "Currently undergoing cancer treatment",
+    subtitle: "Chemotherapy, radiation, immunotherapy, or targeted therapy",
+  },
+  {
+    key: "cardiovascular-disease",
+    title: "Significant cardiovascular disease",
+    subtitle: "Heart attack, stroke, heart failure, or serious arrhythmia",
+  },
+  {
+    key: "diabetes",
+    title: "Diabetes — Type 1 or Type 2",
+    subtitle: "Insulin-dependent or diet/medication-controlled",
+  },
+  {
+    key: "thyroid-disorder",
+    title: "Thyroid disorder",
+    subtitle: "Hypothyroidism, hyperthyroidism, Hashimoto's, Graves' disease",
+  },
+  {
+    key: "autoimmune",
+    title: "Autoimmune condition",
+    subtitle: "Lupus, MS, rheumatoid arthritis, IBD, or similar diagnosis",
+  },
+  {
+    key: "kidney-liver-disease",
+    title: "Kidney or liver disease",
+    subtitle: "Chronic kidney disease, hepatitis, cirrhosis, or similar",
+  },
+  {
+    key: "eating-disorder",
+    title: "History of eating disorder",
+    subtitle: "Anorexia, bulimia, binge eating disorder, or similar",
+  },
+  {
+    key: "psychiatric",
+    title: "Active psychiatric condition",
+    subtitle: "Depression, anxiety, bipolar disorder, schizophrenia, or similar — currently under treatment",
+  },
+  {
+    key: "pregnant-nursing",
+    title: "Pregnant or nursing",
+    subtitle: "Current pregnancy or breastfeeding",
+  },
+  {
+    key: "other",
+    title: "Other",
+    subtitle: "A condition not listed above",
+  },
+  {
+    key: "none",
+    title: "None of the above",
+    subtitle: "I do not have any of the conditions listed",
+  },
+] as const;
+
 export default function CheckoutSuccessPage() {
   const [orderId, setOrderId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
+  const [conditions, setConditions] = useState<string[]>([]);
+  const [otherCondition, setOtherCondition] = useState("");
   const [form, setForm] = useState({
     patientName: "",
     dob: "",
     height: "",
     weight: "",
-    conditions: "",
     medications: "",
     goal: "",
     priorPeptideUse: false,
@@ -47,6 +116,21 @@ export default function CheckoutSuccessPage() {
     }
   }, []);
 
+  const toggleCondition = (key: string) => {
+    if (key === "none") {
+      setConditions(["none"]);
+      return;
+    }
+    setConditions(prev => {
+      const withoutNone = prev.filter(c => c !== "none");
+      if (prev.includes(key)) {
+        return withoutNone.filter(c => c !== key);
+      }
+      return [...withoutNone, key];
+    });
+    setFormError(null);
+  };
+
   const setField = (k: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const val = e.target.type === "checkbox" ? (e.target as HTMLInputElement).checked : e.target.value;
     setForm(f => ({ ...f, [k]: val }));
@@ -63,10 +147,17 @@ export default function CheckoutSuccessPage() {
     setSubmitting(true);
     setFormError(null);
     try {
+      const payload = {
+        orderId,
+        ...form,
+        conditions: conditions.includes("other") && otherCondition.trim()
+          ? [...conditions, `other: ${otherCondition.trim()}`]
+          : conditions,
+      };
       const res = await fetch("/api/consultation-form", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ orderId, ...form }),
+        body: JSON.stringify(payload),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
@@ -103,16 +194,16 @@ export default function CheckoutSuccessPage() {
         <p className="text-xs uppercase tracking-[0.3em] text-primary mb-3">Order Confirmed</p>
         <h1 className="text-4xl font-serif text-foreground mb-4">Your order is in review.</h1>
         <p className="text-muted-foreground text-sm leading-relaxed mb-3">
-          Our clinical team reviews every order before fulfillment. You\u2019ll receive a confirmation email shortly.
+          Our clinical team reviews every order before fulfillment. You'll receive a confirmation email shortly.
         </p>
         <p className="text-muted-foreground text-sm leading-relaxed mb-8">
-          If your order includes any consultation-required protocols, a member of our team will reach out to schedule a brief physician review.
+          If you'd like a personalized protocol review by our physician, complete the optional intake form below. Our medical director will evaluate your profile and follow up via email within 24–48 hours.
         </p>
 
         <div className="bg-card/50 border border-border rounded-xl p-5 mb-8 text-left space-y-2">
           <p className="text-xs uppercase tracking-wider text-muted-foreground mb-3">What happens next</p>
           {[
-            { step: "1", text: "Clinical review (24\u201348 hours)" },
+            { step: "1", text: "Clinical review (24–48 hours)" },
             { step: "2", text: "Physician approval + personalized dosing confirmation" },
             { step: "3", text: "Shipped from US-licensed compounding pharmacy" },
             { step: "4", text: "Discreet delivery to your door" },
@@ -139,7 +230,7 @@ export default function CheckoutSuccessPage() {
               </div>
               <div>
                 <h3 className="text-white text-sm font-medium font-['DM_Sans']">Complete Your Consultation Intake</h3>
-                <p className="text-white/40 text-[11px] font-['DM_Sans'] mt-0.5">Optional \u2014 helps us prepare for your physician review</p>
+                <p className="text-white/40 text-[11px] font-['DM_Sans'] mt-0.5">Optional — helps us prepare for your physician review</p>
               </div>
             </div>
             <button
@@ -210,16 +301,68 @@ export default function CheckoutSuccessPage() {
                   />
                 </div>
               </div>
+
+              {/* ── Medical History Checkboxes ── */}
               <div>
-                <label className="block text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/40 font-medium mb-1.5">Medical Conditions</label>
-                <textarea
-                  value={form.conditions}
-                  onChange={setField("conditions")}
-                  rows={3}
-                  className="w-full bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 py-2 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844] resize-none"
-                  placeholder="List any diagnosed conditions or health concerns"
-                />
+                <label className="block text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/40 font-medium mb-2">
+                  Medical History — Select all that apply
+                </label>
+                <div className="space-y-1.5">
+                  {MEDICAL_HISTORY_OPTIONS.map((opt) => {
+                    const isSelected = conditions.includes(opt.key);
+                    return (
+                      <div key={opt.key}>
+                        <button
+                          type="button"
+                          onClick={() => toggleCondition(opt.key)}
+                          className={`w-full text-left p-3 rounded-xl border transition-all duration-200 flex items-start gap-3 ${
+                            isSelected
+                              ? "bg-[#0A0A0A] border-[#C9A844]/30 shadow-sm"
+                              : "bg-[#FAFAF8] border-[#E8E8E4] hover:border-[#C9A844]/30"
+                          }`}
+                        >
+                          <div className={`w-5 h-5 rounded-md border flex items-center justify-center shrink-0 mt-0.5 transition-colors ${
+                            isSelected ? "bg-[#C9A844] border-[#C9A844]" : "border-[#E8E8E4] bg-white"
+                          }`}>
+                            <AnimatePresence>
+                              {isSelected && (
+                                <motion.div
+                                  initial={{ scale: 0 }}
+                                  animate={{ scale: 1 }}
+                                  exit={{ scale: 0 }}
+                                  transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                                >
+                                  <Check className="w-3 h-3 text-black" />
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className={`text-[13px] font-medium leading-tight ${isSelected ? "text-white" : "text-[#0A0A0A]"}`}>
+                              {opt.title}
+                            </p>
+                            <p className={`text-[11px] leading-relaxed mt-0.5 ${isSelected ? "text-white/50" : "text-[#0A0A0A]/40"}`}>
+                              {opt.subtitle}
+                            </p>
+                          </div>
+                        </button>
+                        {opt.key === "other" && isSelected && (
+                          <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} className="mt-1.5 pl-2">
+                            <textarea
+                              value={otherCondition}
+                              onChange={e => { setOtherCondition(e.target.value); setFormError(null); }}
+                              rows={2}
+                              className="w-full bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 py-2 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844] resize-none"
+                              placeholder="Please describe the condition"
+                            />
+                          </motion.div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
+
               <div>
                 <label className="block text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/40 font-medium mb-1.5">Current Medications</label>
                 <textarea

@@ -56,7 +56,6 @@ const ChargeSchema = z.object({
   items: z.array(CartItemSchema).min(1),
   researchField: z.string().optional(),
   termsAccepted: z.literal(true, { message: "You must accept the Terms of Service" }),
-  consultation: z.boolean().optional().default(false),
   metadata: z.record(z.unknown()).optional(),
 });
 
@@ -141,7 +140,6 @@ router.post("/checkout/place-order", async (req, res) => {
     items,
     researchField,
     termsAccepted,
-    consultation,
   } = parsed.data;
 
   // Resolve and compute total server-side
@@ -167,18 +165,6 @@ router.post("/checkout/place-order", async (req, res) => {
     if (product?.requiresConsultation) requiresConsultation = true;
   }
 
-  const CONSULTATION_PRICE_CENTS = 5000;
-  const consultationRequested = consultation ?? false;
-  if (consultationRequested) {
-    totalCents += CONSULTATION_PRICE_CENTS;
-    lineItems.push({
-      slug: "physician-consultation",
-      name: "Physician Consultation",
-      quantity: 1,
-      priceCents: CONSULTATION_PRICE_CENTS,
-    });
-  }
-
   // Create pending order (charge deferred until admin approval)
   let order;
   try {
@@ -193,7 +179,6 @@ router.post("/checkout/place-order", async (req, res) => {
       paymentMethodId: payment_method_id,
       paynodePaymentId: null,
       requiresConsultation,
-      consultationRequested,
       researchField,
       termsAccepted,
     }).returning();
@@ -291,7 +276,6 @@ router.post("/checkout/charge", async (req, res) => {
     items,
     researchField,
     termsAccepted,
-    consultation,
     metadata,
   } = parsed.data;
 
@@ -316,18 +300,6 @@ router.post("/checkout/charge", async (req, res) => {
     });
     const product = getProductBySlug(item.slug);
     if (product?.requiresConsultation) requiresConsultation = true;
-  }
-
-  const CONSULTATION_PRICE_CENTS = 5000;
-  const consultationRequested = consultation ?? false;
-  if (consultationRequested) {
-    totalCents += CONSULTATION_PRICE_CENTS;
-    lineItems.push({
-      slug: "physician-consultation",
-      name: "Physician Consultation",
-      quantity: 1,
-      priceCents: CONSULTATION_PRICE_CENTS,
-    });
   }
 
   // Charge via PaymentNode.
@@ -365,7 +337,6 @@ router.post("/checkout/charge", async (req, res) => {
       status: "pending",
       paynodePaymentId: chargeResult.id,
       requiresConsultation,
-      consultationRequested,
       researchField,
       termsAccepted,
     }).returning();

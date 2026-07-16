@@ -23,7 +23,6 @@ import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
 import CartDrawer from "@/components/CartDrawer";
 import ReconstitutionKitPopup from "@/components/ReconstitutionKitPopup";
-import ConsultationUpsellPopup from "@/components/ConsultationUpsellPopup";
 import AgeGate from "@/components/AgeGate";
 import { CartProvider, useCart } from "@/context/CartContext";
 import { AdminAuthProvider } from "@/context/AdminAuthContext";
@@ -45,17 +44,6 @@ function KitPopupWrapper() {
       open={kitPopupOpen}
       onDismiss={dismissKitPopup}
       onRemove={removeKitAndDismiss}
-    />
-  );
-}
-
-function ConsultationPopupWrapper() {
-  const { consultationPopupOpen, dismissConsultationPopup, setConsultation } = useCart();
-  return (
-    <ConsultationUpsellPopup
-      open={consultationPopupOpen}
-      onDismiss={dismissConsultationPopup}
-      onAdd={() => setConsultation(true)}
     />
   );
 }
@@ -90,7 +78,6 @@ function Router() {
         <ChatWidget />
         <CartDrawer />
         <KitPopupWrapper />
-        <ConsultationPopupWrapper />
       </Route>
     </Switch>
   );

@@ -13,7 +13,7 @@ const SubmitFormSchema = z.object({
   dob: z.string().optional(),
   height: z.string().optional(),
   weight: z.string().optional(),
-  conditions: z.string().optional(),
+  conditions: z.array(z.string()).optional(),
   medications: z.string().optional(),
   goal: z.string().optional(),
   priorPeptideUse: z.boolean().default(false),
@@ -31,7 +31,7 @@ router.post("/consultation-form", async (req, res): Promise<void> => {
 
   const data = parsed.data;
 
-  // Verify the order exists and has consultation requested
+  // Verify the order exists
   const [order] = await db
     .select()
     .from(ordersTable)
@@ -40,11 +40,6 @@ router.post("/consultation-form", async (req, res): Promise<void> => {
 
   if (!order) {
     res.status(404).json({ error: "Order not found" });
-    return;
-  }
-
-  if (!order.consultationRequested) {
-    res.status(400).json({ error: "This order did not include a consultation" });
     return;
   }
 
@@ -60,6 +55,27 @@ router.post("/consultation-form", async (req, res): Promise<void> => {
       .update(ordersTable)
       .set({ consultationFormSubmitted: true })
       .where(eq(ordersTable.id, data.orderId));
+
+    // Format medical conditions for email
+    const conditionLabels: Record<string, string> = {
+      "hormone-sensitive-cancer": "History of hormone-sensitive cancer",
+      "other-cancer": "History of other cancer",
+      "cancer-treatment": "Currently undergoing cancer treatment",
+      "cardiovascular-disease": "Significant cardiovascular disease",
+      "diabetes": "Diabetes \u2014 Type 1 or Type 2",
+      "thyroid-disorder": "Thyroid disorder",
+      "autoimmune": "Autoimmune condition",
+      "kidney-liver-disease": "Kidney or liver disease",
+      "eating-disorder": "History of eating disorder",
+      "psychiatric": "Active psychiatric condition",
+      "pregnant-nursing": "Pregnant or nursing",
+      "other": "Other (see notes)",
+      "none": "None of the above",
+    };
+    const conditionsText = (() => {
+      if (!data.conditions || data.conditions.length === 0) return "None reported";
+      return "  - " + data.conditions.map((c: string) => conditionLabels[c] ?? c).join("\n  - ");
+    })();
 
     // Send notification email to admin
     sendMail({
@@ -77,7 +93,7 @@ router.post("/consultation-form", async (req, res): Promise<void> => {
         data.priorPeptidesDetail ? `Prior peptides: ${data.priorPeptidesDetail}` : "",
         ``,
         `Medical conditions:`,
-        data.conditions ?? "\u2014",
+        conditionsText,
         ``,
         `Current medications:`,
         data.medications ?? "\u2014",

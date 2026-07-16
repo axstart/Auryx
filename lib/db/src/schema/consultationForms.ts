@@ -1,4 +1,4 @@
-import { pgTable, serial, text, integer, timestamp, boolean } from "drizzle-orm/pg-core";
+import { pgTable, serial, text, integer, timestamp, boolean, jsonb } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod/v4";
 
@@ -9,7 +9,7 @@ export const consultationFormsTable = pgTable("consultation_forms", {
   dob: text("dob"),
   height: text("height"),
   weight: text("weight"),
-  conditions: text("conditions"),
+  conditions: jsonb("conditions"),
   medications: text("medications"),
   goal: text("goal"),
   priorPeptideUse: boolean("prior_peptide_use").notNull().default(false),

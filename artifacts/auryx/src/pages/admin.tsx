@@ -19,7 +19,6 @@ interface Order {
   status: OrderStatus;
   trackingNumber?: string;
   requiresConsultation: boolean;
-  consultationRequested: boolean;
   consultationFormSubmitted: boolean;
   researchField?: string;
   paymentMethodId?: string;
@@ -663,11 +662,6 @@ function OrdersTab() {
                         Rx Required
                       </span>
                     )}
-                    {order.consultationRequested && (
-                      <span className="text-xs text-[#C9A844] bg-[#C9A844]/10 px-2 py-0.5 rounded font-['DM_Sans'] shrink-0">
-                        Consultation Requested
-                      </span>
-                    )}
                     {order.consultationFormSubmitted && (
                       <span className="text-xs text-emerald-400 bg-emerald-400/10 px-2 py-0.5 rounded font-['DM_Sans'] shrink-0">
                         Form Submitted
@@ -756,7 +750,35 @@ function OrdersTab() {
                                 </div>
                                 <div><span className="text-white/30">Goal:</span> {consultationForms[order.id]!.goal ?? "N/A"}</div>
                                 <div><span className="text-white/30">Prior Peptide Use:</span> {consultationForms[order.id]!.priorPeptideUse ? "Yes" : "No"} {consultationForms[order.id]!.priorPeptidesDetail ? `(${consultationForms[order.id]!.priorPeptidesDetail})` : ""}</div>
-                                <div><span className="text-white/30">Conditions:</span> {consultationForms[order.id]!.conditions ?? "None listed"}</div>
+                                <div>
+                                  <span className="text-white/30">Conditions:</span>{" "}
+                                  {(() => {
+                                    const conds = consultationForms[order.id]!.conditions;
+                                    if (!conds || !Array.isArray(conds) || conds.length === 0) return "None listed";
+                                    const labels: Record<string, string> = {
+                                      "hormone-sensitive-cancer": "History of hormone-sensitive cancer",
+                                      "other-cancer": "History of other cancer",
+                                      "cancer-treatment": "Currently undergoing cancer treatment",
+                                      "cardiovascular-disease": "Significant cardiovascular disease",
+                                      "diabetes": "Diabetes \u2014 Type 1 or Type 2",
+                                      "thyroid-disorder": "Thyroid disorder",
+                                      "autoimmune": "Autoimmune condition",
+                                      "kidney-liver-disease": "Kidney or liver disease",
+                                      "eating-disorder": "History of eating disorder",
+                                      "psychiatric": "Active psychiatric condition",
+                                      "pregnant-nursing": "Pregnant or nursing",
+                                      "other": "Other",
+                                      "none": "None of the above",
+                                    };
+                                    return (
+                                      <ul className="list-disc list-inside mt-1 space-y-0.5">
+                                        {conds.map((c: string, i: number) => (
+                                          <li key={i}>{labels[c] ?? c}</li>
+                                        ))}
+                                      </ul>
+                                    );
+                                  })()}
+                                </div>
                                 <div><span className="text-white/30">Medications:</span> {consultationForms[order.id]!.medications ?? "None listed"}</div>
                                 <div><span className="text-white/30">Allergies:</span> {consultationForms[order.id]!.allergies ?? "None listed"}</div>
                                 {consultationForms[order.id]!.notes && (
