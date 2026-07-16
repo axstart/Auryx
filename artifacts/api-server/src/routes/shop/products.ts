@@ -757,19 +757,6 @@ export const PRODUCTS: Product[] = [
     priceCents: 3500,
   },
 
-  // ── Temporary smoke-test product — remove after production test confirmed ──
-  {
-    slug: "test-charge",
-    name: "TEST",
-    category: "Research Peptides",
-    regulatoryStatus: "research",
-    shortDescription: "Temporary $1.00 product for production smoke testing. Do not purchase.",
-    fullDescription: "Temporary product used for production payment smoke testing. This product will be removed once the test charge is confirmed.",
-    benefits: [],
-    dosingInfo: "N/A",
-    requiresConsultation: false,
-    priceCents: 100,
-  },
 ];
 
 export const getProductBySlug = (slug: string): Product | undefined =>
