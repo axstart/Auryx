@@ -118,7 +118,7 @@ export default function BlogPage() {
       <section className="relative w-full min-h-[88vh] flex items-center overflow-hidden bg-[#0A0A0A]">
         <div className="absolute right-0 top-0 bottom-0 w-[52%] z-0 hidden md:block">
           <img
-            src="/journal-hero.png"
+            src="/journal-hero.webp"
             alt="AURYX Journal — precision science and peptide therapy"
             className="absolute inset-0 w-full h-[115%] object-cover"
             style={{ objectPosition: "center top", top: "-7%" }}

@@ -477,7 +477,7 @@ export default function LearnPage() {
         {/* Right-side image */}
         <div className="absolute right-0 top-0 bottom-0 w-[52%] z-0 hidden md:block">
           <img
-            src="/hero-learn.png"
+            src="/hero-learn.webp"
             alt="AURYX peptide encyclopedia — BPC-157 and CJC-1295 vials with reference books"
             className="absolute inset-0 w-full h-[115%] object-cover"
             style={{ objectPosition: "center top", top: "-7%" }}

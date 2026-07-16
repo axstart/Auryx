@@ -242,7 +242,7 @@ export default function Home() {
         {/* Hero image — right side */}
         <div className="absolute right-0 top-0 bottom-0 w-[52%] z-0 hidden md:block">
           <motion.img
-            src="/Hero.png"
+            src="/Hero.webp"
             alt="Precision wellness"
             className="absolute inset-0 w-full object-cover"
             style={{
@@ -397,7 +397,7 @@ export default function Home() {
             style={{ height: "340px" }}
           >
             <img
-              src="/peptides-collection.png"
+              src="/peptides-collection.webp"
               alt="AURYX Peptide Collection — Sermorelin, BPC-157, NAD+, CJC-1295"
               className="w-full h-full object-cover"
               style={{ objectPosition: "center 45%" }}
@@ -670,7 +670,7 @@ export default function Home() {
               className="relative min-h-[380px] md:min-h-[480px] lg:min-h-0 overflow-hidden"
             >
               <img
-                src="/Lifestyle.png"
+                src="/Lifestyle.webp"
                 alt="Research-grade peptide compounds"
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ objectPosition: "center 25%" }}
@@ -784,7 +784,7 @@ export default function Home() {
               className="relative min-h-[340px] md:min-h-0 overflow-hidden"
             >
               <img
-                src="/Peptide_standout.png"
+                src="/Peptide_standout.webp"
                 alt="AURYX Precision Peptides"
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ objectPosition: "center 30%" }}

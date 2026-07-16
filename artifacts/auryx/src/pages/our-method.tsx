@@ -105,7 +105,7 @@ export default function OurMethodPage() {
         {/* Right-side image */}
         <div className="absolute right-0 top-0 bottom-0 w-[52%] z-0 hidden md:block">
           <img
-            src="/Lifestyle.png"
+            src="/Lifestyle.webp"
             alt="AURYX longevity methodology"
             className="absolute inset-0 w-full h-[115%] object-cover"
             style={{ objectPosition: "center top", top: "-7%" }}
@@ -307,7 +307,7 @@ export default function OurMethodPage() {
               className="relative min-h-[380px] md:min-h-0 overflow-hidden"
             >
               <img
-                src="/peptides-collection.png"
+                src="/peptides-collection.webp"
                 alt="AURYX Peptide Protocols"
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ objectPosition: "center 40%" }}
