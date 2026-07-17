@@ -244,7 +244,7 @@ router.post("/checkout/place-order", async (req, res) => {
         ? `One or more items in your order require a physician consultation before fulfillment. A member of our clinical team will reach out to you.`
         : `Your order is being reviewed by our clinical team. You will receive a confirmation once it is approved.`,
       ``,
-      `Questions? Email us at admin@auryxlife.com`,
+      `If you have any questions, simply reply to this email.`,
       ``,
       `— The Auryx Team`,
     ].join("\n"),
@@ -405,7 +405,7 @@ router.post("/checkout/charge", async (req, res) => {
         ? `One or more items in your order require a physician consultation before fulfillment. A member of our clinical team will reach out to you.`
         : `Your order is being reviewed and will be fulfilled as soon as our clinical team processes it.`,
       ``,
-      `Questions? Email us at admin@auryxlife.com`,
+      `If you have any questions, simply reply to this email.`,
       ``,
       `— The Auryx Team`,
     ].join("\n"),

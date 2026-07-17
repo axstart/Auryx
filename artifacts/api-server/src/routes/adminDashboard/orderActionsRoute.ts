@@ -170,7 +170,7 @@ router.post("/admin/orders/:id/cancel", requireAdmin, async (req, res) => {
 
 /**
  * POST /admin/orders/:id/email
- * Admin-only. Sends a custom email to the customer from admin@auryxlife.com.
+ * Admin-only. Sends a custom email to the customer.
  */
 router.post("/admin/orders/:id/email", requireAdmin, async (req, res) => {
   const id = parseInt(req.params["id"] as string, 10);
@@ -198,7 +198,7 @@ router.post("/admin/orders/:id/email", requireAdmin, async (req, res) => {
 <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#AAAAAA;">Hi ${firstName.replace(/"/g, "&quot;")},</p>
 <p style="margin:0 0 16px;font-size:15px;line-height:1.7;color:#AAAAAA;">${message.replace(/\n/g, "<br>").replace(/"/g, "&quot;")}</p>
 </td></tr>
-<tr><td style="padding:20px 40px 24px;border-top:1px solid #1c1c1c;"><p style="margin:0;font-size:12px;color:#404040;line-height:1.6;">\u00a9 Auryx \u00b7 <a href="https://auryxlife.com" style="color:#C9A844;text-decoration:none;">auryxlife.com</a> \u00b7 <a href="mailto:admin@auryxlife.com" style="color:#666666;text-decoration:none;">admin@auryxlife.com</a></p></td></tr>
+<tr><td style="padding:20px 40px 24px;border-top:1px solid #1c1c1c;"><p style="margin:0;font-size:12px;color:#404040;line-height:1.6;">\u00a9 Auryx \u00b7 <a href="https://auryxlife.com" style="color:#C9A844;text-decoration:none;">auryxlife.com</a></p></td></tr>
 </table>
 </td></tr></table>
 </body></html>`;
