@@ -955,7 +955,7 @@
         },
         "conditions": {
           "name": "conditions",
-          "type": "jsonb",
+          "type": "text",
           "primaryKey": false,
           "notNull": false
         },
