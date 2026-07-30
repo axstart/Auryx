@@ -670,9 +670,9 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "100–300 mcg intranasal administration, 1–2 times daily. Protocol duration: 2–4 weeks on, 2 weeks off.",
     requiresConsultation: false,
-    priceCents: 7900,
+    priceCents: 27900,
     variants: [
-      { label: "30 mg", priceCents: 7900 },
+      { label: "30 mg", priceCents: 27900 },
     ],
     coas: [
       { label: "30 mg", accession: "2606030517", lab: "Freedom Diagnostics Testing", purity: "99.39%", url: "/coa/semax-30mg.pdf" },
