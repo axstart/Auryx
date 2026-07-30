@@ -143,6 +143,17 @@ export interface ConsultationUpdate {
   status?: ConsultationUpdateStatus;
 }
 
+export type InventoryItemRegulatoryStatus =
+  (typeof InventoryItemRegulatoryStatus)[keyof typeof InventoryItemRegulatoryStatus];
+
+export const InventoryItemRegulatoryStatus = {
+  FDA_Approved_Active_Ingredient: "FDA Approved Active Ingredient",
+  FDA_Phase_3: "FDA Phase 3",
+  Recommended_for_Compounding_by_FDA_Advisory_Committee:
+    "Recommended for Compounding by FDA Advisory Committee",
+  Research_Only: "Research Only",
+} as const;
+
 export interface InventoryItem {
   id: number;
   name: string;
@@ -154,12 +165,24 @@ export interface InventoryItem {
   costPerUnit: number;
   /** Sell price per unit in cents (e.g. 32900 = $329.00) */
   sellPriceCents: number;
+  regulatory_status: InventoryItemRegulatoryStatus;
   /** @nullable */
   variantLabel?: string | null;
   /** @nullable */
   notes?: string | null;
   updatedAt: string;
 }
+
+export type InventoryItemInputRegulatoryStatus =
+  (typeof InventoryItemInputRegulatoryStatus)[keyof typeof InventoryItemInputRegulatoryStatus];
+
+export const InventoryItemInputRegulatoryStatus = {
+  FDA_Approved_Active_Ingredient: "FDA Approved Active Ingredient",
+  FDA_Phase_3: "FDA Phase 3",
+  Recommended_for_Compounding_by_FDA_Advisory_Committee:
+    "Recommended for Compounding by FDA Advisory Committee",
+  Research_Only: "Research Only",
+} as const;
 
 export interface InventoryItemInput {
   /** @minLength 1 */
@@ -182,9 +205,21 @@ export interface InventoryItemInput {
    * @minimum 0
    */
   sellPriceCents?: number;
+  regulatory_status?: InventoryItemInputRegulatoryStatus;
   notes?: string;
   variantLabel?: string;
 }
+
+export type InventoryItemUpdateRegulatoryStatus =
+  (typeof InventoryItemUpdateRegulatoryStatus)[keyof typeof InventoryItemUpdateRegulatoryStatus];
+
+export const InventoryItemUpdateRegulatoryStatus = {
+  FDA_Approved_Active_Ingredient: "FDA Approved Active Ingredient",
+  FDA_Phase_3: "FDA Phase 3",
+  Recommended_for_Compounding_by_FDA_Advisory_Committee:
+    "Recommended for Compounding by FDA Advisory Committee",
+  Research_Only: "Research Only",
+} as const;
 
 export interface InventoryItemUpdate {
   /** @minLength 1 */
@@ -205,6 +240,7 @@ export interface InventoryItemUpdate {
    * @minimum 0
    */
   sellPriceCents?: number;
+  regulatory_status?: InventoryItemUpdateRegulatoryStatus;
   notes?: string;
   variantLabel?: string;
 }

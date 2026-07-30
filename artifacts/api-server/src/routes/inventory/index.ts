@@ -13,12 +13,20 @@ import {
 
 const router: IRouter = Router();
 
+function inventoryResponse(record: typeof inventoryItemsTable.$inferSelect) {
+  const { regulatoryStatus, ...rest } = record;
+  return {
+    ...rest,
+    regulatory_status: regulatoryStatus,
+  };
+}
+
 router.get("/inventory", sessionAuth, async (req, res): Promise<void> => {
   const records = await db
     .select()
     .from(inventoryItemsTable)
     .orderBy(inventoryItemsTable.name, inventoryItemsTable.variantLabel);
-  res.json(ListInventoryResponse.parse(records));
+  res.json(ListInventoryResponse.parse(records.map(inventoryResponse)));
 });
 
 router.post("/inventory", sessionAuth, async (req, res): Promise<void> => {
@@ -27,12 +35,16 @@ router.post("/inventory", sessionAuth, async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
+  const { regulatory_status, ...inventoryValues } = parsed.data;
   const [record] = await db
     .insert(inventoryItemsTable)
-    .values(parsed.data)
+    .values({
+      ...inventoryValues,
+      ...(regulatory_status !== undefined ? { regulatoryStatus: regulatory_status } : {}),
+    })
     .returning();
   req.log.info({ id: record.id }, "Inventory item created");
-  res.status(201).json(UpdateInventoryItemResponse.parse(record));
+  res.status(201).json(UpdateInventoryItemResponse.parse(inventoryResponse(record)));
 });
 
 router.patch("/inventory/:id", sessionAuth, async (req, res): Promise<void> => {
@@ -60,6 +72,9 @@ router.patch("/inventory/:id", sessionAuth, async (req, res): Promise<void> => {
     ...(parsed.data.sellPriceCents !== undefined
       ? { sellPriceCents: Number(parsed.data.sellPriceCents) }
       : {}),
+    ...(parsed.data.regulatory_status !== undefined
+      ? { regulatoryStatus: parsed.data.regulatory_status }
+      : {}),
     ...(parsed.data.notes !== undefined ? { notes: parsed.data.notes } : {}),
     ...(parsed.data.variantLabel !== undefined ? { variantLabel: parsed.data.variantLabel } : {}),
   };
@@ -72,7 +87,7 @@ router.patch("/inventory/:id", sessionAuth, async (req, res): Promise<void> => {
     res.status(404).json({ error: "Not found" });
     return;
   }
-  res.json(UpdateInventoryItemResponse.parse(record));
+  res.json(UpdateInventoryItemResponse.parse(inventoryResponse(record)));
 });
 
 router.delete("/inventory/:id", sessionAuth, async (req, res): Promise<void> => {

@@ -9,6 +9,7 @@ import {
 import { useCart } from "@/context/CartContext";
 import { Link } from "wouter";
 import type { ProductSummary } from "@/types/shop";
+import type { RegulatoryStatus } from "@/types/shop";
 
 function setPageMeta({ title, description }: { title: string; description: string }) {
   document.title = title;
@@ -209,6 +210,14 @@ function ProductCard({
   const { addToCart } = useCart();
   const [adding, setAdding] = useState(false);
   const productImage = PRODUCT_IMAGES[product.slug];
+  const regulatoryStatus: RegulatoryStatus = product.regulatory_status ?? "Research Only";
+  const regulatoryBadgeClass = regulatoryStatus === "FDA Approved Active Ingredient"
+    ? "bg-green-50/90 border-green-200/70 text-green-700"
+    : regulatoryStatus === "FDA Phase 3"
+      ? "bg-blue-50/90 border-blue-200/70 text-blue-700"
+      : regulatoryStatus === "Recommended for Compounding by FDA Advisory Committee"
+        ? "bg-amber-50/90 border-amber-200/70 text-amber-700"
+        : "bg-stone-100/90 border-stone-200/70 text-stone-600";
 
   const handleAdd = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -267,8 +276,8 @@ function ProductCard({
             <span className="text-[9px] uppercase tracking-[0.18em] font-semibold text-[#B8962E] leading-none mt-0.5">
               {product.category}
             </span>
-            <span className="text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full bg-amber-50/80 border border-amber-200/60 text-amber-700 shrink-0">
-              Research
+            <span className={`text-[9px] uppercase tracking-wider font-semibold px-2 py-0.5 rounded-full border shrink-0 ${regulatoryBadgeClass}`}>
+              {regulatoryStatus}
             </span>
           </div>
 

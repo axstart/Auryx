@@ -11,9 +11,16 @@ export interface ProductSummary {
   priceCents: number;
   requiresConsultation: boolean;
   regulatoryStatus: "prescription" | "research" | "standard";
+  regulatory_status?: RegulatoryStatus;
   variants?: ProductVariant[];
   requiresColdShipping?: boolean;
 }
+
+export type RegulatoryStatus =
+  | "FDA Approved Active Ingredient"
+  | "FDA Phase 3"
+  | "Recommended for Compounding by FDA Advisory Committee"
+  | "Research Only";
 
 export interface ProductCOA {
   label: string;

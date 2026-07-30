@@ -104,6 +104,12 @@ export const ListInventoryResponseItem = zod.object({
   sellPriceCents: zod
     .number()
     .describe("Sell price per unit in cents (e.g. 32900 = $329.00)"),
+  regulatory_status: zod.enum([
+    "FDA Approved Active Ingredient",
+    "FDA Phase 3",
+    "Recommended for Compounding by FDA Advisory Committee",
+    "Research Only",
+  ]),
   variantLabel: zod.string().nullish(),
   notes: zod.string().nullish(),
   updatedAt: zod.coerce.date(),
@@ -142,6 +148,14 @@ export const CreateInventoryItemBody = zod.object({
     .min(createInventoryItemBodySellPriceCentsMin)
     .default(createInventoryItemBodySellPriceCentsDefault)
     .describe("Sell price per unit in cents"),
+  regulatory_status: zod
+    .enum([
+      "FDA Approved Active Ingredient",
+      "FDA Phase 3",
+      "Recommended for Compounding by FDA Advisory Committee",
+      "Research Only",
+    ])
+    .optional(),
   notes: zod.string().optional(),
   variantLabel: zod.string().optional(),
 });
@@ -180,6 +194,14 @@ export const UpdateInventoryItemBody = zod.object({
     .min(updateInventoryItemBodySellPriceCentsMin)
     .optional()
     .describe("Sell price per unit in cents"),
+  regulatory_status: zod
+    .enum([
+      "FDA Approved Active Ingredient",
+      "FDA Phase 3",
+      "Recommended for Compounding by FDA Advisory Committee",
+      "Research Only",
+    ])
+    .optional(),
   notes: zod.string().optional(),
   variantLabel: zod.string().optional(),
 });
@@ -197,6 +219,12 @@ export const UpdateInventoryItemResponse = zod.object({
   sellPriceCents: zod
     .number()
     .describe("Sell price per unit in cents (e.g. 32900 = $329.00)"),
+  regulatory_status: zod.enum([
+    "FDA Approved Active Ingredient",
+    "FDA Phase 3",
+    "Recommended for Compounding by FDA Advisory Committee",
+    "Research Only",
+  ]),
   variantLabel: zod.string().nullish(),
   notes: zod.string().nullish(),
   updatedAt: zod.coerce.date(),

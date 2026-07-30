@@ -37,7 +37,21 @@ interface InventoryItem {
   sellPriceCents: number;
   notes?: string;
   variantLabel?: string;
+  regulatory_status?: RegulatoryStatus;
 }
+
+type RegulatoryStatus =
+  | "FDA Approved Active Ingredient"
+  | "FDA Phase 3"
+  | "Recommended for Compounding by FDA Advisory Committee"
+  | "Research Only";
+
+const REGULATORY_STATUS_OPTIONS: RegulatoryStatus[] = [
+  "FDA Approved Active Ingredient",
+  "FDA Phase 3",
+  "Recommended for Compounding by FDA Advisory Committee",
+  "Research Only",
+];
 
 interface ConsultationForm {
   id: number;
@@ -1072,7 +1086,11 @@ function InventoryTab() {
   const [saving, setSaving] = useState(false);
 
   function startNew() {
-    setForm({ name: "", variantLabel: "", category: "", stock: 0, unit: "vials", lowStockThreshold: 5, costPerUnit: 0, sellPriceCents: 0 });
+    setForm({
+      name: "", variantLabel: "", category: "", stock: 0, unit: "vials",
+      lowStockThreshold: 5, costPerUnit: 0, sellPriceCents: 0,
+      regulatory_status: "Research Only",
+    });
     setEditingId("new");
   }
 
@@ -1164,6 +1182,18 @@ function InventoryTab() {
                   />
                 </div>
               ))}
+              <div>
+                <label className="block text-xs tracking-widest uppercase text-white/30 mb-1 font-['DM_Sans']">
+                  Regulatory Status
+                </label>
+                <select
+                  value={form.regulatory_status ?? "Research Only"}
+                  onChange={e => setForm(p => ({ ...p, regulatory_status: e.target.value as RegulatoryStatus }))}
+                  className="w-full bg-white/5 border border-white/10 text-white/80 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
+                >
+                  {REGULATORY_STATUS_OPTIONS.map(status => <option key={status} value={status} className="bg-[#111]">{status}</option>)}
+                </select>
+              </div>
             </div>
             <div>
               <label className="block text-xs tracking-widest uppercase text-white/30 mb-1 font-['DM_Sans']">Notes</label>

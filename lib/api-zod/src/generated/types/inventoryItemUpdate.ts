@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { InventoryItemUpdateRegulatoryStatus } from "./inventoryItemUpdateRegulatoryStatus";
 
 export interface InventoryItemUpdate {
   /** @minLength 1 */
@@ -25,6 +26,7 @@ export interface InventoryItemUpdate {
    * @minimum 0
    */
   sellPriceCents?: number;
+  regulatory_status?: InventoryItemUpdateRegulatoryStatus;
   notes?: string;
   variantLabel?: string;
 }

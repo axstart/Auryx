@@ -5,6 +5,7 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+import type { InventoryItemRegulatoryStatus } from "./inventoryItemRegulatoryStatus";
 
 export interface InventoryItem {
   id: number;
@@ -17,6 +18,7 @@ export interface InventoryItem {
   costPerUnit: number;
   /** Sell price per unit in cents (e.g. 32900 = $329.00) */
   sellPriceCents: number;
+  regulatory_status: InventoryItemRegulatoryStatus;
   /** @nullable */
   variantLabel?: string | null;
   /** @nullable */
