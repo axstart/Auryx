@@ -149,6 +149,41 @@ interface FinancialsData {
   topSellingItems: { name: string; revenueCents: number; unitsSold: number }[];
 }
 
+interface InfluencerCoupon {
+  id: number;
+  code: string;
+  influencer_name: string;
+  influencer_email: string;
+  discount_percent: number;
+  commission_percent: number;
+  is_active: boolean;
+  created_at: string;
+  total_sales: number;
+  total_commission_owed: number;
+}
+
+interface CommissionUse {
+  id: number;
+  order_id: number;
+  influencer_name: string;
+  coupon_code: string;
+  customer_name: string;
+  customer_email: string;
+  order_amount_before_discount: number;
+  discount_applied: number;
+  order_amount_after_discount: number;
+  commission_owed: number;
+  commission_paid: boolean;
+  commission_paid_at?: string | null;
+  created_at: string;
+}
+
+interface CommissionsData {
+  total_commission_owed: number;
+  total_commission_paid: number;
+  uses: CommissionUse[];
+}
+
 // ── Helpers ──────────────────────────────────────────────────────────────────
 
 const fmt$ = (cents: number) =>
@@ -2264,9 +2299,184 @@ function FinancialsTab() {
   );
 }
 
+function InfluencersTab() {
+  const couponsApi = useApi<InfluencerCoupon[]>("/admin/coupons");
+  const commissionsApi = useApi<CommissionsData>("/admin/commissions");
+  const [filter, setFilter] = useState("");
+  const [form, setForm] = useState({
+    code: "",
+    influencer_name: "",
+    influencer_email: "",
+    discount_percent: "10",
+    commission_percent: "5",
+  });
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  const filteredUses = (commissionsApi.data?.uses ?? []).filter(use =>
+    !filter.trim()
+      || use.influencer_name.toLowerCase().includes(filter.toLowerCase())
+      || use.coupon_code.toLowerCase().includes(filter.toLowerCase()),
+  );
+
+  async function createCoupon(e: React.FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setMessage(null);
+    try {
+      const response = await apiFetch("/admin/coupons", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          discount_percent: Number(form.discount_percent),
+          commission_percent: Number(form.commission_percent),
+          is_active: true,
+        }),
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok) throw new Error(typeof body.error === "string" ? body.error : "Could not create coupon.");
+      setForm({ code: "", influencer_name: "", influencer_email: "", discount_percent: "10", commission_percent: "5" });
+      setMessage("Coupon created.");
+      couponsApi.reload();
+    } catch (err) {
+      setMessage(err instanceof Error ? err.message : "Could not create coupon.");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function toggleCoupon(coupon: InfluencerCoupon) {
+    const response = await apiFetch(`/admin/coupons/${coupon.id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ is_active: !coupon.is_active }),
+    });
+    if (response.ok) couponsApi.reload();
+    else setMessage("Could not update coupon.");
+  }
+
+  async function markPaid(id: number) {
+    const response = await apiFetch(`/admin/commissions/${id}/mark-paid`, { method: "PATCH" });
+    if (response.ok) commissionsApi.reload();
+    else setMessage("Could not mark commission as paid.");
+  }
+
+  if (couponsApi.loading || commissionsApi.loading) return <Spinner />;
+
+  return (
+    <div className="space-y-8">
+      <div>
+        <SectionTitle>Influencer Referrals</SectionTitle>
+        <p className="text-sm text-white/40 font-['DM_Sans']">
+          Manage referral codes, discounts, and commissions from completed orders.
+        </p>
+      </div>
+
+      {message && (
+        <div className="border border-[#C9A844]/30 bg-[#C9A844]/10 rounded-lg px-4 py-3 text-sm text-[#C9A844]">
+          {message}
+        </div>
+      )}
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <MetricCard label="Unpaid commissions" value={fmt$(Math.round((commissionsApi.data?.total_commission_owed ?? 0) * 100))} />
+        <MetricCard label="Paid commissions" value={fmt$(Math.round((commissionsApi.data?.total_commission_paid ?? 0) * 100))} />
+        <MetricCard label="Active codes" value={String((couponsApi.data ?? []).filter(c => c.is_active).length)} />
+      </div>
+
+      <form onSubmit={createCoupon} className="border border-white/10 rounded-lg p-5 space-y-4">
+        <p className="text-xs tracking-widest uppercase text-white/40 font-['DM_Sans']">New coupon</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {([
+            ["code", "Coupon code", "AURYX10"],
+            ["influencer_name", "Influencer name", "Name"],
+            ["influencer_email", "Influencer email", "name@example.com"],
+            ["discount_percent", "Customer discount %", "10"],
+            ["commission_percent", "Commission %", "5"],
+          ] as const).map(([key, label, placeholder]) => (
+            <label key={key} className="block">
+              <span className="text-[10px] uppercase tracking-widest text-white/35 font-['DM_Sans']">{label}</span>
+              <input
+                required
+                type={key === "influencer_email" ? "email" : key.endsWith("percent") ? "number" : "text"}
+                min={key.endsWith("percent") ? 0 : undefined}
+                max={key.endsWith("percent") ? 100 : undefined}
+                value={form[key]}
+                onChange={e => setForm(current => ({ ...current, [key]: e.target.value }))}
+                placeholder={placeholder}
+                className="mt-1 w-full h-10 rounded border border-white/10 bg-white/5 px-3 text-sm text-white placeholder:text-white/20 focus:border-[#C9A844] focus:outline-none"
+              />
+            </label>
+          ))}
+        </div>
+        <button disabled={saving} className="px-4 py-2 rounded bg-[#C9A844] text-[#0A0A0A] text-sm font-medium disabled:opacity-50">
+          {saving ? "Creating…" : "Create coupon"}
+        </button>
+      </form>
+
+      <div>
+        <SectionTitle>Coupon codes</SectionTitle>
+        <div className="space-y-2">
+          {(couponsApi.data ?? []).length === 0 ? <EmptyState message="No influencer coupons yet." /> : (couponsApi.data ?? []).map(coupon => (
+            <div key={coupon.id} className="border border-white/10 rounded-lg px-4 py-4 flex flex-wrap items-center gap-4">
+              <div className="flex-1 min-w-48">
+                <p className="text-[#C9A844] font-medium tracking-wider">{coupon.code}</p>
+                <p className="text-sm text-white/60">{coupon.influencer_name} · {coupon.influencer_email}</p>
+              </div>
+              <div className="text-sm text-white/50">{coupon.discount_percent}% off · {coupon.commission_percent}% commission</div>
+              <div className="text-sm text-white/40">{coupon.total_sales} sale{coupon.total_sales !== 1 ? "s" : ""}</div>
+              <button
+                onClick={() => void toggleCoupon(coupon)}
+                className={`px-3 py-1.5 rounded text-xs ${coupon.is_active ? "bg-[#0D9488]/20 text-[#5EEAD4]" : "bg-white/10 text-white/40"}`}
+              >
+                {coupon.is_active ? "Active" : "Inactive"}
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div>
+        <div className="flex items-center justify-between gap-3 mb-3">
+          <SectionTitle>Commission tracker</SectionTitle>
+          <input
+            value={filter}
+            onChange={e => setFilter(e.target.value)}
+            placeholder="Filter influencer or code"
+            className="h-9 w-56 rounded border border-white/10 bg-white/5 px-3 text-xs text-white placeholder:text-white/25 focus:border-[#C9A844] focus:outline-none"
+          />
+        </div>
+        {filteredUses.length === 0 ? <EmptyState message="No commission activity yet." /> : (
+          <div className="space-y-2">
+            {filteredUses.map(use => (
+              <div key={use.id} className="border border-white/10 rounded-lg px-4 py-4 flex flex-wrap items-center gap-4">
+                <div className="flex-1 min-w-48">
+                  <p className="text-sm text-white">{use.influencer_name} <span className="text-[#C9A844]">· {use.coupon_code}</span></p>
+                  <p className="text-xs text-white/35">Order #{use.order_id} · {use.customer_name}</p>
+                </div>
+                <div className="text-xs text-white/45">
+                  ${use.order_amount_after_discount.toFixed(2)} paid · ${use.commission_owed.toFixed(2)} owed
+                </div>
+                {use.commission_paid ? (
+                  <Badge label="Paid" className="bg-[#0D9488]/20 text-[#5EEAD4]" />
+                ) : (
+                  <button onClick={() => void markPaid(use.id)} className="px-3 py-1.5 rounded bg-[#C9A844] text-[#0A0A0A] text-xs font-medium">
+                    Mark paid
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 // ── Main Layout ───────────────────────────────────────────────────────────────
 
-type Tab = "dashboard" | "orders" | "inventory" | "patients" | "aria" | "users" | "financials";
+type Tab = "dashboard" | "orders" | "inventory" | "patients" | "aria" | "users" | "financials" | "influencers";
 
 const ALL_TABS: { id: Tab; label: string; adminOnly?: boolean }[] = [
   { id: "dashboard", label: "Dashboard" },
@@ -2276,6 +2486,7 @@ const ALL_TABS: { id: Tab; label: string; adminOnly?: boolean }[] = [
   { id: "aria", label: "Aria / Chat" },
   { id: "users", label: "User Management", adminOnly: true },
   { id: "financials", label: "Financials", adminOnly: true },
+  { id: "influencers", label: "Influencers", adminOnly: true },
 ];
 
 export default function Admin() {
@@ -2361,6 +2572,7 @@ export default function Admin() {
               {activeTab === "aria" && <AriaTab />}
               {activeTab === "users" && user.role === "admin" && <UsersTab />}
               {activeTab === "financials" && user.role === "admin" && <FinancialsTab />}
+              {activeTab === "influencers" && user.role === "admin" && <InfluencersTab />}
             </motion.div>
           </AnimatePresence>
         </div>

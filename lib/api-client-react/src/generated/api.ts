@@ -17,15 +17,22 @@ import type {
 } from "@tanstack/react-query";
 
 import type {
+  AdminCoupon,
   ChatEscalateInput,
   ChatEscalation,
+  CommissionSummary,
   Consultation,
   ConsultationInput,
   ConsultationUpdate,
+  CouponInput,
+  CouponUpdateInput,
+  CouponValidationInput,
+  CouponValidationResult,
   HealthStatus,
   InventoryItem,
   InventoryItemInput,
   InventoryItemUpdate,
+  ListAdminCommissionsParams,
   ProtocolRecommendation,
   ProtocolRecommendationInput,
 } from "./api.schemas";
@@ -945,3 +952,521 @@ export function useListChatEscalations<
 
   return { ...query, queryKey: queryOptions.queryKey };
 }
+
+/**
+ * @summary Validate a public coupon code
+ */
+export const getValidateCouponUrl = () => {
+  return `/api/coupons/validate`;
+};
+
+export const validateCoupon = async (
+  couponValidationInput: CouponValidationInput,
+  options?: RequestInit,
+): Promise<CouponValidationResult> => {
+  return customFetch<CouponValidationResult>(getValidateCouponUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(couponValidationInput),
+  });
+};
+
+export const getValidateCouponMutationOptions = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof validateCoupon>>,
+    TError,
+    { data: BodyType<CouponValidationInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof validateCoupon>>,
+  TError,
+  { data: BodyType<CouponValidationInput> },
+  TContext
+> => {
+  const mutationKey = ["validateCoupon"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof validateCoupon>>,
+    { data: BodyType<CouponValidationInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return validateCoupon(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type ValidateCouponMutationResult = NonNullable<
+  Awaited<ReturnType<typeof validateCoupon>>
+>;
+export type ValidateCouponMutationBody = BodyType<CouponValidationInput>;
+export type ValidateCouponMutationError = ErrorType<unknown>;
+
+/**
+ * @summary Validate a public coupon code
+ */
+export const useValidateCoupon = <
+  TError = ErrorType<unknown>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof validateCoupon>>,
+    TError,
+    { data: BodyType<CouponValidationInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof validateCoupon>>,
+  TError,
+  { data: BodyType<CouponValidationInput> },
+  TContext
+> => {
+  return useMutation(getValidateCouponMutationOptions(options));
+};
+
+/**
+ * @summary List influencer coupons (admin)
+ */
+export const getListAdminCouponsUrl = () => {
+  return `/api/admin/coupons`;
+};
+
+export const listAdminCoupons = async (
+  options?: RequestInit,
+): Promise<AdminCoupon[]> => {
+  return customFetch<AdminCoupon[]>(getListAdminCouponsUrl(), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListAdminCouponsQueryKey = () => {
+  return [`/api/admin/coupons`] as const;
+};
+
+export const getListAdminCouponsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listAdminCoupons>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listAdminCoupons>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey = queryOptions?.queryKey ?? getListAdminCouponsQueryKey();
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listAdminCoupons>>
+  > = ({ signal }) => listAdminCoupons({ signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listAdminCoupons>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListAdminCouponsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listAdminCoupons>>
+>;
+export type ListAdminCouponsQueryError = ErrorType<void>;
+
+/**
+ * @summary List influencer coupons (admin)
+ */
+
+export function useListAdminCoupons<
+  TData = Awaited<ReturnType<typeof listAdminCoupons>>,
+  TError = ErrorType<void>,
+>(options?: {
+  query?: UseQueryOptions<
+    Awaited<ReturnType<typeof listAdminCoupons>>,
+    TError,
+    TData
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListAdminCouponsQueryOptions(options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Create an influencer coupon (admin)
+ */
+export const getCreateAdminCouponUrl = () => {
+  return `/api/admin/coupons`;
+};
+
+export const createAdminCoupon = async (
+  couponInput: CouponInput,
+  options?: RequestInit,
+): Promise<AdminCoupon> => {
+  return customFetch<AdminCoupon>(getCreateAdminCouponUrl(), {
+    ...options,
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(couponInput),
+  });
+};
+
+export const getCreateAdminCouponMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createAdminCoupon>>,
+    TError,
+    { data: BodyType<CouponInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof createAdminCoupon>>,
+  TError,
+  { data: BodyType<CouponInput> },
+  TContext
+> => {
+  const mutationKey = ["createAdminCoupon"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof createAdminCoupon>>,
+    { data: BodyType<CouponInput> }
+  > = (props) => {
+    const { data } = props ?? {};
+
+    return createAdminCoupon(data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type CreateAdminCouponMutationResult = NonNullable<
+  Awaited<ReturnType<typeof createAdminCoupon>>
+>;
+export type CreateAdminCouponMutationBody = BodyType<CouponInput>;
+export type CreateAdminCouponMutationError = ErrorType<void>;
+
+/**
+ * @summary Create an influencer coupon (admin)
+ */
+export const useCreateAdminCoupon = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof createAdminCoupon>>,
+    TError,
+    { data: BodyType<CouponInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof createAdminCoupon>>,
+  TError,
+  { data: BodyType<CouponInput> },
+  TContext
+> => {
+  return useMutation(getCreateAdminCouponMutationOptions(options));
+};
+
+/**
+ * @summary Update an influencer coupon (admin)
+ */
+export const getUpdateAdminCouponUrl = (id: number) => {
+  return `/api/admin/coupons/${id}`;
+};
+
+export const updateAdminCoupon = async (
+  id: number,
+  couponUpdateInput: CouponUpdateInput,
+  options?: RequestInit,
+): Promise<AdminCoupon> => {
+  return customFetch<AdminCoupon>(getUpdateAdminCouponUrl(id), {
+    ...options,
+    method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(couponUpdateInput),
+  });
+};
+
+export const getUpdateAdminCouponMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateAdminCoupon>>,
+    TError,
+    { id: number; data: BodyType<CouponUpdateInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof updateAdminCoupon>>,
+  TError,
+  { id: number; data: BodyType<CouponUpdateInput> },
+  TContext
+> => {
+  const mutationKey = ["updateAdminCoupon"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof updateAdminCoupon>>,
+    { id: number; data: BodyType<CouponUpdateInput> }
+  > = (props) => {
+    const { id, data } = props ?? {};
+
+    return updateAdminCoupon(id, data, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type UpdateAdminCouponMutationResult = NonNullable<
+  Awaited<ReturnType<typeof updateAdminCoupon>>
+>;
+export type UpdateAdminCouponMutationBody = BodyType<CouponUpdateInput>;
+export type UpdateAdminCouponMutationError = ErrorType<void>;
+
+/**
+ * @summary Update an influencer coupon (admin)
+ */
+export const useUpdateAdminCoupon = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof updateAdminCoupon>>,
+    TError,
+    { id: number; data: BodyType<CouponUpdateInput> },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof updateAdminCoupon>>,
+  TError,
+  { id: number; data: BodyType<CouponUpdateInput> },
+  TContext
+> => {
+  return useMutation(getUpdateAdminCouponMutationOptions(options));
+};
+
+/**
+ * @summary List influencer commissions (admin)
+ */
+export const getListAdminCommissionsUrl = (
+  params?: ListAdminCommissionsParams,
+) => {
+  const normalizedParams = new URLSearchParams();
+
+  Object.entries(params || {}).forEach(([key, value]) => {
+    if (value !== undefined) {
+      normalizedParams.append(key, value === null ? "null" : value.toString());
+    }
+  });
+
+  const stringifiedParams = normalizedParams.toString();
+
+  return stringifiedParams.length > 0
+    ? `/api/admin/commissions?${stringifiedParams}`
+    : `/api/admin/commissions`;
+};
+
+export const listAdminCommissions = async (
+  params?: ListAdminCommissionsParams,
+  options?: RequestInit,
+): Promise<CommissionSummary> => {
+  return customFetch<CommissionSummary>(getListAdminCommissionsUrl(params), {
+    ...options,
+    method: "GET",
+  });
+};
+
+export const getListAdminCommissionsQueryKey = (
+  params?: ListAdminCommissionsParams,
+) => {
+  return [`/api/admin/commissions`, ...(params ? [params] : [])] as const;
+};
+
+export const getListAdminCommissionsQueryOptions = <
+  TData = Awaited<ReturnType<typeof listAdminCommissions>>,
+  TError = ErrorType<void>,
+>(
+  params?: ListAdminCommissionsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listAdminCommissions>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+) => {
+  const { query: queryOptions, request: requestOptions } = options ?? {};
+
+  const queryKey =
+    queryOptions?.queryKey ?? getListAdminCommissionsQueryKey(params);
+
+  const queryFn: QueryFunction<
+    Awaited<ReturnType<typeof listAdminCommissions>>
+  > = ({ signal }) =>
+    listAdminCommissions(params, { signal, ...requestOptions });
+
+  return { queryKey, queryFn, ...queryOptions } as UseQueryOptions<
+    Awaited<ReturnType<typeof listAdminCommissions>>,
+    TError,
+    TData
+  > & { queryKey: QueryKey };
+};
+
+export type ListAdminCommissionsQueryResult = NonNullable<
+  Awaited<ReturnType<typeof listAdminCommissions>>
+>;
+export type ListAdminCommissionsQueryError = ErrorType<void>;
+
+/**
+ * @summary List influencer commissions (admin)
+ */
+
+export function useListAdminCommissions<
+  TData = Awaited<ReturnType<typeof listAdminCommissions>>,
+  TError = ErrorType<void>,
+>(
+  params?: ListAdminCommissionsParams,
+  options?: {
+    query?: UseQueryOptions<
+      Awaited<ReturnType<typeof listAdminCommissions>>,
+      TError,
+      TData
+    >;
+    request?: SecondParameter<typeof customFetch>;
+  },
+): UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+  const queryOptions = getListAdminCommissionsQueryOptions(params, options);
+
+  const query = useQuery(queryOptions) as UseQueryResult<TData, TError> & {
+    queryKey: QueryKey;
+  };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+/**
+ * @summary Mark an influencer commission as paid (admin)
+ */
+export const getMarkCommissionPaidUrl = (id: number) => {
+  return `/api/admin/commissions/${id}/mark-paid`;
+};
+
+export const markCommissionPaid = async (
+  id: number,
+  options?: RequestInit,
+): Promise<void> => {
+  return customFetch<void>(getMarkCommissionPaidUrl(id), {
+    ...options,
+    method: "PATCH",
+  });
+};
+
+export const getMarkCommissionPaidMutationOptions = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof markCommissionPaid>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationOptions<
+  Awaited<ReturnType<typeof markCommissionPaid>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  const mutationKey = ["markCommissionPaid"];
+  const { mutation: mutationOptions, request: requestOptions } = options
+    ? options.mutation &&
+      "mutationKey" in options.mutation &&
+      options.mutation.mutationKey
+      ? options
+      : { ...options, mutation: { ...options.mutation, mutationKey } }
+    : { mutation: { mutationKey }, request: undefined };
+
+  const mutationFn: MutationFunction<
+    Awaited<ReturnType<typeof markCommissionPaid>>,
+    { id: number }
+  > = (props) => {
+    const { id } = props ?? {};
+
+    return markCommissionPaid(id, requestOptions);
+  };
+
+  return { mutationFn, ...mutationOptions };
+};
+
+export type MarkCommissionPaidMutationResult = NonNullable<
+  Awaited<ReturnType<typeof markCommissionPaid>>
+>;
+
+export type MarkCommissionPaidMutationError = ErrorType<void>;
+
+/**
+ * @summary Mark an influencer commission as paid (admin)
+ */
+export const useMarkCommissionPaid = <
+  TError = ErrorType<void>,
+  TContext = unknown,
+>(options?: {
+  mutation?: UseMutationOptions<
+    Awaited<ReturnType<typeof markCommissionPaid>>,
+    TError,
+    { id: number },
+    TContext
+  >;
+  request?: SecondParameter<typeof customFetch>;
+}): UseMutationResult<
+  Awaited<ReturnType<typeof markCommissionPaid>>,
+  TError,
+  { id: number },
+  TContext
+> => {
+  return useMutation(getMarkCommissionPaidMutationOptions(options));
+};

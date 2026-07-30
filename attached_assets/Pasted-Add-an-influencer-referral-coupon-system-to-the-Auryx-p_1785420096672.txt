@@ -1,0 +1,78 @@
+Add an influencer referral/coupon system to the Auryx platform. Here is the full spec:
+
+---
+
+DATABASE: Add a new table `influencer_coupons`:
+- id (serial primary key)
+- code (varchar, unique, uppercase) — the coupon code
+- influencer_name (varchar) — display name for admin reference
+- influencer_email (varchar) — for records/payment reference
+- discount_percent (numeric, default 10) — discount given to customer at checkout
+- commission_percent (numeric, default 5) — commission owed to influencer per sale
+- is_active (boolean, default true)
+- created_at (timestamp)
+
+Add a new table `influencer_coupon_uses`:
+- id (serial primary key)
+- coupon_id (integer, FK to influencer_coupons)
+- order_id (integer, FK to orders)
+- order_amount_before_discount (numeric) — original order total before coupon
+- discount_applied (numeric) — dollar amount discounted
+- order_amount_after_discount (numeric) — actual amount charged to the customer
+- commission_owed (numeric) — 5% of order_amount_after_discount
+- commission_paid (boolean, default false) — admin marks this manually when paid
+- commission_paid_at (timestamp, nullable)
+- created_at (timestamp)
+
+---
+
+CHECKOUT FLOW:
+1. On the cart/checkout page, add a text input field labeled "Promo Code" with an "Apply" button.
+2. When the user applies a code:
+   - POST to `/api/coupons/validate` with `{ code }`.
+   - If valid and active, return `{ valid: true, discount_percent: 10, message: "10% discount applied!" }`.
+   - If invalid or inactive, return `{ valid: false, message: "Invalid or expired code." }`.
+   - Display the discount visually in the order summary (e.g., "Promo: -$12.00").
+3. When the order is submitted and payment is charged:
+   - Calculate the discounted total: order_amount_after_discount = original_total * 0.90.
+   - Send order_amount_after_discount to PaymentNode (not the original total).
+   - Store the coupon code used in the orders table (add columns `coupon_code varchar` and `coupon_id integer FK` to orders if not present).
+   - Insert a record into `influencer_coupon_uses` with:
+     - order_amount_before_discount = original order total
+     - discount_applied = original_total * 0.10
+     - order_amount_after_discount = original_total * 0.90
+     - commission_owed = order_amount_after_discount * 0.05
+     - commission_paid = false
+
+---
+
+ADMIN PANEL — add a new "Influencers" section (Admin-only, same permission level as Financials):
+
+Page 1: Coupon Management
+- Table listing all coupons: Code | Influencer Name | Email | Discount % | Commission % | Status (Active/Inactive) | Total Sales | Total Commission Owed | Actions
+- "New Coupon" button opens a form: influencer_name, influencer_email, code (auto-suggest uppercase slug but allow edit), discount_percent (pre-filled 10), commission_percent (pre-filled 5), is_active toggle.
+- Toggle to activate/deactivate a coupon.
+
+Page 2: Commission Tracker
+- Table of all `influencer_coupon_uses` joined with orders and coupons: Date | Order ID | Influencer | Coupon Code | Order Value (before discount) | Discount Applied | Amount Charged | Commission Owed | Paid? | Actions
+- "Mark as Paid" button on each unpaid row (sets commission_paid = true, commission_paid_at = now).
+- Summary cards at top: Total Commission Owed (unpaid) | Total Commission Paid (all time).
+- Filter by influencer/coupon code.
+
+---
+
+API ROUTES to add:
+- GET `/api/admin/coupons` — list all coupons (admin only)
+- POST `/api/admin/coupons` — create coupon (admin only)
+- PATCH `/api/admin/coupons/:id` — update/toggle coupon (admin only)
+- POST `/api/coupons/validate` — public endpoint, validates a code (no auth required)
+- GET `/api/admin/commissions` — list all coupon uses with join data (admin only)
+- PATCH `/api/admin/commissions/:id/mark-paid` — mark commission as paid (admin only)
+
+---
+
+IMPORTANT NOTES:
+- The discount is applied BEFORE sending the amount to PaymentNode. PaymentNode must receive order_amount_after_discount (the discounted total), not the original total.
+- Do not break the existing PaymentNode integration. The coupon field is optional — if no coupon is used, checkout works exactly as before.
+- The coupon code input in checkout must be case-insensitive: normalize to uppercase on the backend before querying.
+- All admin routes must verify the session and confirm the user's role is 'admin' before responding.

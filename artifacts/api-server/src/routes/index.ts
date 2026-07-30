@@ -18,6 +18,7 @@ import adminAuthRouter from "./adminAuth/index.js";
 import adminDashboardRouter from "./adminDashboard/index.js";
 import adminPatientsRouter from "./adminPatients/index.js";
 import consultationFormRouter from "./consultation/index.js";
+import couponsRouter from "./coupons.js";
 
 const router: IRouter = Router();
 
@@ -40,5 +41,6 @@ router.use(adminAuthRouter);
 router.use(adminDashboardRouter);
 router.use(adminPatientsRouter);
 router.use(consultationFormRouter);
+router.use(couponsRouter);
 
 export default router;

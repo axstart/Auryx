@@ -147,10 +147,11 @@ interface BillingAddressForm {
 interface CheckoutPaymentProps {
   form: CheckoutForm;
   totalCents: number;
+  couponCode?: string;
   onSuccess: () => void;
 }
 
-function PaymentNodePayment({ form, totalCents, onSuccess }: CheckoutPaymentProps) {
+function PaymentNodePayment({ form, totalCents, couponCode, onSuccess }: CheckoutPaymentProps) {
   const { items, clearCart } = useCart();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -232,6 +233,7 @@ function PaymentNodePayment({ form, totalCents, onSuccess }: CheckoutPaymentProp
           phone: form.phone || undefined,
           researchField: form.researchField || undefined,
           termsAccepted: form.termsAccepted as true,
+          ...(couponCode ? { coupon_code: couponCode } : {}),
           shippingAddress: {
             street: form.street,
             city: form.city,
@@ -413,6 +415,12 @@ export default function CheckoutPage() {
     termsAccepted: false,
   });
   const [errors, setErrors] = useState<Partial<CheckoutForm>>({});
+  const [promoCode, setPromoCode] = useState("");
+  const [appliedPromoCode, setAppliedPromoCode] = useState<string | null>(null);
+  const [promoPercent, setPromoPercent] = useState(0);
+  const [promoMessage, setPromoMessage] = useState<string | null>(null);
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [promoLoading, setPromoLoading] = useState(false);
 
   // OTP state
   const [otpValue, setOtpValue] = useState("");
@@ -428,6 +436,48 @@ export default function CheckoutPage() {
   }, []);
 
   const hasResearchItems = items.some(i => i.product.regulatoryStatus === "research");
+  const discountCents = Math.min(totalCents, Math.round(totalCents * promoPercent / 100));
+  const checkoutTotalCents = totalCents - discountCents;
+
+  async function applyPromoCode() {
+    const code = promoCode.trim();
+    if (!code) {
+      setPromoError("Enter a promo code.");
+      return;
+    }
+    setPromoLoading(true);
+    setPromoError(null);
+    setPromoMessage(null);
+    try {
+      const response = await fetch("/api/coupons/validate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ code }),
+      });
+      const body = await response.json().catch(() => ({}));
+      if (!response.ok || body.valid !== true) {
+        setAppliedPromoCode(null);
+        setPromoPercent(0);
+        setPromoError(typeof body.message === "string" ? body.message : "Invalid or expired promo code.");
+        return;
+      }
+      setAppliedPromoCode(code.toUpperCase());
+      setPromoPercent(Number(body.discount_percent) || 0);
+      setPromoMessage(typeof body.message === "string" ? body.message : "Promo code applied.");
+    } catch {
+      setPromoError("Could not validate the promo code. Please try again.");
+    } finally {
+      setPromoLoading(false);
+    }
+  }
+
+  function removePromoCode() {
+    setAppliedPromoCode(null);
+    setPromoPercent(0);
+    setPromoMessage(null);
+    setPromoError(null);
+    setPromoCode("");
+  }
 
   const validate = useCallback(() => {
     const e: Partial<CheckoutForm> = {};
@@ -873,7 +923,8 @@ export default function CheckoutPage() {
 
                     <PaymentNodePayment
                       form={form}
-                      totalCents={totalCents}
+                      totalCents={checkoutTotalCents}
+                      couponCode={appliedPromoCode ?? undefined}
                       onSuccess={() => navigate("/checkout/success")}
                     />
                   </motion.div>
@@ -946,6 +997,39 @@ export default function CheckoutPage() {
 
                 {/* ── (No consultation upsell) ── */}
 
+                <div className="border-t border-[#E8E8E4] pt-4 mb-4">
+                  <FieldLabel>Promo Code</FieldLabel>
+                  <div className="flex gap-2">
+                    <Input
+                      value={promoCode}
+                      onChange={e => {
+                        setPromoCode(e.target.value.toUpperCase());
+                        setPromoError(null);
+                      }}
+                      onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); void applyPromoCode(); } }}
+                      placeholder="Enter code"
+                      disabled={!!appliedPromoCode || promoLoading}
+                      className="bg-white border-[#E8E8E4] text-[#0A0A0A] h-10 rounded-lg focus:border-[#0A0A0A] focus:ring-0 placeholder:text-[#0A0A0A]/30 text-sm"
+                    />
+                    {appliedPromoCode ? (
+                      <button type="button" onClick={removePromoCode} className="px-3 text-xs text-[#0A0A0A]/50 hover:text-red-600">
+                        Remove
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => void applyPromoCode()}
+                        disabled={promoLoading}
+                        className="px-4 rounded-lg bg-[#0A0A0A] text-white text-xs uppercase tracking-wider disabled:opacity-50"
+                      >
+                        {promoLoading ? "Checking…" : "Apply"}
+                      </button>
+                    )}
+                  </div>
+                  {promoMessage && <p className="text-xs text-[#0D9488] mt-2">{promoMessage}</p>}
+                  {promoError && <p className="text-xs text-red-600 mt-2">{promoError}</p>}
+                </div>
+
                 <div className="border-t border-[#E8E8E4] pt-4 space-y-2.5">
                   <div className="flex justify-between text-sm">
                     <span className="text-[#0A0A0A]/45">Subtotal ({totalItems} item{totalItems !== 1 ? "s" : ""})</span>
@@ -955,11 +1039,17 @@ export default function CheckoutPage() {
                     <span className="text-[#0A0A0A]/45">Shipping</span>
                     <span className="text-[#0D9488] text-xs">Calculated after review</span>
                   </div>
+                  {discountCents > 0 && (
+                    <div className="flex justify-between text-sm text-[#0D9488]">
+                      <span>Promo discount ({promoPercent}%)</span>
+                      <span>−${(discountCents / 100).toFixed(2)}</span>
+                    </div>
+                  )}
                 </div>
 
                 <div className="border-t border-[#E8E8E4] pt-4 mt-1 flex justify-between items-baseline">
                   <span className="font-medium text-[#0A0A0A] text-sm uppercase tracking-wider">Total</span>
-                  <span className="font-serif text-[#0A0A0A] text-2xl">${(totalCents / 100).toFixed(2)}</span>
+                  <span className="font-serif text-[#0A0A0A] text-2xl">${(checkoutTotalCents / 100).toFixed(2)}</span>
                 </div>
 
                 {items.some(i => i.product.requiresConsultation) && (

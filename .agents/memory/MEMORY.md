@@ -3,3 +3,4 @@
 - [Webhook signing secret trimming](webhook-secret-trimming.md) — always `.trim()` webhook signing secrets before HMAC use; pasted secrets can carry invisible trailing whitespace that silently breaks every signature match.
 - [OTP security pattern](otp-security-pattern.md) — persistent DB-backed rate limiting + per-record attempt lockout is the standard for any OTP/code-verification flow in this app.
 - [drizzle-kit push interactive prompts](drizzle-push-interactive-prompts.md) — `db run push` can block on a TUI confirmation prompt; piping stdin doesn't work, use `script -qc` for a pty.
+- [Influencer coupon accounting](influencer-coupon-accounting.md) — retain original/discounted totals and record each commission once after successful payment.

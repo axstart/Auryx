@@ -14,6 +14,8 @@ tags:
     description: Consultation request operations
   - name: inventory
     description: Inventory management operations
+  - name: coupons
+    description: Public coupon validation and admin influencer commission operations
 paths:
   /healthz:
     get:
@@ -237,8 +239,257 @@ paths:
         "401":
           description: Unauthorized
 
+  /coupons/validate:
+    post:
+      operationId: validateCoupon
+      tags: [coupons]
+      summary: Validate a public coupon code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CouponValidationInput"
+      responses:
+        "200":
+          description: Coupon validation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CouponValidationResult"
+
+  /admin/coupons:
+    get:
+      operationId: listAdminCoupons
+      tags: [coupons]
+      summary: List influencer coupons (admin)
+      responses:
+        "200":
+          description: Influencer coupons
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminCoupon"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Admin access required
+    post:
+      operationId: createAdminCoupon
+      tags: [coupons]
+      summary: Create an influencer coupon (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CouponInput"
+      responses:
+        "201":
+          description: Coupon created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCoupon"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "403":
+          description: Admin access required
+        "409":
+          description: Coupon code already exists
+
+  /admin/coupons/{id}:
+    patch:
+      operationId: updateAdminCoupon
+      tags: [coupons]
+      summary: Update an influencer coupon (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CouponUpdateInput"
+      responses:
+        "200":
+          description: Coupon updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCoupon"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "403":
+          description: Admin access required
+        "404":
+          description: Coupon not found
+
+  /admin/commissions:
+    get:
+      operationId: listAdminCommissions
+      tags: [coupons]
+      summary: List influencer commissions (admin)
+      parameters:
+        - in: query
+          name: filter
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Commission summary and uses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommissionSummary"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Admin access required
+
+  /admin/commissions/{id}/mark-paid:
+    patch:
+      operationId: markCommissionPaid
+      tags: [coupons]
+      summary: Mark an influencer commission as paid (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Commission marked paid
+        "401":
+          description: Unauthorized
+        "403":
+          description: Admin access required
+        "404":
+          description: Unpaid commission not found
+
 components:
   schemas:
+    CouponValidationInput:
+      type: object
+      required: [code]
+      properties:
+        code:
+          type: string
+          minLength: 2
+          maxLength: 40
+
+    CouponValidationResult:
+      type: object
+      required: [valid, message]
+      properties:
+        valid:
+          type: boolean
+        discount_percent:
+          type: number
+        message:
+          type: string
+
+    CouponInput:
+      type: object
+      required: [code, influencer_name, influencer_email, discount_percent, commission_percent]
+      properties:
+        code:
+          type: string
+        influencer_name:
+          type: string
+        influencer_email:
+          type: string
+          format: email
+        discount_percent:
+          type: number
+          minimum: 0
+          maximum: 100
+        commission_percent:
+          type: number
+          minimum: 0
+          maximum: 100
+        is_active:
+          type: boolean
+          default: true
+
+    CouponUpdateInput:
+      allOf:
+        - $ref: "#/components/schemas/CouponInput"
+      description: Any subset of coupon fields may be updated.
+
+    AdminCoupon:
+      allOf:
+        - $ref: "#/components/schemas/CouponInput"
+        - type: object
+          required: [id, created_at, total_sales, total_commission_owed]
+          properties:
+            id:
+              type: integer
+            created_at:
+              type: string
+              format: date-time
+            total_sales:
+              type: integer
+            total_commission_owed:
+              type: number
+
+    CommissionUse:
+      type: object
+      required: [id, order_id, influencer_name, coupon_code, customer_name, customer_email, commission_owed, commission_paid, created_at]
+      properties:
+        id:
+          type: integer
+        order_id:
+          type: integer
+        influencer_name:
+          type: string
+        coupon_code:
+          type: string
+        customer_name:
+          type: string
+        customer_email:
+          type: string
+        order_amount_before_discount:
+          type: number
+        discount_applied:
+          type: number
+        order_amount_after_discount:
+          type: number
+        commission_owed:
+          type: number
+        commission_paid:
+          type: boolean
+        commission_paid_at:
+          type: ["string", "null"]
+          format: date-time
+        created_at:
+          type: string
+          format: date-time
+
+    CommissionSummary:
+      type: object
+      required: [total_commission_owed, total_commission_paid, uses]
+      properties:
+        total_commission_owed:
+          type: number
+        total_commission_paid:
+          type: number
+        uses:
+          type: array
+          items:
+            $ref: "#/components/schemas/CommissionUse"
+
     HealthStatus:
       type: object
       properties:

@@ -260,3 +260,188 @@ export const ListChatEscalationsResponseItem = zod.object({
 export const ListChatEscalationsResponse = zod.array(
   ListChatEscalationsResponseItem,
 );
+
+/**
+ * @summary Validate a public coupon code
+ */
+export const validateCouponBodyCodeMin = 2;
+export const validateCouponBodyCodeMax = 40;
+
+export const ValidateCouponBody = zod.object({
+  code: zod
+    .string()
+    .min(validateCouponBodyCodeMin)
+    .max(validateCouponBodyCodeMax),
+});
+
+export const ValidateCouponResponse = zod.object({
+  valid: zod.boolean(),
+  discount_percent: zod.number().optional(),
+  message: zod.string(),
+});
+
+/**
+ * @summary List influencer coupons (admin)
+ */
+export const listAdminCouponsResponseOneDiscountPercentMin = 0;
+export const listAdminCouponsResponseOneDiscountPercentMax = 100;
+
+export const listAdminCouponsResponseOneCommissionPercentMin = 0;
+export const listAdminCouponsResponseOneCommissionPercentMax = 100;
+
+export const listAdminCouponsResponseOneIsActiveDefault = true;
+
+export const ListAdminCouponsResponseItem = zod
+  .object({
+    code: zod.string(),
+    influencer_name: zod.string(),
+    influencer_email: zod.string().email(),
+    discount_percent: zod
+      .number()
+      .min(listAdminCouponsResponseOneDiscountPercentMin)
+      .max(listAdminCouponsResponseOneDiscountPercentMax),
+    commission_percent: zod
+      .number()
+      .min(listAdminCouponsResponseOneCommissionPercentMin)
+      .max(listAdminCouponsResponseOneCommissionPercentMax),
+    is_active: zod
+      .boolean()
+      .default(listAdminCouponsResponseOneIsActiveDefault),
+  })
+  .and(
+    zod.object({
+      id: zod.number(),
+      created_at: zod.coerce.date(),
+      total_sales: zod.number(),
+      total_commission_owed: zod.number(),
+    }),
+  );
+export const ListAdminCouponsResponse = zod.array(ListAdminCouponsResponseItem);
+
+/**
+ * @summary Create an influencer coupon (admin)
+ */
+export const createAdminCouponBodyDiscountPercentMin = 0;
+export const createAdminCouponBodyDiscountPercentMax = 100;
+
+export const createAdminCouponBodyCommissionPercentMin = 0;
+export const createAdminCouponBodyCommissionPercentMax = 100;
+
+export const createAdminCouponBodyIsActiveDefault = true;
+
+export const CreateAdminCouponBody = zod.object({
+  code: zod.string(),
+  influencer_name: zod.string(),
+  influencer_email: zod.string().email(),
+  discount_percent: zod
+    .number()
+    .min(createAdminCouponBodyDiscountPercentMin)
+    .max(createAdminCouponBodyDiscountPercentMax),
+  commission_percent: zod
+    .number()
+    .min(createAdminCouponBodyCommissionPercentMin)
+    .max(createAdminCouponBodyCommissionPercentMax),
+  is_active: zod.boolean().default(createAdminCouponBodyIsActiveDefault),
+});
+
+/**
+ * @summary Update an influencer coupon (admin)
+ */
+export const UpdateAdminCouponParams = zod.object({
+  id: zod.coerce.number(),
+});
+
+export const updateAdminCouponBodyOneDiscountPercentMin = 0;
+export const updateAdminCouponBodyOneDiscountPercentMax = 100;
+
+export const updateAdminCouponBodyOneCommissionPercentMin = 0;
+export const updateAdminCouponBodyOneCommissionPercentMax = 100;
+
+export const updateAdminCouponBodyOneIsActiveDefault = true;
+
+export const UpdateAdminCouponBody = zod
+  .object({
+    code: zod.string(),
+    influencer_name: zod.string(),
+    influencer_email: zod.string().email(),
+    discount_percent: zod
+      .number()
+      .min(updateAdminCouponBodyOneDiscountPercentMin)
+      .max(updateAdminCouponBodyOneDiscountPercentMax),
+    commission_percent: zod
+      .number()
+      .min(updateAdminCouponBodyOneCommissionPercentMin)
+      .max(updateAdminCouponBodyOneCommissionPercentMax),
+    is_active: zod.boolean().default(updateAdminCouponBodyOneIsActiveDefault),
+  })
+  .describe("Any subset of coupon fields may be updated.");
+
+export const updateAdminCouponResponseOneDiscountPercentMin = 0;
+export const updateAdminCouponResponseOneDiscountPercentMax = 100;
+
+export const updateAdminCouponResponseOneCommissionPercentMin = 0;
+export const updateAdminCouponResponseOneCommissionPercentMax = 100;
+
+export const updateAdminCouponResponseOneIsActiveDefault = true;
+
+export const UpdateAdminCouponResponse = zod
+  .object({
+    code: zod.string(),
+    influencer_name: zod.string(),
+    influencer_email: zod.string().email(),
+    discount_percent: zod
+      .number()
+      .min(updateAdminCouponResponseOneDiscountPercentMin)
+      .max(updateAdminCouponResponseOneDiscountPercentMax),
+    commission_percent: zod
+      .number()
+      .min(updateAdminCouponResponseOneCommissionPercentMin)
+      .max(updateAdminCouponResponseOneCommissionPercentMax),
+    is_active: zod
+      .boolean()
+      .default(updateAdminCouponResponseOneIsActiveDefault),
+  })
+  .and(
+    zod.object({
+      id: zod.number(),
+      created_at: zod.coerce.date(),
+      total_sales: zod.number(),
+      total_commission_owed: zod.number(),
+    }),
+  );
+
+/**
+ * @summary List influencer commissions (admin)
+ */
+export const ListAdminCommissionsQueryParams = zod.object({
+  filter: zod.coerce.string().optional(),
+});
+
+export const ListAdminCommissionsResponse = zod.object({
+  total_commission_owed: zod.number(),
+  total_commission_paid: zod.number(),
+  uses: zod.array(
+    zod.object({
+      id: zod.number(),
+      order_id: zod.number(),
+      influencer_name: zod.string(),
+      coupon_code: zod.string(),
+      customer_name: zod.string(),
+      customer_email: zod.string(),
+      order_amount_before_discount: zod.number().optional(),
+      discount_applied: zod.number().optional(),
+      order_amount_after_discount: zod.number().optional(),
+      commission_owed: zod.number(),
+      commission_paid: zod.boolean(),
+      commission_paid_at: zod.coerce.date().nullish(),
+      created_at: zod.coerce.date(),
+    }),
+  ),
+});
+
+/**
+ * @summary Mark an influencer commission as paid (admin)
+ */
+export const MarkCommissionPaidParams = zod.object({
+  id: zod.coerce.number(),
+});

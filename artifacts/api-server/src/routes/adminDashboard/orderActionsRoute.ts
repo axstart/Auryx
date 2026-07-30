@@ -7,6 +7,7 @@ import { requireAdmin } from "../../middlewares/sessionAuth.js";
 import { chargePayment, refundPayment } from "../../lib/paymentnode.js";
 import { sendOrderApprovedEmail, sendOrderCancelledEmail } from "../../lib/orderEmail.js";
 import { sendMail } from "../../lib/mailer.js";
+import { calculateCoupon, getCouponById, recordCouponUse } from "../../lib/coupons.js";
 
 const router = Router();
 
@@ -31,12 +32,22 @@ router.post("/admin/orders/:id/approve", requireAdmin, async (req, res) => {
 
   const alreadyCharged = !!order.paynodePaymentId;
   let chargeResultId: string | undefined;
+  let appliedCoupon: ReturnType<typeof calculateCoupon> | null = null;
 
   if (!alreadyCharged) {
     if (!order.paymentMethodId) {
       res.status(409).json({ error: "Order has no stored payment method. Cannot charge." });
       return;
     }
+
+    const coupon = order.couponId ? await getCouponById(order.couponId) : null;
+    appliedCoupon = coupon
+      ? calculateCoupon(
+        coupon,
+        order.originalTotalCents ?? order.totalCents,
+        order.discountCents ?? 0,
+      )
+      : null;
 
     // Charge via PaymentNode
     try {
@@ -67,6 +78,14 @@ router.post("/admin/orders/:id/approve", requireAdmin, async (req, res) => {
     .set(updateSet)
     .where(eq(ordersTable.id, id))
     .returning();
+
+  if (appliedCoupon) {
+    try {
+      await recordCouponUse(appliedCoupon, order.id);
+    } catch (err) {
+      req.log.error({ err, order_id: order.id }, "coupon use record failed after approval");
+    }
+  }
 
   // Send customer approval email
   sendOrderApprovedEmail({

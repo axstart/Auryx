@@ -5,6 +5,72 @@
  * API specification
  * OpenAPI spec version: 0.1.0
  */
+export interface CouponValidationInput {
+  /**
+   * @minLength 2
+   * @maxLength 40
+   */
+  code: string;
+}
+
+export interface CouponValidationResult {
+  valid: boolean;
+  discount_percent?: number;
+  message: string;
+}
+
+export interface CouponInput {
+  code: string;
+  influencer_name: string;
+  influencer_email: string;
+  /**
+   * @minimum 0
+   * @maximum 100
+   */
+  discount_percent: number;
+  /**
+   * @minimum 0
+   * @maximum 100
+   */
+  commission_percent: number;
+  is_active?: boolean;
+}
+
+/**
+ * Any subset of coupon fields may be updated.
+ */
+export type CouponUpdateInput = CouponInput;
+
+export type AdminCoupon = CouponInput & {
+  id: number;
+  created_at: string;
+  total_sales: number;
+  total_commission_owed: number;
+};
+
+export interface CommissionUse {
+  id: number;
+  order_id: number;
+  influencer_name: string;
+  coupon_code: string;
+  customer_name: string;
+  customer_email: string;
+  order_amount_before_discount?: number;
+  discount_applied?: number;
+  order_amount_after_discount?: number;
+  commission_owed: number;
+  commission_paid: boolean;
+  /** @nullable */
+  commission_paid_at?: string | null;
+  created_at: string;
+}
+
+export interface CommissionSummary {
+  total_commission_owed: number;
+  total_commission_paid: number;
+  uses: CommissionUse[];
+}
+
 export interface HealthStatus {
   status: string;
 }
@@ -176,3 +242,7 @@ export interface ProtocolRecommendation {
   nextStep: string;
   disclaimer: string;
 }
+
+export type ListAdminCommissionsParams = {
+  filter?: string;
+};

@@ -6,6 +6,7 @@ import { eq, sql } from "drizzle-orm";
 import { tokenizePaymentMethod, chargePayment } from "../../lib/paymentnode.js";
 import { getProductBySlug } from "./products.js";
 import { sendMail } from "../../lib/mailer.js";
+import { applyCoupon, recordCouponUse } from "../../lib/coupons.js";
 
 // ── Schemas ────────────────────────────────────────────────────────────────
 
@@ -56,6 +57,7 @@ const ChargeSchema = z.object({
   items: z.array(CartItemSchema).min(1),
   researchField: z.string().optional(),
   termsAccepted: z.literal(true, { message: "You must accept the Terms of Service" }),
+  coupon_code: z.string().trim().max(40).optional(),
   metadata: z.record(z.unknown()).optional(),
 });
 
@@ -140,6 +142,7 @@ router.post("/checkout/place-order", async (req, res) => {
     items,
     researchField,
     termsAccepted,
+    coupon_code,
   } = parsed.data;
 
   // Resolve and compute total server-side
@@ -165,6 +168,14 @@ router.post("/checkout/place-order", async (req, res) => {
     if (product?.requiresConsultation) requiresConsultation = true;
   }
 
+  const appliedCoupon = await applyCoupon(coupon_code, totalCents);
+  if (coupon_code && !appliedCoupon) {
+    res.status(400).json({ error: "Invalid or expired promo code." });
+    return;
+  }
+  const chargedTotalCents = appliedCoupon?.totalCents ?? totalCents;
+  const discountCents = appliedCoupon?.discountCents ?? 0;
+
   // Create pending order (charge deferred until admin approval)
   let order;
   try {
@@ -174,13 +185,17 @@ router.post("/checkout/place-order", async (req, res) => {
       phone: phone ?? null,
       shippingAddress,
       items: lineItems,
-      totalCents,
+      totalCents: chargedTotalCents,
+      originalTotalCents: totalCents,
+      discountCents,
       status: "pending",
       paymentMethodId: payment_method_id,
       paynodePaymentId: null,
       requiresConsultation,
       researchField,
       termsAccepted,
+      couponCode: appliedCoupon?.coupon.code ?? null,
+      couponId: appliedCoupon?.coupon.id ?? null,
     }).returning();
   } catch (err) {
     req.log.error({ err }, "Order DB insert failed during place-order");
@@ -204,7 +219,7 @@ router.post("/checkout/place-order", async (req, res) => {
     const label = i.variantLabel ? ` (${i.variantLabel})` : "";
     return `  • ${i.name}${label} ×${i.quantity} — $${(i.priceCents / 100).toFixed(2)}`;
   }).join("\n");
-  const totalDisplay = `$${(totalCents / 100).toFixed(2)}`;
+  const totalDisplay = `$${(chargedTotalCents / 100).toFixed(2)}`;
 
   sendMail({
     subject: `New Order #${order.id} — ${customerName} (Pending Review)`,
@@ -250,7 +265,12 @@ router.post("/checkout/place-order", async (req, res) => {
     ].join("\n"),
   }).catch(() => {});
 
-  res.status(201).json({ success: true, orderId: order.id });
+  res.status(201).json({
+    success: true,
+    orderId: order.id,
+    totalCents: chargedTotalCents,
+    discountCents,
+  });
 });
 
 /**
@@ -277,6 +297,7 @@ router.post("/checkout/charge", async (req, res) => {
     researchField,
     termsAccepted,
     metadata,
+    coupon_code,
   } = parsed.data;
 
   // Resolve and compute total server-side — never trust client-supplied amount
@@ -302,13 +323,21 @@ router.post("/checkout/charge", async (req, res) => {
     if (product?.requiresConsultation) requiresConsultation = true;
   }
 
+  const appliedCoupon = await applyCoupon(coupon_code, totalCents);
+  if (coupon_code && !appliedCoupon) {
+    res.status(400).json({ error: "Invalid or expired promo code." });
+    return;
+  }
+  const chargedTotalCents = appliedCoupon?.totalCents ?? totalCents;
+  const discountCents = appliedCoupon?.discountCents ?? 0;
+
   // Charge via PaymentNode.
   // PaymentNode expects amounts in major currency units (dollars), not cents.
   // We store prices in cents internally — divide by 100 before sending.
   let chargeResult;
   try {
     chargeResult = await chargePayment({
-      amount: totalCents / 100,
+      amount: chargedTotalCents / 100,
       order_id,
       payment_method_id,
       currency_code: "USD",
@@ -333,9 +362,13 @@ router.post("/checkout/charge", async (req, res) => {
       phone: phone ?? null,
       shippingAddress,
       items: lineItems,
-      totalCents,
+      totalCents: chargedTotalCents,
+      originalTotalCents: totalCents,
+      discountCents,
       status: "pending",
       paynodePaymentId: chargeResult.id,
+      couponCode: appliedCoupon?.coupon.code ?? null,
+      couponId: appliedCoupon?.coupon.id ?? null,
       requiresConsultation,
       researchField,
       termsAccepted,
@@ -345,6 +378,14 @@ router.post("/checkout/charge", async (req, res) => {
     // Charge succeeded but DB write failed — still return success with payment_id so it can be reconciled
     res.status(201).json({ success: true, payment_id: chargeResult.id, orderId: null, warning: "Order record could not be saved — please contact support with your payment ID." });
     return;
+  }
+
+  if (appliedCoupon) {
+    try {
+      await recordCouponUse(appliedCoupon, order.id);
+    } catch (err) {
+      req.log.error({ err, order_id: order.id }, "coupon use record failed after successful charge");
+    }
   }
 
   req.log.info({ orderId: order.id, payment_id: chargeResult.id, email }, "Order created via PaymentNode");
@@ -365,7 +406,7 @@ router.post("/checkout/charge", async (req, res) => {
     const label = i.variantLabel ? ` (${i.variantLabel})` : "";
     return `  • ${i.name}${label} ×${i.quantity} — $${(i.priceCents / 100).toFixed(2)}`;
   }).join("\n");
-  const totalDisplay = `$${(totalCents / 100).toFixed(2)}`;
+  const totalDisplay = `$${(chargedTotalCents / 100).toFixed(2)}`;
 
   sendMail({
     subject: `New Order #${order.id} — ${customerName} (PaymentNode)`,
