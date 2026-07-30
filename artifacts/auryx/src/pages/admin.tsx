@@ -154,6 +154,7 @@ interface InfluencerCoupon {
   code: string;
   influencer_name: string;
   influencer_email: string;
+  influencer_zelle?: string | null;
   discount_percent: number;
   commission_percent: number;
   is_active: boolean;
@@ -166,6 +167,7 @@ interface CommissionUse {
   id: number;
   order_id: number;
   influencer_name: string;
+  influencer_zelle?: string | null;
   coupon_code: string;
   customer_name: string;
   customer_email: string;
@@ -175,6 +177,7 @@ interface CommissionUse {
   commission_owed: number;
   commission_paid: boolean;
   commission_paid_at?: string | null;
+  payment_notes?: string | null;
   created_at: string;
 }
 
@@ -1082,7 +1085,6 @@ function InventoryTab() {
     setSaving(true);
     try {
       const body = { ...form };
-      delete (body as Record<string, unknown>).sellPriceCents;
       if (editingId === "new") {
         await apiFetch("/inventory", {
           method: "POST",
@@ -2307,17 +2309,32 @@ function InfluencersTab() {
     code: "",
     influencer_name: "",
     influencer_email: "",
+    influencer_zelle: "",
     discount_percent: "10",
     commission_percent: "5",
+    is_active: true,
   });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [paymentDialog, setPaymentDialog] = useState<{ id: number; influencer: string } | null>(null);
+  const [paymentNotes, setPaymentNotes] = useState("");
+  const [markingPaid, setMarkingPaid] = useState(false);
 
   const filteredUses = (commissionsApi.data?.uses ?? []).filter(use =>
     !filter.trim()
       || use.influencer_name.toLowerCase().includes(filter.toLowerCase())
       || use.coupon_code.toLowerCase().includes(filter.toLowerCase()),
   );
+
+  function updateCouponCodeFromName(name: string) {
+    setForm(current => ({
+      ...current,
+      influencer_name: name,
+      ...(current.code === "" ? {
+        code: name.trim().replace(/[^A-Za-z0-9]+/g, "_").replace(/^_+|_+$/g, "").toUpperCase(),
+      } : {}),
+    }));
+  }
 
   async function createCoupon(e: React.FormEvent) {
     e.preventDefault();
@@ -2331,12 +2348,13 @@ function InfluencersTab() {
           ...form,
           discount_percent: Number(form.discount_percent),
           commission_percent: Number(form.commission_percent),
-          is_active: true,
+          influencer_zelle: form.influencer_zelle.trim() || null,
+          is_active: form.is_active,
         }),
       });
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(typeof body.error === "string" ? body.error : "Could not create coupon.");
-      setForm({ code: "", influencer_name: "", influencer_email: "", discount_percent: "10", commission_percent: "5" });
+      setForm({ code: "", influencer_name: "", influencer_email: "", influencer_zelle: "", discount_percent: "10", commission_percent: "5", is_active: true });
       setMessage("Coupon created.");
       couponsApi.reload();
     } catch (err) {
@@ -2356,10 +2374,25 @@ function InfluencersTab() {
     else setMessage("Could not update coupon.");
   }
 
-  async function markPaid(id: number) {
-    const response = await apiFetch(`/admin/commissions/${id}/mark-paid`, { method: "PATCH" });
-    if (response.ok) commissionsApi.reload();
-    else setMessage("Could not mark commission as paid.");
+  async function markPaid() {
+    if (!paymentDialog) return;
+    setMarkingPaid(true);
+    try {
+      const response = await apiFetch(`/admin/commissions/${paymentDialog.id}/mark-paid`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ payment_notes: paymentNotes.trim() || null }),
+      });
+      if (response.ok) {
+        setPaymentDialog(null);
+        setPaymentNotes("");
+        commissionsApi.reload();
+      } else {
+        setMessage("Could not mark commission as paid.");
+      }
+    } finally {
+      setMarkingPaid(false);
+    }
   }
 
   if (couponsApi.loading || commissionsApi.loading) return <Spinner />;
@@ -2392,6 +2425,7 @@ function InfluencersTab() {
             ["code", "Coupon code", "AURYX10"],
             ["influencer_name", "Influencer name", "Name"],
             ["influencer_email", "Influencer email", "name@example.com"],
+            ["influencer_zelle", "Zelle handle or phone", "@name or phone"],
             ["discount_percent", "Customer discount %", "10"],
             ["commission_percent", "Commission %", "5"],
           ] as const).map(([key, label, placeholder]) => (
@@ -2403,13 +2437,27 @@ function InfluencersTab() {
                 min={key.endsWith("percent") ? 0 : undefined}
                 max={key.endsWith("percent") ? 100 : undefined}
                 value={form[key]}
-                onChange={e => setForm(current => ({ ...current, [key]: e.target.value }))}
+                onChange={e => key === "influencer_name"
+                  ? updateCouponCodeFromName(e.target.value)
+                  : setForm(current => ({
+                    ...current,
+                    [key]: key === "code" ? e.target.value.toUpperCase() : e.target.value,
+                  }))}
                 placeholder={placeholder}
                 className="mt-1 w-full h-10 rounded border border-white/10 bg-white/5 px-3 text-sm text-white placeholder:text-white/20 focus:border-[#C9A844] focus:outline-none"
               />
             </label>
           ))}
         </div>
+        <label className="inline-flex items-center gap-2 text-sm text-white/60 font-['DM_Sans']">
+          <input
+            type="checkbox"
+            checked={form.is_active}
+            onChange={e => setForm(current => ({ ...current, is_active: e.target.checked }))}
+            className="accent-[#C9A844]"
+          />
+          Active immediately
+        </label>
         <button disabled={saving} className="px-4 py-2 rounded bg-[#C9A844] text-[#0A0A0A] text-sm font-medium disabled:opacity-50">
           {saving ? "Creating…" : "Create coupon"}
         </button>
@@ -2423,6 +2471,7 @@ function InfluencersTab() {
               <div className="flex-1 min-w-48">
                 <p className="text-[#C9A844] font-medium tracking-wider">{coupon.code}</p>
                 <p className="text-sm text-white/60">{coupon.influencer_name} · {coupon.influencer_email}</p>
+                {coupon.influencer_zelle && <p className="text-xs text-white/35">Zelle: {coupon.influencer_zelle}</p>}
               </div>
               <div className="text-sm text-white/50">{coupon.discount_percent}% off · {coupon.commission_percent}% commission</div>
               <div className="text-sm text-white/40">{coupon.total_sales} sale{coupon.total_sales !== 1 ? "s" : ""}</div>
@@ -2453,15 +2502,19 @@ function InfluencersTab() {
               <div key={use.id} className="border border-white/10 rounded-lg px-4 py-4 flex flex-wrap items-center gap-4">
                 <div className="flex-1 min-w-48">
                   <p className="text-sm text-white">{use.influencer_name} <span className="text-[#C9A844]">· {use.coupon_code}</span></p>
-                  <p className="text-xs text-white/35">Order #{use.order_id} · {use.customer_name}</p>
+                  <p className="text-xs text-white/35">Order #{use.order_id} · {use.customer_name}{use.influencer_zelle ? ` · Zelle: ${use.influencer_zelle}` : ""}</p>
                 </div>
+                <div className="text-xs text-white/35">{new Date(use.created_at).toLocaleDateString()}</div>
                 <div className="text-xs text-white/45">
-                  ${use.order_amount_after_discount.toFixed(2)} paid · ${use.commission_owed.toFixed(2)} owed
+                  ${use.order_amount_before_discount.toFixed(2)} before · −${use.discount_applied.toFixed(2)} · ${use.order_amount_after_discount.toFixed(2)} charged · ${use.commission_owed.toFixed(2)} owed
                 </div>
                 {use.commission_paid ? (
-                  <Badge label="Paid" className="bg-[#0D9488]/20 text-[#5EEAD4]" />
+                  <div className="text-right">
+                    <Badge label="Paid" className="bg-[#0D9488]/20 text-[#5EEAD4]" />
+                    {use.payment_notes && <p className="text-[11px] text-white/35 mt-1 max-w-48 truncate" title={use.payment_notes}>{use.payment_notes}</p>}
+                  </div>
                 ) : (
-                  <button onClick={() => void markPaid(use.id)} className="px-3 py-1.5 rounded bg-[#C9A844] text-[#0A0A0A] text-xs font-medium">
+                  <button onClick={() => { setPaymentNotes(""); setPaymentDialog({ id: use.id, influencer: use.influencer_name }); }} className="px-3 py-1.5 rounded bg-[#C9A844] text-[#0A0A0A] text-xs font-medium">
                     Mark paid
                   </button>
                 )}
@@ -2470,6 +2523,33 @@ function InfluencersTab() {
           </div>
         )}
       </div>
+
+      {paymentDialog && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" role="dialog" aria-modal="true">
+          <div className="w-full max-w-md rounded-xl border border-white/10 bg-[#151515] p-6 shadow-2xl">
+            <h3 className="font-['Cormorant_Garamond'] text-2xl text-white">Mark commission paid</h3>
+            <p className="mt-1 text-sm text-white/45">Record the payment to {paymentDialog.influencer}.</p>
+            <label className="mt-5 block">
+              <span className="text-[10px] uppercase tracking-widest text-white/35 font-['DM_Sans']">Payment notes (optional)</span>
+              <textarea
+                autoFocus
+                value={paymentNotes}
+                onChange={e => setPaymentNotes(e.target.value)}
+                placeholder="Zelle confirmation number or payment reference"
+                maxLength={500}
+                rows={3}
+                className="mt-2 w-full rounded border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/20 focus:border-[#C9A844] focus:outline-none"
+              />
+            </label>
+            <div className="mt-5 flex justify-end gap-2">
+              <button onClick={() => setPaymentDialog(null)} disabled={markingPaid} className="px-3 py-2 text-xs text-white/50 hover:text-white disabled:opacity-50">Cancel</button>
+              <button onClick={() => void markPaid()} disabled={markingPaid} className="px-4 py-2 rounded bg-[#C9A844] text-[#0A0A0A] text-xs font-medium disabled:opacity-50">
+                {markingPaid ? "Saving…" : "Confirm paid"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

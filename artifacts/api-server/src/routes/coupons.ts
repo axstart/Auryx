@@ -17,6 +17,7 @@ const CouponInputSchema = z.object({
   code: CouponCodeSchema,
   influencer_name: z.string().trim().min(1).max(120),
   influencer_email: z.string().trim().email(),
+  influencer_zelle: z.string().trim().max(200).optional().nullable(),
   discount_percent: z.coerce.number().min(0).max(100),
   commission_percent: z.coerce.number().min(0).max(100),
   is_active: z.boolean().default(true),
@@ -32,6 +33,7 @@ function couponResponse(coupon: typeof influencerCouponsTable.$inferSelect) {
     code: coupon.code,
     influencer_name: coupon.influencerName,
     influencer_email: coupon.influencerEmail,
+    influencer_zelle: coupon.influencerZelle,
     discount_percent: Number(coupon.discountPercent),
     commission_percent: Number(coupon.commissionPercent),
     is_active: coupon.isActive,
@@ -74,6 +76,7 @@ router.get("/admin/coupons", requireAdmin, async (_req, res) => {
       c.code,
       c.influencer_name,
       c.influencer_email,
+      c.influencer_zelle,
       c.discount_percent,
       c.commission_percent,
       c.is_active,
@@ -91,6 +94,7 @@ router.get("/admin/coupons", requireAdmin, async (_req, res) => {
     code: String(row.code),
     influencer_name: String(row.influencer_name),
     influencer_email: String(row.influencer_email),
+    influencer_zelle: row.influencer_zelle == null ? null : String(row.influencer_zelle),
     discount_percent: Number(row.discount_percent),
     commission_percent: Number(row.commission_percent),
     is_active: Boolean(row.is_active),
@@ -112,6 +116,7 @@ router.post("/admin/coupons", requireAdmin, async (req, res) => {
       code: normalizeCode(parsed.data.code),
       influencerName: parsed.data.influencer_name,
       influencerEmail: parsed.data.influencer_email,
+      influencerZelle: parsed.data.influencer_zelle || null,
       discountPercent: String(parsed.data.discount_percent),
       commissionPercent: String(parsed.data.commission_percent),
       isActive: parsed.data.is_active,
@@ -145,6 +150,7 @@ router.patch("/admin/coupons/:id", requireAdmin, async (req, res) => {
   if (data.code !== undefined) update.code = normalizeCode(data.code);
   if (data.influencer_name !== undefined) update.influencerName = data.influencer_name;
   if (data.influencer_email !== undefined) update.influencerEmail = data.influencer_email;
+  if (data.influencer_zelle !== undefined) update.influencerZelle = data.influencer_zelle || null;
   if (data.discount_percent !== undefined) update.discountPercent = String(data.discount_percent);
   if (data.commission_percent !== undefined) update.commissionPercent = String(data.commission_percent);
   if (data.is_active !== undefined) update.isActive = data.is_active;
@@ -181,9 +187,11 @@ router.get("/admin/commissions", requireAdmin, async (req, res) => {
       u.commission_owed,
       u.commission_paid,
       u.commission_paid_at,
+      u.payment_notes,
       u.created_at,
       c.code,
       c.influencer_name,
+      c.influencer_zelle,
       o.customer_name,
       o.email
     FROM influencer_coupon_uses u
@@ -209,6 +217,7 @@ router.get("/admin/commissions", requireAdmin, async (req, res) => {
       id: Number(row.id),
       order_id: Number(row.order_id),
       influencer_name: String(row.influencer_name),
+      influencer_zelle: row.influencer_zelle == null ? null : String(row.influencer_zelle),
       coupon_code: String(row.code),
       customer_name: String(row.customer_name),
       customer_email: String(row.email),
@@ -218,6 +227,7 @@ router.get("/admin/commissions", requireAdmin, async (req, res) => {
       commission_owed: Number(row.commission_owed),
       commission_paid: Boolean(row.commission_paid),
       commission_paid_at: row.commission_paid_at,
+      payment_notes: row.payment_notes == null ? null : String(row.payment_notes),
       created_at: row.created_at,
     })),
   });
@@ -230,8 +240,20 @@ router.patch("/admin/commissions/:id/mark-paid", requireAdmin, async (req, res) 
     return;
   }
 
+  const parsed = z.object({
+    payment_notes: z.string().trim().max(500).optional().nullable(),
+  }).safeParse(req.body ?? {});
+  if (!parsed.success) {
+    res.status(400).json({ error: parsed.error.flatten().fieldErrors });
+    return;
+  }
+
   const [use] = await db.update(influencerCouponUsesTable)
-    .set({ commissionPaid: true, commissionPaidAt: new Date() })
+    .set({
+      commissionPaid: true,
+      commissionPaidAt: new Date(),
+      paymentNotes: parsed.data.payment_notes || null,
+    })
     .where(and(
       eq(influencerCouponUsesTable.id, id),
       eq(influencerCouponUsesTable.commissionPaid, false),
@@ -242,7 +264,13 @@ router.patch("/admin/commissions/:id/mark-paid", requireAdmin, async (req, res) 
     res.status(404).json({ error: "Unpaid commission not found." });
     return;
   }
-  res.json({ success: true, id: use.id, commission_paid: true, commission_paid_at: use.commissionPaidAt });
+  res.json({
+    success: true,
+    id: use.id,
+    commission_paid: true,
+    commission_paid_at: use.commissionPaidAt,
+    payment_notes: use.paymentNotes,
+  });
 });
 
 export default router;

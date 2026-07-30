@@ -33,6 +33,7 @@ import type {
   InventoryItemInput,
   InventoryItemUpdate,
   ListAdminCommissionsParams,
+  MarkCommissionPaidBody,
   ProtocolRecommendation,
   ProtocolRecommendationInput,
 } from "./api.schemas";
@@ -1396,11 +1397,14 @@ export const getMarkCommissionPaidUrl = (id: number) => {
 
 export const markCommissionPaid = async (
   id: number,
+  markCommissionPaidBody?: MarkCommissionPaidBody,
   options?: RequestInit,
 ): Promise<void> => {
   return customFetch<void>(getMarkCommissionPaidUrl(id), {
     ...options,
     method: "PATCH",
+    headers: { "Content-Type": "application/json", ...options?.headers },
+    body: JSON.stringify(markCommissionPaidBody),
   });
 };
 
@@ -1411,14 +1415,14 @@ export const getMarkCommissionPaidMutationOptions = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof markCommissionPaid>>,
     TError,
-    { id: number },
+    { id: number; data: BodyType<MarkCommissionPaidBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationOptions<
   Awaited<ReturnType<typeof markCommissionPaid>>,
   TError,
-  { id: number },
+  { id: number; data: BodyType<MarkCommissionPaidBody> },
   TContext
 > => {
   const mutationKey = ["markCommissionPaid"];
@@ -1432,11 +1436,11 @@ export const getMarkCommissionPaidMutationOptions = <
 
   const mutationFn: MutationFunction<
     Awaited<ReturnType<typeof markCommissionPaid>>,
-    { id: number }
+    { id: number; data: BodyType<MarkCommissionPaidBody> }
   > = (props) => {
-    const { id } = props ?? {};
+    const { id, data } = props ?? {};
 
-    return markCommissionPaid(id, requestOptions);
+    return markCommissionPaid(id, data, requestOptions);
   };
 
   return { mutationFn, ...mutationOptions };
@@ -1445,7 +1449,7 @@ export const getMarkCommissionPaidMutationOptions = <
 export type MarkCommissionPaidMutationResult = NonNullable<
   Awaited<ReturnType<typeof markCommissionPaid>>
 >;
-
+export type MarkCommissionPaidMutationBody = BodyType<MarkCommissionPaidBody>;
 export type MarkCommissionPaidMutationError = ErrorType<void>;
 
 /**
@@ -1458,14 +1462,14 @@ export const useMarkCommissionPaid = <
   mutation?: UseMutationOptions<
     Awaited<ReturnType<typeof markCommissionPaid>>,
     TError,
-    { id: number },
+    { id: number; data: BodyType<MarkCommissionPaidBody> },
     TContext
   >;
   request?: SecondParameter<typeof customFetch>;
 }): UseMutationResult<
   Awaited<ReturnType<typeof markCommissionPaid>>,
   TError,
-  { id: number },
+  { id: number; data: BodyType<MarkCommissionPaidBody> },
   TContext
 > => {
   return useMutation(getMarkCommissionPaidMutationOptions(options));

@@ -10,6 +10,8 @@ export interface CommissionUse {
   id: number;
   order_id: number;
   influencer_name: string;
+  /** @nullable */
+  influencer_zelle?: string | null;
   coupon_code: string;
   customer_name: string;
   customer_email: string;
@@ -20,5 +22,7 @@ export interface CommissionUse {
   commission_paid: boolean;
   /** @nullable */
   commission_paid_at?: Date | null;
+  /** @nullable */
+  payment_notes?: string | null;
   created_at: Date;
 }

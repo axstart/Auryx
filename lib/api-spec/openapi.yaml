@@ -368,6 +368,16 @@ paths:
           required: true
           schema:
             type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payment_notes:
+                  type: ["string", "null"]
+                  maxLength: 500
       responses:
         "200":
           description: Commission marked paid
@@ -411,6 +421,8 @@ components:
         influencer_email:
           type: string
           format: email
+        influencer_zelle:
+          type: ["string", "null"]
         discount_percent:
           type: number
           minimum: 0
@@ -454,6 +466,8 @@ components:
           type: integer
         influencer_name:
           type: string
+        influencer_zelle:
+          type: ["string", "null"]
         coupon_code:
           type: string
         customer_name:
@@ -473,6 +487,8 @@ components:
         commission_paid_at:
           type: ["string", "null"]
           format: date-time
+        payment_notes:
+          type: ["string", "null"]
         created_at:
           type: string
           format: date-time

@@ -25,6 +25,7 @@ export * from "./inventoryItem";
 export * from "./inventoryItemInput";
 export * from "./inventoryItemUpdate";
 export * from "./listAdminCommissionsParams";
+export * from "./markCommissionPaidBody";
 export * from "./protocolItem";
 export * from "./protocolRecommendation";
 export * from "./protocolRecommendationInput";

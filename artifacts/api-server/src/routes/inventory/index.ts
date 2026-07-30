@@ -46,9 +46,26 @@ router.patch("/inventory/:id", sessionAuth, async (req, res): Promise<void> => {
     res.status(400).json({ error: parsed.error.message });
     return;
   }
+  const update = {
+    ...(parsed.data.name !== undefined ? { name: parsed.data.name } : {}),
+    ...(parsed.data.category !== undefined ? { category: parsed.data.category } : {}),
+    ...(parsed.data.stock !== undefined ? { stock: Number(parsed.data.stock) } : {}),
+    ...(parsed.data.unit !== undefined ? { unit: parsed.data.unit } : {}),
+    ...(parsed.data.lowStockThreshold !== undefined
+      ? { lowStockThreshold: Number(parsed.data.lowStockThreshold) }
+      : {}),
+    ...(parsed.data.costPerUnit !== undefined
+      ? { costPerUnit: Number(parsed.data.costPerUnit) }
+      : {}),
+    ...(parsed.data.sellPriceCents !== undefined
+      ? { sellPriceCents: Number(parsed.data.sellPriceCents) }
+      : {}),
+    ...(parsed.data.notes !== undefined ? { notes: parsed.data.notes } : {}),
+    ...(parsed.data.variantLabel !== undefined ? { variantLabel: parsed.data.variantLabel } : {}),
+  };
   const [record] = await db
     .update(inventoryItemsTable)
-    .set(parsed.data)
+    .set(update)
     .where(eq(inventoryItemsTable.id, params.data.id))
     .returning();
   if (!record) {

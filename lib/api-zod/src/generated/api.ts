@@ -296,6 +296,7 @@ export const ListAdminCouponsResponseItem = zod
     code: zod.string(),
     influencer_name: zod.string(),
     influencer_email: zod.string().email(),
+    influencer_zelle: zod.string().nullish(),
     discount_percent: zod
       .number()
       .min(listAdminCouponsResponseOneDiscountPercentMin)
@@ -333,6 +334,7 @@ export const CreateAdminCouponBody = zod.object({
   code: zod.string(),
   influencer_name: zod.string(),
   influencer_email: zod.string().email(),
+  influencer_zelle: zod.string().nullish(),
   discount_percent: zod
     .number()
     .min(createAdminCouponBodyDiscountPercentMin)
@@ -364,6 +366,7 @@ export const UpdateAdminCouponBody = zod
     code: zod.string(),
     influencer_name: zod.string(),
     influencer_email: zod.string().email(),
+    influencer_zelle: zod.string().nullish(),
     discount_percent: zod
       .number()
       .min(updateAdminCouponBodyOneDiscountPercentMin)
@@ -389,6 +392,7 @@ export const UpdateAdminCouponResponse = zod
     code: zod.string(),
     influencer_name: zod.string(),
     influencer_email: zod.string().email(),
+    influencer_zelle: zod.string().nullish(),
     discount_percent: zod
       .number()
       .min(updateAdminCouponResponseOneDiscountPercentMin)
@@ -425,6 +429,7 @@ export const ListAdminCommissionsResponse = zod.object({
       id: zod.number(),
       order_id: zod.number(),
       influencer_name: zod.string(),
+      influencer_zelle: zod.string().nullish(),
       coupon_code: zod.string(),
       customer_name: zod.string(),
       customer_email: zod.string(),
@@ -434,6 +439,7 @@ export const ListAdminCommissionsResponse = zod.object({
       commission_owed: zod.number(),
       commission_paid: zod.boolean(),
       commission_paid_at: zod.coerce.date().nullish(),
+      payment_notes: zod.string().nullish(),
       created_at: zod.coerce.date(),
     }),
   ),
@@ -444,4 +450,13 @@ export const ListAdminCommissionsResponse = zod.object({
  */
 export const MarkCommissionPaidParams = zod.object({
   id: zod.coerce.number(),
+});
+
+export const markCommissionPaidBodyPaymentNotesMax = 500;
+
+export const MarkCommissionPaidBody = zod.object({
+  payment_notes: zod
+    .string()
+    .max(markCommissionPaidBodyPaymentNotesMax)
+    .nullish(),
 });

@@ -1,2 +1,25 @@
 export * from "./generated/api";
-export * from "./generated/types";
+export type {
+  AdminCoupon,
+  ChatEscalateInput,
+  ChatEscalation,
+  CommissionSummary,
+  CommissionUse,
+  Consultation,
+  ConsultationInput,
+  ConsultationInputUsedPeptidesBefore,
+  ConsultationUpdate,
+  ConsultationUpdateStatus,
+  CouponInput,
+  CouponUpdateInput,
+  CouponValidationInput,
+  CouponValidationResult,
+  HealthStatus,
+  InventoryItem,
+  InventoryItemInput,
+  InventoryItemUpdate,
+  ListAdminCommissionsParams,
+  ProtocolItem,
+  ProtocolRecommendation,
+  ProtocolRecommendationInput,
+} from "./generated/types";

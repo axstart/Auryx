@@ -23,6 +23,8 @@ export interface CouponInput {
   code: string;
   influencer_name: string;
   influencer_email: string;
+  /** @nullable */
+  influencer_zelle?: string | null;
   /**
    * @minimum 0
    * @maximum 100
@@ -52,6 +54,8 @@ export interface CommissionUse {
   id: number;
   order_id: number;
   influencer_name: string;
+  /** @nullable */
+  influencer_zelle?: string | null;
   coupon_code: string;
   customer_name: string;
   customer_email: string;
@@ -62,6 +66,8 @@ export interface CommissionUse {
   commission_paid: boolean;
   /** @nullable */
   commission_paid_at?: string | null;
+  /** @nullable */
+  payment_notes?: string | null;
   created_at: string;
 }
 
@@ -245,4 +251,12 @@ export interface ProtocolRecommendation {
 
 export type ListAdminCommissionsParams = {
   filter?: string;
+};
+
+export type MarkCommissionPaidBody = {
+  /**
+   * @maxLength 500
+   * @nullable
+   */
+  payment_notes?: string | null;
 };

@@ -7,6 +7,7 @@ export const influencerCouponsTable = pgTable("influencer_coupons", {
   code: text("code").notNull().unique(),
   influencerName: text("influencer_name").notNull(),
   influencerEmail: text("influencer_email").notNull(),
+  influencerZelle: text("influencer_zelle"),
   discountPercent: numeric("discount_percent", { precision: 5, scale: 2 }).notNull().default("10"),
   commissionPercent: numeric("commission_percent", { precision: 5, scale: 2 }).notNull().default("5"),
   isActive: boolean("is_active").notNull().default(true),
@@ -49,6 +50,7 @@ export const influencerCouponUsesTable = pgTable("influencer_coupon_uses", {
   commissionOwed: numeric("commission_owed", { precision: 12, scale: 2 }).notNull(),
   commissionPaid: boolean("commission_paid").notNull().default(false),
   commissionPaidAt: timestamp("commission_paid_at", { withTimezone: true }),
+  paymentNotes: text("payment_notes"),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 }, (table) => [
   unique("influencer_coupon_uses_order_unique").on(table.orderId),

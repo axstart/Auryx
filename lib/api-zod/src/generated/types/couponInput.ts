@@ -10,6 +10,8 @@ export interface CouponInput {
   code: string;
   influencer_name: string;
   influencer_email: string;
+  /** @nullable */
+  influencer_zelle?: string | null;
   /**
    * @minimum 0
    * @maximum 100
