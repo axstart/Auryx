@@ -262,7 +262,7 @@ export const PRODUCTS: Product[] = [
     physicianNote:
       "The no-DAC formulation is preferred for patients who want the most physiological GH release pattern. Its short half-life means it acts only during the injection window, making it ideal for mimicking natural nocturnal GH pulses.",
     requiresConsultation: false,
-    priceCents: 11900,
+    priceCents: 17900,
   },
   {
     slug: "cjc-1295-dac",
@@ -494,7 +494,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "0.3–1 nmol/kg subcutaneous injection, 2–3 times per week. Protocol duration: 8–16 weeks. Hormone panel recommended at baseline.",
     requiresConsultation: true,
-    priceCents: 19900,
+    priceCents: 11900,
   },
 
   // ── Immune & Cellular Biology ─────────────────────────────────────────────────────
@@ -515,7 +515,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "1.6 mg subcutaneous injection twice weekly. Protocol duration: 8–16 weeks for immune optimization; ongoing for maintenance.",
     requiresConsultation: false,
-    priceCents: 19900,
+    priceCents: 24900,
     coas: [
       { label: "10 mg", accession: "2602130489", lab: "Freedom Diagnostics Testing", purity: "99.22%", url: "/coa/thymosin-alpha-1-10mg.pdf" },
     ],
@@ -582,9 +582,9 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "250–500 mg IV infusion over 2–4 hours, 1–3 times per week during loading phase; 250 mg subcutaneous weekly for maintenance. Administer slowly to minimize discomfort.",
     requiresConsultation: false,
-    priceCents: 14900,
+    priceCents: 16900,
     variants: [
-      { label: "500 mg",  priceCents: 14900 },
+      { label: "500 mg",  priceCents: 16900 },
       { label: "1000 mg", priceCents: 24900 },
     ],
     coas: [
@@ -760,7 +760,7 @@ export const PRODUCTS: Product[] = [
     dosingInfo:
       "Administered per individualized Auryx protocol. Contact our clinical team for dosing schedule.",
     requiresConsultation: true,
-    priceCents: 28900,
+    priceCents: 29900,
     coas: [
       { label: "GHK-Cu/KPV/BPC-157/TB-500", accession: "2602240140", lab: "Freedom Diagnostics Testing", url: "/coa/klow-complex.pdf" },
     ],
