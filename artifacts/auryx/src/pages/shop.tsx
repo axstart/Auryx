@@ -324,7 +324,7 @@ function ProductCard({
                   }`}
                 >
                   <ChevronRight className="w-3 h-3" />
-                  Select Dose
+                  Select Option
                 </Link>
               ) : (
                 <span className="h-8 px-4 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center bg-[#0A0A0A]/8 text-[#0A0A0A]/35 border border-[#0A0A0A]/10 cursor-not-allowed whitespace-nowrap select-none">
