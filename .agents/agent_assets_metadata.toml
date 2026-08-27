@@ -24,3 +24,10 @@ uri = "file://exports/auryx-seo-marketing-source-2026-08-27.zip"
 type = "unspecified"
 title = "Auryx source handoff ZIP — download"
 description = "Click the download card to save the sanitized source archive."
+
+[[outputs]]
+id = "fqhGTEDh4wwfzUQih2O6p"
+uri = "file://auryx-source-handoff.zip"
+type = "unspecified"
+title = "Download Auryx source handoff"
+description = "Top-level ZIP copy. Download it from this attachment to save it to your computer."
