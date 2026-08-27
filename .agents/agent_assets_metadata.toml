@@ -1,5 +1,4 @@
 uploads = []
-outputs = []
 
 [[generated]]
 id = "suidciotOVtVwGh14JXmp"
@@ -18,3 +17,10 @@ id = "sn4ArEiYOdWCtDtkuLRaq"
 uri = "file://artifacts/auryx/public/education-bg.png"
 type = "image"
 title = "peptide science lab"
+
+[[outputs]]
+id = "lWme8QEgRLwjptgPDZrwI"
+uri = "file://exports/auryx-seo-marketing-source-2026-08-27.zip"
+type = "unspecified"
+title = "Auryx sanitized source handoff"
+description = "Source code, public storefront assets, SEO files, and setup metadata—scanned and packaged without credentials or runtime data."

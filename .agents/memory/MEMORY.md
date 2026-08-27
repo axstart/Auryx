@@ -6,3 +6,4 @@
 - [Influencer coupon accounting](influencer-coupon-accounting.md) — retain original/discounted totals and record each commission once after successful payment.
 - [OpenAPI Zod export collisions](openapi-zod-export-collision.md) — resolve duplicate Orval operation/type names at the package boundary with explicit type exports.
 - [Storefront catalog price source](catalog-price-source.md) — product pages and checkout need catalog price updates in addition to inventory-row changes.
+- [Sanitized source handoffs](sanitized-source-handoffs.md) — external code exports include public storefront assets but exclude credentials, runtime data, uploads, and internal design tooling.
