@@ -1,0 +1,791 @@
+openapi: 3.1.0
+info:
+  # Do not change the title, if the title changes, the import paths will be broken
+  title: Api
+  version: 0.1.0
+  description: API specification
+servers:
+  - url: /api
+    description: Base API path
+tags:
+  - name: health
+    description: Health operations
+  - name: consultations
+    description: Consultation request operations
+  - name: inventory
+    description: Inventory management operations
+  - name: coupons
+    description: Public coupon validation and admin influencer commission operations
+paths:
+  /healthz:
+    get:
+      operationId: healthCheck
+      tags: [health]
+      summary: Health check
+      description: Returns server health status
+      responses:
+        "200":
+          description: Healthy
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/HealthStatus"
+
+  /consultations:
+    post:
+      operationId: createConsultation
+      tags: [consultations]
+      summary: Submit a consultation request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsultationInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Consultation"
+        "400":
+          description: Invalid input
+    get:
+      operationId: listConsultations
+      tags: [consultations]
+      summary: List all consultation requests (admin)
+      responses:
+        "200":
+          description: List of consultations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Consultation"
+        "401":
+          description: Unauthorized
+
+  /consultations/{id}:
+    patch:
+      operationId: updateConsultation
+      tags: [consultations]
+      summary: Update consultation status (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ConsultationUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Consultation"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+
+  /inventory:
+    get:
+      operationId: listInventory
+      tags: [inventory]
+      summary: List all inventory items (admin)
+      responses:
+        "200":
+          description: List of inventory items
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InventoryItem"
+        "401":
+          description: Unauthorized
+    post:
+      operationId: createInventoryItem
+      tags: [inventory]
+      summary: Create an inventory item (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InventoryItemInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+        "401":
+          description: Unauthorized
+
+  /inventory/{id}:
+    patch:
+      operationId: updateInventoryItem
+      tags: [inventory]
+      summary: Update an inventory item (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InventoryItemUpdate"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InventoryItem"
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+    delete:
+      operationId: deleteInventoryItem
+      tags: [inventory]
+      summary: Delete an inventory item (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      responses:
+        "204":
+          description: Deleted
+        "401":
+          description: Unauthorized
+        "404":
+          description: Not found
+
+  /chat/escalate:
+    post:
+      operationId: createChatEscalation
+      tags: [chat]
+      summary: Submit a chat escalation request
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ChatEscalateInput"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ChatEscalation"
+        "400":
+          description: Invalid input
+
+  /protocol-recommendation:
+    post:
+      operationId: getProtocolRecommendation
+      tags: [protocol]
+      summary: Get an AI-generated protocol recommendation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProtocolRecommendationInput"
+      responses:
+        "200":
+          description: AI-generated protocol recommendation
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProtocolRecommendation"
+        "400":
+          description: Invalid input or medical consultation required
+        "500":
+          description: AI service error
+
+  /chat/escalations:
+    get:
+      operationId: listChatEscalations
+      tags: [chat]
+      summary: List all chat escalations (admin)
+      responses:
+        "200":
+          description: List of escalations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ChatEscalation"
+        "401":
+          description: Unauthorized
+
+  /coupons/validate:
+    post:
+      operationId: validateCoupon
+      tags: [coupons]
+      summary: Validate a public coupon code
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CouponValidationInput"
+      responses:
+        "200":
+          description: Coupon validation result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CouponValidationResult"
+
+  /admin/coupons:
+    get:
+      operationId: listAdminCoupons
+      tags: [coupons]
+      summary: List influencer coupons (admin)
+      responses:
+        "200":
+          description: Influencer coupons
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/AdminCoupon"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Admin access required
+    post:
+      operationId: createAdminCoupon
+      tags: [coupons]
+      summary: Create an influencer coupon (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CouponInput"
+      responses:
+        "201":
+          description: Coupon created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCoupon"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "403":
+          description: Admin access required
+        "409":
+          description: Coupon code already exists
+
+  /admin/coupons/{id}:
+    patch:
+      operationId: updateAdminCoupon
+      tags: [coupons]
+      summary: Update an influencer coupon (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CouponUpdateInput"
+      responses:
+        "200":
+          description: Coupon updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AdminCoupon"
+        "400":
+          description: Invalid input
+        "401":
+          description: Unauthorized
+        "403":
+          description: Admin access required
+        "404":
+          description: Coupon not found
+
+  /admin/commissions:
+    get:
+      operationId: listAdminCommissions
+      tags: [coupons]
+      summary: List influencer commissions (admin)
+      parameters:
+        - in: query
+          name: filter
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Commission summary and uses
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CommissionSummary"
+        "401":
+          description: Unauthorized
+        "403":
+          description: Admin access required
+
+  /admin/commissions/{id}/mark-paid:
+    patch:
+      operationId: markCommissionPaid
+      tags: [coupons]
+      summary: Mark an influencer commission as paid (admin)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                payment_notes:
+                  type: ["string", "null"]
+                  maxLength: 500
+      responses:
+        "200":
+          description: Commission marked paid
+        "401":
+          description: Unauthorized
+        "403":
+          description: Admin access required
+        "404":
+          description: Unpaid commission not found
+
+components:
+  schemas:
+    CouponValidationInput:
+      type: object
+      required: [code]
+      properties:
+        code:
+          type: string
+          minLength: 2
+          maxLength: 40
+
+    CouponValidationResult:
+      type: object
+      required: [valid, message]
+      properties:
+        valid:
+          type: boolean
+        discount_percent:
+          type: number
+        message:
+          type: string
+
+    CouponInput:
+      type: object
+      required: [code, influencer_name, influencer_email, discount_percent, commission_percent]
+      properties:
+        code:
+          type: string
+        influencer_name:
+          type: string
+        influencer_email:
+          type: string
+          format: email
+        influencer_zelle:
+          type: ["string", "null"]
+        discount_percent:
+          type: number
+          minimum: 0
+          maximum: 100
+        commission_percent:
+          type: number
+          minimum: 0
+          maximum: 100
+        is_active:
+          type: boolean
+          default: true
+
+    CouponUpdateInput:
+      allOf:
+        - $ref: "#/components/schemas/CouponInput"
+      description: Any subset of coupon fields may be updated.
+
+    AdminCoupon:
+      allOf:
+        - $ref: "#/components/schemas/CouponInput"
+        - type: object
+          required: [id, created_at, total_sales, total_commission_owed]
+          properties:
+            id:
+              type: integer
+            created_at:
+              type: string
+              format: date-time
+            total_sales:
+              type: integer
+            total_commission_owed:
+              type: number
+
+    CommissionUse:
+      type: object
+      required: [id, order_id, influencer_name, coupon_code, customer_name, customer_email, commission_owed, commission_paid, created_at]
+      properties:
+        id:
+          type: integer
+        order_id:
+          type: integer
+        influencer_name:
+          type: string
+        influencer_zelle:
+          type: ["string", "null"]
+        coupon_code:
+          type: string
+        customer_name:
+          type: string
+        customer_email:
+          type: string
+        order_amount_before_discount:
+          type: number
+        discount_applied:
+          type: number
+        order_amount_after_discount:
+          type: number
+        commission_owed:
+          type: number
+        commission_paid:
+          type: boolean
+        commission_paid_at:
+          type: ["string", "null"]
+          format: date-time
+        payment_notes:
+          type: ["string", "null"]
+        created_at:
+          type: string
+          format: date-time
+
+    CommissionSummary:
+      type: object
+      required: [total_commission_owed, total_commission_paid, uses]
+      properties:
+        total_commission_owed:
+          type: number
+        total_commission_paid:
+          type: number
+        uses:
+          type: array
+          items:
+            $ref: "#/components/schemas/CommissionUse"
+
+    HealthStatus:
+      type: object
+      properties:
+        status:
+          type: string
+      required:
+        - status
+
+    Consultation:
+      type: object
+      required: [id, name, email, interest, status, createdAt, updatedAt, state, age, primaryGoal, usedPeptidesBefore, hearAboutUs]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: ["string", "null"]
+        interest:
+          type: string
+        message:
+          type: ["string", "null"]
+        status:
+          type: string
+        state:
+          type: string
+        instagramHandle:
+          type: ["string", "null"]
+        age:
+          type: integer
+        primaryGoal:
+          type: string
+        usedPeptidesBefore:
+          type: string
+        hearAboutUs:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+
+    ConsultationInput:
+      type: object
+      required: [name, email, interest, state, age, usedPeptidesBefore, hearAboutUs]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        interest:
+          type: array
+          items:
+            type: string
+          minItems: 1
+        message:
+          type: string
+        state:
+          type: string
+          minLength: 1
+        instagramHandle:
+          type: string
+        age:
+          type: integer
+          minimum: 18
+        primaryGoal:
+          type: string
+          minLength: 1
+        usedPeptidesBefore:
+          type: string
+          enum: [yes, no]
+        hearAboutUs:
+          type: string
+          minLength: 1
+
+    ConsultationUpdate:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: [new, contacted, complete]
+
+    InventoryItem:
+      type: object
+      required: [id, name, category, stock, unit, lowStockThreshold, costPerUnit, sellPriceCents, regulatory_status, updatedAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        category:
+          type: string
+        stock:
+          type: integer
+        unit:
+          type: string
+        lowStockThreshold:
+          type: integer
+        costPerUnit:
+          type: integer
+          description: Cost per unit in cents (e.g. 5000 = $50.00)
+        sellPriceCents:
+          type: integer
+          description: Sell price per unit in cents (e.g. 32900 = $329.00)
+        regulatory_status:
+          type: string
+          enum:
+            - FDA Approved Active Ingredient
+            - FDA Phase 3
+            - Recommended for Compounding by FDA Advisory Committee
+            - Research Only
+        variantLabel:
+          type: ["string", "null"]
+        notes:
+          type: ["string", "null"]
+        updatedAt:
+          type: string
+          format: date-time
+
+    InventoryItemInput:
+      type: object
+      required: [name, category, stock, unit, lowStockThreshold]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        category:
+          type: string
+          minLength: 1
+        stock:
+          type: integer
+          minimum: 0
+        unit:
+          type: string
+          minLength: 1
+        lowStockThreshold:
+          type: integer
+          minimum: 0
+        costPerUnit:
+          type: integer
+          minimum: 0
+          default: 0
+          description: Cost per unit in cents
+        sellPriceCents:
+          type: integer
+          minimum: 0
+          default: 0
+          description: Sell price per unit in cents
+        regulatory_status:
+          type: string
+          enum:
+            - FDA Approved Active Ingredient
+            - FDA Phase 3
+            - Recommended for Compounding by FDA Advisory Committee
+            - Research Only
+        notes:
+          type: string
+        variantLabel:
+          type: string
+
+    InventoryItemUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+        category:
+          type: string
+        stock:
+          type: integer
+          minimum: 0
+        unit:
+          type: string
+        lowStockThreshold:
+          type: integer
+          minimum: 0
+        costPerUnit:
+          type: integer
+          minimum: 0
+          description: Cost per unit in cents
+        sellPriceCents:
+          type: integer
+          minimum: 0
+          description: Sell price per unit in cents
+        regulatory_status:
+          type: string
+          enum:
+            - FDA Approved Active Ingredient
+            - FDA Phase 3
+            - Recommended for Compounding by FDA Advisory Committee
+            - Research Only
+        notes:
+          type: string
+        variantLabel:
+          type: string
+
+    ChatEscalateInput:
+      type: object
+      required: [name, email, conversationJson]
+      properties:
+        name:
+          type: string
+          minLength: 1
+        email:
+          type: string
+          format: email
+        conversationJson:
+          type: string
+
+    ChatEscalation:
+      type: object
+      required: [id, name, email, conversationJson, createdAt]
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        conversationJson:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+
+    ProtocolRecommendationInput:
+      type: object
+      properties:
+        knowledge:
+          type: string
+        goal:
+          type: string
+        energySleep:
+          type: string
+        activityLevel:
+          type: string
+        intent:
+          type: string
+        medical:
+          type: array
+          items:
+            type: string
+        currentPeptides:
+          type: string
+        protocolIntent:
+          type: string
+
+    ProtocolItem:
+      type: object
+      required: [protocol, tagline, why, peptides]
+      properties:
+        protocol:
+          type: string
+        tagline:
+          type: string
+        why:
+          type: string
+        peptides:
+          type: array
+          items:
+            type: string
+
+    ProtocolRecommendation:
+      type: object
+      required: [summary, protocols, nextStep, disclaimer]
+      properties:
+        summary:
+          type: string
+        protocols:
+          type: array
+          items:
+            $ref: "#/components/schemas/ProtocolItem"
+        nextStep:
+          type: string
+        disclaimer:
+          type: string
