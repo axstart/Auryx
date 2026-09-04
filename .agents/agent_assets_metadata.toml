@@ -31,3 +31,17 @@ uri = "file://auryx-source-handoff.zip"
 type = "unspecified"
 title = "Download Auryx source handoff"
 description = "Top-level ZIP copy. Download it from this attachment to save it to your computer."
+
+[[outputs]]
+id = "GuM1AUlKiLqhCvoQ07JF7"
+uri = "file://auryx-source-handoff-current-2026-09-03.zip"
+type = "unspecified"
+title = "Baixar cópia sanitizada atual do Auryx"
+description = "Clique neste cartão para baixar o ZIP para o seu computador."
+logical_id = "f7900488-a691-41a5-8103-b7c1d469c2f9"
+content_hash = "sha256:1209bddd9f68ec38d00984970075e37e4756f3b4bc2d9804b24e0c4d25e4cc70"
+size = 16754875
+mtime_ms = 1788484353372
+storage_uri = "gcs://replit-rams-assets-janeway/rams/assets/repl:68cb5bc0-fca5-4cd8-9575-c76c501db172/f7900488-a691-41a5-8103-b7c1d469c2f9/7a5f4df4-2fa5-447c-9214-8ad96ec8fec6"
+storage_version_token = "1788486172855039"
+content_type = "application/octet-stream"
