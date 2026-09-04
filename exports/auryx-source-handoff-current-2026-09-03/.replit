@@ -1,0 +1,55 @@
+modules = ["nodejs-24", "python-3.11", "postgresql-16"]
+
+[deployment]
+router = "application"
+deploymentTarget = "autoscale"
+
+[deployment.postBuild]
+args = ["pnpm", "store", "prune"]
+env = { "CI" = "true" }
+
+[workflows]
+runButton = "Project"
+
+[agent]
+stack = "PNPM_WORKSPACE"
+expertMode = true
+
+[postMerge]
+path = "scripts/post-merge.sh"
+timeoutMs = 20000
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
+
+[[ports]]
+localPort = 8081
+externalPort = 80
+
+[[ports]]
+localPort = 8082
+externalPort = 3002
+
+[[ports]]
+localPort = 8083
+externalPort = 3001
+
+[[ports]]
+localPort = 8084
+externalPort = 4200
+
+[[ports]]
+localPort = 25121
+externalPort = 3000
+
+[userenv]
+
+[userenv.shared]
+ADMIN_KEY = "auryx-admin-olawmgskdy"
+NOTIFY_PHONE_NUMBER = "+12147104882"
+PAYMENTNODE_VAULT_HOST = "https://vault.paymentnode.io"
+PAYMENTNODE_API_HOST = "https://api.paymentnode.io"
+
+[nix]
+channel = "stable-25_05"
