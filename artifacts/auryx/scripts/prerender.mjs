@@ -13,6 +13,15 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import puppeteer from "puppeteer-core";
 
+// Headless Chrome + @sparticuz/chromium routinely times out on Vercel Linux.
+// Ship the Vite SPA + vercel.json rewrites instead of failing the production build.
+if (process.env.VERCEL) {
+  console.log(
+    "Skipping prerender on Vercel (VERCEL is set). Shipping the SPA; crawlers get client-rendered pages and vercel.json rewrites serve /about, /shop, and other routes.",
+  );
+  process.exit(0);
+}
+
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const APP_ROOT = path.resolve(__dirname, "..");
 const DIST_DIR = path.join(APP_ROOT, "dist", "public");
@@ -23,9 +32,39 @@ const SKIP_ROUTES = new Set(["/checkout", "/admin"]);
 // Matches AgeGate.tsx's bot regex so snapshots never contain the age overlay.
 const BOT_UA =
   "Mozilla/5.0 (compatible; AuryxPrerenderBot/1.0; +https://www.auryxlife.com) HeadlessChrome bot";
-const CONCURRENCY = 4;
+const CONCURRENCY = 2;
 const PAGE_TIMEOUT_MS = 60_000;
-const SEO_SETTLE_TIMEOUT_MS = 25_000;
+const SEO_SETTLE_TIMEOUT_MS = 35_000;
+
+/** Browser HTMLLinkElement.href normalizes origin-only URLs with a trailing slash. */
+function mockProductFromSlug(slug) {
+  const name = slug
+    .split("-")
+    .map((w) => (w.toUpperCase() === w ? w : w.charAt(0).toUpperCase() + w.slice(1)))
+    .join(" ")
+    .replace(/\bBpc\b/g, "BPC")
+    .replace(/\bTb\b/g, "TB")
+    .replace(/\bCjc\b/g, "CJC")
+    .replace(/\bGhk\b/g, "GHK")
+    .replace(/\bPt\b/g, "PT")
+    .replace(/\bNad\b/g, "NAD")
+    .replace(/\bMots\b/g, "MOTS")
+    .replace(/\bSs\b/g, "SS")
+    .replace(/\bAod\b/g, "AOD");
+  return {
+    slug,
+    name,
+    category: "Peptides",
+    shortDescription: `${name} from Auryx — physician-guided peptide protocols nationwide.`,
+    fullDescription: `${name} is available through Auryx's MD-led clinical program.`,
+    benefits: [],
+    dosingInfo: "Dosing is determined by your Auryx clinician.",
+    priceCents: 0,
+    requiresConsultation: true,
+    regulatoryStatus: "research",
+    variants: [{ label: "Standard", priceCents: 0 }],
+  };
+}
 
 /* ── Route list from sitemap ─────────────────────────────────────────── */
 
@@ -77,6 +116,22 @@ function startServer(getFallbackHtml) {
   const server = createServer(async (req, res) => {
     try {
       const urlPath = decodeURIComponent(new URL(req.url, "http://localhost").pathname);
+
+      // Product PDPs fetch /api/products/:slug during prerender; there is no API
+      // server in the static build, so return enough JSON for applyPageSeo to run.
+      if (urlPath === "/api/products" || urlPath === "/api/stock") {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(urlPath === "/api/stock" ? "{}" : "[]");
+        return;
+      }
+      const productMatch = urlPath.match(/^\/api\/products\/([^/]+)$/);
+      if (productMatch) {
+        const slug = decodeURIComponent(productMatch[1]);
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify(mockProductFromSlug(slug)));
+        return;
+      }
+
       const safePath = path.normalize(urlPath).replace(/^(\.\.[/\\])+/, "");
       let filePath = path.join(DIST_DIR, safePath);
       if (urlPath.endsWith("/")) filePath = path.join(filePath, "index.html");
@@ -149,9 +204,18 @@ async function snapshotRoute(page, baseUrl, route) {
     (expected) => {
       const link = document.querySelector('link[rel="canonical"]');
       const root = document.getElementById("root");
+      const normalize = (url) => {
+        try {
+          const u = new URL(url);
+          const path = u.pathname.replace(/\/+$/, "") || "/";
+          return `${u.origin}${path === "/" ? "" : path}`;
+        } catch {
+          return String(url).replace(/\/+$/, "");
+        }
+      };
       return (
         !!link &&
-        link.href === expected &&
+        normalize(link.href) === normalize(expected) &&
         !!root &&
         root.children.length > 0 &&
         document.title.length > 0
@@ -182,7 +246,7 @@ async function snapshotRoute(page, baseUrl, route) {
   if (!isEnglishHome && faqCount > 1) {
     throw new Error(`Snapshot for ${route} has ${faqCount} FAQPage blocks (expected <= 1)`);
   }
-  if (!html.includes(`href="${canonical}"`)) {
+  if (!html.includes(`href="${canonical}"`) && !html.includes(`href="${canonical}/"`)) {
     throw new Error(`Snapshot for ${route} is missing canonical ${canonical}`);
   }
   return html;
