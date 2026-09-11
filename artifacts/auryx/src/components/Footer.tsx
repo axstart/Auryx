@@ -35,7 +35,7 @@ export default function Footer() {
               className="w-8 h-8 rounded-full border border-white/15 flex items-center justify-center text-white/40 hover:text-[#C9A844] hover:border-[#C9A844]/40 transition-colors">
               <Instagram className="w-3.5 h-3.5" />
             </a>
-            <a href="mailto:admin@auryxlife.com" aria-label="Email"
+            <a href="mailto:info@auryxlife.com" aria-label="Email"
               className="w-8 h-8 rounded-full border border-white/15 flex items-center justify-center text-white/40 hover:text-[#C9A844] hover:border-[#C9A844]/40 transition-colors">
               <Mail className="w-3.5 h-3.5" />
             </a>
@@ -49,13 +49,13 @@ export default function Footer() {
         {/* Disclaimer */}
         <div className="border-t border-white/8 pt-8 mb-6">
           <p className="text-[11px] text-white/28 leading-relaxed max-w-4xl">
-            <span className="text-white/40 font-medium">RESEARCH USE ONLY.</span> All compounds sold through AURYX are for legitimate scientific research purposes only and are not intended for human consumption. These products have not been evaluated by the Food and Drug Administration and are not intended to diagnose, treat, cure, or prevent any disease or condition. This website is for informational and educational purposes only and does not constitute medical advice.
+            <span className="text-white/40 font-medium">Important:</span> Auryx is an MD-led telemedicine practice. Product eligibility, labeling, and fulfillment follow applicable U.S. regulations and may include research-designated compounds. Nothing on this website diagnoses, treats, cures, or prevents any disease, and content here does not replace personalized medical advice from a licensed clinician.
           </p>
         </div>
 
         {/* Bottom bar */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
-          <p className="text-[11px] text-white/22">© 2025 AURYX. All rights reserved.</p>
+          <p className="text-[11px] text-white/22">© 2026 Auryx. All rights reserved.</p>
           <div className="flex items-center gap-5">
             {[
               { label: "Privacy", href: "/privacy" },

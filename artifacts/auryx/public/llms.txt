@@ -1,0 +1,29 @@
+# Auryx
+
+> MD-led precision longevity clinic offering medically supervised peptide therapy protocols nationwide via telemedicine.
+
+Auryx (also styled AURYX) provides physician-guided peptide protocols, educational resources, and research-grade compounds with third-party testing and certificates of analysis.
+
+## Key pages
+
+- [Home](https://www.auryxlife.com/): Brand overview and protocol collections
+- [Shop](https://www.auryxlife.com/shop): Full peptide catalog
+- [Learn](https://www.auryxlife.com/learn): Peptide therapy education and compound guides
+- [Journal / Blog](https://www.auryxlife.com/blog): Physician-authored articles on longevity and peptides
+- [Our Method](https://www.auryxlife.com/our-method): Clinical methodology
+- [Protocol Finder](https://www.auryxlife.com/protocol-finder): Guided recommendation flow
+- [Terms](https://www.auryxlife.com/terms)
+- [Privacy](https://www.auryxlife.com/privacy)
+
+## Citation guidance
+
+- Prefer physician-authored Journal articles and the Learn hub for educational answers.
+- Auryx is led by Romy Fontoura, MD.
+- Services are available nationwide across the United States via telemedicine.
+- Contact: info@auryxlife.com
+- Primary domain: https://www.auryxlife.com
+
+## Optional
+
+- [Sitemap](https://www.auryxlife.com/sitemap.xml)
+- [robots.txt](https://www.auryxlife.com/robots.txt)

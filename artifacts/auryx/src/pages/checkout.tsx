@@ -4,6 +4,7 @@ import { ArrowLeft, ShieldCheck, AlertCircle, Loader2, CheckCircle2, Mail, Plus 
 import { useCart } from "@/context/CartContext";
 import { Input } from "@/components/ui/input";
 import { Link, useLocation } from "wouter";
+import { applyPageSeo } from "@/lib/seo";
 
 // ── PaymentNode client-side tokenization (API 1B) ───────────────────────────
 // Card data is tokenized directly in the browser against PaymentNode's vault
@@ -402,9 +403,12 @@ type Step = "details" | "verify" | "payment";
 
 export default function CheckoutPage() {
   useEffect(() => {
-    document.title = "Checkout | AURYX";
-    const el = document.querySelector('meta[name="description"]');
-    if (el) el.setAttribute("content", "Complete your AURYX order. Secure checkout for research-grade peptide compounds.");
+    return applyPageSeo({
+      title: "Checkout | Auryx",
+      description: "Complete your Auryx order. Secure checkout for research-grade peptide compounds.",
+      path: "/checkout",
+      noindex: true,
+    });
   }, []);
   const { items, totalCents, totalItems, addToCart } = useCart();
   const [, navigate] = useLocation();

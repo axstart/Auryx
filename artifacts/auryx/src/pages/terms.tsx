@@ -1,10 +1,14 @@
 import { useEffect } from "react";
+import { applyPageSeo } from "@/lib/seo";
 
 export default function Terms() {
   useEffect(() => {
-    document.title = "Terms of Service | AURYX";
-    const el = document.querySelector('meta[name="description"]');
-    if (el) el.setAttribute("content", "AURYX Terms of Service. Read our terms for using auryxlife.com and our telemedicine peptide therapy services.");
+    return applyPageSeo({
+      title: "Terms of Service | Auryx",
+      description:
+        "Auryx Terms of Service. Read our terms for using auryxlife.com and our telemedicine peptide therapy services.",
+      path: "/terms",
+    });
   }, []);
 
   return (

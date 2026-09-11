@@ -3,6 +3,7 @@ import { Link } from "wouter";
 import { ArrowRight, Clock, Calendar } from "lucide-react";
 import { useEffect } from "react";
 import { BLOG_POSTS, formatDate, type BlogPost } from "@/data/blog-posts";
+import { applyPageSeo } from "@/lib/seo";
 
 const CATEGORY_COLORS: Record<string, string> = {
   Fundamentals: "#7C6A4A",
@@ -102,14 +103,12 @@ function PostCard({ post, index }: { post: BlogPost; index: number }) {
 
 export default function BlogPage() {
   useEffect(() => {
-    document.title =
-      "AURYX Blog — Peptide Science, Longevity & Precision Medicine";
-    const desc = document.querySelector('meta[name="description"]');
-    if (desc)
-      desc.setAttribute(
-        "content",
-        "Physician-written articles on peptide therapy, longevity science, metabolic health, and precision medicine from the AURYX clinical team."
-      );
+    return applyPageSeo({
+      title: "Auryx Journal — Peptide Science, Longevity & Precision Medicine",
+      description:
+        "Physician-written articles on peptide therapy, longevity science, metabolic health, and precision medicine from the Auryx clinical team.",
+      path: "/blog",
+    });
   }, []);
 
   return (

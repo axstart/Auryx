@@ -5,17 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
     <title>Auryx | MD-Led Peptide Therapy — Nationwide</title>
     <meta name="description" content="Auryx is an MD-led precision longevity clinic offering medically supervised peptide therapy nationwide via telemedicine. Founded and led by a licensed MD specializing in regenerative medicine. Book a private consultation today." />
-    <meta name="keywords" content="peptide therapy nationwide, telehealth peptide clinic USA, online peptide therapy, MD-led peptide clinic, physician prescribed peptides, longevity clinic telehealth, compounded peptide therapy, BPC-157 prescription, semaglutide telehealth, peptide therapy near me" />
-    <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta name="author" content="Romy Fontoura, MD" />
     <meta name="geo.region" content="US" />
     <meta name="geo.placename" content="United States" />
-    <meta name="geo.position" content="37.090240;-95.712891" />
-    <meta name="ICBM" content="37.090240, -95.712891" />
+    <meta name="language" content="en-US" />
 
     <meta property="og:title" content="Auryx | MD-Led Peptide Therapy — Nationwide" />
     <meta property="og:description" content="MD-led precision longevity clinic offering medically supervised peptide therapy protocols nationwide via telemedicine. Precision science meets complete biological optimization." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://www.auryxlife.com" />
+    <meta property="og:url" content="https://www.auryxlife.com/" />
+    <meta property="og:site_name" content="Auryx" />
+    <meta property="og:locale" content="en_US" />
     <meta property="og:image" content="https://www.auryxlife.com/opengraph.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
@@ -30,27 +31,127 @@
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "MedicalBusiness",
-      "name": "Auryx",
-      "url": "https://www.auryxlife.com",
-      "description": "MD-led precision longevity clinic offering medically supervised peptide therapy protocols nationwide via telemedicine.",
-      "medicalSpecialty": ["Regenerative Medicine", "Integrative Medicine", "Longevity Medicine"],
-      "availableService": [
-        "Peptide Therapy",
-        "Anti-Aging Protocols",
-        "GLP-1 & Metabolic Peptides",
-        "Growth Hormone Secretagogues",
-        "Cognitive Enhancement",
-        "Sexual Health Protocols",
-        "Recovery & Regeneration"
-      ],
-      "areaServed": "United States",
-      "founder": {
-        "@type": "Person",
-        "jobTitle": "Medical Doctor",
-        "hasCredential": "MD"
-      },
-      "hasCredential": "Founded and led by a licensed MD specializing in regenerative and integrative medicine"
+      "@graph": [
+        {
+          "@type": "Organization",
+          "@id": "https://www.auryxlife.com/#organization",
+          "name": "Auryx",
+          "alternateName": "AURYX",
+          "url": "https://www.auryxlife.com/",
+          "logo": {
+            "@type": "ImageObject",
+            "url": "https://www.auryxlife.com/logo.png"
+          },
+          "image": "https://www.auryxlife.com/opengraph.jpg",
+          "email": "info@auryxlife.com",
+          "description": "MD-led precision longevity clinic offering medically supervised peptide therapy protocols nationwide via telemedicine.",
+          "foundingDate": "2024",
+          "founder": {
+            "@type": "Person",
+            "name": "Romy Fontoura, MD",
+            "jobTitle": "Medical Doctor",
+            "hasCredential": "MD"
+          },
+          "areaServed": {
+            "@type": "Country",
+            "name": "United States"
+          },
+          "contactPoint": {
+            "@type": "ContactPoint",
+            "contactType": "customer service",
+            "email": "info@auryxlife.com",
+            "availableLanguage": "English",
+            "areaServed": "US"
+          }
+        },
+        {
+          "@type": "MedicalBusiness",
+          "@id": "https://www.auryxlife.com/#medicalbusiness",
+          "name": "Auryx",
+          "url": "https://www.auryxlife.com/",
+          "image": "https://www.auryxlife.com/opengraph.jpg",
+          "logo": "https://www.auryxlife.com/logo.png",
+          "email": "info@auryxlife.com",
+          "description": "MD-led precision longevity clinic offering medically supervised peptide therapy protocols nationwide via telemedicine.",
+          "medicalSpecialty": ["Regenerative Medicine", "Integrative Medicine", "Longevity Medicine"],
+          "availableService": [
+            {
+              "@type": "MedicalTherapy",
+              "name": "Peptide Therapy"
+            },
+            {
+              "@type": "MedicalTherapy",
+              "name": "Anti-Aging Protocols"
+            },
+            {
+              "@type": "MedicalTherapy",
+              "name": "GLP-1 & Metabolic Peptides"
+            },
+            {
+              "@type": "MedicalTherapy",
+              "name": "Growth Hormone Secretagogues"
+            },
+            {
+              "@type": "MedicalTherapy",
+              "name": "Cognitive Enhancement"
+            },
+            {
+              "@type": "MedicalTherapy",
+              "name": "Sexual Health Protocols"
+            },
+            {
+              "@type": "MedicalTherapy",
+              "name": "Recovery & Regeneration"
+            }
+          ],
+          "areaServed": {
+            "@type": "Country",
+            "name": "United States"
+          },
+          "founder": {
+            "@type": "Person",
+            "name": "Romy Fontoura, MD",
+            "jobTitle": "Medical Doctor",
+            "hasCredential": "MD"
+          },
+          "parentOrganization": {
+            "@id": "https://www.auryxlife.com/#organization"
+          }
+        },
+        {
+          "@type": "WebSite",
+          "@id": "https://www.auryxlife.com/#website",
+          "url": "https://www.auryxlife.com/",
+          "name": "Auryx",
+          "description": "MD-led peptide therapy and longevity protocols available nationwide via telemedicine.",
+          "publisher": {
+            "@id": "https://www.auryxlife.com/#organization"
+          },
+          "inLanguage": "en-US",
+          "potentialAction": {
+            "@type": "SearchAction",
+            "target": {
+              "@type": "EntryPoint",
+              "urlTemplate": "https://www.auryxlife.com/shop?q={search_term_string}"
+            },
+            "query-input": "required name=search_term_string"
+          }
+        },
+        {
+          "@type": "WebPage",
+          "@id": "https://www.auryxlife.com/#webpage",
+          "url": "https://www.auryxlife.com/",
+          "name": "Auryx | MD-Led Peptide Therapy — Nationwide",
+          "isPartOf": {
+            "@id": "https://www.auryxlife.com/#website"
+          },
+          "about": {
+            "@id": "https://www.auryxlife.com/#medicalbusiness"
+          },
+          "description": "Auryx is an MD-led precision longevity clinic offering medically supervised peptide therapy nationwide via telemedicine.",
+          "inLanguage": "en-US"
+        }
+      ]
     }
     </script>
     <script type="application/ld+json">
@@ -141,9 +242,10 @@
       ]
     }
     </script>
-    <link rel="canonical" href="https://www.auryxlife.com" />
+    <link rel="canonical" href="https://www.auryxlife.com/" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-    <link rel="apple-touch-icon" href="/opengraph.jpg" />
+    <link rel="apple-touch-icon" href="/logo.png" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

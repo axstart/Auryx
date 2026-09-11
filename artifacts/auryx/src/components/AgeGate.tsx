@@ -9,6 +9,11 @@ export default function AgeGate() {
 
   useEffect(() => {
     if (window.location.pathname.startsWith("/admin")) return;
+    // Let search/AI crawlers index page content without the age overlay.
+    const ua = navigator.userAgent || "";
+    if (/bot|crawl|spider|slurp|facebookexternalhit|bingpreview|gptbot|claude|perplexity|googleother|bytespider|amazonbot|applebot|duckduckbot/i.test(ua)) {
+      return;
+    }
     if (!localStorage.getItem(STORAGE_KEY)) {
       setVisible(true);
     }

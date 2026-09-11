@@ -10,17 +10,12 @@ import { useCart } from "@/context/CartContext";
 import { Link } from "wouter";
 import type { ProductSummary } from "@/types/shop";
 import type { RegulatoryStatus } from "@/types/shop";
-
-function setPageMeta({ title, description }: { title: string; description: string }) {
-  document.title = title;
-  const el = document.querySelector('meta[name="description"]');
-  if (el) el.setAttribute("content", description);
-}
+import { applyPageSeo } from "@/lib/seo";
 
 /* ── Page meta ──────────────────────────────────────────────────────── */
 
-const PAGE_TITLE = "Shop | AURYX — Research-Grade Peptides";
-const PAGE_DESC = "Browse AURYX's curated collection of physician-prescribed peptide compounds. GLP-1 agonists, growth hormone secretagogues, recovery peptides, cognitive enhancers, and longevity protocols.";
+const PAGE_TITLE = "Shop | Auryx — Research-Grade Peptides";
+const PAGE_DESC = "Browse Auryx's curated collection of physician-guided peptide compounds. GLP-1 agonists, growth hormone secretagogues, recovery peptides, cognitive enhancers, and longevity protocols.";
 
 /* ── Product image map ──────────────────────────────────────────────── */
 const PRODUCT_IMAGES: Record<string, string> = {
@@ -362,7 +357,11 @@ function ProductCard({
 /* ── Page ───────────────────────────────────────────────────────────── */
 export default function ShopPage() {
   useEffect(() => {
-    setPageMeta({ title: PAGE_TITLE, description: PAGE_DESC });
+    return applyPageSeo({
+      title: PAGE_TITLE,
+      description: PAGE_DESC,
+      path: "/shop",
+    });
   }, []);
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery,    setSearchQuery]    = useState("");

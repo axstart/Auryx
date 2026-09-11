@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { ChevronDown, ChevronUp, ArrowRight, ExternalLink } from "lucide-react";
+import { applyPageSeo, setMeta, SITE_ORIGIN } from "@/lib/seo";
 
 /* ─── Data ──────────────────────────────────────────────────────────── */
 
@@ -360,104 +361,71 @@ function FadeIn({ children, delay = 0, className = "" }: { children: React.React
   );
 }
 
-/* ── SEO helpers ──────────────────────────────────────────────────── */
-function setMeta(name: string, content: string) {
-  let el = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
-  if (!el) { el = document.createElement("meta"); el.name = name; document.head.appendChild(el); }
-  el.content = content;
-}
-function setOg(property: string, content: string) {
-  let el = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement | null;
-  if (!el) { el = document.createElement("meta"); el.setAttribute("property", property); document.head.appendChild(el); }
-  el.setAttribute("content", content);
-}
-function setCanonical(url: string) {
-  let el = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-  if (!el) { el = document.createElement("link"); el.rel = "canonical"; document.head.appendChild(el); }
-  el.href = url;
-}
-function setJsonLd(id: string, data: object) {
-  document.getElementById(id)?.remove();
-  const s = document.createElement("script");
-  s.id = id; s.type = "application/ld+json"; s.text = JSON.stringify(data);
-  document.head.appendChild(s);
-}
+/* ── SEO ──────────────────────────────────────────────────────────── */
 
 export default function LearnPage() {
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   useEffect(() => {
-    const CANONICAL = "https://www.auryxlife.com/learn";
-
-    /* ── Basic SEO ─────────────────────────────────────────────── */
-    document.title = "Peptide Therapy Education | Auryx Learn";
-    setMeta("description", "Your complete peptide therapy guide — how peptides work, what BPC-157, semaglutide, CJC-1295 ipamorelin, and NAD+ do, and how to start a physician-supervised protocol at AURYX's telehealth peptide clinic.");
-    setMeta("keywords", "peptide therapy guide, how peptides work, BPC-157, semaglutide, CJC-1295 ipamorelin, telehealth peptide clinic, physician-supervised peptides, compounded peptides, longevity protocols, peptide therapy education");
-
-    /* ── Canonical ─────────────────────────────────────────────── */
-    setCanonical(CANONICAL);
-
-    /* ── GEO tags (US nationwide) ──────────────────────────────── */
     setMeta("geo.region", "US");
     setMeta("geo.placename", "United States");
-    setMeta("geo.position", "37.0902;-95.7129");
-    setMeta("ICBM", "37.0902, -95.7129");
 
-    /* ── Open Graph ────────────────────────────────────────────── */
-    setOg("og:title", "Peptide Therapy Education | Auryx Learn");
-    setOg("og:description", "Physician-reviewed guides on peptide therapy — semaglutide, BPC-157, CJC-1295 ipamorelin, NAD+, and 22 more compounds. AURYX's telehealth peptide clinic.");
-    setOg("og:url", CANONICAL);
-    setOg("og:type", "website");
-
-    /* ── FAQPage JSON-LD ───────────────────────────────────────── */
-    setJsonLd("ld-learn-faq", {
-      "@context": "https://schema.org",
-      "@type": "FAQPage",
-      mainEntity: FAQS.map(f => ({
-        "@type": "Question",
-        name: f.q,
-        acceptedAnswer: { "@type": "Answer", text: f.a },
-      })),
-    });
-
-    /* ── MedicalWebPage JSON-LD ────────────────────────────────── */
-    setJsonLd("ld-learn-medical", {
-      "@context": "https://schema.org",
-      "@type": "MedicalWebPage",
-      name: "Peptide Therapy Education | Auryx Learn",
-      description: "Physician-reviewed educational resource covering peptide therapy, longevity protocols, metabolic health, and precision medicine compounds.",
-      url: CANONICAL,
-      inLanguage: "en-US",
-      audience: { "@type": "Patient" },
-      medicalAudience: { "@type": "MedicalAudience", audienceType: "Patient" },
-      author: {
-        "@type": "Person",
-        name: "Romy Fontoura, MD",
-        jobTitle: "Physician, Longevity Medicine",
-      },
-      reviewedBy: {
-        "@type": "Person",
-        name: "Romy Fontoura, MD",
-        jobTitle: "Physician, Longevity Medicine",
-      },
-      publisher: {
-        "@type": "Organization",
-        name: "AURYX",
-        url: "https://www.auryxlife.com",
-      },
-      about: [
-        { "@type": "MedicalCondition", name: "Metabolic Syndrome" },
-        { "@type": "MedicalCondition", name: "Obesity" },
-        { "@type": "MedicalTherapy", name: "Peptide Therapy" },
-        { "@type": "MedicalTherapy", name: "Growth Hormone Optimization" },
+    return applyPageSeo({
+      title: "Peptide Therapy Education | Auryx Learn",
+      description:
+        "Your complete peptide therapy guide — how peptides work, what BPC-157, semaglutide, CJC-1295 ipamorelin, and NAD+ do, and how to start a physician-supervised protocol at Auryx's telehealth peptide clinic.",
+      path: "/learn",
+      jsonLd: [
+        {
+          id: "ld-learn-faq",
+          data: {
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: FAQS.map((f) => ({
+              "@type": "Question",
+              name: f.q,
+              acceptedAnswer: { "@type": "Answer", text: f.a },
+            })),
+          },
+        },
+        {
+          id: "ld-learn-medical",
+          data: {
+            "@context": "https://schema.org",
+            "@type": "MedicalWebPage",
+            name: "Peptide Therapy Education | Auryx Learn",
+            description:
+              "Physician-reviewed educational resource covering peptide therapy, longevity protocols, metabolic health, and precision medicine compounds.",
+            url: `${SITE_ORIGIN}/learn`,
+            inLanguage: "en-US",
+            audience: { "@type": "Patient" },
+            medicalAudience: { "@type": "MedicalAudience", audienceType: "Patient" },
+            author: {
+              "@type": "Person",
+              name: "Romy Fontoura, MD",
+              jobTitle: "Physician, Longevity Medicine",
+            },
+            reviewedBy: {
+              "@type": "Person",
+              name: "Romy Fontoura, MD",
+              jobTitle: "Physician, Longevity Medicine",
+            },
+            publisher: {
+              "@type": "Organization",
+              name: "Auryx",
+              url: SITE_ORIGIN,
+            },
+            about: [
+              { "@type": "MedicalCondition", name: "Metabolic Syndrome" },
+              { "@type": "MedicalCondition", name: "Obesity" },
+              { "@type": "MedicalTherapy", name: "Peptide Therapy" },
+              { "@type": "MedicalTherapy", name: "Growth Hormone Optimization" },
+            ],
+            specialty: "Longevity Medicine",
+          },
+        },
       ],
-      specialty: "Longevity Medicine",
     });
-
-    return () => {
-      document.getElementById("ld-learn-faq")?.remove();
-      document.getElementById("ld-learn-medical")?.remove();
-    };
   }, []);
 
   const filteredPeptides = activeCategory

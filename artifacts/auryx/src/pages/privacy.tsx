@@ -1,10 +1,14 @@
 import { useEffect } from "react";
+import { applyPageSeo } from "@/lib/seo";
 
 export default function Privacy() {
   useEffect(() => {
-    document.title = "Privacy Policy | AURYX";
-    const el = document.querySelector('meta[name="description"]');
-    if (el) el.setAttribute("content", "AURYX Privacy Policy. Learn how we collect, use, and protect your personal information when using auryxlife.com.");
+    return applyPageSeo({
+      title: "Privacy Policy | Auryx",
+      description:
+        "Auryx Privacy Policy. Learn how we collect, use, and protect your personal information when using auryxlife.com.",
+      path: "/privacy",
+    });
   }, []);
 
   return (

@@ -2,10 +2,16 @@ import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
 import { Link } from "wouter";
 import { useEffect } from "react";
+import { applyPageSeo } from "@/lib/seo";
 
 export default function NotFound() {
   useEffect(() => {
-    document.title = "Page Not Found | AURYX";
+    return applyPageSeo({
+      title: "Page Not Found | Auryx",
+      description: "The page you requested could not be found on Auryx.",
+      path: "/404",
+      noindex: true,
+    });
   }, []);
 
   return (

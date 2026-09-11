@@ -4,12 +4,16 @@ import { ConsultationModal } from "@/components/ConsultationModal";
 import { ProtocolContinuationModal } from "@/components/ProtocolContinuationModal";
 import { PatientAssessment } from "@/components/PatientAssessment";
 import { CheckCircle2 } from "lucide-react";
+import { applyPageSeo } from "@/lib/seo";
 
 export default function ProtocolFinder() {
   useEffect(() => {
-    document.title = "Protocol Finder | AURYX — Personalized Peptide Recommendations";
-    const el = document.querySelector('meta[name="description"]');
-    if (el) el.setAttribute("content", "Answer a few questions and get a personalized peptide protocol recommendation from AURYX's clinical team.");
+    return applyPageSeo({
+      title: "Protocol Finder | Auryx — Personalized Peptide Recommendations",
+      description:
+        "Answer a few questions and get a personalized peptide protocol recommendation from Auryx's clinical team.",
+      path: "/protocol-finder",
+    });
   }, []);
   const [modalOpen, setModalOpen] = useState(false);
   const [continuationOpen, setContinuationOpen] = useState(false);

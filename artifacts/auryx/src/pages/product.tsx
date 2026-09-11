@@ -6,6 +6,7 @@ import { useCart } from "@/context/CartContext";
 import { Link } from "wouter";
 import { useState, useEffect } from "react";
 import type { Product } from "@/types/shop";
+import { applyPageSeo, siteUrl, SITE_ORIGIN } from "@/lib/seo";
 
 const PRODUCT_IMAGES: Record<string, string> = {
   "semaglutide": "/products/semaglutide.png",
@@ -142,11 +143,80 @@ export default function ProductPage() {
   }, [slug]);
 
   useEffect(() => {
-    if (product?.name) {
-      document.title = `${product.name} | AURYX Shop`;
-      const el = document.querySelector('meta[name="description"]');
-      if (el && product.shortDescription) el.setAttribute("content", product.shortDescription);
-    }
+    if (!product?.name) return;
+    const path = `/shop/${product.slug}`;
+    const imagePath = PRODUCT_IMAGES[product.slug]
+      ? `${SITE_ORIGIN}${PRODUCT_IMAGES[product.slug]}`
+      : `${SITE_ORIGIN}/opengraph.jpg`;
+    const description =
+      product.shortDescription ||
+      product.fullDescription?.slice(0, 155) ||
+      `${product.name} from Auryx — physician-guided peptide protocols nationwide.`;
+    const price = (product.priceCents ?? 0) / 100;
+
+    return applyPageSeo({
+      title: `${product.name} | Auryx Shop`,
+      description,
+      path,
+      type: "product",
+      image: imagePath,
+      imageAlt: `${product.name} — Auryx`,
+      jsonLd: [
+        {
+          id: "ld-product",
+          data: {
+            "@context": "https://schema.org",
+            "@type": "Product",
+            name: product.name,
+            description,
+            image: imagePath,
+            sku: product.slug,
+            brand: { "@type": "Brand", name: "Auryx" },
+            category: product.category,
+            url: siteUrl(path),
+            offers: {
+              "@type": "Offer",
+              url: siteUrl(path),
+              priceCurrency: "USD",
+              price: price.toFixed(2),
+              availability: "https://schema.org/InStock",
+              seller: {
+                "@type": "Organization",
+                name: "Auryx",
+                url: SITE_ORIGIN,
+              },
+            },
+          },
+        },
+        {
+          id: "ld-breadcrumb-product",
+          data: {
+            "@context": "https://schema.org",
+            "@type": "BreadcrumbList",
+            itemListElement: [
+              {
+                "@type": "ListItem",
+                position: 1,
+                name: "Home",
+                item: SITE_ORIGIN + "/",
+              },
+              {
+                "@type": "ListItem",
+                position: 2,
+                name: "Shop",
+                item: siteUrl("/shop"),
+              },
+              {
+                "@type": "ListItem",
+                position: 3,
+                name: product.name,
+                item: siteUrl(path),
+              },
+            ],
+          },
+        },
+      ],
+    });
   }, [product]);
 
   const hasVariants = !!(product?.variants && product.variants.length > 1);

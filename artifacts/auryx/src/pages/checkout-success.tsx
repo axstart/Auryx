@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { CheckCircle2, ArrowRight, Stethoscope, Loader2, AlertCircle, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { applyPageSeo } from "@/lib/seo";
 
 const GOALS = [
   "Weight Loss",
@@ -105,9 +106,12 @@ export default function CheckoutSuccessPage() {
   });
 
   useEffect(() => {
-    document.title = "Order Confirmed | AURYX";
-    const el = document.querySelector('meta[name="description"]');
-    if (el) el.setAttribute("content", "Your AURYX order has been received and is under clinical review.");
+    applyPageSeo({
+      title: "Order Confirmed | Auryx",
+      description: "Your Auryx order has been received and is under clinical review.",
+      path: "/checkout/success",
+      noindex: true,
+    });
 
     const stored = localStorage.getItem("auryx_last_order");
     if (stored) {

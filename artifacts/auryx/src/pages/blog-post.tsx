@@ -1,49 +1,9 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { Link, useParams } from "wouter";
 import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Clock, Calendar, User } from "lucide-react";
 import { getPost, formatDate, type Block } from "@/data/blog-posts";
-
-/* ─── SEO head injection ──────────────────────────────────────────── */
-function injectMeta(name: string, content: string) {
-  let el = document.querySelector(`meta[name="${name}"]`) as HTMLMetaElement | null;
-  if (!el) {
-    el = document.createElement("meta");
-    el.name = name;
-    document.head.appendChild(el);
-  }
-  el.content = content;
-}
-
-function injectOg(property: string, content: string) {
-  let el = document.querySelector(`meta[property="${property}"]`) as HTMLMetaElement | null;
-  if (!el) {
-    el = document.createElement("meta");
-    el.setAttribute("property", property);
-    document.head.appendChild(el);
-  }
-  el.setAttribute("content", content);
-}
-
-function injectCanonical(url: string) {
-  let el = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
-  if (!el) {
-    el = document.createElement("link");
-    el.rel = "canonical";
-    document.head.appendChild(el);
-  }
-  el.href = url;
-}
-
-function injectJsonLd(id: string, data: object) {
-  const existing = document.getElementById(id);
-  if (existing) existing.remove();
-  const script = document.createElement("script");
-  script.id = id;
-  script.type = "application/ld+json";
-  script.text = JSON.stringify(data);
-  document.head.appendChild(script);
-}
+import { applyPageSeo, siteUrl, SITE_ORIGIN } from "@/lib/seo";
 
 /* ─── Block renderer ──────────────────────────────────────────────── */
 function RenderBlock({ block }: { block: Block }) {
@@ -96,54 +56,53 @@ function RenderBlock({ block }: { block: Block }) {
 export default function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>();
   const post = getPost(slug ?? "");
-  const scriptRef = useRef<boolean>(false);
 
   useEffect(() => {
     if (!post) return;
-    const origin = window.location.origin;
-    const canonicalUrl = `${origin}/blog/${post.slug}`;
+    const path = `/blog/${post.slug}`;
+    const canonicalUrl = siteUrl(path);
+    const image = `${SITE_ORIGIN}${post.heroImage}`;
 
-    document.title = `${post.title} | AURYX`;
-    injectMeta("description", post.metaDescription);
-    injectOg("og:title", post.title);
-    injectOg("og:description", post.metaDescription);
-    injectOg("og:url", canonicalUrl);
-    injectOg("og:type", "article");
-    injectOg("og:image", `${origin}${post.heroImage}`);
-    injectCanonical(canonicalUrl);
+    const faqBlocks = post.content.filter(
+      (b): b is Extract<Block, { type: "h2" }> => b.type === "h2" && !!b.faqAnswer
+    );
 
-    if (!scriptRef.current) {
-      scriptRef.current = true;
-
-      /* Article JSON-LD */
-      injectJsonLd("ld-article", {
-        "@context": "https://schema.org",
-        "@type": "Article",
-        headline: post.title,
-        description: post.metaDescription,
-        author: {
-          "@type": "Person",
-          name: post.author,
+    const jsonLd: Array<{ id: string; data: object }> = [
+      {
+        id: "ld-article",
+        data: {
+          "@context": "https://schema.org",
+          "@type": "Article",
+          headline: post.title,
+          description: post.metaDescription,
+          author: {
+            "@type": "Person",
+            name: post.author,
+          },
+          publisher: {
+            "@type": "Organization",
+            name: "Auryx",
+            url: SITE_ORIGIN,
+            logo: {
+              "@type": "ImageObject",
+              url: `${SITE_ORIGIN}/logo.png`,
+            },
+          },
+          datePublished: post.publishDate,
+          image,
+          url: canonicalUrl,
+          mainEntityOfPage: canonicalUrl,
         },
-        publisher: {
-          "@type": "Organization",
-          name: "AURYX",
-          url: origin,
-        },
-        datePublished: post.publishDate,
-        image: `${origin}${post.heroImage}`,
-        url: canonicalUrl,
-      });
+      },
+    ];
 
-      /* FAQPage JSON-LD — auto-generated from h2 blocks with faqAnswer */
-      const faqBlocks = post.content.filter(
-        (b): b is Extract<Block, { type: "h2" }> => b.type === "h2" && !!b.faqAnswer
-      );
-      if (faqBlocks.length > 0) {
-        injectJsonLd("ld-faq", {
+    if (faqBlocks.length > 0) {
+      jsonLd.push({
+        id: "ld-faq",
+        data: {
           "@context": "https://schema.org",
           "@type": "FAQPage",
-          mainEntity: faqBlocks.map(b => ({
+          mainEntity: faqBlocks.map((b) => ({
             "@type": "Question",
             name: b.text,
             acceptedAnswer: {
@@ -151,15 +110,19 @@ export default function BlogPostPage() {
               text: b.faqAnswer,
             },
           })),
-        });
-      }
+        },
+      });
     }
 
-    return () => {
-      document.getElementById("ld-article")?.remove();
-      document.getElementById("ld-faq")?.remove();
-      scriptRef.current = false;
-    };
+    return applyPageSeo({
+      title: `${post.title} | Auryx`,
+      description: post.metaDescription,
+      path,
+      type: "article",
+      image,
+      imageAlt: post.heroImageAlt,
+      jsonLd,
+    });
   }, [post]);
 
   if (!post) {

@@ -1,12 +1,14 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { ConsultationModal } from "@/components/ConsultationModal";
 import { ProtocolContinuationModal } from "@/components/ProtocolContinuationModal";
-import { ArrowRight, CheckCircle, ShoppingCart } from "lucide-react";
+import { ArrowRight, CheckCircle, ShoppingCart, ChevronDown } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import type { ProductSummary } from "@/types/shop";
+import { HOME_FAQS } from "@/data/home-faqs";
+import { applyPageSeo } from "@/lib/seo";
 
 async function fetchProducts(): Promise<ProductSummary[]> {
   const res = await fetch("/api/products");
@@ -210,6 +212,7 @@ const TESTIMONIALS = [
 export default function Home() {
   const [modalOpen, setModalOpen] = useState(false);
   const [continuationOpen, setContinuationOpen] = useState(false);
+  const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [addedSlugs, setAddedSlugs] = useState<Set<string>>(new Set());
   const { addToCart } = useCart();
   const { data: products = [] } = useQuery<ProductSummary[]>({
@@ -217,6 +220,15 @@ export default function Home() {
     queryFn: fetchProducts,
     staleTime: 5 * 60 * 1000,
   });
+
+  useEffect(() => {
+    return applyPageSeo({
+      title: "Auryx | MD-Led Peptide Therapy — Nationwide",
+      description:
+        "Auryx is an MD-led precision longevity clinic offering medically supervised peptide therapy nationwide via telemedicine. Founded and led by a licensed MD specializing in regenerative medicine. Book a private consultation today.",
+      path: "/",
+    });
+  }, []);
 
   function handleAdd(slug: string) {
     const product = products.find(p => p.slug === slug);
@@ -742,6 +754,43 @@ export default function Home() {
             {[0, 1, 2].map(i => (
               <div key={i} className={`rounded-full transition-all ${i === 0 ? "w-6 h-1.5 bg-[#C9A844]" : "w-1.5 h-1.5 bg-white/15"}`} />
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ═══ FAQ (matches FAQPage JSON-LD) ═══════════════════════════════ */}
+      <section id="faq" className="py-20 md:py-28 px-6 md:px-12" style={{ background: "#FAFAF8", color: "#111" }}>
+        <div className="container mx-auto max-w-3xl">
+          <p className="text-[10px] uppercase tracking-[0.4em] text-[#B8962E] mb-4 font-medium text-center">
+            Frequently Asked Questions
+          </p>
+          <h2 className="font-serif text-4xl md:text-5xl leading-[1.1] mb-10 font-light text-center">
+            Answers before you begin.
+          </h2>
+          <div className="space-y-3">
+            {HOME_FAQS.map((faq, i) => {
+              const open = openFaq === i;
+              return (
+                <div key={faq.q} className="border border-[#E8E8E4] rounded-xl overflow-hidden bg-white">
+                  <button
+                    type="button"
+                    className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left"
+                    aria-expanded={open}
+                    onClick={() => setOpenFaq(open ? null : i)}
+                  >
+                    <span className="font-medium text-[15px] text-[#111]">{faq.q}</span>
+                    <ChevronDown
+                      className={`w-4 h-4 text-[#B8962E] shrink-0 transition-transform ${open ? "rotate-180" : ""}`}
+                    />
+                  </button>
+                  {open && (
+                    <div className="px-5 pb-5">
+                      <p className="text-[14px] text-[#111]/65 leading-relaxed">{faq.a}</p>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
