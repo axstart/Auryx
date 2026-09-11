@@ -22,7 +22,7 @@ export default function ProtocolFinder() {
     <div className="min-h-screen bg-background text-foreground">
 
       {/* Header band */}
-      <div className="pt-32 pb-8 px-6 md:px-16 border-b border-border/40">
+      <div className="pt-[calc(var(--site-header-height)+1rem)] pb-8 px-4 sm:px-6 md:px-16 border-b border-border/40">
         <div className="container mx-auto max-w-4xl">
           <motion.div
             initial={{ opacity: 0, y: 16 }}
@@ -60,7 +60,7 @@ export default function ProtocolFinder() {
       </div>
 
       {/* Assessment */}
-      <div className="px-6 md:px-16 py-10 md:py-14">
+      <div className="px-4 sm:px-6 md:px-16 py-8 md:py-14">
         <div className="container mx-auto max-w-3xl">
           <motion.div
             initial={{ opacity: 0, y: 24 }}

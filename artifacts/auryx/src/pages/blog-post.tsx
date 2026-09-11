@@ -155,7 +155,7 @@ export default function BlogPostPage() {
               "linear-gradient(to top, #0A0A0A 0%, rgba(10,10,10,0.7) 40%, rgba(10,10,10,0.3) 70%, rgba(10,10,10,0.2) 100%)",
           }}
         />
-        <div className="relative z-10 w-full px-6 md:px-14 lg:px-20 pb-16 pt-32">
+        <div className="relative z-10 w-full px-4 sm:px-6 md:px-14 lg:px-20 pb-16 pt-[calc(var(--site-header-height)+1rem)]">
           <div className="container mx-auto max-w-4xl">
             <motion.div
               initial={{ opacity: 0, y: 24 }}

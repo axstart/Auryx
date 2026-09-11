@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Auryx — SEO · GEO · AEO Readiness</title>
+  <style>
+    @page { size: Letter; margin: 0.6in; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", system-ui, sans-serif;
+      color: #1a1a1a;
+      line-height: 1.45;
+      font-size: 11px;
+      margin: 0;
+    }
+    h1 { font-size: 22px; margin: 0 0 4px; font-weight: 650; }
+    h2 { font-size: 14px; margin: 22px 0 10px; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+    h3 { font-size: 12px; margin: 0 0 4px; }
+    .sub { color: #666; margin-bottom: 16px; }
+    .callout {
+      border: 1px solid #e2b6b6;
+      background: #fff5f5;
+      padding: 12px 14px;
+      border-radius: 6px;
+      margin: 12px 0 18px;
+    }
+    .callout.info {
+      border-color: #c5d4e8;
+      background: #f4f8fc;
+    }
+    .callout strong { display: block; margin-bottom: 4px; }
+    .scores {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 14px 0;
+    }
+    .score {
+      border: 1px solid #e5e5e5;
+      border-radius: 6px;
+      padding: 12px;
+      text-align: center;
+    }
+    .score .label { color: #666; font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; }
+    .score .value { font-size: 28px; font-weight: 700; margin: 4px 0; }
+    .score .detail { color: #777; font-size: 10px; }
+    .danger .value { color: #b42318; }
+    .warning .value { color: #b54708; }
+    .pills { margin: 8px 0 16px; }
+    .pill {
+      display: inline-block;
+      border: 1px solid #ddd;
+      border-radius: 999px;
+      padding: 2px 9px;
+      margin: 0 6px 6px 0;
+      font-size: 10px;
+      background: #f7f7f7;
+    }
+    .pill.bad { background: #fef3f2; border-color: #fecdca; color: #b42318; }
+    .pill.warn { background: #fffaeb; border-color: #fedf89; color: #b54708; }
+    .pill.info { background: #eff8ff; border-color: #b2ddff; color: #175cd3; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0 16px;
+      font-size: 10.5px;
+    }
+    th, td {
+      border: 1px solid #e8e8e8;
+      padding: 7px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f5f5f5; font-weight: 600; }
+    tr.ok td:nth-child(2) { color: #027a48; font-weight: 600; }
+    tr.bad td:nth-child(2) { color: #b42318; font-weight: 600; }
+    tr.warn td:nth-child(2) { color: #b54708; font-weight: 600; }
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin: 12px 0;
+    }
+    .card {
+      border: 1px solid #e5e5e5;
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .card ul { margin: 6px 0 0; padding-left: 18px; }
+    .card li { margin-bottom: 6px; }
+    .footer {
+      margin-top: 20px;
+      color: #888;
+      font-size: 9.5px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Auryx SEO · GEO · AEO readiness</h1>
+  <p class="sub">Audit of www.auryxlife.com source + live HTTP checks · September 11, 2026</p>
+
+  <div class="callout">
+    <strong>Blocking finding</strong>
+    Production is a Vite SPA without SPA fallbacks. Direct requests to /shop, /learn, /blog,
+    /our-method, product &amp; blog deep links return Vercel 404. Crawlers and answer engines
+    cannot index almost anything listed in the sitemap except the homepage.
+  </div>
+
+  <div class="scores">
+    <div class="score danger">
+      <div class="label">SEO</div>
+      <div class="value">34</div>
+      <div class="detail">/100 · crawlability broken</div>
+    </div>
+    <div class="score danger">
+      <div class="label">GEO</div>
+      <div class="value">28</div>
+      <div class="detail">/100 · weak entity signals</div>
+    </div>
+    <div class="score warning">
+      <div class="label">AEO</div>
+      <div class="value">36</div>
+      <div class="detail">/100 · content strong, unreachable</div>
+    </div>
+  </div>
+
+  <div class="pills">
+    <span class="pill bad">Crawlability critical</span>
+    <span class="pill warn">CSR-only meta</span>
+    <span class="pill warn">Schema/content mismatch</span>
+    <span class="pill info">Strong Learn/Blog content patterns</span>
+  </div>
+
+  <h2>Live URL status</h2>
+  <p class="sub" style="margin-top:-6px">Source: HEAD/GET against production · Sep 11, 2026</p>
+  <table>
+    <thead>
+      <tr><th>URL</th><th>Status</th><th>Implication</th></tr>
+    </thead>
+    <tbody>
+      <tr class="ok"><td>https://www.auryxlife.com/</td><td>200</td><td>Homepage HTML + meta present</td></tr>
+      <tr class="bad"><td>https://www.auryxlife.com/shop</td><td>404</td><td>Sitemap priority 0.9 — dead to crawlers</td></tr>
+      <tr class="bad"><td>https://www.auryxlife.com/learn</td><td>404</td><td>Education hub + FAQ schema unreachable</td></tr>
+      <tr class="bad"><td>https://www.auryxlife.com/blog/…</td><td>404</td><td>All 5 journal URLs 404 on direct fetch</td></tr>
+      <tr class="bad"><td>https://www.auryxlife.com/shop/semaglutide</td><td>404</td><td>Product URLs in sitemap return NOT_FOUND</td></tr>
+      <tr class="ok"><td>https://www.auryxlife.com/robots.txt</td><td>200</td><td>Allow + sitemap declared</td></tr>
+      <tr class="warn"><td>https://www.auryxlife.com/sitemap.xml</td><td>200</td><td>28 locs; many now 404</td></tr>
+      <tr class="warn"><td>https://www.auryxlife.com/llms.txt</td><td>404</td><td>No AI citation / answer-engine file</td></tr>
+      <tr class="ok"><td>https://www.auryxlife.com/opengraph.jpg</td><td>200</td><td>OG image resolves</td></tr>
+    </tbody>
+  </table>
+
+  <h2>Findings by priority</h2>
+  <table>
+    <thead>
+      <tr><th>Pri</th><th>Lens</th><th>Issue</th><th>Detail</th></tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>P0</td><td>SEO</td><td>SPA routes 404 in production</td>
+        <td>No rewrite to index.html. Live checks: /shop, /learn, /blog, product &amp; blog URLs return NOT_FOUND. Only / works. Sitemap points crawlers at dead URLs.</td>
+      </tr>
+      <tr>
+        <td>P0</td><td>SEO</td><td>Client-only meta / no prerender</td>
+        <td>Vite CSR SPA. Blog/Learn inject title, canonical, OG, JSON-LD in useEffect. Non-JS crawlers still see homepage shell on deep URLs.</td>
+      </tr>
+      <tr>
+        <td>P0</td><td>AEO</td><td>Homepage FAQPage schema has no FAQ UI</td>
+        <td>index.html ships FAQPage JSON-LD but home has no matching FAQ section. Orphaned FAQ markup risks rich-result rejection.</td>
+      </tr>
+      <tr>
+        <td>P1</td><td>GEO</td><td>Generic US geo tags, incomplete MedicalBusiness</td>
+        <td>Centroid US coordinates. Schema lacks logo, image, telephone, PostalAddress, sameAs, founder name. Weak entity resolution.</td>
+      </tr>
+      <tr>
+        <td>P1</td><td>AEO</td><td>Conflicting medical vs research claims</td>
+        <td>Head/schema: MD-led telemedicine clinic. Footer/Learn: RESEARCH USE ONLY. Answer engines may refuse to cite conflicting claims.</td>
+      </tr>
+      <tr>
+        <td>P1</td><td>SEO</td><td>Sitemap incomplete vs catalog</td>
+        <td>15 product URLs in sitemap; shop has ~32 slugs. Many compounds missing. lastmod mostly 2026-05-15.</td>
+      </tr>
+      <tr>
+        <td>P1</td><td>SEO</td><td>Product pages lack Product/Offer schema</td>
+        <td>Only title + description set. No Product, Offer, BreadcrumbList, or OG image per SKU.</td>
+      </tr>
+      <tr>
+        <td>P2</td><td>AEO</td><td>No llms.txt / AI crawl hints</td>
+        <td>No brand summary / citation policy file for ChatGPT/Perplexity-style crawlers.</td>
+      </tr>
+      <tr>
+        <td>P2</td><td>SEO</td><td>Age gate + API-hydrated shop</td>
+        <td>Age overlay until localStorage; product copy loads via API. First paint can look empty to bots.</td>
+      </tr>
+      <tr>
+        <td>P2</td><td>SEO</td><td>Meta gaps &amp; brand inconsistency</td>
+        <td>Missing og:site_name, og:locale, twitter:site. Titles mix Auryx / AURYX. Checkout not noindexed (latent once routing fixed).</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>What is already working</h3>
+      <ul>
+        <li>Homepage baseline: title, description, robots, canonical, OG/Twitter, MedicalBusiness + FAQ JSON-LD</li>
+        <li>Learn page: MedicalWebPage + FAQPage, physician author/reviewedBy, strong educational copy</li>
+        <li>Blog posts: unique metaDescription, Article JSON-LD, faqAnswer on H2s, named MD author</li>
+        <li>robots.txt allows crawl and points to sitemap; admin disallowed</li>
+        <li>OG image 1200×630 present and live</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h3>Score drivers</h3>
+      <p><strong>SEO 34</strong> — Meta/schema on / are decent, but routing + CSR wipe gains on all money pages.</p>
+      <p><strong>GEO 28</strong> — Nationwide intent without a strong Organization entity; centroid geo tags add little.</p>
+      <p><strong>AEO 36</strong> — Physician-authored Q&amp;A content is citation-ready, but pages 404 and claims conflict.</p>
+    </div>
+  </div>
+
+  <h2>Fix order</h2>
+  <table>
+    <thead>
+      <tr><th>#</th><th>Action</th><th>Why</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>Add Vercel SPA rewrite: all non-file routes → /index.html</td><td>Unblocks every sitemap URL</td></tr>
+      <tr><td>2</td><td>Prerender or SSR key routes (/, /shop, /learn, /blog, posts, top products)</td><td>Real HTML for Google + AI crawlers</td></tr>
+      <tr><td>3</td><td>Align claims: one consistent medical vs research positioning</td><td>Trust + citable answers</td></tr>
+      <tr><td>4</td><td>Render homepage FAQ UI matching JSON-LD, or move FAQ schema only to /learn</td><td>Valid rich results</td></tr>
+      <tr><td>5</td><td>Complete MedicalBusiness/Organization: logo, sameAs, contact, areaServed</td><td>GEO entity strength</td></tr>
+      <tr><td>6</td><td>Regenerate sitemap from live inventory; noindex checkout/success/admin</td><td>Clean crawl budget</td></tr>
+      <tr><td>7</td><td>Add Product + Offer + BreadcrumbList on PDP; sync OG/canonical</td><td>Shopping + AEO</td></tr>
+      <tr><td>8</td><td>Publish /llms.txt with brand summary and key URLs</td><td>AEO/GEO discoverability</td></tr>
+    </tbody>
+  </table>
+
+  <div class="callout info">
+    <strong>Verdict</strong>
+    Do not invest in more content SEO until SPA rewrites (and ideally prerender) ship. Until then,
+    Google and AI answer engines effectively only see the homepage — while the sitemap advertises
+    27 other URLs that currently 404.
+  </div>
+
+  <p class="footer">
+    Sources: artifacts/auryx/index.html, App.tsx, blog-post.tsx, learn.tsx, product.tsx,
+    public/sitemap.xml, public/robots.txt, vercel.json, live www.auryxlife.com checks.
+    Exported from Cursor canvas: SEO-GEO-AEO-readiness.
+  </p>
+</body>
+</html>

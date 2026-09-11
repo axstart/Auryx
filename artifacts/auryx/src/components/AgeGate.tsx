@@ -1,11 +1,13 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useI18n, langHref } from "@/i18n";
 
 const STORAGE_KEY = "auryx_age_verified";
 
 export default function AgeGate() {
   const [visible, setVisible] = useState(false);
   const [declined, setDeclined] = useState(false);
+  const { t, lang } = useI18n();
 
   useEffect(() => {
     if (window.location.pathname.startsWith("/admin")) return;
@@ -18,6 +20,18 @@ export default function AgeGate() {
       setVisible(true);
     }
   }, []);
+
+  useEffect(() => {
+    if (!visible) return;
+    const previousOverflow = document.body.style.overflow;
+    const previousOverscroll = document.body.style.overscrollBehavior;
+    document.body.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "none";
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.overscrollBehavior = previousOverscroll;
+    };
+  }, [visible]);
 
   const handleEnter = () => {
     localStorage.setItem(STORAGE_KEY, "1");
@@ -35,8 +49,12 @@ export default function AgeGate() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0, transition: { duration: 0.5 } }}
-          className="fixed inset-0 z-[9999] flex items-center justify-center overflow-hidden"
+          className="fixed inset-0 z-[9999] flex min-h-[100dvh] items-center justify-center overflow-y-auto overscroll-contain px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(1rem,env(safe-area-inset-bottom))] motion-reduce:transition-none"
           style={{ background: "#0A0A0A" }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="age-gate-title"
+          aria-describedby="age-gate-description"
         >
           {/* Ambient glow */}
           <div
@@ -60,7 +78,7 @@ export default function AgeGate() {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.55, delay: 0.15, ease: [0.25, 0.1, 0.25, 1] }}
-            className="relative z-10 flex flex-col items-center text-center max-w-[340px] w-full px-8"
+            className="relative z-10 flex flex-col items-center text-center max-w-[340px] w-full px-4 sm:px-8 motion-reduce:transform-none"
           >
             {declined ? (
               /* ── Declined state ── */
@@ -74,10 +92,10 @@ export default function AgeGate() {
                     fontWeight: 300,
                   }}
                 >
-                  Access Restricted
+                  {t("ageGate.accessRestricted")}
                 </p>
                 <p className="text-white/30 text-sm leading-relaxed">
-                  You must be 21 years of age or older to access this site.
+                  {t("ageGate.mustBe21")}
                 </p>
                 <div className="w-10 h-px bg-white/10 mt-2" />
               </div>
@@ -101,6 +119,7 @@ export default function AgeGate() {
 
                 {/* Heading */}
                 <h1
+                  id="age-gate-title"
                   className="text-white leading-snug mb-4"
                   style={{
                     fontFamily: "'Cormorant Garamond', serif",
@@ -109,43 +128,43 @@ export default function AgeGate() {
                     letterSpacing: "0.01em",
                   }}
                 >
-                  Age Verification
+                  {t("ageGate.heading")}
                   <br />
-                  <em className="not-italic text-[#C9A844]">Required</em>
+                  <em className="not-italic text-[#C9A844]">{t("ageGate.headingEm")}</em>
                 </h1>
 
                 {/* Body copy */}
-                <p className="text-white/40 text-[13px] leading-relaxed mb-2">
-                  You must be 21 years of age or older to access this site.
+                <p id="age-gate-description" className="text-white/40 text-[13px] leading-relaxed mb-2">
+                  {t("ageGate.mustBe21")}
                 </p>
                 <p className="text-white/22 text-[11px] leading-relaxed mb-10 max-w-[260px]">
-                  For licensed healthcare use only. Prescription required where applicable.
+                  {t("ageGate.licensedUse")}
                 </p>
 
                 {/* Buttons */}
                 <button
                   onClick={handleEnter}
-                  className="w-full py-4 bg-[#C9A844] text-[#0A0A0A] text-[11px] font-bold tracking-[0.22em] uppercase rounded-lg hover:bg-[#D4B050] active:bg-[#B8962E] transition-colors duration-200 mb-3 shadow-lg shadow-[#C9A844]/15"
+                  className="w-full min-h-12 py-3 bg-[#C9A844] text-[#0A0A0A] text-[11px] font-bold tracking-[0.18em] uppercase rounded-lg hover:bg-[#D4B050] active:bg-[#B8962E] transition-colors duration-200 mb-3 shadow-lg shadow-[#C9A844]/15 motion-reduce:transition-none"
                 >
-                  I am 21 or older — Enter
+                  {t("ageGate.enter")}
                 </button>
                 <button
                   onClick={handleDecline}
-                  className="w-full py-3 border border-white/12 text-white/30 text-[11px] font-medium tracking-[0.18em] uppercase rounded-lg hover:border-white/22 hover:text-white/40 transition-colors duration-200"
+                  className="w-full min-h-11 py-3 border border-white/12 text-white/30 text-[11px] font-medium tracking-[0.18em] uppercase rounded-lg hover:border-white/22 hover:text-white/40 transition-colors duration-200 motion-reduce:transition-none"
                 >
-                  I am under 21 — Exit
+                  {t("ageGate.exit")}
                 </button>
 
                 {/* Fine print */}
                 <p className="mt-8 text-white/15 text-[10px] leading-relaxed px-2">
-                  By entering you confirm you are 21+ and agree to our{" "}
+                  {t("ageGate.finePrint1")}
                   <a
-                    href="/terms"
+                    href={langHref(lang, "/terms")}
                     className="underline underline-offset-2 text-white/25 hover:text-white/40 transition-colors"
                   >
-                    Terms &amp; Conditions
+                    {t("ageGate.termsLink")}
                   </a>
-                  .
+                  {t("ageGate.finePrint2")}
                 </p>
               </>
             )}

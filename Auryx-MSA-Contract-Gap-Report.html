@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Auryx — Contract vs Current Website</title>
+  <style>
+    @page {
+      size: letter;
+      margin: 0.7in 0.75in 0.8in 0.75in;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #fff;
+      color: #1a1a1a;
+      font-family: "Calibri", "Segoe UI", Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.45;
+    }
+    .kicker {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      letter-spacing: 0.16em;
+      font-size: 8.5pt;
+      text-transform: uppercase;
+      color: #6a6a6a;
+      border-bottom: 1px solid #d8d4c8;
+      padding-bottom: 10px;
+      margin-bottom: 22px;
+    }
+    h1 {
+      font-family: "Georgia", "Times New Roman", serif;
+      font-weight: 400;
+      font-size: 22pt;
+      line-height: 1.2;
+      margin: 0 0 8px;
+      color: #111;
+    }
+    .lede {
+      color: #555;
+      font-size: 11pt;
+      margin: 0 0 18px;
+      max-width: 38em;
+    }
+    .stage {
+      background: #f6f3ea;
+      border-left: 3px solid #c9a844;
+      padding: 12px 16px;
+      margin: 0 0 20px;
+    }
+    .stage strong {
+      display: block;
+      font-size: 10pt;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #8a7424;
+      margin-bottom: 4px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 0 0 22px;
+    }
+    .stat {
+      border: 1px solid #e6e2d4;
+      padding: 10px 12px;
+    }
+    .stat .v {
+      font-family: Georgia, serif;
+      font-size: 16pt;
+      color: #111;
+    }
+    .stat .l {
+      font-size: 8.5pt;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: #777;
+      margin-top: 2px;
+    }
+    h2 {
+      font-family: Georgia, serif;
+      font-weight: 400;
+      font-size: 14pt;
+      margin: 22px 0 8px;
+      color: #111;
+      page-break-after: avoid;
+    }
+    h3 {
+      font-family: Georgia, serif;
+      font-weight: 400;
+      font-size: 12pt;
+      margin: 0 0 6px;
+      color: #111;
+      page-break-after: avoid;
+    }
+    p { margin: 0 0 10px; }
+    ul { margin: 0 0 12px; padding-left: 1.15em; }
+    li { margin: 0 0 5px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 9.5pt;
+      margin: 8px 0 16px;
+    }
+    th {
+      text-align: left;
+      font-size: 8pt;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #6a6a6a;
+      border-bottom: 1px solid #cfc9b8;
+      padding: 6px 8px 6px 0;
+      font-weight: 600;
+    }
+    td {
+      border-bottom: 1px solid #eeeae0;
+      padding: 9px 10px 9px 0;
+      vertical-align: top;
+    }
+    td:first-child { font-weight: 600; width: 22%; }
+    .badge {
+      display: inline-block;
+      font-size: 8pt;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      padding: 2px 7px;
+      border: 1px solid #d8c98a;
+      color: #8a7424;
+      background: #faf6ea;
+      white-space: nowrap;
+    }
+    .badge.missing {
+      border-color: #e0c4c0;
+      color: #8a3b32;
+      background: #faf0ee;
+    }
+    .module {
+      border: 1px solid #e6e2d4;
+      padding: 14px 16px 10px;
+      margin: 0 0 12px;
+      page-break-inside: avoid;
+    }
+    .module .meta {
+      font-size: 9.5pt;
+      color: #555;
+      margin-bottom: 8px;
+    }
+    .tasks {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    .tasks li {
+      padding-left: 18px;
+      position: relative;
+      margin: 0 0 5px;
+    }
+    .tasks li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 4px;
+      width: 9px;
+      height: 9px;
+      border: 1px solid #c9a844;
+      background: #fff;
+    }
+    .tasks li.done::before {
+      background: #c9a844;
+    }
+    .note {
+      font-size: 9pt;
+      color: #777;
+      margin-top: 8px;
+    }
+    .footer {
+      margin-top: 18px;
+      padding-top: 10px;
+      border-top: 1px solid #d8d4c8;
+      font-size: 8.5pt;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <div class="kicker">
+    <span>Master Service Agreement — Stage Review</span>
+    <span>Auryx Life · JMJ Trux Inc</span>
+  </div>
+
+  <h1>Contract vs current website</h1>
+  <p class="lede">
+    Comparison of the live Auryx website against the agreed Master Service Agreement.
+    This is a stage and gap review — not a timeline.
+  </p>
+
+  <div class="stage">
+    <strong>Current stage: live selling website</strong>
+    Auryx is already operating as a public storefront: browse, learn, Protocol Finder,
+    checkout, staff admin, and chat are in production. The contract is optimization
+    and extension of that site — not a rebuild. Against the five in-scope modules,
+    most deliverables are only partly started.
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v">Live</div><div class="l">Website stage</div></div>
+    <div class="stat"><div class="v">Partial</div><div class="l">Contract completion</div></div>
+    <div class="stat"><div class="v">5</div><div class="l">Modules in scope</div></div>
+    <div class="stat"><div class="v">4</div><div class="l">Systems left as-is</div></div>
+  </div>
+
+  <h2>What is already working</h2>
+  <p>These are the commercial foundations the contract says to extend, not replace.</p>
+  <ul>
+    <li>Shop, product pages, cart, and paid checkout are live.</li>
+    <li>Protocol Finder is live and still uses the existing recommendation flow.</li>
+    <li>Aria chat, staff admin, inventory, and order management are already in use.</li>
+    <li>Certificates of Analysis can be opened from product pages.</li>
+    <li>Transactional email (order updates, checkout verification, consultations) already runs through Zoho.</li>
+  </ul>
+
+  <h2>Contract modules</h2>
+  <p>Each row is scored against the attached agreement, not against a finished luxury rebuild.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Module</th>
+        <th>Status</th>
+        <th>Where the site is now</th>
+        <th>High-level remaining work</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>A · Infrastructure &amp; security</td>
+        <td><span class="badge">Partial</span></td>
+        <td>The live site already uses encrypted access, staff login, and basic login protection. There is no two-step admin login, no dedicated staging site, and no full uptime / backup / recovery program.</td>
+        <td>Harden hosting and admin access; add staging, alerts, backups, and a recovery plan.</td>
+      </tr>
+      <tr>
+        <td>B · SEO &amp; search</td>
+        <td><span class="badge">Partial</span></td>
+        <td>Homepage titles, sitemap, and crawl rules exist. Most inner pages are not reliably reachable by Google. Search Console, Google Analytics, and conversion tracking are not connected in the site.</td>
+        <td>Make every public page findable, finish on-page and structured data work, connect search and analytics tools, then do keyword and competitor research.</td>
+      </tr>
+      <tr>
+        <td>C · Protocol Finder measurement</td>
+        <td><span class="badge missing">Mostly missing</span></td>
+        <td>Protocol Finder is live and working. Chat has some internal reporting. The Finder itself is not measured through steps, drop-offs, product views, cart, or checkout.</td>
+        <td>Keep the Finder as-is and add clean funnel tracking from first question through purchase.</td>
+      </tr>
+      <tr>
+        <td>D · COA verification MVP</td>
+        <td><span class="badge">Partial</span></td>
+        <td>Certificates of Analysis are already attached to many product pages as downloadable files. There is no batch / lot lookup page that maps a lot number to its certificate.</td>
+        <td>Build a simple lot-to-certificate lookup for LegitScript — not a warehouse or labeling system.</td>
+      </tr>
+      <tr>
+        <td>Growth &amp; customer automation</td>
+        <td><span class="badge">Partial</span></td>
+        <td>Staff can see customers, orders, and revenue. Zoho already sends order, verification, and consultation emails. There is no lifetime-value reporting and no welcome / cart-recovery / win-back journeys.</td>
+        <td>Add customer-value reporting on existing order data, then automate the agreed email and SMS journeys.</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>High-level remaining work</h2>
+
+  <div class="module">
+    <h3>Module A — Infrastructure &amp; security</h3>
+    <p class="meta">In place: encrypted site, staff login. Gaps: two-step admin login, staging site.</p>
+    <ul class="tasks">
+      <li>Review domain, delivery network, and certificate setup and tighten what is already in place.</li>
+      <li>Add firewall, abuse, and bot protection that fits the current host.</li>
+      <li>Require two-step login for staff and admin accounts.</li>
+      <li>Stand up a separate staging environment that mirrors production.</li>
+      <li>Turn on uptime and error alerts, plus a backup and recovery plan.</li>
+      <li>Limit admin access so people only see what their role needs.</li>
+    </ul>
+  </div>
+
+  <div class="module">
+    <h3>Module B — SEO &amp; search</h3>
+    <p class="meta">In place: sitemap and crawl file. Gaps: inner pages not findable; analytics not connected.</p>
+    <ul class="tasks">
+      <li>Fix public pages so Google and shared links open shop, Learn, Journal, and product URLs.</li>
+      <li>Finish the technical search audit: titles, headings, redirects, and structured data.</li>
+      <li>Improve mobile experience and page speed on key pages.</li>
+      <li>Connect Google Search Console, Google Analytics, and purchase tracking.</li>
+      <li>Complete foundational keyword and competitor research for organic search.</li>
+    </ul>
+  </div>
+
+  <div class="module">
+    <h3>Module C — Protocol Finder measurement</h3>
+    <p class="meta">The Finder stays. The gap is measurement, not a new quiz.</p>
+    <ul class="tasks">
+      <li class="done">Keep the current Protocol Finder flow and recommendations unchanged.</li>
+      <li>Track each step, drop-offs, and completions inside the Finder.</li>
+      <li>Track product views, add-to-cart, and checkout from Finder and shop.</li>
+      <li>Deliver a clean funnel report the business can use for optimization.</li>
+    </ul>
+  </div>
+
+  <div class="module">
+    <h3>Module D — COA verification MVP</h3>
+    <p class="meta">Certificates exist on products. The contract asks for a lot-number lookup, not a supply-chain platform.</p>
+    <ul class="tasks">
+      <li>Map each product batch / lot number to its Certificate of Analysis.</li>
+      <li>Publish a simple public lookup page for verification.</li>
+      <li>Use this as the LegitScript-facing MVP only — no warehouse or manufacturing rebuild.</li>
+    </ul>
+  </div>
+
+  <div class="module">
+    <h3>Growth &amp; customer automation</h3>
+    <p class="meta">Reporting and journeys sit on the existing customer and order records. Messaging costs stay with the client.</p>
+    <p><strong>Reporting layer</strong></p>
+    <ul class="tasks">
+      <li>Customer lifetime value from existing orders.</li>
+      <li>Repeat-purchase and purchase-frequency views.</li>
+      <li>Simple marketing cohorts and segments — without replacing the database.</li>
+    </ul>
+    <p><strong>Email &amp; SMS journeys</strong></p>
+    <ul class="tasks">
+      <li>Audit the current Zoho email setup.</li>
+      <li>Welcome sequence for new customers.</li>
+      <li>Cart and checkout abandonment recovery.</li>
+      <li>Post-purchase follow-up and win-back flows.</li>
+    </ul>
+  </div>
+
+  <h2>Left unchanged by design</h2>
+  <p>The agreement prices optimization of these systems, not replacement. They are already running and should stay the operating core.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>System</th>
+        <th>Contract treatment</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>Aria core intelligence, prompts, and knowledge base</td>
+        <td>Optimize / extend only</td>
+      </tr>
+      <tr>
+        <td>Product-variant, warehouse, and commission systems</td>
+        <td>Optimize / extend only</td>
+      </tr>
+      <tr>
+        <td>The existing customer / order database and admin screens</td>
+        <td>Optimize / extend only</td>
+      </tr>
+      <tr>
+        <td>Protocol Finder recommendation logic and checkout email-code login</td>
+        <td>Optimize / extend only</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <h2>Bottom line</h2>
+  <p>
+    The website is past “under construction.” Customers can already find products,
+    complete Protocol Finder, check out, and download certificates. The contract work
+    is the next layer: harden the platform, make the site searchable, measure the
+    Finder-to-purchase path, add a lot-number COA lookup, and turn existing customer
+    data into reporting and automated follow-up.
+  </p>
+  <p class="note">
+    Source: live Auryx storefront and current website / admin codebase, compared to
+    MSA sections 2.1–2.6. Status labels are directional.
+  </p>
+  <div class="footer">Auryx Life · Confidential · Prepared for internal contract alignment with JMJ Trux Inc</div>
+</body>
+</html>

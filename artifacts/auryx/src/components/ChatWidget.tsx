@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ConsultationModal } from "./ConsultationModal";
 import { useCart } from "@/context/CartContext";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Message {
   role: "user" | "assistant";
@@ -57,30 +58,35 @@ function IntakeForm({ onSubmit }: { onSubmit: (info: UserInfo) => void }) {
           <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/50 pointer-events-none" />
           <Input
             placeholder="Your name *"
+            type="text"
+            autoComplete="name"
             value={form.name}
             onChange={e => { setForm(f => ({ ...f, name: e.target.value })); setError(""); }}
-            className="pl-8 h-9 text-sm bg-background border-border"
-            autoFocus
+            className="pl-8 h-11 text-sm bg-background border-border"
           />
         </div>
         <Input
           placeholder="Email address"
           type="email"
+          autoComplete="email"
+          inputMode="email"
           value={form.email}
           onChange={e => { setForm(f => ({ ...f, email: e.target.value })); setError(""); }}
-          className="h-9 text-sm bg-background border-border"
+          className="h-11 text-sm bg-background border-border"
         />
         <Input
           placeholder="Phone number"
           type="tel"
+          autoComplete="tel"
+          inputMode="tel"
           value={form.phone}
           onChange={e => { setForm(f => ({ ...f, phone: e.target.value })); setError(""); }}
-          className="h-9 text-sm bg-background border-border"
+          className="h-11 text-sm bg-background border-border"
         />
         <p className="text-[10px] text-muted-foreground/50">* Required · Email or phone required</p>
       </div>
       {error && <p className="text-xs text-red-400">{error}</p>}
-      <Button type="submit" className="w-full bg-primary text-primary-foreground h-9 text-sm">
+      <Button type="submit" className="w-full bg-primary text-primary-foreground h-11 text-sm">
         Start Conversation
       </Button>
     </form>
@@ -101,6 +107,7 @@ export default function ChatWidget() {
   const [labelVisible, setLabelVisible]     = useState(true);
   const [consultOpen, setConsultOpen]       = useState(false);
   const { openCart }                        = useCart();
+  const isMobile                            = useIsMobile();
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const inputRef  = useRef<HTMLInputElement>(null);
@@ -124,8 +131,19 @@ export default function ChatWidget() {
   }, [open, hours]);
 
   useEffect(() => {
-    if (open && userInfo) setTimeout(() => inputRef.current?.focus(), 120);
-  }, [open, userInfo]);
+    if (!isMobile && open && userInfo) {
+      const timer = setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 120);
+      return () => clearTimeout(timer);
+    }
+    return undefined;
+  }, [isMobile, open, userInfo]);
+
+  useEffect(() => {
+    if (!open || !isMobile) return;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = previousOverflow; };
+  }, [isMobile, open]);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -144,7 +162,7 @@ export default function ChatWidget() {
       role: "assistant",
       content: `Hello, ${firstName} — welcome to Auryx. I'm Aria, your personal health concierge.\n\nI'm here to answer your questions about precision longevity protocols and peptide therapy, and to help find the right path for you.${availNote}`,
     }]);
-    setTimeout(() => inputRef.current?.focus(), 150);
+    if (!isMobile) setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 150);
   };
 
   const sendMessage = async (text: string) => {
@@ -270,15 +288,15 @@ export default function ChatWidget() {
   return (
     <>
       {/* Floating button + label */}
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
+      <div className={`fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-4 sm:right-6 z-50 flex flex-col items-end gap-3 ${open && isMobile ? "hidden" : ""}`}>
         {!open && labelVisible && (
-          <div className="bg-card border border-primary/30 text-foreground/80 text-sm px-4 py-2 rounded-full shadow-lg">
+          <div className="hidden sm:block bg-card border border-primary/30 text-foreground/80 text-sm px-4 py-2 rounded-full shadow-lg">
             Ask Aria — AI Concierge
           </div>
         )}
         <button
           onClick={() => setOpen(o => !o)}
-          className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-2xl hover:bg-primary/90 transition-all duration-200 hover:scale-105 focus:outline-none"
+          className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-2xl hover:bg-primary/90 transition-all duration-200 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none motion-reduce:hover:scale-100"
           aria-label={open ? "Close chat" : "Open chat"}
         >
           {open ? <X className="w-5 h-5" /> : <MessageCircle className="w-6 h-6" />}
@@ -287,15 +305,20 @@ export default function ChatWidget() {
 
       {/* Chat panel */}
       {open && (
-        <div className="fixed bottom-24 right-6 z-50 w-[370px] max-h-[610px] flex flex-col rounded-2xl overflow-hidden shadow-2xl border border-border bg-card">
+        <div
+          role="dialog"
+          aria-modal={isMobile}
+          aria-labelledby="aria-chat-title"
+          className="fixed inset-x-0 bottom-0 z-50 w-full h-[min(100dvh,46rem)] flex flex-col rounded-t-2xl overflow-hidden shadow-2xl border border-border bg-card sm:inset-x-auto sm:bottom-24 sm:right-6 sm:w-[370px] sm:h-auto sm:max-h-[610px] sm:rounded-2xl"
+        >
 
           {/* Header */}
-          <div className="bg-background border-b border-border px-5 py-4 flex items-center gap-3 shrink-0">
+          <div className="bg-background border-b border-border px-4 sm:px-5 pt-[max(1rem,env(safe-area-inset-top))] sm:pt-4 pb-4 flex items-center gap-3 shrink-0">
             <div className="w-8 h-8 rounded-full bg-primary/20 border border-primary/40 flex items-center justify-center">
               <span className="text-primary text-xs font-serif font-bold">A</span>
             </div>
             <div>
-              <p className="text-sm font-medium text-foreground">Aria</p>
+              <p id="aria-chat-title" className="text-sm font-medium text-foreground">Aria</p>
               <p className="text-xs text-muted-foreground">
                 {userInfo ? `Auryx Concierge · Hi, ${firstName}` : "Auryx AI Concierge"}
               </p>
@@ -308,6 +331,13 @@ export default function ChatWidget() {
                 </span>
               )}
               <div className={`w-2 h-2 rounded-full ${teamAvailable ? "bg-emerald-500" : "bg-amber-400"}`} />
+              <button
+                onClick={() => setOpen(false)}
+                className="sm:hidden min-h-11 min-w-11 -mr-3 inline-flex items-center justify-center text-muted-foreground hover:text-foreground"
+                aria-label="Close chat"
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
           </div>
 
@@ -356,7 +386,7 @@ export default function ChatWidget() {
                             setOpen(false);
                             openCart();
                           }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-[11px] text-primary font-medium transition-colors"
+                        className="flex min-h-11 items-center gap-1.5 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-[11px] text-primary font-medium transition-colors"
                         >
                           <ShoppingCart className="w-3 h-3" />
                           Browse Shop
@@ -366,7 +396,7 @@ export default function ChatWidget() {
                             setOpen(false);
                             setConsultOpen(true);
                           }}
-                          className="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-[11px] text-primary font-medium transition-colors"
+                          className="flex min-h-11 items-center gap-1.5 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-[11px] text-primary font-medium transition-colors"
                         >
                           <ArrowRight className="w-3 h-3" />
                           Book Consultation
@@ -383,7 +413,7 @@ export default function ChatWidget() {
                       <button
                         key={i}
                         onClick={() => sendMessage(q)}
-                        className="w-full text-left text-xs text-foreground/70 border border-border hover:border-primary/50 hover:text-primary rounded-xl px-3 py-2.5 transition-colors flex items-center justify-between group"
+                        className="w-full min-h-11 text-left text-xs text-foreground/70 border border-border hover:border-primary/50 hover:text-primary rounded-xl px-3 py-2.5 transition-colors flex items-center justify-between group"
                       >
                         {q}
                         <ChevronRight className="w-3.5 h-3.5 opacity-0 group-hover:opacity-100 transition-opacity shrink-0 ml-2" />
@@ -431,13 +461,13 @@ export default function ChatWidget() {
               </div>
 
               {/* Consultation CTA */}
-              <div className="px-4 py-2 border-t border-border/50 bg-background/50 shrink-0">
+              <div className="px-4 py-1 border-t border-border/50 bg-background/50 shrink-0">
                 <button
                   onClick={() => {
                     setOpen(false);
                     setConsultOpen(true);
                   }}
-                  className="w-full flex items-center justify-center gap-2 text-primary text-xs font-medium py-1.5 hover:opacity-80 transition-opacity"
+                  className="w-full min-h-11 flex items-center justify-center gap-2 text-primary text-xs font-medium py-2 hover:opacity-80 transition-opacity"
                 >
                   Schedule a Private Consultation <ArrowRight className="w-3.5 h-3.5" />
                 </button>
@@ -448,7 +478,7 @@ export default function ChatWidget() {
                 <div className="px-3 pb-1 shrink-0">
                   <button
                     onClick={() => setShowEscalate(true)}
-                    className="w-full text-[10px] text-muted-foreground/50 hover:text-primary/60 transition-colors py-1 flex items-center justify-center gap-1"
+                    className="w-full min-h-11 text-[10px] text-muted-foreground/50 hover:text-primary/60 transition-colors py-2 flex items-center justify-center gap-1"
                   >
                     <Mail className="w-3 h-3" />
                     Contact the Auryx team
@@ -457,7 +487,7 @@ export default function ChatWidget() {
               )}
 
               {/* Input */}
-              <div className="px-3 pb-3 shrink-0">
+              <div className="px-3 pb-[max(.75rem,env(safe-area-inset-bottom))] shrink-0">
                 <div className="flex gap-2 items-center bg-background border border-border rounded-xl px-3 py-2 focus-within:border-primary/50 transition-colors">
                   <input
                     ref={inputRef}
@@ -470,13 +500,16 @@ export default function ChatWidget() {
                       }
                     }}
                     placeholder={`Ask anything, ${firstName}…`}
+                    type="text"
+                    autoComplete="off"
                     className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
                     disabled={loading}
                   />
                   <button
                     onClick={() => sendMessage(input)}
                     disabled={!input.trim() || loading}
-                    className="text-primary disabled:text-muted-foreground/30 transition-colors shrink-0"
+                    className="text-primary disabled:text-muted-foreground/30 transition-colors shrink-0 min-h-11 min-w-11 inline-flex items-center justify-center -mr-2"
+                    aria-label="Send message"
                   >
                     {loading
                       ? <Loader2 className="w-4 h-4 animate-spin" />

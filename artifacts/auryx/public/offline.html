@@ -1,0 +1,86 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#080807" />
+    <title>Offline | Auryx</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family:
+          "DM Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+          sans-serif;
+        background: #080807;
+        color: #f4efe4;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        min-height: 100vh;
+        min-height: 100dvh;
+        margin: 0;
+        display: grid;
+        place-items: center;
+        padding: max(2rem, env(safe-area-inset-top))
+          max(1.5rem, env(safe-area-inset-right))
+          max(2rem, env(safe-area-inset-bottom))
+          max(1.5rem, env(safe-area-inset-left));
+        background:
+          radial-gradient(circle at 50% 15%, #282114 0, transparent 40%),
+          #080807;
+      }
+      main {
+        width: min(32rem, 100%);
+        text-align: center;
+      }
+      .mark {
+        width: 5rem;
+        height: 5rem;
+        margin: 0 auto 2rem;
+        display: grid;
+        place-items: center;
+        border: 1px solid #b8944e;
+        border-radius: 1.25rem;
+        color: #d8b66b;
+        font: 500 2.75rem/1 Georgia, serif;
+      }
+      h1 {
+        margin: 0 0 0.75rem;
+        font: 400 clamp(2.25rem, 9vw, 4rem) / 1 Georgia, serif;
+        letter-spacing: 0.04em;
+      }
+      p {
+        margin: 0 auto 1.75rem;
+        max-width: 27rem;
+        color: #b9b2a4;
+        line-height: 1.65;
+      }
+      button {
+        border: 1px solid #b8944e;
+        border-radius: 999px;
+        padding: 0.85rem 1.5rem;
+        color: #080807;
+        background: #d8b66b;
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <div class="mark" aria-hidden="true">A</div>
+      <h1>You’re offline</h1>
+      <p>
+        Auryx could not reach the network. Check your connection, then try
+        again.
+      </p>
+      <button type="button" onclick="location.reload()">Try again</button>
+    </main>
+  </body>
+</html>

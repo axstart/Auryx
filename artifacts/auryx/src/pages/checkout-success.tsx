@@ -178,7 +178,7 @@ export default function CheckoutSuccessPage() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-6 py-12">
+    <div className="min-h-screen bg-background flex items-center justify-center px-4 sm:px-6 pt-[calc(var(--site-header-height)+2rem)] pb-12">
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -257,20 +257,22 @@ export default function CheckoutSuccessPage() {
               <div>
                 <label className="block text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/40 font-medium mb-1.5">Full Name *</label>
                 <input
+                  autoComplete="name"
                   value={form.patientName}
                   onChange={setField("patientName")}
-                  className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"
+                  className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-base md:text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"
                   placeholder="Dr. Smith will see this"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/40 font-medium mb-1.5">Date of Birth</label>
                   <input
                     type="date"
+                    autoComplete="bday"
                     value={form.dob}
                     onChange={setField("dob")}
-                    className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"
+                    className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-base md:text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"
                   />
                 </div>
                 <div>
@@ -278,20 +280,20 @@ export default function CheckoutSuccessPage() {
                   <select
                     value={form.goal}
                     onChange={setField("goal")}
-                    className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"
+                    className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-base md:text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"
                   >
                     <option value="">Select a goal</option>
                     {GOALS.map(g => <option key={g} value={g}>{g}</option>)}
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
                   <label className="block text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/40 font-medium mb-1.5">Height</label>
                   <input
                     value={form.height}
                     onChange={setField("height")}
-                    className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"
+                    className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-base md:text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"
                     placeholder="e.g. 5'10"
                   />
                 </div>
@@ -300,7 +302,7 @@ export default function CheckoutSuccessPage() {
                   <input
                     value={form.weight}
                     onChange={setField("weight")}
-                    className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"
+                    className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-base md:text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"
                     placeholder="e.g. 175 lbs"
                   />
                 </div>
@@ -383,7 +385,7 @@ export default function CheckoutSuccessPage() {
                   type="checkbox"
                   checked={form.priorPeptideUse}
                   onChange={setField("priorPeptideUse")}
-                  className="w-4 h-4 rounded border-[#E8E8E4] accent-[#C9A844]"
+                  className="w-5 h-5 rounded border-[#E8E8E4] accent-[#C9A844]"
                 />
                 <label htmlFor="priorPeptideUse" className="text-sm text-[#0A0A0A]/70">I have used peptides before</label>
               </div>
@@ -401,6 +403,7 @@ export default function CheckoutSuccessPage() {
               <div>
                 <label className="block text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/40 font-medium mb-1.5">Allergies</label>
                 <input
+                  autoComplete="off"
                   value={form.allergies}
                   onChange={setField("allergies")}
                   className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"

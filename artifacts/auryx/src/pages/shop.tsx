@@ -227,7 +227,7 @@ function ProductCard({
       initial={{ opacity: 0, y: 18 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: index * 0.04 }}
-      className="group rounded-2xl overflow-hidden flex flex-row
+      className="group rounded-2xl overflow-hidden flex flex-col sm:flex-row
         shadow-[0_2px_14px_rgba(0,0,0,0.06)] hover:shadow-[0_10px_36px_rgba(0,0,0,0.12)]
         hover:-translate-y-0.5 hover:ring-1 hover:ring-[#C9A844]/40
         transition-all duration-300"
@@ -235,7 +235,7 @@ function ProductCard({
     >
       {/* ── Image zone — narrow vertical rectangle ── */}
       <div
-        className={`relative shrink-0 flex items-center justify-center overflow-hidden self-stretch ${featured ? "w-[26%]" : "w-[22%]"}`}
+        className={`relative shrink-0 flex h-40 sm:h-auto items-center justify-center overflow-hidden self-stretch ${featured ? "w-full sm:w-[26%]" : "w-full sm:w-[22%]"}`}
         style={{ background: "linear-gradient(180deg, #F5F0E5 0%, #EDE3CC 100%)" }}
       >
         {/* Permanent soft base glow */}
@@ -252,7 +252,7 @@ function ProductCard({
           <img
             src={productImage}
             alt={product.name}
-            className={`relative z-10 object-contain group-hover:scale-[1.07] group-hover:-translate-y-0.5 transition-transform duration-500 drop-shadow-lg ${featured ? "h-32 w-auto max-w-[90%]" : "h-[5.5rem] w-auto max-w-[85%]"}`}
+            className={`relative z-10 object-contain group-hover:scale-[1.07] group-hover:-translate-y-0.5 transition-transform duration-500 drop-shadow-lg ${featured ? "h-32 w-auto max-w-[90%]" : "h-28 sm:h-[5.5rem] w-auto max-w-[85%]"}`}
           />
         ) : (
           <div className="relative z-10 group-hover:scale-[1.07] transition-transform duration-500 scale-75">
@@ -277,7 +277,7 @@ function ProductCard({
           </div>
 
           <h3
-            className="text-[#0A0A0A] leading-[1.0] mb-2 truncate"
+            className="text-[#0A0A0A] leading-[1.0] mb-2 line-clamp-2"
             style={{
               fontFamily: "'Bebas Neue', sans-serif",
               fontSize: featured ? "clamp(1.6rem, 2.4vw, 2.2rem)" : "clamp(1.3rem, 1.9vw, 1.8rem)",
@@ -303,7 +303,7 @@ function ProductCard({
             }
           </span>
           {outOfStock ? (
-            <span className="h-8 px-4 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center bg-[#0A0A0A]/8 text-[#0A0A0A]/35 border border-[#0A0A0A]/10 cursor-not-allowed whitespace-nowrap select-none">
+            <span className="h-11 px-4 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center bg-[#0A0A0A]/8 text-[#0A0A0A]/35 border border-[#0A0A0A]/10 cursor-not-allowed whitespace-nowrap select-none">
               Out of Stock
             </span>
           ) : product.variants && product.variants.length > 1 ? (
@@ -312,7 +312,7 @@ function ProductCard({
               {product.variants.some(v => (stockMap[`${product.slug}:${v.label}`] ?? 1) > 0) ? (
                 <Link
                   href={`/shop/${product.slug}`}
-                  className={`h-8 px-3 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center gap-1.5 transition-all duration-200 whitespace-nowrap ${
+                  className={`h-11 px-3 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center gap-1.5 transition-all duration-200 whitespace-nowrap ${
                     adding
                       ? "bg-[#B8962E] text-white"
                       : "bg-[#0A0A0A] text-white hover:bg-[#1a1a1a] hover:ring-1 hover:ring-[#C9A844]/40"
@@ -322,7 +322,7 @@ function ProductCard({
                   Select Option
                 </Link>
               ) : (
-                <span className="h-8 px-4 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center bg-[#0A0A0A]/8 text-[#0A0A0A]/35 border border-[#0A0A0A]/10 cursor-not-allowed whitespace-nowrap select-none">
+                <span className="h-11 px-4 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center bg-[#0A0A0A]/8 text-[#0A0A0A]/35 border border-[#0A0A0A]/10 cursor-not-allowed whitespace-nowrap select-none">
                   Out of Stock
                 </span>
               )}
@@ -331,13 +331,13 @@ function ProductCard({
             <>
               <Link
                 href={`/shop/${product.slug}`}
-                className="h-8 px-3 rounded-lg bg-white/70 border border-[#D8CEB8] text-[#6B5A3A] text-[10px] font-medium tracking-widest uppercase flex items-center gap-1 hover:bg-white hover:border-[#B8962E]/60 hover:text-[#B8962E] transition-all whitespace-nowrap shadow-sm"
+                className="h-11 px-3 rounded-lg bg-white/70 border border-[#D8CEB8] text-[#6B5A3A] text-[10px] font-medium tracking-widest uppercase flex items-center gap-1 hover:bg-white hover:border-[#B8962E]/60 hover:text-[#B8962E] transition-all whitespace-nowrap shadow-sm"
               >
                 More <ChevronRight className="w-2.5 h-2.5" />
               </Link>
               <button
                 onClick={handleAdd}
-                className={`h-8 px-3 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center gap-1.5 transition-all duration-200 whitespace-nowrap ${
+                className={`h-11 px-3 rounded-lg text-[10px] font-semibold tracking-widest uppercase flex items-center gap-1.5 transition-all duration-200 whitespace-nowrap ${
                   adding
                     ? "bg-[#B8962E] text-white"
                     : "bg-[#0A0A0A] text-white hover:bg-[#1a1a1a] hover:ring-1 hover:ring-[#C9A844]/40"
@@ -459,7 +459,7 @@ export default function ShopPage() {
         <div className="absolute inset-0 z-0 md:hidden" style={{ background: "linear-gradient(to bottom, #0A0A0A 40%, rgba(10,10,10,0.88) 100%)" }} />
         <div className="absolute inset-0 z-0" style={{ background: "linear-gradient(135deg, #0A0A0A 0%, rgba(10,10,10,0.95) 40%, transparent 100%)" }} />
 
-        <div className="container relative z-10 mx-auto px-6 md:px-14 lg:px-20 pt-32 pb-24 md:pt-36 md:pb-28">
+        <div className="container relative z-10 mx-auto px-6 md:px-14 lg:px-20 pt-[calc(var(--site-header-height)+1rem)] pb-24 md:pt-[calc(var(--site-header-height)+1.5rem)] md:pb-28">
           <motion.div
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
@@ -561,16 +561,19 @@ export default function ShopPage() {
           <div className="relative max-w-md">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#0A0A0A]/25" />
             <input
-              type="text"
+              type="search"
+              enterKeyHint="search"
+              autoComplete="off"
               placeholder="Search protocols by name, benefit, or goal…"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              className="w-full pl-10 pr-4 py-3 text-[13px] rounded-xl border border-[#E8E4DC] bg-white text-[#0A0A0A] placeholder:text-[#0A0A0A]/30 focus:outline-none focus:border-[#C9A844]/60 focus:ring-1 focus:ring-[#C9A844]/20 transition-all shadow-sm"
+              className="w-full pl-10 pr-14 py-3 text-base md:text-[13px] rounded-xl border border-[#E8E4DC] bg-white text-[#0A0A0A] placeholder:text-[#0A0A0A]/30 focus:outline-none focus:border-[#C9A844]/60 focus:ring-1 focus:ring-[#C9A844]/20 transition-all shadow-sm"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0A0A0A]/30 hover:text-[#B8962E] text-xs transition-colors"
+                aria-label="Clear protocol search"
+                className="absolute right-1 top-1/2 min-h-11 min-w-11 -translate-y-1/2 text-[#0A0A0A]/30 hover:text-[#B8962E] text-xs transition-colors"
               >
                 Clear
               </button>
@@ -630,7 +633,7 @@ export default function ShopPage() {
               <div className="relative z-10 shrink-0">
                 <Link
                   href="/"
-                  className="inline-flex items-center gap-2 bg-[#C9A844] text-[#0A0A0A] text-[11px] font-bold tracking-[0.2em] uppercase px-8 py-4 rounded-full hover:bg-[#D4B34E] transition-colors shadow-lg shadow-[#C9A844]/20"
+                  className="inline-flex w-full sm:w-auto items-center justify-center gap-2 bg-[#C9A844] text-center text-[#0A0A0A] text-[11px] font-bold tracking-[0.14em] sm:tracking-[0.2em] uppercase px-5 sm:px-8 py-4 rounded-2xl sm:rounded-full hover:bg-[#D4B34E] transition-colors shadow-lg shadow-[#C9A844]/20"
                 >
                   Take the 60-second Protocol Finder
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -644,8 +647,7 @@ export default function ShopPage() {
       {/* ══ FILTER BAR ═══════════════════════════════════════════════════ */}
       <div
         ref={gridRef}
-        className="sticky z-30 bg-[#FAFAF8]/97 backdrop-blur border-b border-[#E8E4DC]"
-        style={{ top: 57 }}
+        className="sticky sticky-below-header z-30 bg-[#FAFAF8]/97 backdrop-blur border-b border-[#E8E4DC]"
       >
         <div className="container mx-auto px-6 md:px-12">
           {/* Search + sort row */}
@@ -653,17 +655,20 @@ export default function ShopPage() {
             <div className="relative flex-1 max-w-xs">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#0A0A0A]/30" />
               <input
-                type="text"
+                type="search"
+                enterKeyHint="search"
+                autoComplete="off"
                 placeholder="Search protocols…"
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full pl-8 pr-3 py-2 text-[12px] rounded-lg border border-[#E8E4DC] bg-white/70 text-[#0A0A0A] placeholder:text-[#0A0A0A]/30 focus:outline-none focus:border-[#C9A844]/60 focus:ring-1 focus:ring-[#C9A844]/25 transition-all"
+                className="min-h-11 w-full pl-8 pr-3 py-2 text-base md:text-[12px] rounded-lg border border-[#E8E4DC] bg-white/70 text-[#0A0A0A] placeholder:text-[#0A0A0A]/30 focus:outline-none focus:border-[#C9A844]/60 focus:ring-1 focus:ring-[#C9A844]/25 transition-all"
               />
             </div>
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value)}
-              className="py-2 px-3 text-[11px] rounded-lg border border-[#E8E4DC] bg-white/70 text-[#0A0A0A]/70 focus:outline-none focus:border-[#C9A844]/60 cursor-pointer tracking-wide"
+              aria-label="Sort protocols"
+              className="min-h-11 max-w-[145px] py-2 px-3 text-base md:text-[11px] rounded-lg border border-[#E8E4DC] bg-white/70 text-[#0A0A0A]/70 focus:outline-none focus:border-[#C9A844]/60 cursor-pointer tracking-wide"
             >
               {SORT_OPTIONS.map(o => (
                 <option key={o.value} value={o.value}>{o.label}</option>
@@ -680,7 +685,7 @@ export default function ShopPage() {
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`whitespace-nowrap text-[11px] px-4 py-1.5 rounded-full border font-medium tracking-wide transition-all shrink-0 ${
+                className={`min-h-11 whitespace-nowrap text-[11px] px-4 py-1.5 rounded-full border font-medium tracking-wide transition-all shrink-0 ${
                   activeCategory === cat
                     ? "bg-[#0A0A0A] text-white border-[#0A0A0A]"
                     : "bg-transparent text-[#0A0A0A]/60 border-[#0A0A0A]/18 hover:border-[#C9A844]/50 hover:text-[#0A0A0A]"

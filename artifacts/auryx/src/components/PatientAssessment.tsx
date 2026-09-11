@@ -9,6 +9,12 @@ import { useGetProtocolRecommendation } from "@workspace/api-client-react";
 import type { ProtocolRecommendation } from "@workspace/api-client-react";
 import { useCart } from "@/context/CartContext";
 import type { ProductSummary } from "@/types/shop";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 async function fetchProducts(): Promise<ProductSummary[]> {
   const res = await fetch("/api/products");
@@ -81,7 +87,7 @@ function OptionCard({ label, desc, onClick }: { label: string; desc: string; onC
     <button
       data-testid={`option-${label.toLowerCase().replace(/\s+/g, "-")}`}
       onClick={onClick}
-      className="w-full text-left px-4 py-3 rounded-lg border border-[#C9A844]/20 bg-[#161510] hover:border-[#C9A844]/60 hover:bg-[#1e1a0a] transition-all duration-200 group"
+      className="w-full min-h-11 text-left px-4 py-3 rounded-lg border border-[#C9A844]/20 bg-[#161510] hover:border-[#C9A844]/60 hover:bg-[#1e1a0a] transition-all duration-200 group motion-reduce:transition-none"
     >
       <div className="flex items-center justify-between gap-3">
         <div>
@@ -148,7 +154,7 @@ function StepCurrentPeptides({ stepLabel, onNext }: { stepLabel: string; onNext:
             <button
               key={p}
               onClick={() => toggle(p)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-all duration-150 ${
+              className={`min-h-11 px-3 py-2 rounded-full text-xs font-medium border transition-all duration-150 ${
                 active
                   ? "bg-primary text-[#0A0A0A] border-primary"
                   : "border-[#C9A844]/20 bg-[#161510] text-foreground/60 hover:border-[#C9A844]/50 hover:text-foreground"
@@ -162,6 +168,7 @@ function StepCurrentPeptides({ stepLabel, onNext }: { stepLabel: string; onNext:
       <input
         data-testid="input-custom-peptides"
         type="text"
+        autoComplete="off"
         placeholder="Other compounds (e.g. Epithalon 10mg, Kisspeptin 10mcg...)"
         value={custom}
         onChange={(e) => setCustom(e.target.value)}
@@ -176,7 +183,7 @@ function StepCurrentPeptides({ stepLabel, onNext }: { stepLabel: string; onNext:
       </Button>
       <button
         onClick={() => onNext("Prefer not to say")}
-        className="w-full mt-3 text-xs text-muted-foreground hover:text-primary transition-colors py-2"
+        className="w-full min-h-11 mt-3 text-xs text-muted-foreground hover:text-primary transition-colors py-2"
       >
         Prefer not to share — skip this step
       </button>
@@ -251,7 +258,7 @@ function StepGoal({ stepLabel, onSubmit }: { stepLabel: string; onSubmit: (v: st
               key={o.value}
               data-testid={`option-${o.value}`}
               onClick={() => toggle(o.value)}
-              className={`w-full text-left px-4 py-3 rounded-lg border transition-all duration-200 group ${
+              className={`w-full min-h-11 text-left px-4 py-3 rounded-lg border transition-all duration-200 group motion-reduce:transition-none ${
                 active
                   ? "border-primary bg-primary/10"
                   : "border-[#C9A844]/20 bg-[#161510] hover:border-[#C9A844]/60 hover:bg-[#1e1a0a]"
@@ -389,7 +396,7 @@ function StepMedical({ stepLabel, onSubmit }: { stepLabel: string; onSubmit: (se
               key={o.value}
               data-testid={`medical-option-${o.value}`}
               onClick={() => toggle(o.value)}
-              className={`w-full text-left px-4 py-3 rounded-lg border transition-all duration-200 ${
+              className={`w-full min-h-11 text-left px-4 py-3 rounded-lg border transition-all duration-200 motion-reduce:transition-none ${
                 active ? "border-primary bg-primary/10" : "border-white/[0.14] bg-white/[0.06] hover:border-primary/50 hover:bg-primary/[0.06]"
               }`}
             >
@@ -457,28 +464,28 @@ function LoadingScreen() {
 function WaiverModal({ onAccept, onClose }: { onAccept: () => void; onClose: () => void }) {
   const [agreed, setAgreed] = useState(false);
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+    <Dialog open onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
+      <DialogContent className="left-0 right-0 top-auto bottom-0 w-full max-w-none translate-x-0 translate-y-0 max-h-[calc(100dvh-env(safe-area-inset-top))] overflow-y-auto overscroll-contain rounded-t-2xl bg-[#0f0f0f] border-[#C9A844]/20 p-0 pb-[env(safe-area-inset-bottom)] shadow-2xl sm:left-[50%] sm:right-auto sm:top-[50%] sm:bottom-auto sm:max-w-xl sm:max-h-[90vh] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-2xl [&>button]:hidden motion-reduce:duration-0">
       <motion.div
         initial={{ opacity: 0, scale: 0.96, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.96, y: 16 }}
         transition={{ duration: 0.25 }}
-        className="relative bg-[#0f0f0f] border border-[#C9A844]/20 rounded-2xl max-w-xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+        className="relative w-full motion-reduce:transform-none"
       >
         <div className="sticky top-0 bg-[#0f0f0f] border-b border-white/[0.06] px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 text-amber-400" />
-            <span className="text-xs uppercase tracking-[0.25em] text-amber-400">Informed Consent & Waiver</span>
+            <DialogTitle className="text-xs uppercase tracking-[0.2em] text-amber-400">Informed Consent & Waiver</DialogTitle>
           </div>
-          <button onClick={onClose} className="text-muted-foreground hover:text-foreground transition-colors">
+          <button onClick={onClose} className="min-h-11 min-w-11 -mr-3 inline-flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors" aria-label="Close waiver">
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <div className="px-6 py-6">
           <h3 className="font-serif text-xl text-foreground mb-1">Self-Directed Protocol Waiver</h3>
-          <p className="text-xs text-muted-foreground mb-5">Please read carefully before proceeding.</p>
+          <DialogDescription className="text-xs text-muted-foreground mb-5">Please read carefully before proceeding.</DialogDescription>
 
           <div className="space-y-4 text-sm text-foreground/65 leading-relaxed">
             <div>
@@ -508,9 +515,15 @@ function WaiverModal({ onAccept, onClose }: { onAccept: () => void; onClose: () 
           </div>
 
           <div className="mt-6 border-t border-white/[0.06] pt-5">
-            <label className="flex items-start gap-3 cursor-pointer mb-5">
+            <label className="flex items-start gap-3 cursor-pointer mb-5 min-h-11">
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={(event) => setAgreed(event.target.checked)}
+                className="sr-only"
+              />
               <div
-                onClick={() => setAgreed(!agreed)}
+                aria-hidden="true"
                 className={`w-4 h-4 rounded border shrink-0 mt-0.5 flex items-center justify-center transition-colors ${
                   agreed ? "bg-primary border-primary" : "border-white/25 bg-transparent"
                 }`}
@@ -545,7 +558,8 @@ function WaiverModal({ onAccept, onClose }: { onAccept: () => void; onClose: () 
           </div>
         </div>
       </motion.div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 
@@ -609,7 +623,7 @@ function MedicalResultScreen({ onReset, onConsult }: { onReset: () => void; onCo
         <button
           data-testid="self-order-risk"
           onClick={() => setShowWaiver(true)}
-          className="text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors underline underline-offset-4 decoration-muted-foreground/25"
+          className="min-h-11 px-3 text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors underline underline-offset-4 decoration-muted-foreground/25"
         >
           I'll take a risk and order on my own
         </button>
@@ -701,6 +715,7 @@ function AIResultScreen({
         <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground/25" />
         <input
           type="text"
+          autoComplete="off"
           placeholder="Search your recommendations…"
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
@@ -709,7 +724,8 @@ function AIResultScreen({
         {searchQuery && (
           <button
             onClick={() => setSearchQuery("")}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-foreground/25 hover:text-primary text-xs transition-colors"
+            className="absolute right-0 top-1/2 min-h-11 px-3 -translate-y-1/2 text-foreground/25 hover:text-primary text-xs transition-colors"
+            aria-label="Clear recommendation search"
           >
             Clear
           </button>
@@ -753,7 +769,7 @@ function AIResultScreen({
                       </span>
                       <button
                         onClick={() => handleAdd(product)}
-                        className={`flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-[11px] font-semibold tracking-widest uppercase transition-all duration-200 ${
+                        className={`min-h-11 flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-[11px] font-semibold tracking-widest uppercase transition-all duration-200 ${
                           isAdded
                             ? "bg-primary/20 text-primary border border-primary/40"
                             : "bg-primary text-[#0A0A0A] hover:bg-primary/85"
@@ -914,13 +930,26 @@ export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpe
   const stepLabel = `Step ${stepIndex + 1} of ${totalSteps}`;
 
   return (
-    <section id="assessment" className="pt-8 pb-10 px-6 md:px-12 bg-card relative z-20">
+    <section id="assessment" className="pt-6 sm:pt-8 pb-8 sm:pb-10 px-3 sm:px-6 md:px-12 bg-card relative z-20">
       <div className="container mx-auto max-w-7xl">
         <div className="max-w-3xl mx-auto">
-          <div className="bg-background/60 border border-border/60 rounded-2xl p-6 md:p-8 backdrop-blur-sm">
+          <div className="bg-background/60 border border-border/60 rounded-2xl p-4 sm:p-6 md:p-8 backdrop-blur-sm">
             {phase === "quiz" && (
-              <div className="mb-7">
-                <div className="flex items-center justify-between">
+              <div className="mb-5 sm:mb-7">
+                <div className="md:hidden" aria-label={`${stepLabel}, ${Math.round(progressPct)}% complete`}>
+                  <div className="mb-2 flex items-center justify-between text-[11px] uppercase tracking-wider text-muted-foreground">
+                    <span>{stepLabel}</span>
+                    <span>{Math.round(progressPct)}%</span>
+                  </div>
+                  <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
+                    <motion.div
+                      className="h-full rounded-full bg-primary"
+                      animate={{ width: `${Math.max(progressPct, 4)}%` }}
+                      transition={{ duration: 0.3 }}
+                    />
+                  </div>
+                </div>
+                <div className="hidden md:flex items-center justify-between">
                   {Array.from({ length: totalSteps }, (_, i) => {
                     const num = i + 1;
                     const isComplete = i < stepIndex;
@@ -1022,7 +1051,7 @@ export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpe
               <button
                 data-testid="assessment-back"
                 onClick={goBack}
-                className="mt-8 flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors"
+                className="mt-6 sm:mt-8 min-h-11 px-2 -ml-2 flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors"
               >
                 <ChevronLeft className="w-3.5 h-3.5" /> Go back
               </button>

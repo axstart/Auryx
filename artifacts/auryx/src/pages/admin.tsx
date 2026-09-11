@@ -3,6 +3,14 @@ import { useLocation } from "wouter";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { motion, AnimatePresence } from "framer-motion";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
 
 // ── Types ────────────────────────────────────────────────────────────────────
 
@@ -262,7 +270,7 @@ function useApi<T>(path: string | null) {
 
 function MetricCard({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
-    <div className="bg-white/[0.03] border border-white/10 rounded-lg p-5">
+    <div className="bg-white/[0.03] border border-white/10 rounded-lg p-4 sm:p-5">
       <p className="text-xs tracking-widest uppercase text-white/40 font-['DM_Sans'] mb-2">{label}</p>
       <p className="text-2xl font-['Cormorant_Garamond'] text-[#C9A844]">{value}</p>
       {sub && <p className="text-xs text-white/30 mt-1 font-['DM_Sans']">{sub}</p>}
@@ -304,12 +312,12 @@ function SubTabs<T extends string>({ tabs, active, onChange }: {
   onChange: React.Dispatch<React.SetStateAction<T>>;
 }) {
   return (
-    <div className="flex gap-2 border-b border-white/10 mb-4">
+    <div className="flex gap-2 border-b border-white/10 mb-4 overflow-x-auto overscroll-x-contain">
       {tabs.map(t => (
         <button
           key={t.id}
           onClick={() => onChange(t.id)}
-          className={`pb-3 px-1 text-sm font-['DM_Sans'] transition-colors border-b-2 -mb-[1px] ${
+          className={`min-h-11 shrink-0 whitespace-nowrap pb-3 px-1 text-sm font-['DM_Sans'] transition-colors border-b-2 -mb-[1px] ${
             active === t.id
               ? "text-[#C9A844] border-[#C9A844]"
               : "text-white/40 border-transparent hover:text-white/60"
@@ -361,7 +369,7 @@ function DashboardTab() {
 
   return (
     <div className="space-y-8">
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <MetricCard label="Revenue (this month)" value={fmt$(data.monthlyRevenueCents)} />
         <MetricCard label="Active Orders" value={String(data.activeOrdersCount)} />
         <MetricCard label="Pending Review" value={String(data.pendingOrdersCount)} />
@@ -373,7 +381,7 @@ function DashboardTab() {
           <SectionTitle>⚠ Low Stock Alerts</SectionTitle>
           <div className="space-y-2">
             {data.lowStockItems.map(item => (
-              <div key={item.id} className="flex items-center justify-between bg-amber-400/5 border border-amber-400/20 rounded px-4 py-3">
+              <div key={item.id} className="flex flex-col items-start gap-1 sm:flex-row sm:items-center sm:justify-between bg-amber-400/5 border border-amber-400/20 rounded px-4 py-3">
                 <span className="text-sm text-white/80 font-['DM_Sans']">{item.name}</span>
                 <span className="text-amber-400 text-sm font-['DM_Sans']">{item.stock} {item.unit} remaining</span>
               </div>
@@ -387,12 +395,12 @@ function DashboardTab() {
         {data.recentOrders.length === 0 ? <EmptyState message="No orders yet." /> : (
           <div className="space-y-2">
             {data.recentOrders.map(order => (
-              <div key={order.id} className="flex items-center justify-between bg-white/[0.02] border border-white/8 rounded px-4 py-3">
+              <div key={order.id} className="flex flex-col items-start gap-2 sm:flex-row sm:items-center sm:justify-between bg-white/[0.02] border border-white/8 rounded px-4 py-3">
                 <div>
                   <p className="text-sm text-white/80 font-['DM_Sans']">#{order.id} — {order.customerName}</p>
                   <p className="text-xs text-white/30 font-['DM_Sans'] mt-0.5">{fmtDate(order.createdAt)}</p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
                   <span className="text-sm text-white/60 font-['DM_Sans']">{fmt$(order.totalCents)}</span>
                   <Badge label={STATUS_LABEL[order.status]} className={STATUS_COLOR[order.status]} />
                 </div>
@@ -534,8 +542,8 @@ function OrdersTab() {
     <div className="space-y-4">
       {/* Confirmation Dialog */}
       {confirmDialog?.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-[#111] border border-white/10 rounded-xl p-6 w-full max-w-md mx-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4">
+          <div className="max-h-[calc(100dvh-1.5rem)] overflow-y-auto bg-[#111] border border-white/10 rounded-xl p-4 sm:p-6 w-full max-w-md">
             <h3 className="text-lg font-['Cormorant_Garamond'] text-white/90 mb-2">{confirmDialog.title}</h3>
             <p className="text-sm text-white/60 font-['DM_Sans'] mb-1">{confirmDialog.message}</p>
             {confirmDialog.detail && (
@@ -558,11 +566,11 @@ function OrdersTab() {
               </div>
             )}
 
-            <div className="flex gap-3 justify-end">
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
                 onClick={() => setConfirmDialog(null)}
                 disabled={saving === confirmDialog.orderId}
-                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors disabled:opacity-50"
+                className="min-h-11 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors disabled:opacity-50"
               >
                 Keep Order
               </button>
@@ -572,7 +580,7 @@ function OrdersTab() {
                   : cancelOrder(confirmDialog.orderId, confirmDialog.reason)
                 }
                 disabled={saving === confirmDialog.orderId}
-                className={`px-4 py-2 text-sm rounded font-['DM_Sans'] font-medium transition-colors disabled:opacity-50 ${
+                className={`min-h-11 px-4 py-2 text-sm rounded font-['DM_Sans'] font-medium transition-colors disabled:opacity-50 ${
                   confirmDialog.action === "approve"
                     ? "bg-[#C9A844] hover:bg-[#b8973d] text-black"
                     : "bg-red-500/20 hover:bg-red-500/30 text-red-400 border border-red-500/30"
@@ -587,8 +595,8 @@ function OrdersTab() {
 
       {/* Email Compose Dialog */}
       {emailDialog?.open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60">
-          <div className="bg-[#111] border border-white/10 rounded-xl p-6 w-full max-w-lg mx-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 sm:p-4">
+          <div className="max-h-[calc(100dvh-1.5rem)] overflow-y-auto bg-[#111] border border-white/10 rounded-xl p-4 sm:p-6 w-full max-w-lg">
             <p className="text-xs tracking-widest uppercase text-white/30 mb-1 font-['DM_Sans']">To</p>
             <p className="text-sm text-white/80 font-['DM_Sans'] mb-4">{emailDialog.customerName} &lt;{emailDialog.email}&gt;</p>
 
@@ -609,11 +617,11 @@ function OrdersTab() {
               className="w-full bg-white/5 border border-white/10 text-white/80 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40 resize-none mb-5"
             />
 
-            <div className="flex gap-3 justify-end">
+            <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
               <button
                 onClick={() => setEmailDialog(null)}
                 disabled={sendingEmail}
-                className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors disabled:opacity-50"
+                className="min-h-11 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors disabled:opacity-50"
               >
                 Cancel
               </button>
@@ -641,7 +649,7 @@ function OrdersTab() {
                   }
                 }}
                 disabled={sendingEmail || !emailDialog.subject.trim() || !emailDialog.message.trim()}
-                className="px-4 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
+                className="min-h-11 px-4 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
               >
                 {sendingEmail ? "Sending…" : "Send"}
               </button>
@@ -651,12 +659,12 @@ function OrdersTab() {
       )}
 
       {/* Status metric cards */}
-      <div className="grid grid-cols-7 gap-2">
+      <div className="grid grid-cols-2 min-[480px]:grid-cols-4 lg:grid-cols-7 gap-2">
         {STATUS_ORDER.map(s => (
           <button
             key={s}
             onClick={() => setStatusFilter(statusFilter === s ? "all" : s)}
-            className={`p-3 rounded-lg border text-left transition-all ${
+            className={`min-h-11 p-3 rounded-lg border text-left transition-all ${
               statusFilter === s
                 ? "border-[#C9A844]/40 bg-[#C9A844]/10"
                 : "border-white/8 bg-white/[0.02] hover:border-white/15"
@@ -669,37 +677,37 @@ function OrdersTab() {
       </div>
 
       {/* Filters */}
-      <div className="flex gap-3 flex-wrap items-center">
+      <div className="grid grid-cols-1 gap-3 sm:flex sm:flex-wrap sm:items-center">
         <input
           value={search}
           onChange={e => setSearch(e.target.value)}
           placeholder="Search name, email, order #…"
-          className="flex-1 min-w-48 bg-white/5 border border-white/10 text-white/80 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
+          className="min-h-11 w-full flex-1 min-w-48 bg-white/5 border border-white/10 text-white/80 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
         />
         <input
           type="date"
           value={dateFrom}
           onChange={e => setDateFrom(e.target.value)}
-          className="bg-white/5 border border-white/10 text-white/50 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
+          className="min-h-11 w-full sm:w-auto bg-white/5 border border-white/10 text-white/50 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
         />
-        <span className="text-white/20 text-sm">→</span>
+        <span className="hidden text-white/20 text-sm sm:inline">→</span>
         <input
           type="date"
           value={dateTo}
           onChange={e => setDateTo(e.target.value)}
-          className="bg-white/5 border border-white/10 text-white/50 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
+          className="min-h-11 w-full sm:w-auto bg-white/5 border border-white/10 text-white/50 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
         />
         {(search || dateFrom || dateTo || statusFilter !== "all") && (
           <button
             onClick={() => { setSearch(""); setDateFrom(""); setDateTo(""); setStatusFilter("all"); }}
-            className="text-xs text-white/30 hover:text-white/60 font-['DM_Sans'] transition-colors"
+            className="min-h-11 px-3 text-left text-xs text-white/30 hover:text-white/60 font-['DM_Sans'] transition-colors sm:text-center"
           >
             Clear filters
           </button>
         )}
         <button
           onClick={() => exportOrdersCSV(filtered)}
-          className="ml-auto px-3 py-2 bg-white/5 hover:bg-white/10 text-white/50 text-xs rounded font-['DM_Sans'] transition-colors"
+          className="min-h-11 w-full px-3 py-2 bg-white/5 hover:bg-white/10 text-white/50 text-xs rounded font-['DM_Sans'] transition-colors sm:ml-auto sm:w-auto"
         >
           Export CSV
         </button>
@@ -723,9 +731,9 @@ function OrdersTab() {
               <div key={order.id} className="bg-white/[0.02] border border-white/10 rounded-lg overflow-hidden">
                 <button
                   onClick={() => setExpanded(isExpanded ? null : order.id)}
-                  className="w-full flex items-center justify-between px-5 py-4 text-left"
+                  className="min-h-11 w-full flex flex-col items-start gap-3 px-4 py-4 text-left sm:flex-row sm:items-center sm:justify-between sm:px-5"
                 >
-                  <div className="flex items-center gap-4 min-w-0">
+                  <div className="flex w-full flex-wrap items-center gap-2 sm:gap-4 min-w-0 sm:w-auto">
                     <span className="text-white/30 text-sm font-['DM_Sans'] shrink-0">#{order.id}</span>
                     <div className="min-w-0">
                       <p className="text-sm text-white/80 font-['DM_Sans'] truncate">{order.customerName}</p>
@@ -742,7 +750,7 @@ function OrdersTab() {
                       </span>
                     )}
                   </div>
-                  <div className="flex items-center gap-4 shrink-0 ml-4">
+                  <div className="flex w-full flex-wrap items-center justify-between gap-2 shrink-0 sm:ml-4 sm:w-auto sm:justify-start sm:gap-4">
                     <span className="text-sm text-white/60 font-['DM_Sans']">{fmt$(order.totalCents)}</span>
                     <span className="text-xs text-white/30 font-['DM_Sans'] hidden sm:block">{fmtDate(order.createdAt)}</span>
                     <Badge label={STATUS_LABEL[order.status]} className={STATUS_COLOR[order.status]} />
@@ -759,7 +767,7 @@ function OrdersTab() {
                       transition={{ duration: 0.2 }}
                       className="overflow-hidden"
                     >
-                      <div className="px-5 pb-5 border-t border-white/8 pt-4 space-y-4">
+                      <div className="px-4 pb-5 border-t border-white/8 pt-4 space-y-4 sm:px-5">
                         <div>
                           <p className="text-xs tracking-widest uppercase text-white/30 mb-2 font-['DM_Sans']">Items</p>
                           <div className="space-y-1">
@@ -791,7 +799,7 @@ function OrdersTab() {
                         {/* Consultation Intake Form */}
                         {order.consultationFormSubmitted && (
                           <div className="border border-[#C9A844]/20 rounded p-3 bg-[#C9A844]/5">
-                            <div className="flex items-center justify-between mb-2">
+                            <div className="flex flex-col items-start gap-2 mb-2 sm:flex-row sm:items-center sm:justify-between">
                               <p className="text-xs tracking-widest uppercase text-[#C9A844]/70 font-['DM_Sans']">Physician Consultation Intake</p>
                               {!consultationForms[order.id] && (
                                 <button
@@ -808,7 +816,7 @@ function OrdersTab() {
                                     }
                                   }}
                                   disabled={loadingForm === order.id}
-                                  className="text-xs text-[#C9A844] hover:text-[#b8973d] font-['DM_Sans'] underline disabled:opacity-50"
+                                  className="min-h-11 text-left text-xs text-[#C9A844] hover:text-[#b8973d] font-['DM_Sans'] underline disabled:opacity-50"
                                 >
                                   {loadingForm === order.id ? "Loading…" : "View Intake Form"}
                                 </button>
@@ -816,7 +824,7 @@ function OrdersTab() {
                             </div>
                             {consultationForms[order.id] && (
                               <div className="space-y-1 text-xs font-['DM_Sans'] text-white/60">
-                                <div className="grid grid-cols-2 gap-2">
+                                <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
                                   <span><span className="text-white/30">Name:</span> {consultationForms[order.id]!.patientName}</span>
                                   <span><span className="text-white/30">DOB:</span> {consultationForms[order.id]!.dob ?? "N/A"}</span>
                                   <span><span className="text-white/30">Height:</span> {consultationForms[order.id]!.height ?? "N/A"}</span>
@@ -873,7 +881,7 @@ function OrdersTab() {
                           </div>
                         )}
 
-                        <div className="flex gap-2 items-end">
+                        <div className="flex flex-col gap-2 sm:flex-row sm:items-end">
                           <div className="flex-1">
                             <label className="text-xs tracking-widest uppercase text-white/30 mb-1 block font-['DM_Sans']">
                               Tracking Number
@@ -888,7 +896,7 @@ function OrdersTab() {
                           <button
                             onClick={() => updateOrder(order.id, { trackingNumber: trackingInputs[order.id] ?? order.trackingNumber ?? null })}
                             disabled={saving === order.id}
-                            className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white/70 text-sm rounded font-['DM_Sans'] transition-colors disabled:opacity-50"
+                            className="min-h-11 w-full px-4 py-2 bg-white/10 hover:bg-white/15 text-white/70 text-sm rounded font-['DM_Sans'] transition-colors disabled:opacity-50 sm:w-auto"
                           >
                             Save
                           </button>
@@ -902,7 +910,7 @@ function OrdersTab() {
                           </span>
                         </div>
 
-                        <div className="flex gap-2 flex-wrap">
+                        <div className="grid grid-cols-1 gap-2 sm:flex sm:flex-wrap">
                           {/* Approve & Charge — only for pending orders */}
                           {order.status === "pending" && (
                             <button
@@ -919,7 +927,7 @@ function OrdersTab() {
                                   : "This will process the charge via PaymentNode.",
                               })}
                               disabled={saving === order.id}
-                              className="px-4 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
+                              className="min-h-11 px-4 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
                             >
                               Approve & Charge
                             </button>
@@ -930,7 +938,7 @@ function OrdersTab() {
                             <button
                               onClick={() => updateOrder(order.id, { status: nextStatus })}
                               disabled={saving === order.id}
-                              className="px-4 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
+                              className="min-h-11 px-4 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
                             >
                               {saving === order.id ? "Updating…" : `Mark as ${STATUS_LABEL[nextStatus]}`}
                             </button>
@@ -938,7 +946,7 @@ function OrdersTab() {
 
                           <button
                             onClick={() => setEmailDialog({ open: true, orderId: order.id, email: order.email, customerName: order.customerName, subject: "", message: "" })}
-                            className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors"
+                            className="min-h-11 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors"
                           >
                             Email Customer
                           </button>
@@ -956,7 +964,7 @@ function OrdersTab() {
                                   : `Cancel order #${order.id}? No charge has been processed, so no refund is needed.`,
                               })}
                               disabled={saving === order.id}
-                              className="px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm rounded font-['DM_Sans'] transition-colors disabled:opacity-50 border border-red-500/20"
+                              className="min-h-11 px-4 py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 text-sm rounded font-['DM_Sans'] transition-colors disabled:opacity-50 border border-red-500/20"
                             >
                               {order.paynodePaymentId ? "Refund & Cancel" : "Cancel Order"}
                             </button>
@@ -1017,12 +1025,12 @@ function AdjustStockModal({
   const isLow = newStock <= item.lowStockThreshold;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-3 backdrop-blur-sm sm:p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.96 }}
-        className="bg-[#111] border border-white/10 rounded-xl p-6 w-80 shadow-2xl"
+        className="max-h-[calc(100dvh-1.5rem)] w-full max-w-80 overflow-y-auto bg-[#111] border border-white/10 rounded-xl p-4 shadow-2xl sm:p-6"
       >
         <p className="text-base font-['Cormorant_Garamond'] text-white/80 mb-1">Adjust Stock</p>
         <p className="text-xs text-white/40 font-['DM_Sans'] mb-4">{item.name}</p>
@@ -1030,7 +1038,7 @@ function AdjustStockModal({
         <div className="flex items-center gap-3 mb-4">
           <button
             onClick={() => setDelta(d => d - 1)}
-            className="w-9 h-9 rounded bg-white/5 hover:bg-white/10 text-white/60 text-lg flex items-center justify-center font-['DM_Sans'] transition-colors"
+            className="w-11 h-11 rounded bg-white/5 hover:bg-white/10 text-white/60 text-lg flex items-center justify-center font-['DM_Sans'] transition-colors"
           >
             −
           </button>
@@ -1043,7 +1051,7 @@ function AdjustStockModal({
           />
           <button
             onClick={() => setDelta(d => d + 1)}
-            className="w-9 h-9 rounded bg-white/5 hover:bg-white/10 text-white/60 text-lg flex items-center justify-center font-['DM_Sans'] transition-colors"
+            className="w-11 h-11 rounded bg-white/5 hover:bg-white/10 text-white/60 text-lg flex items-center justify-center font-['DM_Sans'] transition-colors"
           >
             +
           </button>
@@ -1056,17 +1064,17 @@ function AdjustStockModal({
           </span>
         </div>
 
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2 sm:flex-row">
           <button
             onClick={save}
             disabled={saving || delta === 0}
-            className="flex-1 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-40 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
+            className="min-h-11 flex-1 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-40 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
           >
             {saving ? "Saving…" : "Save"}
           </button>
           <button
             onClick={onClose}
-            className="px-4 py-2 bg-white/5 hover:bg-white/10 text-white/50 text-sm rounded font-['DM_Sans'] transition-colors"
+            className="min-h-11 px-4 py-2 bg-white/5 hover:bg-white/10 text-white/50 text-sm rounded font-['DM_Sans'] transition-colors"
           >
             Cancel
           </button>
@@ -1144,11 +1152,11 @@ function InventoryTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <SectionTitle>Inventory</SectionTitle>
         <button
           onClick={startNew}
-          className="px-4 py-2 bg-[#C9A844] hover:bg-[#b8973d] text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
+          className="min-h-11 w-full px-4 py-2 bg-[#C9A844] hover:bg-[#b8973d] text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors sm:w-auto"
         >
           + Add Item
         </button>
@@ -1160,12 +1168,12 @@ function InventoryTab() {
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
-            className="bg-white/[0.04] border border-[#C9A844]/30 rounded-lg p-5 space-y-4"
+            className="bg-white/[0.04] border border-[#C9A844]/30 rounded-lg p-4 space-y-4 sm:p-5"
           >
             <p className="text-sm text-[#C9A844] font-['DM_Sans'] tracking-wide">
               {editingId === "new" ? "New Item" : "Edit Item"}
             </p>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {fields.map(({ label, key, type, hint }) => (
                 <div key={key as string}>
                   <label className="block text-xs tracking-widest uppercase text-white/30 mb-1 font-['DM_Sans']">
@@ -1204,17 +1212,17 @@ function InventoryTab() {
                 className="w-full bg-white/5 border border-white/10 text-white/80 text-sm rounded px-3 py-2 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
               />
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <button
                 onClick={saveItem}
                 disabled={saving}
-                className="px-5 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
+                className="min-h-11 px-5 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
               >
                 {saving ? "Saving…" : "Save"}
               </button>
               <button
                 onClick={() => setEditingId(null)}
-                className="px-5 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors"
+                className="min-h-11 px-5 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors"
               >
                 Cancel
               </button>
@@ -1234,8 +1242,8 @@ function InventoryTab() {
       </AnimatePresence>
 
       {!items?.length ? <EmptyState message="No inventory items yet." /> : (
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm font-['DM_Sans']">
+        <div className="-mx-4 overflow-x-auto border-y border-white/8 px-4 pb-2 sm:mx-0 sm:rounded-lg sm:border sm:p-4">
+          <table className="w-full min-w-[1050px] text-sm font-['DM_Sans']">
             <thead>
               <tr className="text-left text-white/30 text-xs tracking-widest uppercase border-b border-white/8">
                 <th className="pb-3 pr-4 font-normal">Item</th>
@@ -1291,10 +1299,10 @@ function InventoryTab() {
                     </td>
                     <td className="py-3 pr-4 text-white/30 text-xs max-w-xs truncate">{item.notes ?? "—"}</td>
                     <td className="py-3">
-                      <div className="flex gap-3 justify-end">
-                        <button onClick={() => setAdjustItem(item)} className="text-xs text-white/40 hover:text-[#0D9488] transition-colors">Adjust</button>
-                        <button onClick={() => startEdit(item)} className="text-xs text-white/40 hover:text-[#C9A844] transition-colors">Edit</button>
-                        <button onClick={() => deleteItem(item.id)} className="text-xs text-white/40 hover:text-red-400 transition-colors">Delete</button>
+                      <div className="flex gap-1 justify-end">
+                        <button onClick={() => setAdjustItem(item)} className="min-h-11 px-2 text-xs text-white/40 hover:text-[#0D9488] transition-colors">Adjust</button>
+                        <button onClick={() => startEdit(item)} className="min-h-11 px-2 text-xs text-white/40 hover:text-[#C9A844] transition-colors">Edit</button>
+                        <button onClick={() => deleteItem(item.id)} className="min-h-11 px-2 text-xs text-white/40 hover:text-red-400 transition-colors">Delete</button>
                       </div>
                     </td>
                   </tr>
@@ -1324,18 +1332,18 @@ function PatientsTab() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-4">
+      <div className="flex flex-col items-start gap-3 mb-4 sm:flex-row sm:items-center sm:justify-between">
         <SectionTitle>Patients</SectionTitle>
-        <div className="flex gap-1 bg-white/5 rounded p-1">
+        <div className="flex w-full gap-1 bg-white/5 rounded p-1 sm:w-auto">
           <button
             onClick={() => setView("kanban")}
-            className={`px-3 py-1 text-xs rounded font-['DM_Sans'] transition-colors ${view === "kanban" ? "bg-[#C9A844] text-black font-medium" : "text-white/40 hover:text-white/60"}`}
+            className={`min-h-11 flex-1 px-3 py-1 text-xs rounded font-['DM_Sans'] transition-colors sm:flex-none ${view === "kanban" ? "bg-[#C9A844] text-black font-medium" : "text-white/40 hover:text-white/60"}`}
           >
             CRM
           </button>
           <button
             onClick={() => setView("list")}
-            className={`px-3 py-1 text-xs rounded font-['DM_Sans'] transition-colors ${view === "list" ? "bg-[#C9A844] text-black font-medium" : "text-white/40 hover:text-white/60"}`}
+            className={`min-h-11 flex-1 px-3 py-1 text-xs rounded font-['DM_Sans'] transition-colors sm:flex-none ${view === "list" ? "bg-[#C9A844] text-black font-medium" : "text-white/40 hover:text-white/60"}`}
           >
             List
           </button>
@@ -1441,11 +1449,11 @@ function PatientKanbanView() {
   return (
     <div>
       {/* Filter bar */}
-      <div className="flex gap-2 mb-5 flex-wrap items-center">
+      <div className="grid grid-cols-1 gap-2 mb-5 sm:flex sm:flex-wrap sm:items-center">
         <select
           value={stageFilter}
           onChange={e => setStageFilter(e.target.value)}
-          className="bg-white/5 border border-white/10 text-white/70 text-xs rounded px-3 py-1.5 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
+          className="min-h-11 w-full bg-white/5 border border-white/10 text-white/70 text-xs rounded px-3 py-1.5 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40 sm:w-auto"
         >
           <option value="all">All Stages</option>
           {STAGE_KEYS.map(s => <option key={s} value={s}>{STAGE_CONFIG[s].label}</option>)}
@@ -1455,12 +1463,12 @@ function PatientKanbanView() {
           placeholder="Search name or email…"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          className="bg-white/5 border border-white/10 text-white/70 text-xs rounded px-3 py-1.5 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40 w-52"
+          className="min-h-11 w-full bg-white/5 border border-white/10 text-white/70 text-xs rounded px-3 py-1.5 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40 sm:w-52"
         />
         <select
           value={peptideFilter}
           onChange={e => setPeptideFilter(e.target.value)}
-          className="bg-white/5 border border-white/10 text-white/70 text-xs rounded px-3 py-1.5 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40"
+          className="min-h-11 w-full bg-white/5 border border-white/10 text-white/70 text-xs rounded px-3 py-1.5 font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/40 sm:w-auto"
         >
           <option value="all">All Interests</option>
           {allInterests.map(i => <option key={i} value={i}>{i}</option>)}
@@ -1468,12 +1476,12 @@ function PatientKanbanView() {
         {hasFilters && (
           <button
             onClick={() => { setStageFilter("all"); setSearch(""); setPeptideFilter("all"); }}
-            className="text-xs text-white/30 hover:text-white/60 font-['DM_Sans'] px-2 py-1.5 transition-colors"
+            className="min-h-11 text-left text-xs text-white/30 hover:text-white/60 font-['DM_Sans'] px-3 py-1.5 transition-colors sm:text-center"
           >
             Clear
           </button>
         )}
-        <span className="ml-auto text-xs text-white/20 font-['DM_Sans']">
+        <span className="text-xs text-white/20 font-['DM_Sans'] sm:ml-auto">
           {filtered.length} / {patients?.length ?? 0} patients
         </span>
       </div>
@@ -1482,7 +1490,7 @@ function PatientKanbanView() {
       <div className="flex gap-4 items-start">
         {/* Kanban board */}
         <div className={`transition-all duration-200 ${selected ? "hidden lg:block lg:flex-1 lg:min-w-0" : "w-full"}`}>
-          <div className="grid grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
             {STAGE_KEYS.map(stage => {
               const cfg = STAGE_CONFIG[stage];
               const cards = byStage[stage];
@@ -1497,7 +1505,7 @@ function PatientKanbanView() {
                       <button
                         key={p.email}
                         onClick={() => openDetail(p)}
-                        className={`w-full text-left rounded-md p-2.5 transition-colors border ${
+                        className={`min-h-11 w-full text-left rounded-md p-2.5 transition-colors border ${
                           selected?.email === p.email
                             ? "border-[#C9A844]/40 bg-[#C9A844]/5"
                             : "bg-white/[0.03] hover:bg-white/[0.06] border-white/8"
@@ -1543,10 +1551,10 @@ function PatientKanbanView() {
                   <p className="text-base text-white/90 font-['Cormorant_Garamond'] truncate">{selected.name}</p>
                   <p className="text-xs text-white/40 font-['DM_Sans'] mt-0.5 truncate">{selected.email}</p>
                 </div>
-                <button onClick={() => setSelected(null)} className="text-white/30 hover:text-white/60 text-xl leading-none flex-shrink-0">×</button>
+                <button onClick={() => setSelected(null)} className="flex min-h-11 min-w-11 items-center justify-center text-white/30 hover:text-white/60 text-xl leading-none flex-shrink-0">×</button>
               </div>
 
-              <div className="p-5 space-y-5 overflow-y-auto" style={{ maxHeight: "calc(100vh - 280px)" }}>
+              <div className="max-h-[calc(100dvh-12rem)] overflow-y-auto p-4 space-y-5 sm:p-5 lg:max-h-[calc(100dvh-280px)]">
                 {/* Stage */}
                 <div>
                   <p className="text-xs tracking-widest uppercase text-white/25 font-['DM_Sans'] mb-2">Stage</p>
@@ -1559,7 +1567,7 @@ function PatientKanbanView() {
                           key={s}
                           onClick={() => !active && updateStage(selected, s)}
                           disabled={savingStage}
-                          className={`text-xs px-3 py-1.5 rounded font-['DM_Sans'] transition-colors disabled:opacity-50 ${active ? `${cfg.badgeCls} font-medium` : "bg-white/5 text-white/30 hover:bg-white/10"}`}
+                          className={`min-h-11 text-xs px-3 py-1.5 rounded font-['DM_Sans'] transition-colors disabled:opacity-50 ${active ? `${cfg.badgeCls} font-medium` : "bg-white/5 text-white/30 hover:bg-white/10"}`}
                         >
                           {cfg.label}
                         </button>
@@ -1619,7 +1627,7 @@ function PatientKanbanView() {
                       label={selected.consultationStatus}
                       className={selected.consultationStatus === "contacted" ? "text-green-400 bg-green-400/10" : "text-amber-400 bg-amber-400/10"}
                     />
-                    <a href={`mailto:${selected.email}`} className="ml-auto text-xs text-white/30 hover:text-[#C9A844] font-['DM_Sans'] transition-colors">Reply ↗</a>
+                    <a href={`mailto:${selected.email}`} className="ml-auto inline-flex min-h-11 items-center text-xs text-white/30 hover:text-[#C9A844] font-['DM_Sans'] transition-colors">Reply ↗</a>
                   </div>
                 )}
 
@@ -1660,7 +1668,7 @@ function PatientKanbanView() {
                   <button
                     onClick={() => saveNotes(selected.email)}
                     disabled={savingNotes}
-                    className="mt-1.5 text-xs px-3 py-1.5 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black rounded font-['DM_Sans'] font-medium transition-colors"
+                    className="mt-1.5 min-h-11 text-xs px-3 py-1.5 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black rounded font-['DM_Sans'] font-medium transition-colors"
                   >
                     {notesSaved ? "Saved ✓" : savingNotes ? "Saving…" : "Save Notes"}
                   </button>
@@ -1699,7 +1707,7 @@ function ConsultationsPanel() {
     <div className="space-y-3">
       {consultations.map(c => (
         <div key={c.id} className="bg-white/[0.02] border border-white/10 rounded-lg px-5 py-4">
-          <div className="flex items-start justify-between gap-4">
+          <div className="flex flex-col items-start gap-4 sm:flex-row sm:justify-between">
             <div className="min-w-0">
               <p className="text-sm text-white/80 font-['DM_Sans']">{c.name}</p>
               <p className="text-xs text-white/40 font-['DM_Sans'] mt-0.5">
@@ -1716,24 +1724,24 @@ function ConsultationsPanel() {
                 ))}
               </div>
             </div>
-            <div className="flex flex-col items-end gap-2 shrink-0">
+            <div className="flex w-full flex-col items-start gap-2 sm:w-auto sm:items-end">
               <Badge
                 label={c.status}
                 className={c.status === "contacted" ? "text-green-400 bg-green-400/10" : "text-amber-400 bg-amber-400/10"}
               />
-              <div className="flex gap-2">
+              <div className="grid w-full grid-cols-1 gap-2 min-[400px]:grid-cols-2 sm:flex sm:w-auto">
                 {c.status !== "contacted" && (
                   <button
                     onClick={() => updateStatus(c.id, "contacted")}
                     disabled={saving === c.id}
-                    className="text-xs px-3 py-1 bg-teal-500/20 hover:bg-teal-500/30 text-teal-400 rounded font-['DM_Sans'] transition-colors disabled:opacity-50"
+                    className="min-h-11 text-xs px-3 py-1 bg-teal-500/20 hover:bg-teal-500/30 text-teal-400 rounded font-['DM_Sans'] transition-colors disabled:opacity-50"
                   >
                     Mark Contacted
                   </button>
                 )}
                 <a
                   href={`mailto:${c.email}`}
-                  className="text-xs px-3 py-1 bg-white/5 hover:bg-white/10 text-white/50 rounded font-['DM_Sans'] transition-colors"
+                  className="inline-flex min-h-11 items-center justify-center text-xs px-3 py-1 bg-white/5 hover:bg-white/10 text-white/50 rounded font-['DM_Sans'] transition-colors"
                 >
                   Reply
                 </a>
@@ -1776,7 +1784,7 @@ function ContinuationsPanel() {
         <div key={r.id} className="bg-white/[0.02] border border-white/10 rounded-lg overflow-hidden">
           <button
             onClick={() => setExpanded(expanded === r.id ? null : r.id)}
-            className="w-full flex items-center justify-between px-5 py-4 text-left"
+            className="min-h-11 w-full flex flex-col items-start gap-2 px-4 py-4 text-left sm:flex-row sm:items-center sm:justify-between sm:px-5"
           >
             <div>
               <p className="text-sm text-white/80 font-['DM_Sans']">{r.name}</p>
@@ -1818,20 +1826,20 @@ function ContinuationsPanel() {
                       <span className="text-white/30">Notes:</span> {r.notes}
                     </p>
                   )}
-                  <div className="flex gap-2 flex-wrap pt-1">
+                  <div className="grid grid-cols-1 gap-2 pt-1 min-[400px]:grid-cols-2 sm:flex sm:flex-wrap">
                     {STATUSES.filter(s => s !== r.status).map(s => (
                       <button
                         key={s}
                         onClick={() => updateStatus(r.id, s)}
                         disabled={saving === r.id}
-                        className="text-xs px-3 py-1 bg-white/5 hover:bg-white/10 text-white/50 rounded font-['DM_Sans'] transition-colors capitalize disabled:opacity-50"
+                        className="min-h-11 text-xs px-3 py-1 bg-white/5 hover:bg-white/10 text-white/50 rounded font-['DM_Sans'] transition-colors capitalize disabled:opacity-50"
                       >
                         {s.replace("-", " ")}
                       </button>
                     ))}
                     <a
                       href={`mailto:${r.email}`}
-                      className="text-xs px-3 py-1 bg-white/5 hover:bg-white/10 text-white/50 rounded font-['DM_Sans'] transition-colors"
+                      className="inline-flex min-h-11 items-center justify-center text-xs px-3 py-1 bg-white/5 hover:bg-white/10 text-white/50 rounded font-['DM_Sans'] transition-colors"
                     >
                       Reply
                     </a>
@@ -1899,7 +1907,7 @@ function AriaSettingsPanel() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm text-white/60 font-['DM_Sans']">Aria System Prompt</p>
           {current?.updatedAt && (
@@ -1908,11 +1916,11 @@ function AriaSettingsPanel() {
             </p>
           )}
         </div>
-        <div className="flex gap-2">
+        <div className="grid w-full grid-cols-1 gap-2 min-[400px]:grid-cols-2 sm:flex sm:w-auto">
           {current?.isCustom && (
             <button
               onClick={() => defaults && setText(defaults.instructions)}
-              className="px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 text-white/50 rounded font-['DM_Sans'] transition-colors"
+              className="min-h-11 px-3 py-1.5 text-xs bg-white/5 hover:bg-white/10 text-white/50 rounded font-['DM_Sans'] transition-colors"
             >
               Reset to Default
             </button>
@@ -1920,7 +1928,7 @@ function AriaSettingsPanel() {
           <button
             onClick={save}
             disabled={saving}
-            className="px-4 py-1.5 text-xs bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black rounded font-['DM_Sans'] font-medium transition-colors"
+            className="min-h-11 px-4 py-1.5 text-xs bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black rounded font-['DM_Sans'] font-medium transition-colors"
           >
             {saved ? "Saved ✓" : saving ? "Saving…" : "Save"}
           </button>
@@ -2122,11 +2130,11 @@ function UsersTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
+      <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
         <SectionTitle>Staff Accounts</SectionTitle>
         <button
           onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-[#C9A844] hover:bg-[#b8973d] text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
+          className="min-h-11 w-full px-4 py-2 bg-[#C9A844] hover:bg-[#b8973d] text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors sm:w-auto"
         >
           + Add Staff
         </button>
@@ -2139,7 +2147,7 @@ function UsersTab() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             onSubmit={createStaff}
-            className="bg-white/[0.04] border border-[#C9A844]/30 rounded-lg p-5 space-y-3"
+            className="bg-white/[0.04] border border-[#C9A844]/30 rounded-lg p-4 space-y-3 sm:p-5"
           >
             <p className="text-sm text-[#C9A844] font-['DM_Sans'] tracking-wide">New Staff Member</p>
             {[
@@ -2170,18 +2178,18 @@ function UsersTab() {
               </select>
             </div>
             {formError && <p className="text-red-400 text-xs font-['DM_Sans']">{formError}</p>}
-            <div className="flex gap-2">
+            <div className="flex flex-col gap-2 sm:flex-row">
               <button
                 type="submit"
                 disabled={saving}
-                className="px-5 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
+                className="min-h-11 px-5 py-2 bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black text-sm rounded font-['DM_Sans'] font-medium transition-colors"
               >
                 {saving ? "Creating…" : "Create"}
               </button>
               <button
                 type="button"
                 onClick={() => setShowForm(false)}
-                className="px-5 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors"
+                className="min-h-11 px-5 py-2 bg-white/5 hover:bg-white/10 text-white/60 text-sm rounded font-['DM_Sans'] transition-colors"
               >
                 Cancel
               </button>
@@ -2197,7 +2205,7 @@ function UsersTab() {
           {users.map(u => (
             <div
               key={u.id}
-              className="flex items-center justify-between bg-white/[0.02] border border-white/10 rounded-lg px-5 py-4"
+              className="flex flex-col items-start gap-3 bg-white/[0.02] border border-white/10 rounded-lg px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-5"
             >
               <div>
                 <p className="text-sm text-white/80 font-['DM_Sans']">{u.name}</p>
@@ -2206,7 +2214,7 @@ function UsersTab() {
                   {u.lastLoginAt ? ` · Last login ${fmtDate(u.lastLoginAt)}` : " · Never logged in"}
                 </p>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                 <Badge
                   label={u.role === "admin" ? "Admin" : "Staff"}
                   className={u.role === "admin" ? "text-[#C9A844] bg-[#C9A844]/10" : "text-teal-400 bg-teal-400/10"}
@@ -2217,7 +2225,7 @@ function UsersTab() {
                 />
                 <button
                   onClick={() => toggleActive(u)}
-                  className="text-xs px-3 py-1 bg-white/5 hover:bg-white/10 text-white/40 rounded font-['DM_Sans'] transition-colors"
+                  className="min-h-11 text-xs px-3 py-1 bg-white/5 hover:bg-white/10 text-white/40 rounded font-['DM_Sans'] transition-colors"
                 >
                   {u.isActive ? "Deactivate" : "Activate"}
                 </button>
@@ -2264,7 +2272,8 @@ function FinancialsTab() {
         <p className="text-xs tracking-widest uppercase text-white/30 mb-4 font-['DM_Sans']">
           Monthly Revenue (12 months)
         </p>
-        <div className="flex items-end gap-1 h-40">
+        <div className="overflow-x-auto pt-8">
+        <div className="flex h-40 min-w-[720px] items-end gap-1">
           {data.monthlyRevenue.map(m => {
             const heightPct = m.revenueCents > 0
               ? Math.max(4, (m.revenueCents / maxRevenue) * 100)
@@ -2275,7 +2284,7 @@ function FinancialsTab() {
                   className="w-full bg-[#C9A844]/30 group-hover:bg-[#C9A844]/60 rounded-t transition-colors relative"
                   style={{ height: `${heightPct}%` }}
                 >
-                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#111] text-white/70 text-xs font-['DM_Sans'] px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10">
+                  <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[#111] text-white/70 text-[9px] lg:text-xs font-['DM_Sans'] px-1 lg:px-2 py-1 rounded whitespace-nowrap opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity pointer-events-none z-10">
                     {fmt$(m.revenueCents)}
                     {m.orderCount > 0 && <span className="ml-1 text-white/40">({m.orderCount})</span>}
                   </div>
@@ -2287,11 +2296,12 @@ function FinancialsTab() {
             );
           })}
         </div>
+        </div>
       </div>
 
       <div>
         <p className="text-xs tracking-widest uppercase text-white/30 mb-3 font-['DM_Sans']">Orders by Status</p>
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-3 gap-3">
           {data.ordersByStatus.map(s => (
             <div key={s.status} className="bg-white/[0.02] border border-white/8 rounded-lg px-4 py-3">
               <p className="text-xs text-white/30 font-['DM_Sans'] mb-1">
@@ -2488,7 +2498,7 @@ function InfluencersTab() {
           />
           Active immediately
         </label>
-        <button disabled={saving} className="px-4 py-2 rounded bg-[#C9A844] text-[#0A0A0A] text-sm font-medium disabled:opacity-50">
+        <button disabled={saving} className="min-h-11 w-full px-4 py-2 rounded bg-[#C9A844] text-[#0A0A0A] text-sm font-medium disabled:opacity-50 sm:w-auto">
           {saving ? "Creating…" : "Create coupon"}
         </button>
       </form>
@@ -2507,7 +2517,7 @@ function InfluencersTab() {
               <div className="text-sm text-white/40">{coupon.total_sales} sale{coupon.total_sales !== 1 ? "s" : ""}</div>
               <button
                 onClick={() => void toggleCoupon(coupon)}
-                className={`px-3 py-1.5 rounded text-xs ${coupon.is_active ? "bg-[#0D9488]/20 text-[#5EEAD4]" : "bg-white/10 text-white/40"}`}
+                className={`min-h-11 px-3 py-1.5 rounded text-xs ${coupon.is_active ? "bg-[#0D9488]/20 text-[#5EEAD4]" : "bg-white/10 text-white/40"}`}
               >
                 {coupon.is_active ? "Active" : "Inactive"}
               </button>
@@ -2517,13 +2527,13 @@ function InfluencersTab() {
       </div>
 
       <div>
-        <div className="flex items-center justify-between gap-3 mb-3">
+        <div className="flex flex-col items-start gap-3 mb-3 sm:flex-row sm:items-center sm:justify-between">
           <SectionTitle>Commission tracker</SectionTitle>
           <input
             value={filter}
             onChange={e => setFilter(e.target.value)}
             placeholder="Filter influencer or code"
-            className="h-9 w-56 rounded border border-white/10 bg-white/5 px-3 text-xs text-white placeholder:text-white/25 focus:border-[#C9A844] focus:outline-none"
+            className="h-11 w-full rounded border border-white/10 bg-white/5 px-3 text-xs text-white placeholder:text-white/25 focus:border-[#C9A844] focus:outline-none sm:w-56"
           />
         </div>
         {filteredUses.length === 0 ? <EmptyState message="No commission activity yet." /> : (
@@ -2544,7 +2554,7 @@ function InfluencersTab() {
                     {use.payment_notes && <p className="text-[11px] text-white/35 mt-1 max-w-48 truncate" title={use.payment_notes}>{use.payment_notes}</p>}
                   </div>
                 ) : (
-                  <button onClick={() => { setPaymentNotes(""); setPaymentDialog({ id: use.id, influencer: use.influencer_name }); }} className="px-3 py-1.5 rounded bg-[#C9A844] text-[#0A0A0A] text-xs font-medium">
+                  <button onClick={() => { setPaymentNotes(""); setPaymentDialog({ id: use.id, influencer: use.influencer_name }); }} className="min-h-11 px-3 py-1.5 rounded bg-[#C9A844] text-[#0A0A0A] text-xs font-medium">
                     Mark paid
                   </button>
                 )}
@@ -2555,8 +2565,8 @@ function InfluencersTab() {
       </div>
 
       {paymentDialog && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 px-4" role="dialog" aria-modal="true">
-          <div className="w-full max-w-md rounded-xl border border-white/10 bg-[#151515] p-6 shadow-2xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-3 sm:p-4" role="dialog" aria-modal="true">
+          <div className="max-h-[calc(100dvh-1.5rem)] w-full max-w-md overflow-y-auto rounded-xl border border-white/10 bg-[#151515] p-4 shadow-2xl sm:p-6">
             <h3 className="font-['Cormorant_Garamond'] text-2xl text-white">Mark commission paid</h3>
             <p className="mt-1 text-sm text-white/45">Record the payment to {paymentDialog.influencer}.</p>
             <label className="mt-5 block">
@@ -2571,9 +2581,9 @@ function InfluencersTab() {
                 className="mt-2 w-full rounded border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-white/20 focus:border-[#C9A844] focus:outline-none"
               />
             </label>
-            <div className="mt-5 flex justify-end gap-2">
-              <button onClick={() => setPaymentDialog(null)} disabled={markingPaid} className="px-3 py-2 text-xs text-white/50 hover:text-white disabled:opacity-50">Cancel</button>
-              <button onClick={() => void markPaid()} disabled={markingPaid} className="px-4 py-2 rounded bg-[#C9A844] text-[#0A0A0A] text-xs font-medium disabled:opacity-50">
+            <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+              <button onClick={() => setPaymentDialog(null)} disabled={markingPaid} className="min-h-11 px-3 py-2 text-xs text-white/50 hover:text-white disabled:opacity-50">Cancel</button>
+              <button onClick={() => void markPaid()} disabled={markingPaid} className="min-h-11 px-4 py-2 rounded bg-[#C9A844] text-[#0A0A0A] text-xs font-medium disabled:opacity-50">
                 {markingPaid ? "Saving…" : "Confirm paid"}
               </button>
             </div>
@@ -2610,7 +2620,7 @@ export default function Admin() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
+      <div className="min-h-[100dvh] bg-[#0A0A0A] flex items-center justify-center">
         <div className="w-8 h-8 border-2 border-[#C9A844]/30 border-t-[#C9A844] rounded-full animate-spin" />
       </div>
     );
@@ -2621,9 +2631,9 @@ export default function Admin() {
   const visibleTabs = ALL_TABS.filter(t => !t.adminOnly || user.role === "admin");
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex text-white">
+    <div className="min-h-[100dvh] bg-[#0A0A0A] flex text-white">
       {/* Sidebar */}
-      <aside className="w-52 shrink-0 border-r border-white/8 flex flex-col fixed inset-y-0 left-0 z-10">
+      <aside className="hidden w-52 shrink-0 border-r border-white/8 lg:flex flex-col fixed inset-y-0 left-0 z-10">
         <div className="px-5 py-5 border-b border-white/8">
           <span className="font-['Cormorant_Garamond'] text-xl font-light tracking-[0.2em] text-[#C9A844]">
             AURYX
@@ -2638,7 +2648,7 @@ export default function Admin() {
             <button
               key={t.id}
               onClick={() => setActiveTab(t.id)}
-              className={`w-full text-left px-3 py-2.5 rounded text-sm font-['DM_Sans'] transition-colors ${
+              className={`min-h-11 w-full text-left px-3 py-2.5 rounded text-sm font-['DM_Sans'] transition-colors ${
                 activeTab === t.id
                   ? "bg-[#C9A844]/15 text-[#C9A844]"
                   : "text-white/45 hover:text-white/75 hover:bg-white/5"
@@ -2657,7 +2667,7 @@ export default function Admin() {
           <p className="text-[10px] text-white/20 font-['DM_Sans'] capitalize">{user.role}</p>
           <button
             onClick={async () => { await logout(); navigate("/admin/login"); }}
-            className="mt-3 text-xs text-white/25 hover:text-white/55 font-['DM_Sans'] transition-colors"
+            className="mt-3 min-h-11 text-xs text-white/25 hover:text-white/55 font-['DM_Sans'] transition-colors"
           >
             Sign out →
           </button>
@@ -2665,8 +2675,76 @@ export default function Admin() {
       </aside>
 
       {/* Content */}
-      <main className="flex-1 ml-52 min-h-screen overflow-auto">
-        <div className="max-w-5xl mx-auto px-8 py-8">
+      <main className="min-h-[100dvh] min-w-0 flex-1 overflow-x-hidden lg:ml-52">
+        <header className="sticky top-0 z-40 flex min-h-16 items-center justify-between border-b border-white/8 bg-[#0A0A0A]/95 px-4 backdrop-blur lg:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <button
+                type="button"
+                className="inline-flex min-h-11 min-w-11 items-center justify-center rounded border border-white/10 bg-white/5 text-white/70"
+                aria-label="Open admin navigation"
+              >
+                <span className="flex w-5 flex-col gap-1.5" aria-hidden="true">
+                  <span className="h-px w-full bg-current" />
+                  <span className="h-px w-full bg-current" />
+                  <span className="h-px w-full bg-current" />
+                </span>
+              </button>
+            </SheetTrigger>
+            <SheetContent
+              side="left"
+              className="flex h-[100dvh] w-[min(88vw,20rem)] flex-col border-white/10 bg-[#0A0A0A] p-0 text-white [&>button]:flex [&>button]:h-11 [&>button]:w-11 [&>button]:items-center [&>button]:justify-center"
+            >
+              <SheetHeader className="border-b border-white/8 px-5 py-5 text-left">
+                <SheetTitle className="font-['Cormorant_Garamond'] text-xl font-light tracking-[0.2em] text-[#C9A844]">
+                  AURYX
+                </SheetTitle>
+                <p className="text-[10px] tracking-widest uppercase text-white/25 font-['DM_Sans']">
+                  Admin Portal
+                </p>
+              </SheetHeader>
+              <nav className="flex-1 space-y-1 overflow-y-auto px-3 py-4">
+                {visibleTabs.map(t => (
+                  <SheetClose asChild key={t.id}>
+                    <button
+                      type="button"
+                      onClick={() => setActiveTab(t.id)}
+                      className={`min-h-11 w-full rounded px-3 py-2.5 text-left text-sm font-['DM_Sans'] transition-colors ${
+                        activeTab === t.id
+                          ? "bg-[#C9A844]/15 text-[#C9A844]"
+                          : "text-white/55 hover:bg-white/5 hover:text-white/80"
+                      }`}
+                    >
+                      {t.label}
+                      {t.adminOnly && (
+                        <span className="ml-1 text-[9px] text-white/20 uppercase tracking-wide align-middle">●</span>
+                      )}
+                    </button>
+                  </SheetClose>
+                ))}
+              </nav>
+              <div className="border-t border-white/8 px-4 py-4">
+                <p className="truncate text-xs text-white/50 font-['DM_Sans']">{user.name}</p>
+                <p className="text-[10px] capitalize text-white/20 font-['DM_Sans']">{user.role}</p>
+                <button
+                  type="button"
+                  onClick={async () => { await logout(); navigate("/admin/login"); }}
+                  className="mt-2 min-h-11 text-xs text-white/40 transition-colors hover:text-white/70 font-['DM_Sans']"
+                >
+                  Sign out →
+                </button>
+              </div>
+            </SheetContent>
+          </Sheet>
+          <div className="min-w-0 px-3 text-center">
+            <p className="truncate text-sm text-white/80 font-['DM_Sans']">
+              {visibleTabs.find(t => t.id === activeTab)?.label}
+            </p>
+            <p className="text-[10px] uppercase tracking-[0.2em] text-[#C9A844]/70">Auryx Admin</p>
+          </div>
+          <div className="h-11 w-11" aria-hidden="true" />
+        </header>
+        <div className="max-w-5xl mx-auto px-4 py-5 sm:px-6 sm:py-6 lg:px-8 lg:py-8">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}

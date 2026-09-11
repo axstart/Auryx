@@ -15,6 +15,8 @@ import CheckoutPage from "@/pages/checkout";
 import CheckoutSuccessPage from "@/pages/checkout-success";
 import ProtocolFinderPage from "@/pages/protocol-finder";
 import OurMethodPage from "@/pages/our-method";
+import AboutPage from "@/pages/about";
+import NewYorkPage from "@/pages/new-york";
 import LearnPage from "@/pages/learn";
 import BlogPage from "@/pages/blog";
 import BlogPostPage from "@/pages/blog-post";
@@ -26,8 +28,13 @@ import ReconstitutionKitPopup from "@/components/ReconstitutionKitPopup";
 import AgeGate from "@/components/AgeGate";
 import { CartProvider, useCart } from "@/context/CartContext";
 import { AdminAuthProvider } from "@/context/AdminAuthContext";
+import { LanguageProvider, initialLang } from "@/i18n";
 
 const queryClient = new QueryClient();
+
+const envBase = import.meta.env.BASE_URL.replace(/\/$/, "");
+// Mount the router under the language prefix so all routes/links stay in-language.
+const routerBase = initialLang === "en" ? envBase : `${envBase}/${initialLang}`;
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -54,13 +61,15 @@ function Router() {
       <Route path="/admin/login" component={AdminLogin} />
       <Route path="/admin" component={Admin} />
       <Route>
-        <div className="flex min-h-screen flex-col">
+        <div className="flex min-h-[100dvh] flex-col">
           <Navbar />
           <main className="flex-1">
             <Switch>
               <Route path="/" component={Home} />
               <Route path="/protocol-finder" component={ProtocolFinderPage} />
               <Route path="/our-method" component={OurMethodPage} />
+              <Route path="/about" component={AboutPage} />
+              <Route path="/peptide-therapy-new-york" component={NewYorkPage} />
               <Route path="/learn" component={LearnPage} />
               <Route path="/blog/:slug" component={BlogPostPage} />
               <Route path="/blog" component={BlogPage} />
@@ -87,16 +96,18 @@ function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <CartProvider>
-          <AdminAuthProvider>
-            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-              <ScrollToTop />
-              <Router />
-            </WouterRouter>
-            <AgeGate />
-            <Toaster />
-          </AdminAuthProvider>
-        </CartProvider>
+        <LanguageProvider>
+          <CartProvider>
+            <AdminAuthProvider>
+              <WouterRouter base={routerBase}>
+                <ScrollToTop />
+                <Router />
+              </WouterRouter>
+              <AgeGate />
+              <Toaster />
+            </AdminAuthProvider>
+          </CartProvider>
+        </LanguageProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );

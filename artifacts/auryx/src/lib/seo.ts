@@ -1,5 +1,36 @@
+import { getLangFromPath, stripLangPrefix, type Lang } from "@/i18n";
+
 const SITE_ORIGIN = "https://www.auryxlife.com";
 const SITE_NAME = "Auryx";
+
+const OG_LOCALE: Record<Lang, string> = { en: "en_US", es: "es_ES", pt: "pt_BR" };
+const HTML_LANG: Record<Lang, string> = { en: "en", es: "es", pt: "pt-BR" };
+
+/** Prefix a language onto an unprefixed path ("/" stays bare for en). */
+function localizedPath(lang: Lang, path: string): string {
+  if (lang === "en") return path;
+  return path === "/" ? `/${lang}` : `/${lang}${path}`;
+}
+
+/** Replace all hreflang alternate links for the current (unprefixed) path. */
+function setAlternates(path: string) {
+  document
+    .querySelectorAll('link[rel="alternate"][hreflang]')
+    .forEach(el => el.remove());
+  const entries: Array<[string, string]> = [
+    ["en", siteUrl(path)],
+    ["es", siteUrl(localizedPath("es", path))],
+    ["pt-BR", siteUrl(localizedPath("pt", path))],
+    ["x-default", siteUrl(path)],
+  ];
+  for (const [hreflang, href] of entries) {
+    const link = document.createElement("link");
+    link.rel = "alternate";
+    link.hreflang = hreflang;
+    link.href = href;
+    document.head.appendChild(link);
+  }
+}
 
 export function siteUrl(path = "/"): string {
   if (!path || path === "/") return SITE_ORIGIN;
@@ -71,11 +102,16 @@ export function applyPageSeo({
   noindex = false,
   jsonLd = [],
 }: PageSeoInput) {
-  const url = siteUrl(path);
+  const lang = getLangFromPath(window.location.pathname);
+  // Pages pass unprefixed paths, but strip a language prefix defensively.
+  const cleanPath = stripLangPrefix(path.startsWith("/") ? path : `/${path}`);
+  const url = siteUrl(localizedPath(lang, cleanPath));
+  document.documentElement.lang = HTML_LANG[lang];
   document.title = title;
   setMeta("description", description);
   setMeta("robots", noindex ? "noindex, nofollow" : "index, follow");
   setCanonical(url);
+  setAlternates(cleanPath);
 
   setOg("og:title", title);
   setOg("og:description", description);
@@ -84,7 +120,7 @@ export function applyPageSeo({
   setOg("og:image", image);
   setOg("og:image:alt", imageAlt);
   setOg("og:site_name", SITE_NAME);
-  setOg("og:locale", "en_US");
+  setOg("og:locale", OG_LOCALE[lang]);
 
   setMeta("twitter:card", "summary_large_image");
   setMeta("twitter:title", title);

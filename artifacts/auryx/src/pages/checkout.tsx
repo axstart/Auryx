@@ -276,7 +276,7 @@ function PaymentNodePayment({ form, totalCents, couponCode, onSuccess }: Checkou
     setLoading(false);
   };
 
-  const cardInputCls = "bg-white border-[#E8E8E4] text-[#0A0A0A] h-11 rounded-lg focus:border-[#0A0A0A] focus:ring-0 placeholder:text-[#0A0A0A]/30 text-sm";
+  const cardInputCls = "bg-white border-[#E8E8E4] text-[#0A0A0A] h-11 rounded-lg focus:border-[#0A0A0A] focus:ring-0 placeholder:text-[#0A0A0A]/30 text-base md:text-sm";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
@@ -339,28 +339,28 @@ function PaymentNodePayment({ form, totalCents, couponCode, onSuccess }: Checkou
           <div className="space-y-3">
             <div>
               <FieldLabel>Address Line 1 *</FieldLabel>
-              <Input placeholder="123 Main Street" value={billing.line1} onChange={setBillingField("line1")} className={cardInputCls} />
+                <Input placeholder="123 Main Street" autoComplete="billing street-address" value={billing.line1} onChange={setBillingField("line1")} className={cardInputCls} />
               {cardErrors.line1 && <p className="text-xs text-red-500 mt-1">{cardErrors.line1}</p>}
             </div>
             <div>
               <FieldLabel>Address Line 2 (optional)</FieldLabel>
-              <Input placeholder="Apt, suite, etc." value={billing.line2} onChange={setBillingField("line2")} className={cardInputCls} />
+              <Input placeholder="Apt, suite, etc." autoComplete="billing address-line2" value={billing.line2} onChange={setBillingField("line2")} className={cardInputCls} />
             </div>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <FieldLabel>City *</FieldLabel>
-                <Input placeholder="New York" value={billing.city} onChange={setBillingField("city")} className={cardInputCls} />
+                <Input placeholder="New York" autoComplete="billing address-level2" value={billing.city} onChange={setBillingField("city")} className={cardInputCls} />
                 {cardErrors.city && <p className="text-xs text-red-500 mt-1">{cardErrors.city}</p>}
               </div>
               <div>
                 <FieldLabel>State *</FieldLabel>
-                <Input placeholder="NY" value={billing.province} onChange={setBillingField("province")} className={cardInputCls} />
+                <Input placeholder="NY" autoComplete="billing address-level1" value={billing.province} onChange={setBillingField("province")} className={cardInputCls} />
                 {cardErrors.province && <p className="text-xs text-red-500 mt-1">{cardErrors.province}</p>}
               </div>
             </div>
             <div>
               <FieldLabel>ZIP Code *</FieldLabel>
-              <Input placeholder="10001" value={billing.postal_code} onChange={setBillingField("postal_code")} className={`${cardInputCls} max-w-[160px]`} />
+              <Input placeholder="10001" inputMode="numeric" autoComplete="billing postal-code" value={billing.postal_code} onChange={setBillingField("postal_code")} className={`${cardInputCls} max-w-[160px]`} />
               {cardErrors.postal_code && <p className="text-xs text-red-500 mt-1">{cardErrors.postal_code}</p>}
             </div>
           </div>
@@ -607,11 +607,11 @@ export default function CheckoutPage() {
     );
   }
 
-  const inputCls = "bg-white border-[#E8E8E4] text-[#0A0A0A] h-11 rounded-lg focus:border-[#0A0A0A] focus:ring-0 placeholder:text-[#0A0A0A]/30 text-sm";
+  const inputCls = "bg-white border-[#E8E8E4] text-[#0A0A0A] h-11 rounded-lg focus:border-[#0A0A0A] focus:ring-0 placeholder:text-[#0A0A0A]/30 text-base md:text-sm";
 
   return (
     <div className="min-h-screen" style={{ background: "#FAFAF8" }}>
-      <div className="pt-32 pb-5 px-6 md:px-12 border-b border-[#E8E8E4]">
+      <div className="pt-[calc(var(--site-header-height)+1rem)] pb-5 px-4 sm:px-6 md:px-12 border-b border-[#E8E8E4]">
         <div className="container mx-auto max-w-5xl">
           {step !== "details" ? (
             <button
@@ -628,7 +628,7 @@ export default function CheckoutPage() {
           <h1 className="font-serif text-[#0A0A0A] text-4xl">Checkout</h1>
 
           {/* Step indicator */}
-          <div className="flex items-center gap-2 mt-4">
+          <div className="flex items-center gap-1.5 sm:gap-2 mt-4 overflow-x-auto scrollbar-hide pb-1">
             {(["details", "verify", "payment"] as Step[]).map((s, i) => {
               const stepLabels: Record<Step, string> = { details: "Details", verify: "Verify Email", payment: "Payment" };
               const stepIdx = ["details", "verify", "payment"].indexOf(step);
@@ -637,7 +637,7 @@ export default function CheckoutPage() {
               const active = thisIdx === stepIdx;
               return (
                 <div key={s} className="flex items-center gap-2">
-                  <div className={`flex items-center gap-1.5 text-[11px] font-medium transition-colors ${
+                  <div className={`flex shrink-0 items-center gap-1.5 whitespace-nowrap text-[11px] font-medium transition-colors ${
                     active ? "text-[#0A0A0A]" : done ? "text-[#0D9488]" : "text-[#0A0A0A]/30"
                   }`}>
                     <div className={`w-4 h-4 rounded-full flex items-center justify-center text-[9px] shrink-0 ${
@@ -647,7 +647,7 @@ export default function CheckoutPage() {
                     </div>
                     {stepLabels[s]}
                   </div>
-                  {i < 2 && <div className={`w-8 h-px ${thisIdx < stepIdx ? "bg-[#0D9488]/40" : "bg-[#0A0A0A]/10"}`} />}
+                  {i < 2 && <div className={`w-4 sm:w-8 h-px ${thisIdx < stepIdx ? "bg-[#0D9488]/40" : "bg-[#0A0A0A]/10"}`} />}
                 </div>
               );
             })}
@@ -655,7 +655,7 @@ export default function CheckoutPage() {
         </div>
       </div>
 
-      <div className="px-6 md:px-12 py-10">
+      <div className="px-4 sm:px-6 md:px-12 py-6 sm:py-10">
         <div className="container mx-auto max-w-5xl">
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-10">
 
@@ -680,12 +680,12 @@ export default function CheckoutPage() {
                       <div className="space-y-3">
                         <div>
                           <FieldLabel>Full Name *</FieldLabel>
-                          <Input placeholder="Jane Smith" value={form.customerName} onChange={set("customerName")} className={inputCls} />
+                          <Input placeholder="Jane Smith" autoComplete="name" value={form.customerName} onChange={set("customerName")} className={inputCls} />
                           {errors.customerName && <p className="text-xs text-red-500 mt-1">{errors.customerName}</p>}
                         </div>
                         <div>
                           <FieldLabel>Email Address *</FieldLabel>
-                          <Input placeholder="jane@example.com" type="email" value={form.email} onChange={set("email")} className={inputCls} />
+                          <Input placeholder="jane@example.com" type="email" inputMode="email" autoComplete="email" value={form.email} onChange={set("email")} className={inputCls} />
                           {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
                           <p className="text-[10px] text-[#0A0A0A]/35 mt-1.5 leading-relaxed">
                             A verification code will be sent to this address before payment.
@@ -693,7 +693,7 @@ export default function CheckoutPage() {
                         </div>
                         <div>
                           <FieldLabel>Phone (optional)</FieldLabel>
-                          <Input placeholder="+1 (555) 000-0000" type="tel" value={form.phone} onChange={set("phone")} className={inputCls} />
+                          <Input placeholder="+1 (555) 000-0000" type="tel" inputMode="tel" autoComplete="tel" value={form.phone} onChange={set("phone")} className={inputCls} />
                         </div>
                       </div>
                     </div>
@@ -736,27 +736,27 @@ export default function CheckoutPage() {
                       <div className="space-y-3">
                         <div>
                           <FieldLabel>Street Address *</FieldLabel>
-                          <Input placeholder="123 Main Street" value={form.street} onChange={set("street")} className={inputCls} />
+                          <Input placeholder="123 Main Street" autoComplete="shipping street-address" value={form.street} onChange={set("street")} className={inputCls} />
                           {errors.street && <p className="text-xs text-red-500 mt-1">{errors.street}</p>}
                           <p className="text-[10px] text-[#0A0A0A]/35 mt-1.5">
                             No P.O. Boxes — a physical street address is required.
                           </p>
                         </div>
-                        <div className="grid grid-cols-2 gap-3">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           <div>
                             <FieldLabel>City *</FieldLabel>
-                            <Input placeholder="New York" value={form.city} onChange={set("city")} className={inputCls} />
+                            <Input placeholder="New York" autoComplete="shipping address-level2" value={form.city} onChange={set("city")} className={inputCls} />
                             {errors.city && <p className="text-xs text-red-500 mt-1">{errors.city}</p>}
                           </div>
                           <div>
                             <FieldLabel>State *</FieldLabel>
-                            <Input placeholder="NY" value={form.state} onChange={set("state")} className={inputCls} />
+                            <Input placeholder="NY" autoComplete="shipping address-level1" value={form.state} onChange={set("state")} className={inputCls} />
                             {errors.state && <p className="text-xs text-red-500 mt-1">{errors.state}</p>}
                           </div>
                         </div>
                         <div>
                           <FieldLabel>ZIP Code *</FieldLabel>
-                          <Input placeholder="10001" value={form.zip} onChange={set("zip")} className={`${inputCls} max-w-[160px]`} />
+                          <Input placeholder="10001" inputMode="numeric" autoComplete="shipping postal-code" value={form.zip} onChange={set("zip")} className={`${inputCls} max-w-[160px]`} />
                           {errors.zip && <p className="text-xs text-red-500 mt-1">{errors.zip}</p>}
                         </div>
                       </div>
@@ -939,7 +939,7 @@ export default function CheckoutPage() {
 
             {/* Right — Order Summary */}
             <div className="lg:col-span-2">
-              <div className="bg-white border border-[#E8E8E4] rounded-2xl p-6 sticky top-28 shadow-sm">
+              <div className="bg-white border border-[#E8E8E4] rounded-2xl p-6 sticky top-[calc(var(--site-header-height)+1rem)] shadow-sm">
                 <h3 className="text-[10px] uppercase tracking-[0.25em] text-[#0A0A0A]/40 font-medium mb-5">Order Summary</h3>
 
                 <div className="space-y-3 mb-5">
@@ -1005,6 +1005,7 @@ export default function CheckoutPage() {
                   <FieldLabel>Promo Code</FieldLabel>
                   <div className="flex gap-2">
                     <Input
+                      autoComplete="off"
                       value={promoCode}
                       onChange={e => {
                         setPromoCode(e.target.value.toUpperCase());
@@ -1013,10 +1014,10 @@ export default function CheckoutPage() {
                       onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); void applyPromoCode(); } }}
                       placeholder="Enter code"
                       disabled={!!appliedPromoCode || promoLoading}
-                      className="bg-white border-[#E8E8E4] text-[#0A0A0A] h-10 rounded-lg focus:border-[#0A0A0A] focus:ring-0 placeholder:text-[#0A0A0A]/30 text-sm"
+                      className="bg-white border-[#E8E8E4] text-[#0A0A0A] h-11 rounded-lg focus:border-[#0A0A0A] focus:ring-0 placeholder:text-[#0A0A0A]/30 text-base md:text-sm"
                     />
                     {appliedPromoCode ? (
-                      <button type="button" onClick={removePromoCode} className="px-3 text-xs text-[#0A0A0A]/50 hover:text-red-600">
+                      <button type="button" onClick={removePromoCode} className="min-h-11 px-3 text-xs text-[#0A0A0A]/50 hover:text-red-600">
                         Remove
                       </button>
                     ) : (
@@ -1024,7 +1025,7 @@ export default function CheckoutPage() {
                         type="button"
                         onClick={() => void applyPromoCode()}
                         disabled={promoLoading}
-                        className="px-4 rounded-lg bg-[#0A0A0A] text-white text-xs uppercase tracking-wider disabled:opacity-50"
+                        className="min-h-11 px-4 rounded-lg bg-[#0A0A0A] text-white text-xs uppercase tracking-wider disabled:opacity-50"
                       >
                         {promoLoading ? "Checking…" : "Apply"}
                       </button>

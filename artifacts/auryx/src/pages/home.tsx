@@ -7,8 +7,8 @@ import { ProtocolContinuationModal } from "@/components/ProtocolContinuationModa
 import { ArrowRight, CheckCircle, ShoppingCart, ChevronDown } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import type { ProductSummary } from "@/types/shop";
-import { HOME_FAQS } from "@/data/home-faqs";
 import { applyPageSeo } from "@/lib/seo";
+import { useI18n } from "@/i18n";
 
 async function fetchProducts(): Promise<ProductSummary[]> {
   const res = await fetch("/api/products");
@@ -178,29 +178,38 @@ function VialSVG({ name, tag }: { name: string; tag: string }) {
   );
 }
 
-/* ─── Data ──────────────────────────────────────────────────────────── */
-const COLLECTIONS = [
-  { icon: <IconMetabolic/>, title: "Metabolic Support", desc: "Support healthy metabolism and body composition." },
-  { icon: <IconRecovery/>, title: "Recovery & Resilience", desc: "Optimize recovery and build long-term resilience." },
-  { icon: <IconSkin/>, title: "Skin & Cellular Health", desc: "Compounds studied for skin-related cellular and extracellular matrix mechanisms." },
-  { icon: <IconEnergy/>, title: "Energy & Vitality", desc: "Sustain energy and daily mind-body vitality." },
-  { icon: <IconCognitive/>, title: "Neuroprotection", desc: "Compounds studied for neuroprotective and CNS mechanisms." },
-  { icon: <IconSleep/>, title: "Sleep & Restoration", desc: "Deeper sleep and daily restorative support." },
+/* ─── Data (text lives in src/i18n/translations.ts, keyed by index) ──── */
+const COLLECTION_ICONS = [
+  <IconMetabolic key="metabolic"/>,
+  <IconRecovery key="recovery"/>,
+  <IconSkin key="skin"/>,
+  <IconEnergy key="energy"/>,
+  <IconCognitive key="cognitive"/>,
+  <IconSleep key="sleep"/>,
 ];
 
-const PEPTIDES = [
-  { name: "TB-500", desc: "Supports tissue repair, recovery, and systemic regeneration.", tag: "RECOVERY", slug: "tb-500" },
-  { name: "BPC-157", desc: "Supports recovery and tissue health.", tag: "RECOVERY", slug: "bpc-157" },
-  { name: "NAD+", desc: "A coenzyme studied for cellular energy metabolism and DNA repair mechanisms.", tag: "ENERGY", slug: "nad-plus" },
-  { name: "CJC-1295 + Ipamorelin", desc: "Supports growth hormone and metabolic vitality.", tag: "VITALITY", slug: "cjc-1295-ipamorelin" },
+const PEPTIDE_PRODUCTS = [
+  { name: "TB-500", slug: "tb-500" },
+  { name: "BPC-157", slug: "bpc-157" },
+  { name: "NAD+", slug: "nad-plus" },
+  { name: "CJC-1295 + Ipamorelin", slug: "cjc-1295-ipamorelin" },
 ];
 
-const METHODOLOGY = [
-  { n: "01", title: "Goal Mapping", desc: "We begin by understanding your specific research priorities — the compounds, mechanisms, and biological pathways of interest." },
-  { n: "02", title: "Lifestyle Review", desc: "Your daily rhythm, sleep patterns, nutrition, and activity inform which peptide protocols may best support your goals." },
-  { n: "03", title: "Protocol Matching", desc: "We align your profile with AURYX's curated collection of evidence-informed peptide protocols." },
-  { n: "04", title: "Ongoing Rhythm", desc: "Precision is a practice. We provide concierge support as your research protocol and goals evolve over time." },
+const BADGE_ICONS = [
+  <IconShieldCheck key="shield"/>,
+  <IconSkin key="purity"/>,
+  <IconFlask key="flask"/>,
+  <IconPerson key="person"/>,
 ];
+
+const FINDER_ICONS = [
+  <IconTarget key="target"/>,
+  <IconEnergy key="energy"/>,
+  <IconSleep key="sleep"/>,
+  <IconPerson key="person"/>,
+];
+
+const METHODOLOGY_NUMBERS = ["01", "02", "03", "04"];
 
 const TESTIMONIALS = [
   { quote: "I feel more focused, sleep better, and recover faster.", name: "Jason R.", label: "Verified Customer" },
@@ -215,6 +224,8 @@ export default function Home() {
   const [openFaq, setOpenFaq] = useState<number | null>(0);
   const [addedSlugs, setAddedSlugs] = useState<Set<string>>(new Set());
   const { addToCart } = useCart();
+  const { t, lang, dict } = useI18n();
+  const home = dict.home;
   const { data: products = [] } = useQuery<ProductSummary[]>({
     queryKey: ["products"],
     queryFn: fetchProducts,
@@ -222,13 +233,31 @@ export default function Home() {
   });
 
   useEffect(() => {
+    // English keeps the static FAQPage JSON-LD in index.html; es/pt inject a localized one.
+    const jsonLd =
+      lang === "en"
+        ? []
+        : [
+            {
+              id: "ld-home-faq-local",
+              data: {
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                mainEntity: home.faq.items.map(f => ({
+                  "@type": "Question",
+                  name: f.q,
+                  acceptedAnswer: { "@type": "Answer", text: f.a },
+                })),
+              },
+            },
+          ];
     return applyPageSeo({
-      title: "Auryx | MD-Led Peptide Therapy — Nationwide",
-      description:
-        "Auryx is an MD-led precision longevity clinic offering medically supervised peptide therapy nationwide via telemedicine. Founded and led by a licensed MD specializing in regenerative medicine. Book a private consultation today.",
+      title: home.seoTitle,
+      description: home.seoDescription,
       path: "/",
+      jsonLd,
     });
-  }, []);
+  }, [lang, home]);
 
   function handleAdd(slug: string) {
     const product = products.find(p => p.slug === slug);
@@ -281,39 +310,39 @@ export default function Home() {
         {/* Mobile bg */}
         <div className="absolute inset-0 z-0 md:hidden" style={{ background: "linear-gradient(to bottom, #0A0A0A 40%, rgba(10,10,10,0.85) 100%)" }}/>
 
-        <div className="container relative z-10 mx-auto px-6 md:px-14 lg:px-20 pt-32 pb-24 md:pt-36 md:pb-28">
+        <div className="container relative z-10 mx-auto px-6 md:px-14 lg:px-20 pt-[calc(var(--site-header-height)+1rem)] pb-24 md:pt-[calc(var(--site-header-height)+1.5rem)] md:pb-28">
           <motion.div
             initial={{ opacity: 0, y: 28 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
             className="max-w-lg md:max-w-[540px]"
           >
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-7 font-medium">Precision Peptides</p>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-7 font-medium">{t("home.hero.eyebrow")}</p>
             <h1 className="font-serif text-3xl md:text-4xl lg:text-[3rem] leading-[1.15] mb-6 font-light">
-              Physician-backed protocols.{" "}
-              <em className="not-italic text-[#C9A844]">Real results.</em>{" "}
-              Delivered fast.
+              {t("home.hero.title1")}{" "}
+              <em className="not-italic text-[#C9A844]">{t("home.hero.titleEm")}</em>{" "}
+              {t("home.hero.title2")}
             </h1>
             <p className="text-white/55 text-sm md:text-base leading-relaxed mb-10 max-w-md">
-              Feel your best, recover faster, and perform at your peak — free shipping on every order.*
+              {t("home.hero.subtitle")}
             </p>
             <div className="flex flex-col gap-3 max-w-[300px]">
               <Link
                 href="/protocol-finder"
                 className="flex items-center justify-center gap-2 bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.14em] text-[11px] uppercase px-8 py-4 rounded-lg hover:bg-[#D4B050] transition-colors"
               >
-                Find Your Peptides
+                {t("home.hero.ctaFind")}
               </Link>
               <Link
                 href="/shop"
                 className="flex items-center justify-center gap-2 border border-white/20 text-white/65 font-medium tracking-[0.14em] text-[11px] uppercase px-8 py-4 rounded-lg hover:border-[#C9A844]/50 hover:text-white/90 transition-colors"
               >
-                Explore Collections
+                {t("home.hero.ctaExplore")}
               </Link>
             </div>
             {/* Trust line */}
             <p className="mt-7 text-[10px] text-white/30 tracking-[0.12em] uppercase">
-              Third-party tested · Discreet shipping · Concierge guidance
+              {t("home.hero.trustLine")}
             </p>
           </motion.div>
         </div>
@@ -340,16 +369,16 @@ export default function Home() {
             viewport={{ once: true }}
             className="mb-12 md:mb-16"
           >
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-5 font-medium">Protocol Collections</p>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-5 font-medium">{t("home.collections.eyebrow")}</p>
             <h2 className="font-serif text-4xl md:text-5xl lg:text-[3.5rem] leading-[1.1] max-w-2xl font-light">
-              Targeted support for{" "}
-              <em className="not-italic text-[#C9A844]">every dimension</em>{" "}
-              of you.
+              {t("home.collections.title1")}{" "}
+              <em className="not-italic text-[#C9A844]">{t("home.collections.titleEm")}</em>{" "}
+              {t("home.collections.title2")}
             </h2>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4">
-            {COLLECTIONS.map((c, i) => (
+            {home.collections.items.map((c, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 18 }}
@@ -361,7 +390,7 @@ export default function Home() {
                   className="group flex flex-col gap-5 p-7 rounded-2xl border border-white/[0.07] hover:border-[#C9A844]/40 bg-white/[0.025] hover:bg-white/[0.04] transition-all duration-300 h-full"
                 >
                   <div className="flex items-start justify-between">
-                    <div className="text-[#C9A844]">{c.icon}</div>
+                    <div className="text-[#C9A844]">{COLLECTION_ICONS[i]}</div>
                     <span className="text-[#C9A844]/40 text-base group-hover:text-[#C9A844]/70 group-hover:translate-x-0.5 inline-block transition-all duration-300">→</span>
                   </div>
                   <div>
@@ -387,16 +416,16 @@ export default function Home() {
             className="flex items-end justify-between mb-12 md:mb-14 flex-wrap gap-5"
           >
             <div>
-              <p className="text-[10px] uppercase tracking-[0.4em] text-[#B8962E] mb-5 font-medium">Peptide Collection</p>
+              <p className="text-[10px] uppercase tracking-[0.4em] text-[#B8962E] mb-5 font-medium">{t("home.peptides.eyebrow")}</p>
               <h2 className="font-serif text-4xl md:text-5xl text-[#111] leading-[1.1] font-light max-w-lg">
-                Curated peptide protocols<br className="hidden md:block"/> for your next standard.
+                {t("home.peptides.title1")}<br className="hidden md:block"/> {t("home.peptides.title2")}
               </h2>
               <p className="text-[#111]/50 text-sm md:text-base leading-relaxed mt-5 max-w-md">
-                Explore our curated collection of research-grade peptides — GLP-1 agonists, GH secretagogues, recovery compounds, and more.
+                {t("home.peptides.subtitle")}
               </p>
             </div>
             <Link href="/shop" className="hidden md:inline-flex items-center gap-2 text-[11px] font-semibold text-[#111] tracking-[0.18em] uppercase border-b border-[#111]/50 pb-0.5 hover:text-[#B8962E] hover:border-[#B8962E] transition-colors shrink-0">
-              View All Peptides →
+              {t("home.peptides.viewAll")}
             </Link>
           </motion.div>
 
@@ -420,7 +449,8 @@ export default function Home() {
 
           {/* Product info cards */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5 mb-8">
-            {PEPTIDES.map((p, i) => {
+            {PEPTIDE_PRODUCTS.map((p, i) => {
+              const copy = home.peptides.items[i];
               const product = products.find(pr => pr.slug === p.slug);
               const isAdded = addedSlugs.has(p.slug);
               return (
@@ -434,11 +464,11 @@ export default function Home() {
                   <div className="group flex flex-col bg-white rounded-xl border border-[#1a1a1a]/6 hover:border-[#C9A844]/35 hover:-translate-y-1 transition-all duration-300 shadow-sm hover:shadow-md p-5 h-full">
                     <div className="mb-3">
                       <span className="inline-block text-[9px] font-bold tracking-[0.2em] border border-[#1a1a1a]/18 text-[#1a1a1a]/50 px-2.5 py-1 rounded uppercase mb-3">
-                        {p.tag}
+                        {copy.tag}
                       </span>
                       <h3 className="font-serif text-[#111] text-base leading-snug">{p.name}</h3>
                     </div>
-                    <p className="text-[#1a1a1a]/45 text-xs leading-relaxed mb-4 flex-1">{p.desc}</p>
+                    <p className="text-[#1a1a1a]/45 text-xs leading-relaxed mb-4 flex-1">{copy.desc}</p>
                     <div className="mt-auto space-y-2">
                       {product && (
                         <div className="flex items-center justify-between">
@@ -446,7 +476,7 @@ export default function Home() {
                             ${(product.priceCents / 100).toFixed(0)}
                           </span>
                           <Link href={`/shop/${p.slug}`} className="text-[10px] text-[#B8962E] hover:underline">
-                            Details →
+                            {t("home.peptides.details")}
                           </Link>
                         </div>
                       )}
@@ -462,7 +492,7 @@ export default function Home() {
                         }`}
                       >
                         <ShoppingCart className="w-3 h-3" />
-                        {isAdded ? "Added ✓" : "Add to Cart"}
+                        {isAdded ? t("home.peptides.added") : t("home.peptides.addToCart")}
                       </button>
                     </div>
                   </div>
@@ -475,21 +505,16 @@ export default function Home() {
             <Link href="/shop"
               className="inline-flex items-center justify-center bg-[#111] text-white font-bold tracking-[0.15em] text-[11px] uppercase px-12 py-4 rounded-xl hover:bg-[#222] transition-colors w-full max-w-sm"
             >
-              Explore All Peptides →
+              {t("home.peptides.exploreAll")}
             </Link>
           </div>
 
           {/* Trust badges */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-5 pt-8 border-t border-[#1a1a1a]/8">
-            {[
-              { icon: <IconShieldCheck/>, label: "Science-backed formulations" },
-              { icon: <IconSkin/>, label: "Third-party tested for purity" },
-              { icon: <IconFlask/>, label: "US-sourced, pharma-grade" },
-              { icon: <IconPerson/>, label: "Concierge guidance, every step" },
-            ].map((b, i) => (
+            {home.peptides.badges.map((label, i) => (
               <div key={i} className="flex items-start gap-3">
-                <div className="shrink-0 mt-0.5" style={{ filter: "brightness(0.65)" }}>{b.icon}</div>
-                <p className="text-xs text-[#1a1a1a]/50 leading-snug">{b.label}</p>
+                <div className="shrink-0 mt-0.5" style={{ filter: "brightness(0.65)" }}>{BADGE_ICONS[i]}</div>
+                <p className="text-xs text-[#1a1a1a]/50 leading-snug">{label}</p>
               </div>
             ))}
           </div>
@@ -506,24 +531,19 @@ export default function Home() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
           >
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-6 font-medium">Concierge Protocol Finder</p>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-6 font-medium">{t("home.finder.eyebrow")}</p>
             <h2 className="font-serif text-4xl md:text-5xl lg:text-[3.5rem] leading-[1.1] mb-5 font-light">
-              Your protocol starts<br className="hidden md:block"/>
-              with your{" "}
-              <em className="not-italic text-[#C9A844]">rhythm.</em>
+              {t("home.finder.title1")}<br className="hidden md:block"/>
+              {" "}{t("home.finder.title2")}{" "}
+              <em className="not-italic text-[#C9A844]">{t("home.finder.titleEm")}</em>
             </h2>
             <p className="text-white/45 text-base leading-relaxed mb-12 max-w-md">
-              Answer a few questions about your goals, lifestyle, and current routine. We'll guide you toward the AURYX collection that best matches your priorities.
+              {t("home.finder.subtitle")}
             </p>
 
             {/* Question preview tiles */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-10">
-              {[
-                { q: "What is your primary goal?", icon: <IconTarget/> },
-                { q: "How would you rate your energy?", icon: <IconEnergy/> },
-                { q: "How is your sleep quality?", icon: <IconSleep/> },
-                { q: "What's your experience level?", icon: <IconPerson/> },
-              ].map((item, i) => (
+              {home.finder.questions.map((q, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 14 }}
@@ -532,9 +552,9 @@ export default function Home() {
                   transition={{ delay: i * 0.08 }}
                   className="flex flex-col gap-5 p-6 rounded-2xl border border-white/[0.08] hover:border-[#C9A844]/30 bg-white/[0.03] hover:bg-white/[0.05] transition-all duration-300 cursor-pointer"
                 >
-                  <div className="text-[#C9A844]">{item.icon}</div>
+                  <div className="text-[#C9A844]">{FINDER_ICONS[i]}</div>
                   <div className="h-px w-6 bg-[#C9A844]/25" />
-                  <p className="text-[13px] text-white/55 leading-snug">{item.q}</p>
+                  <p className="text-[13px] text-white/55 leading-snug">{q}</p>
                   <span className="text-[#C9A844]/50 text-sm">→</span>
                 </motion.div>
               ))}
@@ -555,9 +575,9 @@ export default function Home() {
                 href="/protocol-finder"
                 className="inline-flex items-center justify-center bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.15em] text-[11px] uppercase px-14 py-4 rounded-xl hover:bg-[#D4B050] transition-colors w-full max-w-md"
               >
-                Start My Protocol
+                {t("home.finder.start")}
               </Link>
-              <p className="text-white/25 text-[11px] mt-4 tracking-wide">Takes less than 60 seconds</p>
+              <p className="text-white/25 text-[11px] mt-4 tracking-wide">{t("home.finder.takes")}</p>
             </div>
           </motion.div>
         </div>
@@ -573,10 +593,10 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-16 md:mb-20"
           >
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-5 font-medium">The AURYX Methodology</p>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-5 font-medium">{t("home.methodology.eyebrow")}</p>
             <h2 className="font-serif text-4xl md:text-5xl leading-tight font-light">
-              Precision by design.<br/>
-              <em className="not-italic text-[#C9A844]">Trust</em> by standard.
+              {t("home.methodology.title1")}<br/>
+              <em className="not-italic text-[#C9A844]">{t("home.methodology.title2Em")}</em>{t("home.methodology.title2")}
             </h2>
           </motion.div>
 
@@ -586,7 +606,7 @@ export default function Home() {
             <div className="absolute left-[19px] md:left-1/2 top-0 bottom-0 w-px bg-gradient-to-b from-[#C9A844]/30 via-[#C9A844]/15 to-transparent hidden md:block" style={{ transform: "translateX(-50%)" }}/>
 
             <div className="space-y-10 md:space-y-0">
-              {METHODOLOGY.map((m, i) => (
+              {home.methodology.steps.map((m, i) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 20 }}
@@ -608,7 +628,7 @@ export default function Home() {
                       <div className="hidden md:flex items-start gap-6">
                         <div className="relative flex items-center justify-center">
                           <div className="w-10 h-10 rounded-full border border-[#C9A844]/40 bg-[#0D0D0D] flex items-center justify-center -ml-5">
-                            <span className="font-serif text-sm text-[#C9A844] leading-none">{m.n}</span>
+                            <span className="font-serif text-sm text-[#C9A844] leading-none">{METHODOLOGY_NUMBERS[i]}</span>
                           </div>
                         </div>
                       </div>
@@ -619,7 +639,7 @@ export default function Home() {
                       <div className="hidden md:flex items-start justify-end gap-6">
                         <div className="relative flex items-center justify-center">
                           <div className="w-10 h-10 rounded-full border border-[#C9A844]/40 bg-[#0D0D0D] flex items-center justify-center -mr-5">
-                            <span className="font-serif text-sm text-[#C9A844] leading-none">{m.n}</span>
+                            <span className="font-serif text-sm text-[#C9A844] leading-none">{METHODOLOGY_NUMBERS[i]}</span>
                           </div>
                         </div>
                       </div>
@@ -635,7 +655,7 @@ export default function Home() {
                   {/* Mobile number */}
                   <div className="absolute left-0 top-0 md:hidden">
                     <div className="w-10 h-10 rounded-full border border-[#C9A844]/40 bg-[#0D0D0D] flex items-center justify-center">
-                      <span className="font-serif text-sm text-[#C9A844] leading-none">{m.n}</span>
+                      <span className="font-serif text-sm text-[#C9A844] leading-none">{METHODOLOGY_NUMBERS[i]}</span>
                     </div>
                   </div>
                 </motion.div>
@@ -656,20 +676,20 @@ export default function Home() {
               viewport={{ once: true }}
               className="flex flex-col justify-center py-12 md:py-20 lg:py-24 lg:pl-20 lg:pr-16"
             >
-              <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-6 font-medium">Live With Intention</p>
+              <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-6 font-medium">{t("home.philosophy.eyebrow")}</p>
               <h2 className="font-serif text-4xl md:text-5xl lg:text-[3.2rem] leading-[1.1] mb-8 font-light">
-                Precision is a{" "}
-                <em className="not-italic text-[#C9A844]">practice</em>,
-                <br/>not a shortcut.
+                {t("home.philosophy.title1")}
+                <em className="not-italic text-[#C9A844]">{t("home.philosophy.titleEm")}</em>{t("home.philosophy.title2")}
+                <br/>{t("home.philosophy.title3")}
               </h2>
               <p className="text-white/50 text-base leading-relaxed mb-10 max-w-md">
-                We believe in consistent choices, disciplined routines, and support that helps you thrive for the long run.
+                {t("home.philosophy.body")}
               </p>
               <button
                 onClick={() => setModalOpen(true)}
-                className="inline-flex items-center gap-2 text-[11px] text-[#C9A844] font-semibold tracking-[0.22em] uppercase hover:gap-3 transition-all self-start"
+                className="inline-flex min-h-11 items-center gap-2 text-[11px] text-[#C9A844] font-semibold tracking-[0.22em] uppercase hover:gap-3 transition-all self-start"
               >
-                Our Philosophy <ArrowRight className="w-3.5 h-3.5" />
+                {t("home.philosophy.cta")} <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </motion.div>
 
@@ -707,19 +727,15 @@ export default function Home() {
             viewport={{ once: true }}
             className="text-center mb-14 md:mb-16"
           >
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-4 font-medium">Compound Quality</p>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-4 font-medium">{t("home.quality.eyebrow")}</p>
             <h2 className="font-serif text-4xl md:text-5xl font-light">
-              Research-grade.{" "}
-              <em className="not-italic text-[#C9A844]">Verified.</em>
+              {t("home.quality.title1")}{" "}
+              <em className="not-italic text-[#C9A844]">{t("home.quality.titleEm")}</em>
             </h2>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-            {[
-              { stat: "≥99%", label: "Purity verified by third-party HPLC analysis on every lot" },
-              { stat: "US-Only", label: "Sourced exclusively from FDA-registered US compounding facilities" },
-              { stat: "COA", label: "Certificate of Analysis available for every compound we supply" },
-            ].map((item, i) => (
+            {home.quality.cards.map((item, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 18 }}
@@ -738,9 +754,9 @@ export default function Home() {
                     </svg>
                   </div>
                   <div>
-                    <p className="text-sm text-white/80 font-medium">— AURYX Quality Standard</p>
+                    <p className="text-sm text-white/80 font-medium">{t("home.quality.standard")}</p>
                     <div className="flex items-center gap-1.5 mt-0.5">
-                      <p className="text-xs text-white/30">Research Grade</p>
+                      <p className="text-xs text-white/30">{t("home.quality.researchGrade")}</p>
                       <CheckCircle className="w-3 h-3 text-[#C9A844] opacity-65"/>
                     </div>
                   </div>
@@ -762,13 +778,13 @@ export default function Home() {
       <section id="faq" className="py-20 md:py-28 px-6 md:px-12" style={{ background: "#FAFAF8", color: "#111" }}>
         <div className="container mx-auto max-w-3xl">
           <p className="text-[10px] uppercase tracking-[0.4em] text-[#B8962E] mb-4 font-medium text-center">
-            Frequently Asked Questions
+            {t("home.faq.eyebrow")}
           </p>
           <h2 className="font-serif text-4xl md:text-5xl leading-[1.1] mb-10 font-light text-center">
-            Answers before you begin.
+            {t("home.faq.title")}
           </h2>
           <div className="space-y-3">
-            {HOME_FAQS.map((faq, i) => {
+            {home.faq.items.map((faq, i) => {
               const open = openFaq === i;
               return (
                 <div key={faq.q} className="border border-[#E8E8E4] rounded-xl overflow-hidden bg-white">
@@ -806,20 +822,20 @@ export default function Home() {
               viewport={{ once: true }}
               className="flex flex-col justify-center py-20 md:py-28 px-8 md:px-14 lg:px-20"
             >
-              <p className="text-[10px] uppercase tracking-[0.4em] text-[#B8962E] mb-5 font-medium">Ready To Begin?</p>
+              <p className="text-[10px] uppercase tracking-[0.4em] text-[#B8962E] mb-5 font-medium">{t("home.cta.eyebrow")}</p>
               <h2 className="font-serif text-5xl md:text-6xl leading-[1.08] mb-6 font-light">
-                Your best,{" "}
-                <em className="not-italic text-[#B8962E]">supported.</em>
+                {t("home.cta.title1")}{" "}
+                <em className="not-italic text-[#B8962E]">{t("home.cta.titleEm")}</em>
               </h2>
               <p className="text-[#111]/50 text-base leading-relaxed mb-10 max-w-sm">
-                Guided protocols. Premium peptides.<br/>Personalized for your rhythm.
+                {t("home.cta.body1")}<br/>{t("home.cta.body2")}
               </p>
               <div>
                 <Link
                   href="/protocol-finder"
                   className="inline-flex items-center justify-center bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.15em] text-[11px] uppercase px-10 py-4 rounded-xl hover:bg-[#D4B050] transition-colors"
                 >
-                  Find Your Peptides
+                  {t("home.cta.button")}
                 </Link>
               </div>
             </motion.div>

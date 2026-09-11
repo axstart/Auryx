@@ -2,7 +2,7 @@ import { useState } from "react";
 import { z } from "zod";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { CheckCircle2, Check } from "lucide-react";
 import {
   Dialog,
@@ -86,13 +86,13 @@ type FormValues = z.infer<typeof formSchema>;
 
 function ProgressBar({ step }: { step: number }) {
   return (
-    <div className="flex items-center justify-center gap-0 mb-6 pt-1">
+    <div className="flex items-center justify-center gap-0 mb-5 sm:mb-6 pt-1 overflow-hidden">
       {STEPS.map((s, i) => {
         const done = step > s.number;
         const active = step === s.number;
         return (
           <div key={s.number} className="flex items-center">
-            <div className="flex flex-col items-center gap-1.5">
+            <div className="flex flex-col items-center gap-1.5 min-w-0">
               <div
                 className={`w-8 h-8 rounded-full flex items-center justify-center border text-xs font-semibold transition-all duration-300 ${
                   done
@@ -105,7 +105,7 @@ function ProgressBar({ step }: { step: number }) {
                 {done ? <Check className="w-3.5 h-3.5" /> : s.number}
               </div>
               <span
-                className={`text-[10px] tracking-wide uppercase font-medium transition-colors duration-300 ${
+                className={`max-w-20 truncate text-[9px] sm:text-[10px] tracking-wide uppercase font-medium transition-colors duration-300 ${
                   active ? "text-primary" : done ? "text-primary/60" : "text-muted-foreground/50"
                 }`}
               >
@@ -114,7 +114,7 @@ function ProgressBar({ step }: { step: number }) {
             </div>
             {i < STEPS.length - 1 && (
               <div
-                className={`w-16 h-px mb-5 transition-colors duration-300 ${
+                className={`w-6 min-[400px]:w-10 sm:w-16 h-px mb-5 transition-colors duration-300 ${
                   step > s.number ? "bg-primary/50" : "bg-border/40"
                 }`}
               />
@@ -138,6 +138,7 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
   const [successEmail, setSuccessEmail] = useState<string | null>(null);
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState(1);
+  const reduceMotion = useReducedMotion();
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -209,7 +210,7 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-[520px] bg-card border-border overflow-hidden">
+      <DialogContent className="left-0 right-0 top-auto bottom-0 w-full max-w-none translate-x-0 translate-y-0 max-h-[calc(100dvh-env(safe-area-inset-top))] overflow-y-auto overscroll-contain rounded-t-2xl bg-card border-border p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:left-[50%] sm:right-auto sm:top-[50%] sm:bottom-auto sm:max-w-[520px] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:p-6 [&>button]:h-11 [&>button]:w-11 [&>button]:grid [&>button]:place-items-center motion-reduce:duration-0">
         {successEmail ? (
           <motion.div
             initial={{ opacity: 0, y: 12 }}
@@ -261,7 +262,7 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                     initial="enter"
                     animate="center"
                     exit="exit"
-                    transition={{ duration: 0.22, ease: "easeInOut" }}
+                    transition={{ duration: reduceMotion ? 0 : 0.22, ease: "easeInOut" }}
                     className="space-y-4"
                   >
                     {step === 1 && (
@@ -273,7 +274,7 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                             <FormItem>
                               <FormLabel>Full Name</FormLabel>
                               <FormControl>
-                                <Input placeholder="John Doe" {...field} className={inputClass} />
+                                <Input placeholder="John Doe" type="text" autoComplete="name" {...field} className={`${inputClass} h-11`} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -287,7 +288,7 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                             <FormItem>
                               <FormLabel>Email</FormLabel>
                               <FormControl>
-                                <Input placeholder="john@example.com" type="email" {...field} className={inputClass} />
+                                <Input placeholder="john@example.com" type="email" inputMode="email" autoComplete="email" {...field} className={`${inputClass} h-11`} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -304,7 +305,7 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                                 <span className="text-muted-foreground font-normal">(optional)</span>
                               </FormLabel>
                               <FormControl>
-                                <Input placeholder="+1 (555) 000-0000" {...field} className={inputClass} />
+                                <Input placeholder="+1 (555) 000-0000" type="tel" inputMode="tel" autoComplete="tel" {...field} className={`${inputClass} h-11`} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -321,12 +322,14 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                                 <FormControl>
                                   <Input
                                     type="number"
+                                    inputMode="numeric"
+                                    autoComplete="off"
                                     min="18"
                                     max="120"
                                     placeholder="e.g. 34"
                                     {...field}
                                     value={field.value ?? ""}
-                                    className={inputClass}
+                                    className={`${inputClass} h-11`}
                                   />
                                 </FormControl>
                                 <FormMessage />
@@ -342,7 +345,7 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                                 <FormLabel>State</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                   <FormControl>
-                                    <SelectTrigger className={inputClass}>
+                                    <SelectTrigger className={`${inputClass} h-11`}>
                                       <SelectValue placeholder="Select state" />
                                     </SelectTrigger>
                                   </FormControl>
@@ -369,7 +372,7 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                             <FormItem>
                               <FormLabel>Areas of Interest <span className="text-muted-foreground font-normal text-xs">(select all that apply)</span></FormLabel>
                               <FormControl>
-                                <div className="grid grid-cols-2 gap-2 pt-1">
+                                <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-2 pt-1">
                                   {INTEREST_OPTIONS.map((opt) => {
                                     const checked = (field.value as string[]).includes(opt.value);
                                     return (
@@ -384,7 +387,7 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                                               : [...current, opt.value]
                                           );
                                         }}
-                                        className={`flex items-center gap-2 text-left px-3 py-2.5 rounded-md border text-sm transition-colors ${
+                                        className={`flex min-h-11 items-center gap-2 text-left px-3 py-2.5 rounded-md border text-sm transition-colors ${
                                           checked
                                             ? "border-primary bg-primary/10 text-primary"
                                             : "border-border/60 bg-background text-muted-foreground hover:text-foreground hover:border-border"
@@ -449,7 +452,7 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                                 <span className="text-muted-foreground font-normal">(optional)</span>
                               </FormLabel>
                               <FormControl>
-                                <Input placeholder="@yourhandle" {...field} className={inputClass} />
+                                <Input placeholder="@yourhandle" type="text" autoComplete="off" {...field} className={`${inputClass} h-11`} />
                               </FormControl>
                               <FormMessage />
                             </FormItem>
@@ -464,7 +467,7 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                               <FormLabel>How did you hear about us?</FormLabel>
                               <Select onValueChange={field.onChange} value={field.value}>
                                 <FormControl>
-                                  <SelectTrigger className={inputClass}>
+                                  <SelectTrigger className={`${inputClass} h-11`}>
                                     <SelectValue placeholder="Select an option" />
                                   </SelectTrigger>
                                 </FormControl>
@@ -507,13 +510,13 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                 </AnimatePresence>
               </div>
 
-              <div className="flex gap-3 mt-6">
+              <div className="sticky bottom-0 -mx-1 flex gap-3 mt-6 pt-3 bg-card">
                 {step > 1 && (
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleBack}
-                    className="flex-1 border-border/60 text-foreground hover:bg-card/80"
+                    className="flex-1 min-h-11 border-border/60 text-foreground hover:bg-card/80"
                   >
                     Back
                   </Button>
@@ -522,14 +525,14 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                   <Button
                     type="button"
                     onClick={handleNext}
-                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                    className="flex-1 min-h-11 bg-primary text-primary-foreground hover:bg-primary/90"
                   >
                     Next
                   </Button>
                 ) : (
                   <Button
                     type="submit"
-                    className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90"
+                    className="flex-1 min-h-11 bg-primary text-primary-foreground hover:bg-primary/90"
                     disabled={createConsultation.isPending}
                   >
                     {createConsultation.isPending ? "Submitting..." : "Submit Request"}

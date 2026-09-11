@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Auryx Website — SEO, GEO &amp; AEO Readiness Report</title>
+  <style>
+    @page { size: Letter; margin: 0.65in; }
+    * { box-sizing: border-box; }
+    body {
+      font-family: "Segoe UI", Calibri, system-ui, sans-serif;
+      color: #1c1c1c;
+      line-height: 1.5;
+      font-size: 11px;
+      margin: 0;
+    }
+    h1 { font-size: 20px; margin: 0 0 10px; font-weight: 650; letter-spacing: -0.01em; }
+    h2 {
+      font-size: 13.5px;
+      margin: 22px 0 8px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid #ddd;
+      page-break-after: avoid;
+    }
+    h3 { font-size: 12px; margin: 14px 0 6px; page-break-after: avoid; }
+    p { margin: 0 0 10px; }
+    ul, ol { margin: 0 0 12px; padding-left: 20px; }
+    li { margin-bottom: 4px; }
+    .meta { color: #555; margin-bottom: 16px; }
+    .meta div { margin-bottom: 2px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0 14px;
+      font-size: 10.5px;
+      page-break-inside: avoid;
+    }
+    th, td {
+      border: 1px solid #e6e6e6;
+      padding: 7px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+    th { background: #f4f4f4; font-weight: 600; }
+    .callout {
+      border-left: 3px solid #b42318;
+      background: #fff7f7;
+      padding: 10px 12px;
+      margin: 12px 0 16px;
+    }
+    .note {
+      border-left: 3px solid #175cd3;
+      background: #f5f9ff;
+      padding: 10px 12px;
+      margin: 12px 0 16px;
+    }
+    .footer {
+      margin-top: 24px;
+      padding-top: 10px;
+      border-top: 1px solid #eee;
+      color: #777;
+      font-size: 9.5px;
+    }
+    strong { font-weight: 650; }
+  </style>
+</head>
+<body>
+  <h1>Auryx Website — SEO, GEO &amp; AEO Readiness Report</h1>
+  <div class="meta">
+    <div><strong>Prepared for:</strong> Auryx</div>
+    <div><strong>Site reviewed:</strong> https://www.auryxlife.com</div>
+    <div><strong>Date:</strong> September 11, 2026</div>
+    <div><strong>Scope:</strong> Search Engine Optimization (SEO), Generative Engine Optimization (GEO), and Answer Engine Optimization (AEO)</div>
+  </div>
+
+  <h2>Executive summary</h2>
+  <p>
+    Auryx already has a strong foundation for search and AI visibility: clear homepage messaging,
+    physician-led educational content, blog articles with structured Q&amp;A, and baseline metadata
+    (titles, descriptions, social sharing tags, and structured data).
+  </p>
+  <p>
+    <strong>However, the site is not yet ready for reliable search or AI discovery.</strong>
+    The most important issue is that most pages beyond the homepage are not reachable by Google or
+    AI crawlers when visited directly. Shop pages, blog posts, Learn, and other key URLs listed in
+    the sitemap currently fail to load for bots — even though they work when users navigate inside the site.
+  </p>
+  <p>
+    <strong>Bottom line:</strong> Content and brand direction are in good shape. Technical
+    discoverability must be fixed first. After that, we will strengthen entity signals, align
+    messaging, and expand structured data so Auryx can rank in search and be cited by AI answer engines.
+  </p>
+
+  <p><strong>Overall readiness (approximate):</strong></p>
+  <table>
+    <thead>
+      <tr><th>Area</th><th>Score</th><th>Status</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>SEO (traditional search)</td><td>34 / 100</td><td>Needs priority work</td></tr>
+      <tr><td>GEO (AI / generative search visibility)</td><td>28 / 100</td><td>Needs priority work</td></tr>
+      <tr><td>AEO (answer / citation readiness)</td><td>36 / 100</td><td>Needs priority work</td></tr>
+    </tbody>
+  </table>
+
+  <h2>What we evaluated</h2>
+  <ol>
+    <li><strong>SEO</strong> — Can Google and Bing find, load, understand, and rank pages?</li>
+    <li><strong>GEO</strong> — Can AI systems recognize Auryx as a clear brand/entity (who you are, where you serve, what you offer)?</li>
+    <li><strong>AEO</strong> — Is content structured so ChatGPT, Perplexity, Google AI Overviews, and similar tools can quote accurate answers?</li>
+  </ol>
+
+  <h2>What’s already working</h2>
+  <p>These assets give us a strong base to build on:</p>
+  <ul>
+    <li><strong>Homepage fundamentals</strong> — Title, meta description, social (Open Graph / Twitter) tags, and canonical URL are in place.</li>
+    <li><strong>Brand clarity on the home page</strong> — Positioning around MD-led, nationwide peptide / longevity protocols is clear.</li>
+    <li><strong>Educational content</strong> — The Learn section and Journal articles are well suited for AI citation (physician authorship, clear questions and answers).</li>
+    <li><strong>Crawl policy</strong> — robots.txt allows indexing and points to a sitemap; admin areas are blocked as expected.</li>
+    <li><strong>Social preview image</strong> — Open Graph image is live and correctly sized for link sharing.</li>
+  </ul>
+
+  <h2>Critical finding (must fix first)</h2>
+  <h3>Most website URLs are not crawlable in production</h3>
+  <p>
+    When a user lands on the homepage and clicks around, pages load normally.<br />
+    When Google, AI bots, or a shared link hits a direct URL (for example /shop, /learn, /blog/...,
+    or a product page), the server currently returns a <strong>404 Not Found</strong>.
+  </p>
+
+  <div class="callout">
+    <strong>Why this matters</strong>
+    <ul style="margin-bottom:0">
+      <li>Search engines cannot index shop, blog, or education pages.</li>
+      <li>The sitemap is advertising URLs that fail when crawled.</li>
+      <li>AI tools cannot cite content they cannot fetch.</li>
+      <li>Shared links to product or article pages may fail for new visitors.</li>
+    </ul>
+  </div>
+
+  <p><strong>What we will update</strong></p>
+  <ul>
+    <li>Configure hosting so all valid site routes load the app correctly (SPA routing / fallback).</li>
+    <li>Prefer prerendering or server-rendered HTML for key pages so bots receive real content without relying only on JavaScript.</li>
+    <li>Re-test every URL in the sitemap after the fix.</li>
+  </ul>
+  <p>This is the <strong>#1 priority</strong>. Content SEO and AI optimization will not deliver results until this is resolved.</p>
+
+  <h2>Key areas we will update</h2>
+
+  <h3>1. Technical discoverability (SEO foundation)</h3>
+  <table>
+    <thead>
+      <tr><th>Item</th><th>Current state</th><th>Planned update</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Page routing</td><td>Only homepage reliably loads for crawlers</td><td>Fix routing so all public pages return 200</td></tr>
+      <tr><td>Page HTML for bots</td><td>Heavy reliance on client-side JavaScript</td><td>Prerender / SSR key pages (home, shop, Learn, blog, top products)</td></tr>
+      <tr><td>Sitemap</td><td>Present, but incomplete and includes dead URLs</td><td>Regenerate from live catalog + blog; keep dates accurate</td></tr>
+      <tr><td>Private pages</td><td>Checkout / success not clearly excluded</td><td>Add noindex for checkout, success, and other non-marketing pages</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Client outcome:</strong> Every important page becomes indexable and shareable.</p>
+
+  <h3>2. On-page SEO for money pages</h3>
+  <table>
+    <thead>
+      <tr><th>Item</th><th>Current state</th><th>Planned update</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Product pages</td><td>Basic title/description only</td><td>Unique titles, descriptions, social tags, and product structured data</td></tr>
+      <tr><td>Blog &amp; Learn</td><td>Good content; meta often applied only after JavaScript runs</td><td>Ensure titles, descriptions, and canonicals are present in the initial HTML</td></tr>
+      <tr><td>Brand consistency</td><td>Mix of “Auryx” / “AURYX” in titles</td><td>Standardize naming across titles and schema</td></tr>
+      <tr><td>Social tags</td><td>Strong on homepage; thinner on inner pages</td><td>Complete og:site_name, locale, and per-page images where useful</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Client outcome:</strong> Clearer search listings and better link previews when pages are shared.</p>
+
+  <h3>3. Structured data &amp; entity signals (GEO)</h3>
+  <p>Search and AI systems need a clean “entity” for Auryx — who you are, what you offer, and where you serve.</p>
+  <table>
+    <thead>
+      <tr><th>Item</th><th>Current state</th><th>Planned update</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Organization / MedicalBusiness schema</td><td>Partial (missing logo, contact, social profiles, full founder details)</td><td>Complete brand entity markup</td></tr>
+      <tr><td>Location signals</td><td>Generic U.S. map coordinates</td><td>Accurate nationwide / service-area messaging (and real business details where applicable)</td></tr>
+      <tr><td>Product schema</td><td>Missing on product pages</td><td>Add Product / Offer (and breadcrumb) markup</td></tr>
+      <tr><td>FAQ schema on homepage</td><td>FAQ data in code without matching FAQ content on the page</td><td>Either add a visible FAQ section that matches the markup, or keep FAQ schema only on Learn</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Client outcome:</strong> Stronger brand recognition in Google Knowledge-style results and AI systems.</p>
+
+  <h3>4. Answer-engine readiness (AEO)</h3>
+  <p>Learn and Journal content is already well positioned for AI answers. Gaps are mostly technical and messaging-related.</p>
+  <table>
+    <thead>
+      <tr><th>Item</th><th>Current state</th><th>Planned update</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Citation-ready content</td><td>Strong Q&amp;A style on Learn / blog</td><td>Keep and expand; ensure pages are crawlable</td></tr>
+      <tr><td>Messaging consistency</td><td>Homepage/schema lean “MD-led clinic”; footer/Learn lean “research use only”</td><td>Align public positioning so AI tools cite one clear, accurate story</td></tr>
+      <tr><td>AI discovery file</td><td>No llms.txt</td><td>Add a concise brand + key-page summary for AI crawlers</td></tr>
+      <tr><td>Age gate / delayed content</td><td>Overlay and API-loaded shop content</td><td>Ensure core marketing copy remains available to crawlers</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Client outcome:</strong> Higher chance that Auryx is quoted accurately in AI Overviews and chat-style search.</p>
+
+  <h3>5. Content inventory &amp; trust</h3>
+  <table>
+    <thead>
+      <tr><th>Item</th><th>Current state</th><th>Planned update</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Product coverage in sitemap</td><td>Roughly half the catalog listed</td><td>Include all public product URLs</td></tr>
+      <tr><td>Trust / E-E-A-T</td><td>Strong physician bylines on articles</td><td>Reinforce consistent credentials, authorship, and review signals site-wide</td></tr>
+      <tr><td>Claim alignment</td><td>Clinical vs research language conflict</td><td>Legal / brand-approved unified messaging across schema, FAQ, and footer</td></tr>
+    </tbody>
+  </table>
+  <p><strong>Client outcome:</strong> More complete catalog visibility and higher trust for both users and AI systems.</p>
+
+  <h2>Recommended update roadmap</h2>
+
+  <h3>Phase 1 — Unblock discovery (highest priority)</h3>
+  <ol>
+    <li>Fix production routing so all public URLs load.</li>
+    <li>Validate sitemap URLs (no 404s).</li>
+    <li>Confirm Google can fetch key pages.</li>
+  </ol>
+
+  <h3>Phase 2 — Make pages “bot-ready”</h3>
+  <ol>
+    <li>Prerender or server-render priority pages.</li>
+    <li>Ensure unique titles, descriptions, and canonicals in initial HTML.</li>
+    <li>Add product structured data on shop detail pages.</li>
+  </ol>
+
+  <h3>Phase 3 — Strengthen GEO / AEO</h3>
+  <ol>
+    <li>Complete Organization / brand entity markup.</li>
+    <li>Align medical vs research messaging with approved copy.</li>
+    <li>Fix FAQ schema/content match.</li>
+    <li>Publish llms.txt and refresh the full sitemap.</li>
+  </ol>
+
+  <h3>Phase 4 — Ongoing growth</h3>
+  <ol>
+    <li>Expand Journal / Learn with citation-friendly Q&amp;A.</li>
+    <li>Monitor Search Console coverage and AI referral trends.</li>
+    <li>Refresh sitemap when products or articles are added.</li>
+  </ol>
+
+  <h2>Expected business impact (after updates)</h2>
+  <ul>
+    <li><strong>Search:</strong> Shop, Learn, and Journal pages become eligible to rank for product and education queries — not only the homepage.</li>
+    <li><strong>Sharing:</strong> Direct links to products and articles work reliably for customers and partners.</li>
+    <li><strong>AI visibility:</strong> Cleaner entity + consistent answers increase the chance Auryx is cited in AI search results.</li>
+    <li><strong>Trust:</strong> One clear positioning story reduces confusion for customers and algorithms.</li>
+  </ul>
+
+  <h2>What we are not changing yet</h2>
+  <div class="note">
+    We are not recommending a full redesign or a large content rewrite as the first step.
+    The priority is <strong>technical discoverability and accurate structured signals</strong>.
+    Content expansion can follow once pages are reliably crawlable.
+  </div>
+
+  <h2>Summary for decision-makers</h2>
+  <table>
+    <thead>
+      <tr><th>Priority</th><th>Area</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Critical</td><td>Technical SEO</td><td>Fix URL routing / hosting so all public pages load for Google and AI</td></tr>
+      <tr><td>High</td><td>Rendering</td><td>Deliver real HTML for key pages (not JavaScript-only)</td></tr>
+      <tr><td>High</td><td>Messaging</td><td>Align clinic vs research claims across the site</td></tr>
+      <tr><td>High</td><td>Structured data</td><td>Complete brand + product + FAQ markup correctly</td></tr>
+      <tr><td>Medium</td><td>Sitemap &amp; inventory</td><td>Include full product catalog; noindex private flows</td></tr>
+      <tr><td>Medium</td><td>AEO extras</td><td>Add llms.txt; keep expanding physician-authored Q&amp;A</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    <strong>Recommendation:</strong> Approve Phase 1–3 as the next website update package.
+    This sequence unlocks SEO and AI visibility without requiring a visual redesign.
+  </p>
+
+  <p class="footer">
+    This report is based on a review of the live site and current website source as of September 11, 2026.
+    Scores are directional readiness indicators, not Google ranking predictions.
+  </p>
+</body>
+</html>

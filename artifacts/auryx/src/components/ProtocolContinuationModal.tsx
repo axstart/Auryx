@@ -134,7 +134,7 @@ export function ProtocolContinuationModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="bg-card border-border/60 text-foreground max-w-2xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="left-0 right-0 top-auto bottom-0 w-full max-w-none translate-x-0 translate-y-0 max-h-[calc(100dvh-env(safe-area-inset-top))] overflow-y-auto overscroll-contain rounded-t-2xl bg-card border-border/60 text-foreground p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:left-[50%] sm:right-auto sm:top-[50%] sm:bottom-auto sm:max-w-2xl sm:max-h-[90vh] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:p-6 [&>button]:h-11 [&>button]:w-11 [&>button]:grid [&>button]:place-items-center motion-reduce:duration-0">
         <DialogHeader>
           <DialogTitle className="font-serif text-2xl text-foreground mb-1">Continue My Protocol</DialogTitle>
           <p className="text-sm text-muted-foreground">
@@ -172,6 +172,7 @@ export function ProtocolContinuationModal({
                 </label>
                 <Textarea
                   placeholder="e.g. Semaglutide 0.5mg weekly, BPC-157 250mcg daily, CJC-1295 + Ipamorelin 300mcg 5x/week..."
+                  autoComplete="off"
                   className="bg-background/50 border-border/60 min-h-[100px] text-sm resize-none focus:border-primary/50"
                   value={peptides}
                   onChange={e => setPeptides(e.target.value)}
@@ -218,6 +219,8 @@ export function ProtocolContinuationModal({
                 </label>
                 <Input
                   placeholder="e.g. Dr. Smith at XYZ Wellness"
+                  type="text"
+                  autoComplete="organization"
                   className="bg-background/50 border-border/60 h-11 focus:border-primary/50"
                   value={prescribingDetails}
                   onChange={e => setPrescribingDetails(e.target.value)}
@@ -256,17 +259,17 @@ export function ProtocolContinuationModal({
                   {currentQuestion.label}
                 </p>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 min-[380px]:grid-cols-2 gap-3 sm:gap-4">
                 <button
                   onClick={() => handleScreeningAnswer(false)}
-                  className="p-5 rounded-xl border border-border/60 bg-card/30 hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all duration-200 text-center group"
+                  className="min-h-14 p-3 sm:p-5 rounded-xl border border-border/60 bg-card/30 hover:border-emerald-500/50 hover:bg-emerald-500/5 transition-all duration-200 text-center group motion-reduce:transition-none"
                 >
                   <p className="text-lg font-serif text-foreground group-hover:text-emerald-400 transition-colors">No</p>
                   <p className="text-xs text-muted-foreground mt-1">This does not apply to me</p>
                 </button>
                 <button
                   onClick={() => handleScreeningAnswer(true)}
-                  className="p-5 rounded-xl border border-border/60 bg-card/30 hover:border-amber-500/50 hover:bg-amber-500/5 transition-all duration-200 text-center group"
+                  className="min-h-14 p-3 sm:p-5 rounded-xl border border-border/60 bg-card/30 hover:border-amber-500/50 hover:bg-amber-500/5 transition-all duration-200 text-center group motion-reduce:transition-none"
                 >
                   <p className="text-lg font-serif text-foreground group-hover:text-amber-400 transition-colors">Yes</p>
                   <p className="text-xs text-muted-foreground mt-1">This applies to me</p>
@@ -275,7 +278,7 @@ export function ProtocolContinuationModal({
               {screeningIndex > 0 && (
                 <button
                   onClick={() => setScreeningIndex(screeningIndex - 1)}
-                  className="mt-5 flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors"
+                  className="mt-5 min-h-11 flex items-center gap-2 text-xs text-muted-foreground hover:text-primary transition-colors"
                 >
                   <ChevronLeft className="w-3.5 h-3.5" /> Previous question
                 </button>
@@ -327,6 +330,8 @@ export function ProtocolContinuationModal({
                   <label className="text-xs uppercase tracking-wider text-muted-foreground mb-2 block">Full name *</label>
                   <Input
                     placeholder="Your full name"
+                    type="text"
+                    autoComplete="name"
                     className="bg-background/50 border-border/60 h-11 focus:border-primary/50"
                     value={name}
                     onChange={e => setName(e.target.value)}
@@ -336,6 +341,8 @@ export function ProtocolContinuationModal({
                   <label className="text-xs uppercase tracking-wider text-muted-foreground mb-2 block">Email *</label>
                   <Input
                     type="email"
+                    inputMode="email"
+                    autoComplete="email"
                     placeholder="your@email.com"
                     className="bg-background/50 border-border/60 h-11 focus:border-primary/50"
                     value={email}
@@ -346,6 +353,8 @@ export function ProtocolContinuationModal({
                   <label className="text-xs uppercase tracking-wider text-muted-foreground mb-2 block">Phone *</label>
                   <Input
                     type="tel"
+                    inputMode="tel"
+                    autoComplete="tel"
                     placeholder="+1 (555) 000-0000"
                     className="bg-background/50 border-border/60 h-11 focus:border-primary/50"
                     value={phone}
@@ -364,11 +373,11 @@ export function ProtocolContinuationModal({
                   />
                 </div>
               </div>
-              <div className="flex gap-3 pt-1">
+              <div className="sticky bottom-0 flex gap-3 pt-3 bg-card">
                 <Button
                   variant="outline"
                   onClick={() => { setStep("screening"); setScreeningIndex(0); }}
-                  className="border-border/60 text-muted-foreground hover:text-foreground shrink-0"
+                  className="min-h-11 border-border/60 text-muted-foreground hover:text-foreground shrink-0"
                 >
                   <ChevronLeft className="w-4 h-4 mr-1" /> Back
                 </Button>

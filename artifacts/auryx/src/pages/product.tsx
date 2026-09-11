@@ -262,9 +262,9 @@ export default function ProductPage() {
   }
 
   return (
-    <div className="min-h-screen" style={{ background: "#FAFAF8" }}>
+    <div className="min-h-screen pb-24 lg:pb-0" style={{ background: "#FAFAF8" }}>
       {/* Breadcrumb */}
-      <div className="pt-32 pb-4 px-6 md:px-12 border-b border-[#E8E8E4]">
+      <div className="pt-[calc(var(--site-header-height)+1rem)] pb-4 px-4 sm:px-6 md:px-12 border-b border-[#E8E8E4]">
         <div className="container mx-auto max-w-7xl">
           <Link href="/shop" className="inline-flex items-center gap-1.5 text-xs text-[#0A0A0A]/45 hover:text-[#B8962E] transition-colors">
             <ArrowLeft className="w-3 h-3" /> Back to Shop
@@ -272,7 +272,7 @@ export default function ProductPage() {
         </div>
       </div>
 
-      <div className="px-6 md:px-12 py-10">
+      <div className="px-4 sm:px-6 md:px-12 py-6 sm:py-10">
         <div className="container mx-auto max-w-7xl">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 xl:gap-20">
 
@@ -281,12 +281,12 @@ export default function ProductPage() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ duration: 0.5 }}
-              className="lg:sticky lg:top-28 self-start"
+              className="lg:sticky lg:top-[calc(var(--site-header-height)+1rem)] self-start"
             >
               <div
                 className="relative rounded-3xl overflow-hidden flex items-center justify-center"
                 style={{
-                  minHeight: 440,
+                  minHeight: "min(440px, 55dvh)",
                   background: "linear-gradient(160deg, #F9F5EC 0%, #F2EAD6 55%, #EDE2CB 100%)",
                 }}
               >
@@ -306,7 +306,7 @@ export default function ProductPage() {
               </div>
 
               {/* Trust Badges */}
-              <div className="mt-5 grid grid-cols-4 gap-2">
+              <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {TRUST_BADGES.map(b => (
                   <div
                     key={b.label}
@@ -395,7 +395,7 @@ export default function ProductPage() {
                           key={v.label}
                           onClick={() => setSelectedVariantIdx(i)}
                           disabled={variantStock(v.label) === 0}
-                          className={`px-4 py-2 rounded-lg border text-sm font-medium transition-all duration-150 ${
+                          className={`min-h-11 px-4 py-2 rounded-lg border text-sm font-medium transition-all duration-150 ${
                             selectedVariantIdx === i
                               ? "bg-[#0A0A0A] text-white border-[#0A0A0A] shadow-sm"
                               : variantStock(v.label) === 0
@@ -449,7 +449,7 @@ export default function ProductPage() {
                       <button
                         key={n}
                         onClick={() => setQty(n)}
-                        className={`w-10 h-10 rounded-lg border text-sm font-medium transition-all ${
+                        className={`w-11 h-11 rounded-lg border text-sm font-medium transition-all ${
                           qty === n
                             ? "bg-[#0A0A0A] text-white border-[#0A0A0A]"
                             : "border-[#E8E8E4] text-[#0A0A0A]/60 hover:border-[#0A0A0A]/40"
@@ -558,6 +558,28 @@ export default function ProductPage() {
             </motion.div>
           </div>
         </div>
+      </div>
+
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#E8E8E4] bg-white/95 px-[max(1rem,var(--safe-area-left))] pt-3 pb-[max(0.75rem,var(--safe-area-bottom))] backdrop-blur lg:hidden">
+        <button
+          onClick={handleAddToCart}
+          disabled={selectedOutOfStock}
+          className={`flex min-h-12 w-full items-center justify-center gap-2 rounded-xl px-4 text-sm font-medium uppercase tracking-wide transition-colors ${
+            selectedOutOfStock
+              ? "cursor-not-allowed bg-[#0A0A0A]/10 text-[#0A0A0A]/35"
+              : added
+                ? "bg-[#B8962E] text-white"
+                : "bg-[#0A0A0A] text-white"
+          }`}
+        >
+          {selectedOutOfStock ? (
+            "Out of Stock"
+          ) : added ? (
+            <><CheckCircle2 className="h-4 w-4" /> Added to Cart</>
+          ) : (
+            <><ShoppingCart className="h-4 w-4" /> Add to Cart — ${((displayPriceCents * qty) / 100).toFixed(2)}</>
+          )}
+        </button>
       </div>
     </div>
   );

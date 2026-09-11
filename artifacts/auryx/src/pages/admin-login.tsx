@@ -33,10 +33,10 @@ export default function AdminLogin() {
   if (loading) return null;
 
   return (
-    <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center px-4">
+    <div className="flex min-h-[100dvh] items-center justify-center bg-[#0A0A0A] px-4 py-8 sm:px-6">
       <div className="w-full max-w-sm">
         {/* Logo */}
-        <div className="text-center mb-10">
+        <div className="mb-8 text-center sm:mb-10">
           <span className="font-['Cormorant_Garamond'] text-3xl font-light tracking-[0.25em] text-[#C9A844]">
             AURYX
           </span>
@@ -52,11 +52,12 @@ export default function AdminLogin() {
             </label>
             <input
               type="email"
+              autoComplete="username"
+              inputMode="email"
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
-              autoFocus
-              className="w-full bg-white/5 border border-white/10 text-white rounded px-4 py-3 text-sm font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/60 transition-colors placeholder-white/20"
+              className="min-h-11 w-full bg-white/5 border border-white/10 text-white rounded px-4 py-3 text-base sm:text-sm font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/60 transition-colors placeholder-white/20"
               placeholder="you@auryxlife.com"
             />
           </div>
@@ -67,10 +68,11 @@ export default function AdminLogin() {
             </label>
             <input
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={e => setPassword(e.target.value)}
               required
-              className="w-full bg-white/5 border border-white/10 text-white rounded px-4 py-3 text-sm font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/60 transition-colors placeholder-white/20"
+              className="min-h-11 w-full bg-white/5 border border-white/10 text-white rounded px-4 py-3 text-base sm:text-sm font-['DM_Sans'] focus:outline-none focus:border-[#C9A844]/60 transition-colors placeholder-white/20"
               placeholder="••••••••"
             />
           </div>
@@ -89,7 +91,7 @@ export default function AdminLogin() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black text-sm tracking-widest uppercase font-medium rounded py-3 transition-colors font-['DM_Sans'] mt-2"
+            className="min-h-11 w-full bg-[#C9A844] hover:bg-[#b8973d] disabled:opacity-50 text-black text-sm tracking-widest uppercase font-medium rounded py-3 transition-colors font-['DM_Sans'] mt-2"
           >
             {submitting ? "Signing in…" : "Sign In"}
           </button>
