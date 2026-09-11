@@ -1,0 +1,16 @@
+exports
+.git
+.cache
+.local
+attached_assets
+**/*.zip
+**/*.tar.gz
+**/*.tgz
+.env*
+!.env.example
+.vercel
+artifacts/auryx/.vercel
+artifacts/mockup-sandbox
+artifacts/api-server/dist
+node_modules
+**/node_modules

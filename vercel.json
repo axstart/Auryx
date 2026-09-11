@@ -1,0 +1,13 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": "vite",
+  "installCommand": "pnpm install --filter @workspace/auryx...",
+  "buildCommand": "pnpm --filter @workspace/auryx build",
+  "outputDirectory": "artifacts/auryx/dist/public",
+  "build": {
+    "env": {
+      "BASE_PATH": "/",
+      "PORT": "3000"
+    }
+  }
+}

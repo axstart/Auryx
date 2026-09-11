@@ -163,6 +163,9 @@ importers:
       '@rollup/rollup-win32-x64-msvc':
         specifier: ^4.63.1
         version: 4.63.1
+      lightningcss-win32-x64-msvc:
+        specifier: 1.31.1
+        version: 1.31.1
       prettier:
         specifier: ^3.8.1
         version: 3.8.1
@@ -5739,8 +5742,7 @@ snapshots:
   lightningcss-linux-x64-gnu@1.31.1:
     optional: true
 
-  lightningcss-win32-x64-msvc@1.31.1:
-    optional: true
+  lightningcss-win32-x64-msvc@1.31.1: {}
 
   lightningcss@1.31.1:
     dependencies:
