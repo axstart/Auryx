@@ -14,10 +14,11 @@ import { fileURLToPath } from "node:url";
 import puppeteer from "puppeteer-core";
 
 // Headless Chrome + @sparticuz/chromium routinely times out on Vercel Linux.
-// Ship the Vite SPA + vercel.json rewrites instead of failing the production build.
+// seo-shell.mjs already wrote unique titles/canonicals/JSON-LD for every
+// sitemap route. Skip Chrome on Vercel so the production build stays green.
 if (process.env.VERCEL) {
   console.log(
-    "Skipping prerender on Vercel (VERCEL is set). Shipping the SPA; crawlers get client-rendered pages and vercel.json rewrites serve /about, /shop, and other routes.",
+    "Skipping Chromium prerender on Vercel. SEO shells from seo-shell.mjs are already in dist/public/<route>/index.html.",
   );
   process.exit(0);
 }

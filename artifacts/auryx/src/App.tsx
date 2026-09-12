@@ -26,6 +26,7 @@ import ChatWidget from "@/components/ChatWidget";
 import CartDrawer from "@/components/CartDrawer";
 import ReconstitutionKitPopup from "@/components/ReconstitutionKitPopup";
 import AgeGate from "@/components/AgeGate";
+import Analytics from "@/components/Analytics";
 import { CartProvider, useCart } from "@/context/CartContext";
 import { AdminAuthProvider } from "@/context/AdminAuthContext";
 import { LanguageProvider, initialLang } from "@/i18n";
@@ -101,6 +102,7 @@ function App() {
             <AdminAuthProvider>
               <WouterRouter base={routerBase}>
                 <ScrollToTop />
+                <Analytics />
                 <Router />
               </WouterRouter>
               <AgeGate />
