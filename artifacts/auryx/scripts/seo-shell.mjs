@@ -64,7 +64,7 @@ const STATIC_PAGES = {
   "/": {
     title: "Auryx | MD-Led Peptide Therapy — Nationwide",
     description:
-      "Auryx is an MD-led precision longevity clinic offering medically supervised peptide therapy nationwide via telemedicine. Founded and led by a licensed MD specializing in regenerative medicine. Book a private consultation today.",
+      "Auryx offers MD-led peptide therapy nationwide via telemedicine with physician-supervised protocols.",
     keepHomeFaq: true,
     htmlLang: "en",
     ogLocale: "en_US",
@@ -72,7 +72,7 @@ const STATIC_PAGES = {
   "/es": {
     title: "Auryx | Terapia con Péptidos Dirigida por Médicos — En Todo EE. UU.",
     description:
-      "Auryx es una clínica de longevidad de precisión dirigida por un médico, que ofrece terapia con péptidos bajo supervisión médica en todo EE. UU. mediante telemedicina. Fundada y dirigida por un médico titulado especializado en medicina regenerativa. Reserva hoy tu consulta privada.",
+      "Auryx ofrece terapia con péptidos dirigida por médicos en todo EE. UU. mediante telemedicina.",
     keepHomeFaq: false,
     htmlLang: "es",
     ogLocale: "es_ES",
@@ -80,7 +80,7 @@ const STATIC_PAGES = {
   "/pt": {
     title: "Auryx | Terapia com Peptídeos Conduzida por Médicos — Em Todos os EUA",
     description:
-      "A Auryx é uma clínica de longevidade de precisão liderada por um médico, oferecendo terapia com peptídeos sob supervisão médica em todos os EUA via telemedicina. Fundada e conduzida por um médico licenciado especializado em medicina regenerativa. Agende hoje sua consulta particular.",
+      "A Auryx oferece terapia com peptídeos conduzida por médicos em todos os EUA via telemedicina.",
     keepHomeFaq: false,
     htmlLang: "pt-BR",
     ogLocale: "pt_BR",
@@ -129,6 +129,16 @@ const STATIC_PAGES = {
     title: "Privacy Policy | Auryx",
     description:
       "Auryx Privacy Policy. Learn how we collect, use, and protect your personal information when using auryxlife.com.",
+  },
+  "/contact": {
+    title: "Contact Auryx | MD-Led Peptide Therapy",
+    description:
+      "Contact Auryx for MD-led peptide therapy nationwide. Email the clinic team or book a private telemedicine consultation.",
+  },
+  "/sources": {
+    title: "Sources & Citations | Auryx",
+    description:
+      "Citations and primary sources behind Auryx educational pages on MD-led peptide therapy and longevity medicine.",
   },
 };
 
@@ -341,7 +351,35 @@ function injectNoscript(html, title, description) {
   if (html.includes("<noscript>")) {
     return html.replace(/<noscript>[\s\S]*?<\/noscript>/, block);
   }
-  return html.replace('<div id="root"></div>', `<div id="root"></div>\n    ${block}`);
+  return html.replace("</body>", `    ${block}\n  </body>`);
+}
+
+function pageGeoInner(title, description) {
+  return `<p class="byline">Medically reviewed by <a rel="author" href="https://www.auryxlife.com/about">Romy Fontoura, MD</a></p>
+        <h1>${esc(title)}</h1>
+        <p>${esc(description)}</p>
+        <nav>
+          <a href="https://www.auryxlife.com/">Home</a>
+          <a href="https://www.auryxlife.com/shop">Shop</a>
+          <a href="https://www.auryxlife.com/learn">Learn</a>
+          <a href="https://www.auryxlife.com/contact">Contact</a>
+          <a href="https://www.auryxlife.com/sources">Sources</a>
+          <a href="https://www.auryxlife.com/privacy">Privacy</a>
+          <a href="https://www.auryxlife.com/terms">Terms</a>
+        </nav>`;
+}
+
+function setGeoStatic(html, inner) {
+  if (/<article id="geo-static">/.test(html)) {
+    return html.replace(
+      /<article id="geo-static">[\s\S]*?<\/article>/,
+      `<article id="geo-static">\n        ${inner}\n      </article>`,
+    );
+  }
+  return html.replace(
+    /<div id="root">[\s\S]*?<\/div>/,
+    `<div id="root"><article id="geo-static">${inner}</article></div>`,
+  );
 }
 
 function faqJsonLd(pairs) {
@@ -583,7 +621,12 @@ function applySeo(html, route, page) {
     html = injectJsonLd(html, item.id, item.data);
   }
 
-  html = injectNoscript(html, page.title, page.description);
+  if (!page.keepHomeFaq) {
+    html = setGeoStatic(html, pageGeoInner(page.title, page.description));
+    html = injectNoscript(html, page.title, page.description);
+  } else {
+    html = html.replace(/<noscript>[\s\S]*?<\/noscript>\s*/g, "");
+  }
   return html;
 }
 

@@ -28,6 +28,8 @@ const en = {
     disclaimer:
       "Auryx is an MD-led telemedicine practice. Product eligibility, labeling, and fulfillment follow applicable U.S. regulations and may include research-designated compounds. Nothing on this website diagnoses, treats, cures, or prevents any disease, and content here does not replace personalized medical advice from a licensed clinician.",
     copyright: "© 2026 Auryx. All rights reserved.",
+    contact: "Contact",
+    sources: "Sources",
     privacy: "Privacy",
     terms: "Terms",
     disclaimerLink: "Disclaimer",
@@ -47,14 +49,14 @@ const en = {
   home: {
     seoTitle: "Auryx | MD-Led Peptide Therapy — Nationwide",
     seoDescription:
-      "Auryx is an MD-led precision longevity clinic offering medically supervised peptide therapy nationwide via telemedicine. Founded and led by a licensed MD specializing in regenerative medicine. Book a private consultation today.",
+      "Auryx offers MD-led peptide therapy nationwide via telemedicine with physician-supervised protocols.",
     hero: {
       eyebrow: "Precision Peptides",
       title1: "Physician-backed protocols.",
       titleEm: "Real results.",
       title2: "Delivered fast.",
       subtitle:
-        "Feel your best, recover faster, and perform at your peak — free shipping on every order.*",
+        "Auryx delivers MD-led peptide therapy nationwide. Feel your best, recover faster, and perform at your peak — free shipping on every order.*",
       ctaFind: "Find Your Peptides",
       ctaExplore: "Explore Collections",
       trustLine: "Third-party tested · Discreet shipping · Concierge guidance",
@@ -190,6 +192,8 @@ const es: Dict = {
     disclaimer:
       "Auryx es una práctica de telemedicina dirigida por médicos. La elegibilidad, el etiquetado y el despacho de los productos siguen las regulaciones aplicables de EE. UU. y pueden incluir compuestos designados para investigación. Nada en este sitio web diagnostica, trata, cura ni previene ninguna enfermedad, y el contenido no reemplaza el consejo médico personalizado de un profesional acreditado.",
     copyright: "© 2026 Auryx. Todos los derechos reservados.",
+    contact: "Contacto",
+    sources: "Fuentes",
     privacy: "Privacidad",
     terms: "Términos",
     disclaimerLink: "Aviso Legal",
@@ -209,7 +213,7 @@ const es: Dict = {
   home: {
     seoTitle: "Auryx | Terapia con Péptidos Dirigida por Médicos — En Todo EE. UU.",
     seoDescription:
-      "Auryx es una clínica de longevidad de precisión dirigida por un médico, que ofrece terapia con péptidos bajo supervisión médica en todo EE. UU. mediante telemedicina. Fundada y dirigida por un médico titulado especializado en medicina regenerativa. Reserva hoy tu consulta privada.",
+      "Auryx ofrece terapia con péptidos dirigida por médicos en todo EE. UU. mediante telemedicina.",
     hero: {
       eyebrow: "Péptidos de Precisión",
       title1: "Protocolos respaldados por médicos.",
@@ -391,6 +395,8 @@ const pt: Dict = {
     disclaimer:
       "A Auryx é uma prática de telemedicina liderada por médicos. A elegibilidade, a rotulagem e o envio dos produtos seguem as regulamentações aplicáveis dos EUA e podem incluir compostos designados para pesquisa. Nada neste site diagnostica, trata, cura ou previne qualquer doença, e o conteúdo não substitui a orientação médica personalizada de um profissional licenciado.",
     copyright: "© 2026 Auryx. Todos os direitos reservados.",
+    contact: "Contato",
+    sources: "Fontes",
     privacy: "Privacidade",
     terms: "Termos",
     disclaimerLink: "Aviso Legal",
@@ -410,7 +416,7 @@ const pt: Dict = {
   home: {
     seoTitle: "Auryx | Terapia com Peptídeos Conduzida por Médicos — Em Todos os EUA",
     seoDescription:
-      "A Auryx é uma clínica de longevidade de precisão liderada por um médico, oferecendo terapia com peptídeos sob supervisão médica em todos os EUA via telemedicina. Fundada e conduzida por um médico licenciado especializado em medicina regenerativa. Agende hoje sua consulta particular.",
+      "A Auryx oferece terapia com peptídeos conduzida por médicos em todos os EUA via telemedicina.",
     hero: {
       eyebrow: "Peptídeos de Precisão",
       title1: "Protocolos com respaldo médico.",

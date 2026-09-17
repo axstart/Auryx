@@ -323,7 +323,7 @@ export default function Home() {
               <em className="not-italic text-[#C9A844]">{t("home.hero.titleEm")}</em>{" "}
               {t("home.hero.title2")}
             </h1>
-            <p className="text-white/55 text-sm md:text-base leading-relaxed mb-10 max-w-md">
+            <p data-geo-chunk="definition" className="text-white/55 text-sm md:text-base leading-relaxed mb-10 max-w-md">
               {t("home.hero.subtitle")}
             </p>
             <div className="flex flex-col gap-3 max-w-[300px]">
@@ -343,6 +343,9 @@ export default function Home() {
             {/* Trust line */}
             <p className="mt-7 text-[10px] text-white/30 tracking-[0.12em] uppercase">
               {t("home.hero.trustLine")}
+            </p>
+            <p className="byline mt-3 text-[11px] text-white/35">
+              Medically reviewed by <Link href="/about" rel="author" className="text-[#C9A844] hover:underline">Romy Fontoura, MD</Link>
             </p>
           </motion.div>
         </div>

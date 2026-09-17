@@ -19,7 +19,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Auryx" />
     <title>Auryx | MD-Led Peptide Therapy — Nationwide</title>
-    <meta name="description" content="Auryx is an MD-led precision longevity clinic offering medically supervised peptide therapy nationwide via telemedicine. Founded and led by a licensed MD specializing in regenerative medicine. Book a private consultation today." />
+    <meta name="description" content="Auryx offers MD-led peptide therapy nationwide via telemedicine with physician-supervised protocols." />
     <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
     <meta name="author" content="Romy Fontoura, MD" />
     <meta name="geo.region" content="US" />
@@ -61,11 +61,12 @@
           "email": "info@auryxlife.com",
           "description": "MD-led precision longevity clinic offering medically supervised peptide therapy protocols nationwide via telemedicine.",
           "foundingDate": "2024",
+          "sameAs": [
+            "https://www.auryxlife.com/about",
+            "https://www.auryxlife.com/blog"
+          ],
           "founder": {
-            "@type": "Person",
-            "name": "Romy Fontoura, MD",
-            "jobTitle": "Medical Doctor",
-            "hasCredential": "MD"
+            "@id": "https://www.auryxlife.com/#physician"
           },
           "areaServed": {
             "@type": "Country",
@@ -124,14 +125,25 @@
             "name": "United States"
           },
           "founder": {
-            "@type": "Person",
-            "name": "Romy Fontoura, MD",
-            "jobTitle": "Medical Doctor",
-            "hasCredential": "MD"
+            "@id": "https://www.auryxlife.com/#physician"
           },
           "parentOrganization": {
             "@id": "https://www.auryxlife.com/#organization"
           }
+        },
+        {
+          "@type": "Person",
+          "@id": "https://www.auryxlife.com/#physician",
+          "name": "Romy Fontoura, MD",
+          "jobTitle": "Founder & Medical Director",
+          "hasCredential": "MD",
+          "url": "https://www.auryxlife.com/about",
+          "worksFor": {
+            "@id": "https://www.auryxlife.com/#organization"
+          },
+          "sameAs": [
+            "https://www.auryxlife.com/about"
+          ]
         },
         {
           "@type": "WebSite",
@@ -163,8 +175,46 @@
           "about": {
             "@id": "https://www.auryxlife.com/#medicalbusiness"
           },
-          "description": "Auryx is an MD-led precision longevity clinic offering medically supervised peptide therapy nationwide via telemedicine.",
+          "description": "Auryx offers MD-led peptide therapy nationwide via telemedicine with physician-supervised protocols.",
           "inLanguage": "en-US"
+        },
+        {
+          "@type": "BreadcrumbList",
+          "@id": "https://www.auryxlife.com/#breadcrumb",
+          "itemListElement": [
+            {
+              "@type": "ListItem",
+              "position": 1,
+              "name": "Home",
+              "item": "https://www.auryxlife.com/"
+            }
+          ]
+        },
+        {
+          "@type": "HowTo",
+          "@id": "https://www.auryxlife.com/#howto",
+          "name": "How to start MD-led peptide therapy at Auryx",
+          "description": "Start a physician-supervised peptide therapy protocol with Auryx through nationwide telemedicine.",
+          "step": [
+            {
+              "@type": "HowToStep",
+              "position": 1,
+              "name": "Book a consultation",
+              "text": "Complete a private intake so an Auryx clinician can review your goals, history, and current protocol if you already have one."
+            },
+            {
+              "@type": "HowToStep",
+              "position": 2,
+              "name": "Clinical review",
+              "text": "A licensed MD reviews your case and designs or approves a personalized peptide therapy protocol."
+            },
+            {
+              "@type": "HowToStep",
+              "position": 3,
+              "name": "Fulfillment and follow-up",
+              "text": "Approved compounds ship from regulated US pharmacies, and the clinical team monitors your protocol."
+            }
+          ]
         }
       ]
     }
@@ -267,7 +317,37 @@
     <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <article id="geo-static">
+        <p class="byline">Medically reviewed by <a rel="author" href="/about">Romy Fontoura, MD</a></p>
+        <h1>Auryx | MD-Led Peptide Therapy — Nationwide</h1>
+        <img src="/opengraph.jpg" width="1200" height="630" alt="Auryx MD-led peptide therapy nationwide" />
+        <div data-geo-chunk="definition">
+          <p>Auryx is an MD-led peptide therapy clinic that serves patients nationwide via telemedicine. Founded and led by Romy Fontoura, MD, Auryx designs physician-supervised protocols for longevity, recovery, metabolic health, and cognitive performance. Every protocol is prescribed by a licensed physician and fulfilled through regulated United States compounding pharmacies.</p>
+        </div>
+        <p>Auryx exists for people who want medically supervised peptide therapy without an in-office visit. Eligible patients complete a remote consultation, receive a protocol matched to their biology, and get discreet delivery across the United States. The practice does not replace emergency care or personal advice from your own clinician, and compounds are provided only when a licensed MD determines they are appropriate.</p>
+        <h2>How MD-led peptide therapy works at Auryx</h2>
+        <p>Peptide therapy uses short chains of amino acids as targeted signaling tools. At Auryx, that work starts with history, goals, and, when indicated, biomarker review. The clinician then selects compounds, dosing, and follow-up rather than offering an anonymous catalog checkout. Patients already on a protocol from another clinic can usually transfer after a brief medical screen.</p>
+        <p>Quality standards include third-party testing, certificates of analysis, and US-based fulfillment. Auryx is a self-pay telemedicine practice. Pricing depends on the compounds, dose, and duration discussed in consultation. Explore the <a href="/shop">shop</a>, read the <a href="/learn">Learn</a> guides, or use the <a href="/protocol-finder">protocol finder</a> if you are not sure where to start.</p>
+        <h2>Are peptides safe?</h2>
+        <p data-geo-chunk="faq-safety">Peptide therapy is safest when prescribed by a licensed MD and sourced from regulated US compounding pharmacies. Auryx protocols are physician-prescribed, third-party tested, and monitored during treatment. Safety still depends on screening, dose, and medical follow-up, which is why Auryx does not sell unsupervised peptide products.</p>
+        <h2>Who leads Auryx?</h2>
+        <p>Romy Fontoura, MD, is the founder and medical director. She oversees protocol design, educational review, and quality standards. Read more on the <a href="/about">about</a> page, then browse physician-authored articles in the <a href="/blog">journal</a>. For citations behind educational claims, see the <a href="/sources">sources</a> page. For appointments and clinic questions, use the <a href="/contact">contact</a> page or email info@auryxlife.com.</p>
+        <h2>How to start a protocol</h2>
+        <p>Book a consultation, complete clinical review, and receive fulfillment with follow-up. Most patients notice sleep or energy changes within two to four weeks; body-composition changes often take one to three months. No in-person visit is required for eligible patients nationwide. Review <a href="/privacy">privacy</a> and <a href="/terms">terms</a> before you enroll, and see <a href="/our-method">our method</a> for the clinical process.</p>
+        <p>Educational pages on this site cite public medical literature rather than inventing outcomes. For primary research databases, consult <a href="https://pubmed.ncbi.nlm.nih.gov/" rel="noopener noreferrer">PubMed</a> and federal guidance on compounding and telehealth from the <a href="https://www.fda.gov/" rel="noopener noreferrer">US Food and Drug Administration</a>. Auryx will confirm availability for your state during intake.</p>
+        <nav>
+          <a href="/shop">Shop</a>
+          <a href="/learn">Learn</a>
+          <a href="/blog">Journal</a>
+          <a href="/about">About</a>
+          <a href="/contact">Contact</a>
+          <a href="/sources">Sources</a>
+          <a href="/privacy">Privacy</a>
+          <a href="/terms">Terms</a>
+        </nav>
+      </article>
+    </div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
