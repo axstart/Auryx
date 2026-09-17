@@ -19,6 +19,10 @@ import adminDashboardRouter from "./adminDashboard/index.js";
 import adminPatientsRouter from "./adminPatients/index.js";
 import consultationFormRouter from "./consultation/index.js";
 import couponsRouter from "./coupons.js";
+import funnelEventsRouter from "./funnelEvents.js";
+import coaRouter from "./coa/index.js";
+import crmReportsRouter from "./crmReports.js";
+import marketingRouter from "./marketing/index.js";
 
 const router: IRouter = Router();
 
@@ -42,5 +46,9 @@ router.use(adminDashboardRouter);
 router.use(adminPatientsRouter);
 router.use(consultationFormRouter);
 router.use(couponsRouter);
+router.use(funnelEventsRouter);
+router.use(coaRouter);
+router.use(crmReportsRouter);
+router.use(marketingRouter);
 
 export default router;

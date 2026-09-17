@@ -9,6 +9,8 @@ import Admin from "@/pages/admin";
 import AdminLogin from "@/pages/admin-login";
 import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
+import Contact from "@/pages/contact";
+import Sources from "@/pages/sources";
 import ShopPage from "@/pages/shop";
 import ProductPage from "@/pages/product";
 import CheckoutPage from "@/pages/checkout";
@@ -20,6 +22,7 @@ import NewYorkPage from "@/pages/new-york";
 import LearnPage from "@/pages/learn";
 import BlogPage from "@/pages/blog";
 import BlogPostPage from "@/pages/blog-post";
+import VerifyCoaPage from "@/pages/verify-coa";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import ChatWidget from "@/components/ChatWidget";
@@ -27,6 +30,7 @@ import CartDrawer from "@/components/CartDrawer";
 import ReconstitutionKitPopup from "@/components/ReconstitutionKitPopup";
 import AgeGate from "@/components/AgeGate";
 import Analytics from "@/components/Analytics";
+import WebVitals from "@/components/WebVitals";
 import { CartProvider, useCart } from "@/context/CartContext";
 import { AdminAuthProvider } from "@/context/AdminAuthContext";
 import { LanguageProvider, initialLang } from "@/i18n";
@@ -80,6 +84,9 @@ function Router() {
               <Route path="/checkout" component={CheckoutPage} />
               <Route path="/terms" component={Terms} />
               <Route path="/privacy" component={Privacy} />
+              <Route path="/contact" component={Contact} />
+              <Route path="/sources" component={Sources} />
+              <Route path="/verify-coa" component={VerifyCoaPage} />
               <Route component={NotFound} />
             </Switch>
           </main>
@@ -103,6 +110,7 @@ function App() {
               <WouterRouter base={routerBase}>
                 <ScrollToTop />
                 <Analytics />
+                <WebVitals />
                 <Router />
               </WouterRouter>
               <AgeGate />

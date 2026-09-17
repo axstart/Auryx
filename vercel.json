@@ -10,6 +10,14 @@
       "PORT": "3000"
     }
   },
+  "redirects": [
+    { "source": "/coa", "destination": "/verify-coa", "permanent": true },
+    { "source": "/verify", "destination": "/verify-coa", "permanent": true },
+    { "source": "/certificate-of-analysis", "destination": "/verify-coa", "permanent": true },
+    { "source": "/peptides", "destination": "/shop", "permanent": true },
+    { "source": "/products", "destination": "/shop", "permanent": true },
+    { "source": "/protocol", "destination": "/protocol-finder", "permanent": true }
+  ],
   "rewrites": [
     {
       "source": "/((?!api/).*)",
@@ -27,6 +35,18 @@
         {
           "key": "Referrer-Policy",
           "value": "strict-origin-when-cross-origin"
+        },
+        {
+          "key": "Strict-Transport-Security",
+          "value": "max-age=31536000; includeSubDomains; preload"
+        },
+        {
+          "key": "Permissions-Policy",
+          "value": "camera=(), microphone=(), geolocation=()"
+        },
+        {
+          "key": "Content-Security-Policy-Report-Only",
+          "value": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://www.googletagmanager.com https://www.google-analytics.com https://vault.paymentnode.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: https: blob:; connect-src 'self' https://www.google-analytics.com https://analytics.google.com https://*.auryxlife.com https://vault.paymentnode.io https://*.sentry.io; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
         }
       ]
     }

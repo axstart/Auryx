@@ -203,6 +203,13 @@ router.post("/checkout/place-order", async (req, res) => {
     return;
   }
 
+  try {
+    const { onOrderPaidForMarketing } = await import("../marketing/index.js");
+    await onOrderPaidForMarketing(email, customerName);
+  } catch (err) {
+    req.log.warn({ err }, "Marketing enrollment after order failed");
+  }
+
   // Deduct inventory stock (items are reserved)
   const stockBySlug = new Map<string, number>();
   for (const item of lineItems) {
@@ -389,6 +396,13 @@ router.post("/checkout/charge", async (req, res) => {
   }
 
   req.log.info({ orderId: order.id, payment_id: chargeResult.id, email }, "Order created via PaymentNode");
+
+  try {
+    const { onOrderPaidForMarketing } = await import("../marketing/index.js");
+    await onOrderPaidForMarketing(email, customerName);
+  } catch (err) {
+    req.log.warn({ err }, "Marketing enrollment after order failed");
+  }
 
   // Deduct inventory stock
   const stockBySlug = new Map<string, number>();

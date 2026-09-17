@@ -1,5 +1,6 @@
 import { createContext, useContext, useState, useEffect, useCallback } from "react";
 import type { CartItem, ProductSummary } from "@/types/shop";
+import { trackAddToCart } from "@/lib/analytics";
 
 function makeCartKey(slug: string, variantLabel?: string): string {
   return variantLabel ? `${slug}:${variantLabel}` : slug;
@@ -98,6 +99,14 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     if (needsKit) {
       setKitPopupOpen(true);
     }
+
+    const unitPrice = variantPriceCents ?? product.priceCents;
+    trackAddToCart({
+      slug: product.slug,
+      name: product.name,
+      priceCents: unitPrice,
+      quantity,
+    });
 
     setIsOpen(true);
   }, [items]);

@@ -8,6 +8,13 @@
       "when": 1784240183018,
       "tag": "0000_sturdy_genesis",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1789650000000,
+      "tag": "0001_contract_gap_modules",
+      "breakpoints": true
     }
   ]
 }

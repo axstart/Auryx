@@ -12,7 +12,9 @@ export interface AdminUser {
 interface AdminAuthContextValue {
   user: AdminUser | null;
   loading: boolean;
-  login: (email: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<{ mfaRequired: boolean; email?: string }>;
+  verifyMfa: (otp: string) => Promise<void>;
+  resendMfa: () => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -24,8 +26,8 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     fetch("/api/admin/auth/me", { credentials: "include" })
-      .then(r => r.ok ? r.json() : null)
-      .then(data => setUser(data))
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => setUser(data))
       .catch(() => setUser(null))
       .finally(() => setLoading(false));
   }, []);
@@ -44,7 +46,37 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
       throw err;
     }
     const data = await r.json();
+    if (data.mfaRequired) {
+      return { mfaRequired: true, email: data.email as string };
+    }
     setUser(data);
+    return { mfaRequired: false };
+  }
+
+  async function verifyMfa(otp: string) {
+    const r = await fetch("/api/admin/auth/verify-mfa", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify({ otp }),
+    });
+    if (!r.ok) {
+      const body = await r.json().catch(() => ({}));
+      throw new Error(body.error ?? "MFA verification failed");
+    }
+    const data = await r.json();
+    setUser(data);
+  }
+
+  async function resendMfa() {
+    const r = await fetch("/api/admin/auth/resend-mfa", {
+      method: "POST",
+      credentials: "include",
+    });
+    if (!r.ok) {
+      const body = await r.json().catch(() => ({}));
+      throw new Error(body.error ?? "Could not resend code");
+    }
   }
 
   async function logout() {
@@ -53,7 +85,7 @@ export function AdminAuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AdminAuthContext.Provider value={{ user, loading, login, logout }}>
+    <AdminAuthContext.Provider value={{ user, loading, login, verifyMfa, resendMfa, logout }}>
       {children}
     </AdminAuthContext.Provider>
   );

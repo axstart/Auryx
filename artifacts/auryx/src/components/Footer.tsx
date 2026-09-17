@@ -24,6 +24,7 @@ export default function Footer() {
               { label: "About", href: "/about" },
               { label: t("footer.learn"), href: "/learn" },
               { label: t("footer.pepTalk"), href: "/blog" },
+              { label: "Verify COA", href: "/verify-coa" },
               { label: t("footer.account"), href: "/admin" },
             ].map(l => (
               <Link key={l.href} href={l.href} className="inline-flex min-h-11 items-center text-[11px] uppercase tracking-[0.2em] text-white/40 hover:text-[#C9A844] transition-colors font-medium">
@@ -61,6 +62,8 @@ export default function Footer() {
           <p className="text-[11px] text-white/22">{t("footer.copyright")}</p>
           <div className="flex items-center gap-5">
             {[
+              { label: t("footer.contact"), href: "/contact" },
+              { label: t("footer.sources"), href: "/sources" },
               { label: t("footer.privacy"), href: "/privacy" },
               { label: t("footer.terms"), href: "/terms" },
               { label: t("footer.disclaimerLink"), href: "/disclaimer" },

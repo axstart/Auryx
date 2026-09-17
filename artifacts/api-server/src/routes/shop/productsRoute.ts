@@ -1,8 +1,9 @@
 import { Router } from "express";
-import { isNotNull, inArray } from "drizzle-orm";
+import { isNotNull, inArray, and, eq } from "drizzle-orm";
 import { db } from "@workspace/db";
-import { inventoryItemsTable } from "@workspace/db/schema";
+import { inventoryItemsTable, coaBatchesTable } from "@workspace/db/schema";
 import { PRODUCTS, getProductBySlug } from "./products.js";
+import { seedCoaBatchesFromCatalog } from "../coa/index.js";
 
 const router = Router();
 
@@ -39,8 +40,32 @@ router.get("/products/:slug", async (req, res) => {
     .from(inventoryItemsTable)
     .where(inArray(inventoryItemsTable.slug, [req.params.slug]))
     .limit(1);
+
+  await seedCoaBatchesFromCatalog();
+  const dbCoas = await db
+    .select()
+    .from(coaBatchesTable)
+    .where(
+      and(
+        eq(coaBatchesTable.productSlug, req.params.slug),
+        eq(coaBatchesTable.published, true),
+      ),
+    );
+
+  const coas =
+    dbCoas.length > 0
+      ? dbCoas.map((c) => ({
+          label: c.label,
+          accession: c.accession,
+          lab: c.lab,
+          purity: c.purity ?? undefined,
+          url: c.pdfUrl,
+        }))
+      : product.coas;
+
   res.json({
     ...product,
+    coas,
     regulatory_status: inventory?.regulatoryStatus ?? "Research Only",
   });
 });

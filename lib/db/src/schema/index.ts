@@ -31,3 +31,6 @@ export * from "./emailVerifications";
 export * from "./paymentEvents";
 export * from "./otpRateLimits";
 export * from "./consultationForms";
+export * from "./funnelEvents";
+export * from "./coaBatches";
+export * from "./marketing";

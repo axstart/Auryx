@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo, type FormEvent } from "react";
 import { useLocation } from "wouter";
 import { useAdminAuth } from "@/context/AdminAuthContext";
 import { motion, AnimatePresence } from "framer-motion";
@@ -408,6 +408,180 @@ function DashboardTab() {
             ))}
           </div>
         )}
+      </div>
+
+      <CrmReportsPanel />
+    </div>
+  );
+}
+
+function CrmReportsPanel() {
+  const { data, loading } = useApi<{
+    totals: {
+      orders: number;
+      revenueCents: number;
+      customers: number;
+      avgLtvCents: number;
+      repeatRatePercent: number;
+    };
+    topCustomers: Array<{ email: string; orderCount: number; ltvCents: number }>;
+    cohorts: Array<{ cohort_month: string; customers: number; cohort_ltv_cents: number }>;
+    segments: Array<{ segment: string; customers: number }>;
+  }>("/admin/crm/reports");
+
+  if (loading) return <Spinner />;
+  if (!data) return null;
+
+  return (
+    <div className="space-y-4 pt-4 border-t border-white/8">
+      <SectionTitle>CRM — LTV &amp; Cohorts</SectionTitle>
+      <div className="grid grid-cols-1 min-[420px]:grid-cols-2 lg:grid-cols-4 gap-3">
+        <MetricCard label="Avg LTV" value={fmt$(data.totals.avgLtvCents)} />
+        <MetricCard label="Repeat rate" value={`${data.totals.repeatRatePercent}%`} />
+        <MetricCard label="Paying customers" value={String(data.totals.customers)} />
+        <MetricCard label="Revenue (window)" value={fmt$(data.totals.revenueCents)} />
+      </div>
+      {data.segments?.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {data.segments.map((s) => (
+            <div key={s.segment} className="px-3 py-2 rounded bg-white/5 text-white/60 text-xs font-['DM_Sans']">
+              {s.segment}: <span className="text-[#C9A844]">{s.customers}</span>
+            </div>
+          ))}
+        </div>
+      )}
+      {data.topCustomers?.length > 0 && (
+        <div className="space-y-2">
+          <p className="text-xs tracking-widest uppercase text-white/30 font-['DM_Sans']">Top customers by LTV</p>
+          {data.topCustomers.slice(0, 8).map((c) => (
+            <div key={c.email} className="flex items-center justify-between bg-white/[0.02] border border-white/8 rounded px-4 py-2">
+              <span className="text-sm text-white/70 font-['DM_Sans'] truncate">{c.email}</span>
+              <span className="text-xs text-white/40 font-['DM_Sans']">{c.orderCount} orders · {fmt$(c.ltvCents)}</span>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function CoaAdminTab() {
+  const { data, loading, reload } = useApi<Array<{
+    id: number;
+    accession: string;
+    productSlug: string;
+    productName: string;
+    label: string;
+    lab: string;
+    purity: string | null;
+    pdfUrl: string;
+    published: boolean;
+  }>>("/admin/coa-batches");
+  const [form, setForm] = useState({
+    accession: "",
+    productSlug: "",
+    productName: "",
+    label: "",
+    lab: "Freedom Diagnostics Testing",
+    purity: "",
+    pdfUrl: "",
+    lotNumber: "",
+  });
+  const [saving, setSaving] = useState(false);
+  const [msg, setMsg] = useState<string | null>(null);
+
+  async function seed() {
+    setMsg(null);
+    const r = await fetch("/api/admin/coa-batches/seed", { method: "POST", credentials: "include" });
+    const body = await r.json().catch(() => ({}));
+    setMsg(r.ok ? `Seeded ${body.inserted ?? 0} rows (0 if already populated)` : body.error ?? "Seed failed");
+    reload();
+  }
+
+  async function save(e: FormEvent) {
+    e.preventDefault();
+    setSaving(true);
+    setMsg(null);
+    try {
+      const r = await fetch("/api/admin/coa-batches", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...form,
+          purity: form.purity || null,
+          lotNumber: form.lotNumber || form.accession,
+        }),
+      });
+      const body = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(body.error ?? "Save failed");
+      setMsg("Saved");
+      setForm({ accession: "", productSlug: "", productName: "", label: "", lab: "Freedom Diagnostics Testing", purity: "", pdfUrl: "", lotNumber: "" });
+      reload();
+    } catch (err: any) {
+      setMsg(err.message ?? "Save failed");
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  if (loading) return <Spinner />;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <SectionTitle>COA Batches</SectionTitle>
+        <button
+          type="button"
+          onClick={seed}
+          className="min-h-10 px-3 rounded border border-white/15 text-xs text-white/60 hover:text-white font-['DM_Sans']"
+        >
+          Seed from catalog
+        </button>
+      </div>
+      {msg && <p className="text-xs text-[#C9A844] font-['DM_Sans']">{msg}</p>}
+      <form onSubmit={save} className="grid grid-cols-1 sm:grid-cols-2 gap-3 bg-white/[0.02] border border-white/8 rounded-lg p-4">
+        {([
+          ["accession", "Accession"],
+          ["lotNumber", "Lot (optional)"],
+          ["productSlug", "Product slug"],
+          ["productName", "Product name"],
+          ["label", "Variant label"],
+          ["lab", "Lab"],
+          ["purity", "Purity"],
+          ["pdfUrl", "PDF URL"],
+        ] as const).map(([key, label]) => (
+          <div key={key}>
+            <label className="block text-[10px] uppercase tracking-wider text-white/35 mb-1 font-['DM_Sans']">{label}</label>
+            <input
+              value={form[key]}
+              onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
+              required={key !== "lotNumber" && key !== "purity" && key !== "productName"}
+              className="min-h-10 w-full rounded bg-white/5 border border-white/10 px-3 text-sm text-white font-['DM_Sans']"
+            />
+          </div>
+        ))}
+        <div className="sm:col-span-2">
+          <button
+            type="submit"
+            disabled={saving}
+            className="min-h-11 px-4 rounded bg-[#C9A844] text-black text-xs uppercase tracking-widest font-medium disabled:opacity-50"
+          >
+            {saving ? "Saving…" : "Upsert COA"}
+          </button>
+        </div>
+      </form>
+      <div className="space-y-2">
+        {(data ?? []).slice(0, 50).map((row) => (
+          <div key={row.id} className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 bg-white/[0.02] border border-white/8 rounded px-4 py-3">
+            <div>
+              <p className="text-sm text-white/80 font-['DM_Sans']">{row.productName || row.productSlug} · {row.label}</p>
+              <p className="text-xs text-white/35 font-['DM_Sans']">{row.accession} · {row.lab}</p>
+            </div>
+            <a href={row.pdfUrl} target="_blank" rel="noreferrer" className="text-xs text-[#C9A844] font-['DM_Sans']">PDF</a>
+          </div>
+        ))}
+        {!data?.length && <EmptyState message="No COA batches yet. Seed from catalog." />}
       </div>
     </div>
   );
@@ -1871,7 +2045,12 @@ function AriaTab() {
         onChange={setSub}
       />
       {sub === "settings" && <AriaSettingsPanel />}
-      {sub === "analytics" && <AriaAnalyticsPanel />}
+      {sub === "analytics" && (
+        <div className="space-y-10">
+          <FunnelAnalyticsPanel />
+          <AriaAnalyticsPanel />
+        </div>
+      )}
       {sub === "escalations" && <EscalationsPanel />}
     </div>
   );
@@ -1940,6 +2119,86 @@ function AriaSettingsPanel() {
         rows={20}
         className="w-full bg-white/[0.03] border border-white/10 text-white/70 text-sm rounded-lg px-4 py-3 font-mono focus:outline-none focus:border-[#C9A844]/30 resize-none leading-relaxed"
       />
+    </div>
+  );
+}
+
+function FunnelAnalyticsPanel() {
+  const { data: summary, loading } = useApi<{
+    total: number;
+    byEvent: { eventName: string; count: number }[];
+    pfSteps: { stepKey: string | null; eventName: string; count: number }[];
+    conversion: { eventName: string; count: number }[];
+  }>("/admin/funnel-events/summary");
+
+  if (loading) return <Spinner />;
+  if (!summary) return <EmptyState message="No funnel analytics yet." />;
+
+  const maxEvent = summary.byEvent[0]?.count ?? 1;
+  const dropOffs = summary.pfSteps.filter((s) => s.eventName === "pf_drop_off");
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <p className="text-xs tracking-widest uppercase text-[#C9A844]/70 mb-3 font-['DM_Sans']">
+          Protocol Finder &amp; Shop Funnel (30 days)
+        </p>
+        <MetricCard label="Total Funnel Events" value={String(summary.total)} />
+      </div>
+
+      {summary.conversion.length > 0 && (
+        <div>
+          <p className="text-xs tracking-widest uppercase text-white/30 mb-3 font-['DM_Sans']">Shop Conversion (unique sessions)</p>
+          <div className="flex flex-wrap gap-2">
+            {summary.conversion.map((c) => (
+              <div key={c.eventName} className="px-3 py-2 rounded bg-white/5 text-white/70 font-['DM_Sans']">
+                <span className="text-xs">{c.eventName}</span>
+                <span className="ml-2 text-sm font-medium text-[#C9A844]">{c.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {dropOffs.length > 0 && (
+        <div>
+          <p className="text-xs tracking-widest uppercase text-white/30 mb-3 font-['DM_Sans']">Finder Drop-offs by Step</p>
+          <div className="space-y-2">
+            {dropOffs.map((d) => (
+              <div key={`${d.stepKey}-${d.eventName}`} className="flex items-center gap-3">
+                <span className="text-white/60 text-sm font-['DM_Sans'] w-40 truncate">{d.stepKey ?? "unknown"}</span>
+                <div className="flex-1 bg-white/5 rounded h-5 overflow-hidden">
+                  <div
+                    className="h-full bg-amber-400/40 rounded"
+                    style={{ width: `${Math.round((d.count / Math.max(dropOffs[0]?.count ?? 1, 1)) * 100)}%` }}
+                  />
+                </div>
+                <span className="text-white/30 text-xs font-['DM_Sans'] w-8 text-right">{d.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {summary.byEvent.length > 0 && (
+        <div>
+          <p className="text-xs tracking-widest uppercase text-white/30 mb-3 font-['DM_Sans']">All Events</p>
+          <div className="space-y-2">
+            {summary.byEvent.map((e) => (
+              <div key={e.eventName} className="flex items-center gap-3">
+                <span className="text-white/60 text-sm font-['DM_Sans'] w-52 truncate">{e.eventName}</span>
+                <div className="flex-1 bg-white/5 rounded h-5 overflow-hidden">
+                  <div
+                    className="h-full bg-[#C9A844]/40 rounded"
+                    style={{ width: `${Math.round((e.count / maxEvent) * 100)}%` }}
+                  />
+                </div>
+                <span className="text-white/30 text-xs font-['DM_Sans'] w-8 text-right">{e.count}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -2596,7 +2855,7 @@ function InfluencersTab() {
 
 // ── Main Layout ───────────────────────────────────────────────────────────────
 
-type Tab = "dashboard" | "orders" | "inventory" | "patients" | "aria" | "users" | "financials" | "influencers";
+type Tab = "dashboard" | "orders" | "inventory" | "patients" | "aria" | "coa" | "users" | "financials" | "influencers";
 
 const ALL_TABS: { id: Tab; label: string; adminOnly?: boolean }[] = [
   { id: "dashboard", label: "Dashboard" },
@@ -2604,6 +2863,7 @@ const ALL_TABS: { id: Tab; label: string; adminOnly?: boolean }[] = [
   { id: "inventory", label: "Inventory" },
   { id: "patients", label: "Patients" },
   { id: "aria", label: "Aria / Chat" },
+  { id: "coa", label: "COA Batches", adminOnly: true },
   { id: "users", label: "User Management", adminOnly: true },
   { id: "financials", label: "Financials", adminOnly: true },
   { id: "influencers", label: "Influencers", adminOnly: true },
@@ -2758,6 +3018,7 @@ export default function Admin() {
               {activeTab === "inventory" && <InventoryTab />}
               {activeTab === "patients" && <PatientsTab />}
               {activeTab === "aria" && <AriaTab />}
+              {activeTab === "coa" && user.role === "admin" && <CoaAdminTab />}
               {activeTab === "users" && user.role === "admin" && <UsersTab />}
               {activeTab === "financials" && user.role === "admin" && <FinancialsTab />}
               {activeTab === "influencers" && user.role === "admin" && <InfluencersTab />}

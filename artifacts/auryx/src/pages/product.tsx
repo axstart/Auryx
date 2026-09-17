@@ -7,6 +7,7 @@ import { Link } from "wouter";
 import { useState, useEffect } from "react";
 import type { Product } from "@/types/shop";
 import { applyPageSeo, siteUrl, SITE_ORIGIN } from "@/lib/seo";
+import { trackViewItem } from "@/lib/analytics";
 
 const PRODUCT_IMAGES: Record<string, string> = {
   "semaglutide": "/products/semaglutide.png",
@@ -141,6 +142,16 @@ export default function ProductPage() {
   useEffect(() => {
     setSelectedVariantIdx(0);
   }, [slug]);
+
+  useEffect(() => {
+    if (!product?.name) return;
+    trackViewItem({
+      slug: product.slug,
+      name: product.name,
+      priceCents: product.priceCents ?? 0,
+      category: product.category,
+    });
+  }, [product?.slug]);
 
   useEffect(() => {
     if (!product?.name) return;
@@ -550,7 +561,11 @@ export default function ProductPage() {
                       ))}
                     </div>
                     <p className="text-[10px] text-[#0A0A0A]/30 mt-3 leading-relaxed">
-                      All certificates are issued by FDA-registered, ISO-accredited third-party analytical laboratories. Results are independently verifiable via the lab's online verification portals.
+                      All certificates are issued by FDA-registered, ISO-accredited third-party analytical laboratories.{" "}
+                      <Link href="/verify-coa" className="text-[#B8962E] hover:underline">
+                        Verify a batch / accession number
+                      </Link>
+                      {" "}or confirm via the lab's online portal.
                     </p>
                   </Accordion>
                 )}

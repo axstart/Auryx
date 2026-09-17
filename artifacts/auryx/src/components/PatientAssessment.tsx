@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useLocation } from "wouter";
 import { useQuery } from "@tanstack/react-query";
@@ -15,6 +15,7 @@ import {
   DialogDescription,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { trackEvent } from "@/lib/analytics";
 
 async function fetchProducts(): Promise<ProductSummary[]> {
   const res = await fetch("/api/products");
@@ -685,6 +686,7 @@ function AIResultScreen({
 
   function handleAdd(product: ProductSummary) {
     addToCart(product);
+    trackEvent("pf_add_recommended_to_cart", { productSlug: product.slug });
     setAddedSlugs(prev => new Set([...prev, product.slug]));
     setTimeout(() => setAddedSlugs(prev => { const s = new Set(prev); s.delete(product.slug); return s; }), 1500);
   }
@@ -869,6 +871,8 @@ export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpe
   const [answers, setAnswers] = useState<Answers>({});
   const [phase, setPhase] = useState<"quiz" | "loading" | "result" | "error" | "medical">("quiz");
   const [aiResult, setAiResult] = useState<ProtocolRecommendation | null>(null);
+  const completedRef = useRef(false);
+  const lastStepRef = useRef<string>("knowledge");
 
   const { mutateAsync: getRecommendation } = useGetProtocolRecommendation();
 
@@ -876,7 +880,22 @@ export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpe
   const totalSteps = sequence.length;
   const currentKey = sequence[stepIndex];
 
+  useEffect(() => {
+    if (phase !== "quiz" || !currentKey) return;
+    lastStepRef.current = currentKey;
+    trackEvent("pf_step_view", { stepKey: currentKey });
+  }, [phase, currentKey]);
+
+  useEffect(() => {
+    return () => {
+      if (!completedRef.current) {
+        trackEvent("pf_drop_off", { stepKey: lastStepRef.current });
+      }
+    };
+  }, []);
+
   const advance = async (key: keyof Answers, value: string | string[]) => {
+    trackEvent("pf_step_complete", { stepKey: key });
     const updated = { ...answers, [key]: value };
     setAnswers(updated);
     const nextSequence = getSequence(updated);
@@ -891,6 +910,7 @@ export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpe
 
     if (hasMedicalFlag) {
       setPhase("medical");
+      completedRef.current = true;
       return;
     }
 
@@ -910,14 +930,21 @@ export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpe
       });
       setAiResult(recommendation);
       setPhase("result");
+      completedRef.current = true;
+      trackEvent("pf_recommendation_shown", {
+        protocol_count: recommendation.protocols?.length ?? 0,
+        protocols: (recommendation.protocols ?? []).map((p) => p.protocol).slice(0, 8),
+      });
     } catch {
       setPhase("error");
+      completedRef.current = true;
     }
   };
 
   const goBack = () => { if (stepIndex > 0) setStepIndex(stepIndex - 1); };
 
   const reset = () => {
+    completedRef.current = false;
     setPhase("quiz");
     setAiResult(null);
     setTimeout(() => {

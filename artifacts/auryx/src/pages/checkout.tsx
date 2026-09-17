@@ -5,6 +5,7 @@ import { useCart } from "@/context/CartContext";
 import { Input } from "@/components/ui/input";
 import { Link, useLocation } from "wouter";
 import { applyPageSeo } from "@/lib/seo";
+import { trackBeginCheckout } from "@/lib/analytics";
 
 // ── PaymentNode client-side tokenization (API 1B) ───────────────────────────
 // Card data is tokenized directly in the browser against PaymentNode's vault
@@ -260,7 +261,10 @@ function PaymentNodePayment({ form, totalCents, couponCode, onSuccess }: Checkou
 
       clearCart();
       if (chargeBody.orderId) {
-        try { localStorage.setItem("auryx_last_order", String(chargeBody.orderId)); } catch {}
+        try {
+          localStorage.setItem("auryx_last_order", String(chargeBody.orderId));
+          localStorage.setItem("auryx_last_order_total", String(totalCents));
+        } catch {}
       }
       onSuccess();
     } catch (err: unknown) {
@@ -410,8 +414,15 @@ export default function CheckoutPage() {
       noindex: true,
     });
   }, []);
+
   const { items, totalCents, totalItems, addToCart } = useCart();
   const [, navigate] = useLocation();
+
+  useEffect(() => {
+    if (totalItems > 0) {
+      trackBeginCheckout(totalCents, totalItems);
+    }
+  }, []);
   const [step, setStep] = useState<Step>("details");
   const [form, setForm] = useState<CheckoutForm>({
     customerName: "", email: "", phone: "", researchField: "",
@@ -589,6 +600,28 @@ export default function CheckoutPage() {
       }
       setVerifiedEmail(form.email.trim().toLowerCase());
       setStep("payment");
+      try {
+        void fetch("/api/marketing/cart-snapshot", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: form.email.trim(),
+            name: form.customerName.trim() || undefined,
+            cartJson: JSON.stringify(
+              items.map((i) => ({
+                slug: i.product.slug,
+                name: i.product.name,
+                quantity: i.quantity,
+                variantLabel: i.variantLabel,
+              })),
+            ),
+            totalCents: checkoutTotalCents,
+          }),
+          keepalive: true,
+        });
+      } catch {
+        // non-blocking
+      }
     } catch {
       setOtpError("Verification failed. Please try again.");
     } finally {

@@ -4,6 +4,7 @@ import { CheckCircle2, ArrowRight, Stethoscope, Loader2, AlertCircle, Check } fr
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { applyPageSeo } from "@/lib/seo";
+import { trackPurchase } from "@/lib/analytics";
 
 const GOALS = [
   "Weight Loss",
@@ -117,6 +118,10 @@ export default function CheckoutSuccessPage() {
     if (stored) {
       const id = parseInt(stored, 10);
       if (!isNaN(id)) setOrderId(id);
+      const totalStored = localStorage.getItem("auryx_last_order_total");
+      const total = totalStored ? parseInt(totalStored, 10) : 0;
+      trackPurchase(stored, Number.isFinite(total) ? total : 0);
+      try { localStorage.removeItem("auryx_last_order_total"); } catch {}
     }
   }, []);
 
