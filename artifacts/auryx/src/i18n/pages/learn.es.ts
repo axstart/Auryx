@@ -1,7 +1,4 @@
-import { learnEn } from "./learn.en";
-
 export const learnEs = {
-  ...learnEn,
   seoTitle: "Enciclopedia de péptidos | Auryx Learn",
   seoDescription:
     "Educación sobre péptidos revisada por médicos — mecanismos, categorías y preguntas frecuentes sobre GLP-1, secretagogos de GH, compuestos de recuperación y más.",
@@ -32,6 +29,14 @@ export const learnEs = {
   introQualityBody:
     "Todos los compuestos provienen de instalaciones de compounding registradas ante la FDA en EE. UU. y se verifican a ≥99 % de pureza mediante análisis HPLC independiente de terceros. Hay un Certificado de Análisis disponible para cada producto.",
   allCategories: "Todas",
+  categories: [
+    "GLP-1 & Metabolic",
+    "Growth Hormone",
+    "Recovery & Regeneration",
+    "Sexual Health & Vitality",
+    "Immune & Cellular Biology",
+    "Neuroprotective & CNS",
+  ],
   categoryLabels: {
     "GLP-1 & Metabolic": "GLP-1 y metabólico",
     "Growth Hormone": "Hormona de crecimiento",
@@ -48,6 +53,7 @@ export const learnEs = {
   typicalUse: "Contexto de uso típico",
   researchNote: "Nota de investigación",
   researchNoteLabel: "Nota de investigación:",
+  rxBadge: "Rx",
   rxRequired: "Rx requerido",
   viewProduct: "Ver en la tienda",
   viewProtocol: "Ver protocolo",

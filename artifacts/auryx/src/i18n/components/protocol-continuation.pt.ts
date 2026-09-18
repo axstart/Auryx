@@ -1,7 +1,4 @@
-import { protocolContinuationEn } from "./protocol-continuation.en";
-
 export const protocolContinuationPt = {
-  ...protocolContinuationEn,
   title: "Continuar meu protocolo",
   subtitle: "Já está em um protocolo? Nossa admissão ágil permite aprovação e dispensação em 24 horas.",
   progressLabels: ["Detalhes do protocolo", "Triagem médica", "Seus dados de contato"],
