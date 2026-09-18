@@ -1,0 +1,3 @@
+These Latin woff2 files are the SIL Open Font License faces
+Cormorant Garamond, DM Sans, and Bebas Neue.
+See https://openfontlicense.org

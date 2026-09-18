@@ -160,6 +160,10 @@ export default function BlogPostPage() {
         <img
           src={post.heroImage}
           alt={post.heroImageAlt}
+          width={1600}
+          height={900}
+          fetchPriority="high"
+          decoding="async"
           className="absolute inset-0 w-full h-full object-cover"
           style={{ objectPosition: "center 25%" }}
         />

@@ -1,7 +1,8 @@
 import { createContext, useContext, type ReactNode } from "react";
-import { translations, type Dict, type Lang } from "./translations";
+import type { Dict } from "./translations.en";
 
-export type { Lang, Dict };
+export type Lang = "en" | "es" | "pt";
+export type { Dict };
 
 /** Vite base path without trailing slash ("" when served from root). */
 const BASE = import.meta.env.BASE_URL.replace(/\/$/, "");
@@ -42,6 +43,19 @@ export const initialLang: Lang =
 
 const LanguageContext = createContext<Lang>("en");
 
+let activeDict: Dict | null = null;
+
+/** Load only the dictionary for the URL language. Call once before render. */
+export async function bootI18n(): Promise<void> {
+  if (initialLang === "es") {
+    activeDict = (await import("./translations.es")).dict;
+  } else if (initialLang === "pt") {
+    activeDict = (await import("./translations.pt")).dict;
+  } else {
+    activeDict = (await import("./translations.en")).dict;
+  }
+}
+
 export function LanguageProvider({
   lang = initialLang,
   children,
@@ -62,10 +76,13 @@ function resolve(obj: unknown, key: string): unknown {
 
 export function useI18n(): { lang: Lang; t: (key: string) => string; dict: Dict } {
   const lang = useContext(LanguageContext);
-  const dict = translations[lang];
+  if (!activeDict) {
+    throw new Error("bootI18n() must run before render");
+  }
+  const current = activeDict;
   const t = (key: string): string => {
-    const value = resolve(dict, key) ?? resolve(translations.en, key);
+    const value = resolve(current, key);
     return typeof value === "string" ? value : key;
   };
-  return { lang, t, dict };
+  return { lang, t, dict: current };
 }

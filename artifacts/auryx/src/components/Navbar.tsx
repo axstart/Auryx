@@ -153,7 +153,7 @@ export default function Navbar() {
           <div className="flex justify-center">
             <Link href="/" className="flex min-h-11 items-center">
               <img
-                src="/logo-transparent.png"
+                src="/logo-transparent.webp"
                 alt="AURYX"
                 className="h-7 md:h-8 w-auto object-contain"
               />

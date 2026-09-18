@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp, ArrowRight, ExternalLink } from "lucide-react";
 import { applyPageSeo, setMeta, SITE_ORIGIN } from "@/lib/seo";
 import { useI18n, langHref } from "@/i18n";
 import { getPeptideBody } from "@/i18n/pages/learn-peptides";
+import { useIsDesktop } from "@/hooks/use-mobile";
 
 /* ─── Data ──────────────────────────────────────────────────────────── */
 
@@ -325,6 +326,7 @@ function FadeIn({ children, delay = 0, className = "" }: { children: React.React
 export default function LearnPage() {
   const { lang, dict } = useI18n();
   const copy = dict.learn;
+  const showDesktopHero = useIsDesktop();
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   useEffect(() => {
@@ -403,12 +405,18 @@ export default function LearnPage() {
       <section className="relative w-full min-h-[88vh] flex items-center overflow-hidden bg-[#0A0A0A]">
         {/* Right-side image */}
         <div className="absolute right-0 top-0 bottom-0 w-[52%] z-0 hidden md:block">
-          <img
-            src="/hero-learn.webp"
-            alt={copy.heroAlt}
-            className="absolute inset-0 w-full h-[115%] object-cover"
-            style={{ objectPosition: "center top", top: "-7%" }}
-          />
+          {showDesktopHero && (
+            <img
+              src="/hero-learn.webp"
+              alt={copy.heroAlt}
+              width={1600}
+              height={2000}
+              fetchPriority="high"
+              decoding="async"
+              className="absolute inset-0 w-full h-[115%] object-cover"
+              style={{ objectPosition: "center top", top: "-7%" }}
+            />
+          )}
           <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.55) 18%, rgba(10,10,10,0.05) 45%, transparent 100%)" }} />
           <div className="absolute inset-0" style={{ background: "linear-gradient(to top, #0A0A0A 0%, transparent 22%)" }} />
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 55% 60% at 55% 38%, rgba(201,168,68,0.07) 0%, transparent 60%)" }} />

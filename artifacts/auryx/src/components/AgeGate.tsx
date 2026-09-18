@@ -1,25 +1,12 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useI18n, langHref } from "@/i18n";
-
-const STORAGE_KEY = "auryx_age_verified";
+import { AGE_STORAGE_KEY } from "@/lib/age-gate";
 
 export default function AgeGate() {
-  const [visible, setVisible] = useState(false);
+  const [visible, setVisible] = useState(true);
   const [declined, setDeclined] = useState(false);
   const { t, lang } = useI18n();
-
-  useEffect(() => {
-    if (window.location.pathname.startsWith("/admin")) return;
-    // Let search/AI crawlers index page content without the age overlay.
-    const ua = navigator.userAgent || "";
-    if (/bot|crawl|spider|slurp|facebookexternalhit|bingpreview|gptbot|claude|perplexity|googleother|bytespider|amazonbot|applebot|duckduckbot/i.test(ua)) {
-      return;
-    }
-    if (!localStorage.getItem(STORAGE_KEY)) {
-      setVisible(true);
-    }
-  }, []);
 
   useEffect(() => {
     if (!visible) return;
@@ -34,7 +21,7 @@ export default function AgeGate() {
   }, [visible]);
 
   const handleEnter = () => {
-    localStorage.setItem(STORAGE_KEY, "1");
+    localStorage.setItem(AGE_STORAGE_KEY, "1");
     setVisible(false);
   };
 

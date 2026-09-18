@@ -60,6 +60,10 @@ function PostCard({
             <img
               src={post.heroImage}
               alt={post.heroImageAlt}
+              width={1600}
+              height={900}
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-700"
               style={{ objectPosition: "center 30%" }}
             />
@@ -127,6 +131,9 @@ export default function BlogPage() {
           <img
             src="/journal-hero.webp"
             alt={copy.heroAlt}
+            width={1600}
+            height={2000}
+            decoding="async"
             className="absolute inset-0 w-full h-[115%] object-cover"
             style={{ objectPosition: "center top", top: "-7%" }}
           />

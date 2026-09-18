@@ -1,0 +1,15 @@
+export const cartEs = {
+  title: "Su Carrito",
+  description: "Revise y actualice los artículos de su carrito.",
+  close: "Cerrar carrito",
+  empty: "Su carrito está vacío.",
+  browse: "Explorar protocolos →",
+  autoAdded: "Agregado automáticamente — requerido para la preparación de péptidos",
+  consultationRequired: "Consulta requerida",
+  removeAria: "Eliminar del carrito",
+  decreaseAria: "Disminuir cantidad",
+  increaseAria: "Aumentar cantidad",
+  subtotal: "Subtotal",
+  shippingNote: "El envío se calcula en el checkout. Todos los pedidos requieren revisión médica antes del despacho.",
+  checkout: "Ir al Checkout",
+} as const;

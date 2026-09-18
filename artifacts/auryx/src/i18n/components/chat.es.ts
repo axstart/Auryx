@@ -1,0 +1,47 @@
+export const chatEs = {
+  openAria: "Abrir chat",
+  closeAria: "Cerrar chat",
+  title: "Concierge Auryx",
+  subtitle: "Pregunta sobre protocolos, envíos o consultas",
+  placeholder: "Escribe tu mensaje…",
+  placeholderNamed: "Pregunta lo que quieras, {name}…",
+  send: "Enviar",
+  sendAria: "Enviar mensaje",
+  thinking: "Pensando…",
+  floatingLabel: "Pregunta a Aria — Concierge IA",
+  afterHours: "Fuera de horario",
+  preIntakeWelcome:
+    "Bienvenido/a a Auryx. Soy Aria, tu conserje de salud personal — aquí para responder tus preguntas sobre longevidad de precisión y terapia personalizada con péptidos.",
+  browseShop: "Explorar tienda",
+  bookConsultation: "Reservar consulta",
+  scheduleConsult: "Agendar una consulta privada",
+  contactTeam: "Contactar al equipo Auryx",
+  teamOffline: "Nuestro equipo está fuera de línea",
+  escalateAvailable: "¿Quieres conectar directamente con el equipo Auryx?",
+  escalateOffline:
+    "Disponibles lun–vie, 8 AM – 8 PM ET. Escríbenos y responderemos{when}.",
+  escalateOfflineFallback: " a primera hora del siguiente día hábil",
+  emailUs: "Escríbenos — {email}",
+  continueChatting: "Seguir conversando con Aria",
+  escalateSuccess:
+    "Listo, {name} — tu conversación ha sido marcada para el equipo. Te responderemos en {email} lo antes posible. ¿Hay algo más en lo que pueda ayudarte mientras tanto?",
+  welcome:
+    "Hola — soy el concierge de Auryx. Pregúntame sobre protocolos de péptidos, cómo funciona el pedido o cómo reservar una consulta.",
+  error: "Algo salió mal. Inténtalo de nuevo o escribe a info@auryxlife.com.",
+  suggested: [
+    "¿Cómo funciona el Buscador de Protocolos?",
+    "¿Envían a todo el país?",
+    "¿Qué incluye una consulta?",
+  ],
+
+  intakeBlurb: "Para personalizar tu experiencia, comparte algunos datos.",
+  intakeName: "Tu nombre *",
+  intakeEmail: "Correo electrónico",
+  intakePhone: "Teléfono",
+  intakeHint: "* Obligatorio · Email o teléfono requerido",
+  intakeNameError: "Introduce tu nombre.",
+  intakeContactError: "Introduce un correo o un teléfono.",
+  intakeSubmit: "Iniciar conversación",
+  welcomeNamed: "Hola, {name} — bienvenido/a a Auryx. Soy Aria, tu conserje de salud personal.\n\nEstoy aquí para responder tus preguntas sobre protocolos de longevidad y terapia con péptidos, y ayudarte a encontrar el camino adecuado.",
+  hoursNote: "\n\nNuestro equipo está fuera del horario laboral, pero puedo ayudarte ahora. También puedo coordinar que alguien te contacte {when} — dime cómo prefieres que te contactemos.",
+};

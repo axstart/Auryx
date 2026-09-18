@@ -21,6 +21,8 @@ cleanupOutdatedCaches();
 clientsClaim();
 self.skipWaiting();
 
+// Navigations stay network-first so HTML deploys go live. Hashed /assets/*
+// are not handled here — they rely on Vercel Cache-Control: immutable.
 registerRoute(
   new NavigationRoute(
     async ({ request }) => {
@@ -37,7 +39,14 @@ registerRoute(
       }
     },
     {
-      denylist: [/\/api(?:\/|$)/i],
+      denylist: [
+        /\/api(?:\/|$)/i,
+        /\/assets\//i,
+        /\/sw\.js(?:$|\?)/i,
+        /\/registerSW\.js(?:$|\?)/i,
+        /\/manifest\.webmanifest(?:$|\?)/i,
+        /\.(?:js|css|mjs|map|png|jpe?g|webp|svg|gif|ico|woff2?|txt|xml|webmanifest)$/i,
+      ],
     },
   ),
 );

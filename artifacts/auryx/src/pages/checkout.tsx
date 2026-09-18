@@ -1026,7 +1026,7 @@ export default function CheckoutPage() {
                     <div className="flex items-start gap-3">
                       <div className="w-12 h-12 rounded-lg bg-white border border-[#E8E8E4] flex items-center justify-center shrink-0 overflow-hidden">
                         <img
-                          src="/products/reconstitution-kit.png"
+                          src="/products/reconstitution-kit.webp"
                           alt="Reconstitution Kit"
                           className="w-10 h-10 object-contain"
                         />

@@ -1,0 +1,15 @@
+export const cartPt = {
+  title: "Seu Carrinho",
+  description: "Revise e atualize os itens do seu carrinho.",
+  close: "Fechar carrinho",
+  empty: "Seu carrinho está vazio.",
+  browse: "Explorar protocolos →",
+  autoAdded: "Adicionado automaticamente — necessário para a preparação de peptídeos",
+  consultationRequired: "Consulta necessária",
+  removeAria: "Remover do carrinho",
+  decreaseAria: "Diminuir quantidade",
+  increaseAria: "Aumentar quantidade",
+  subtotal: "Subtotal",
+  shippingNote: "Frete calculado no checkout. Todos os pedidos exigem revisão médica antes do fulfillment.",
+  checkout: "Ir para o Checkout",
+} as const;

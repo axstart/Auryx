@@ -48,7 +48,6 @@
     "@types/node": "catalog:",
     "@types/react": "catalog:",
     "@types/react-dom": "catalog:",
-    "@types/three": "^0.184.1",
     "@vitejs/plugin-react": "catalog:",
     "@workspace/api-client-react": "workspace:*",
     "class-variance-authority": "catalog:",
@@ -65,9 +64,7 @@
     "react-day-picker": "^9.11.1",
     "react-dom": "catalog:",
     "react-hook-form": "^7.55.0",
-    "react-icons": "^5.4.0",
     "react-resizable-panels": "^2.1.7",
-    "recharts": "^2.15.2",
     "sonner": "^2.0.7",
     "tailwind-merge": "catalog:",
     "tailwindcss": "catalog:",
@@ -82,11 +79,6 @@
     "zod": "catalog:"
   },
   "dependencies": {
-    "@react-three/drei": "^10.7.7",
-    "@react-three/fiber": "^9.6.1",
-    "@stripe/react-stripe-js": "^6.4.0",
-    "@stripe/stripe-js": "^9.6.0",
-    "three": "^0.184.0",
     "web-vitals": "^5.1.0"
   }
 }

@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -13,43 +13,44 @@ import type { RegulatoryStatus } from "@/types/shop";
 import { applyPageSeo } from "@/lib/seo";
 import { useI18n } from "@/i18n";
 import { applyProductLocale } from "@/i18n/products-locale";
+import { useIsDesktop } from "@/hooks/use-mobile";
 
 /* ── Page meta (localized via dict.shop) ─────────────────────────────── */
 
 /* ── Product image map ──────────────────────────────────────────────── */
 const PRODUCT_IMAGES: Record<string, string> = {
-  "semaglutide": "/products/semaglutide.png",
-  "tirzepatide": "/products/tirzepatide.png",
-  "retatrutide": "/products/retatrutide.png",
-  "sermorelin": "/products/sermorelin.png",
-  "tesamorelin": "/products/tesamorelin.png",
-  "tesamorelin-ipamorelin": "/products/ipamorelin.png",
-  "ipamorelin": "/products/ipamorelin.png",
-  "cjc-1295": "/products/cjc-1295.png",
-  "cjc-1295-dac": "/products/cjc-1295-dac.png",
-  "cjc-1295-ipamorelin": "/products/cjc-1295-ipamorelin.png",
-  "bpc-157": "/products/bpc-157.png",
-  "tb-500": "/products/tb-500.png",
-  "bpc-157-tb-500": "/products/bpc-157-tb-500.png",
-  "kpv": "/products/kpv.png",
-  "ghk-cu": "/products/ghk-cu.png",
-  "pt-141": "/products/pt-141.png",
-  "kisspeptin": "/products/kisspeptin.png",
-  "thymosin-alpha-1": "/products/thymosin-alpha-1.png",
-  "epithalon": "/products/epithalon.png",
-  "pinealon": "/products/pinealon.png",
-  "mots-c": "/products/mots-c.png",
-  "semax": "/products/semax.png",
-  "selank": "/products/selank.png",
-  "cerebrolysin": "/products/cerebrolysin.png",
-  "nad-plus": "/products/nad-plus.png",
-  "glutathione": "/products/glutathione.png",
-  "ss-31": "/products/ss-31.png",
-  "glow-complex": "/products/glow-complex.png",
-  "klow-complex": "/products/klow-complex.png",
-  "aod-9604": "/products/aod-9604.png",
-  "reconstitution-kit": "/products/reconstitution-kit.png",
-  "tirzepatide-b12-glycine": "/products/tirzepatide-b12-glycine.png",
+  "semaglutide": "/products/semaglutide.webp",
+  "tirzepatide": "/products/tirzepatide.webp",
+  "retatrutide": "/products/retatrutide.webp",
+  "sermorelin": "/products/sermorelin.webp",
+  "tesamorelin": "/products/tesamorelin.webp",
+  "tesamorelin-ipamorelin": "/products/ipamorelin.webp",
+  "ipamorelin": "/products/ipamorelin.webp",
+  "cjc-1295": "/products/cjc-1295.webp",
+  "cjc-1295-dac": "/products/cjc-1295-dac.webp",
+  "cjc-1295-ipamorelin": "/products/cjc-1295-ipamorelin.webp",
+  "bpc-157": "/products/bpc-157.webp",
+  "tb-500": "/products/tb-500.webp",
+  "bpc-157-tb-500": "/products/bpc-157-tb-500.webp",
+  "kpv": "/products/kpv.webp",
+  "ghk-cu": "/products/ghk-cu.webp",
+  "pt-141": "/products/pt-141.webp",
+  "kisspeptin": "/products/kisspeptin.webp",
+  "thymosin-alpha-1": "/products/thymosin-alpha-1.webp",
+  "epithalon": "/products/epithalon.webp",
+  "pinealon": "/products/pinealon.webp",
+  "mots-c": "/products/mots-c.webp",
+  "semax": "/products/semax.webp",
+  "selank": "/products/selank.webp",
+  "cerebrolysin": "/products/cerebrolysin.webp",
+  "nad-plus": "/products/nad-plus.webp",
+  "glutathione": "/products/glutathione.webp",
+  "ss-31": "/products/ss-31.webp",
+  "glow-complex": "/products/glow-complex.webp",
+  "klow-complex": "/products/klow-complex.webp",
+  "aod-9604": "/products/aod-9604.webp",
+  "reconstitution-kit": "/products/reconstitution-kit.webp",
+  "tirzepatide-b12-glycine": "/products/tirzepatide-b12-glycine.webp",
 };
 
 /* ── Categories & config ────────────────────────────────────────────── */
@@ -90,89 +91,6 @@ async function fetchProducts(): Promise<ProductSummary[]> {
   const res = await fetch("/api/products");
   if (!res.ok) throw new Error("Failed to load products");
   return res.json();
-}
-
-/* ── Hero particles ─────────────────────────────────────────────────── */
-interface Particle {
-  x: number; y: number; r: number;
-  vx: number; vy: number;
-  alpha: number; color: string;
-}
-
-function HeroParticles() {
-  const canvasRef = useRef<HTMLCanvasElement>(null);
-  const animRef   = useRef<number>(0);
-
-  const init = useCallback((canvas: HTMLCanvasElement) => {
-    const W = canvas.width  = canvas.offsetWidth;
-    const H = canvas.height = canvas.offsetHeight;
-    const COLORS = ["#C9A844", "#B8962E", "#0D9488", "#FFFFFF"];
-    const count  = Math.floor((W * H) / 14000);
-
-    const particles: Particle[] = Array.from({ length: count }, () => ({
-      x: Math.random() * W, y: Math.random() * H,
-      r: Math.random() * 2.5 + 1,
-      vx: (Math.random() - 0.5) * 0.25,
-      vy: (Math.random() - 0.5) * 0.25,
-      alpha: Math.random() * 0.5 + 0.15,
-      color: COLORS[Math.floor(Math.random() * COLORS.length)],
-    }));
-
-    const ctx = canvas.getContext("2d")!;
-    const draw = () => {
-      ctx.clearRect(0, 0, W, H);
-      for (const p of particles) {
-        p.x += p.vx; p.y += p.vy;
-        if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
-        if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.globalAlpha = p.alpha;
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-      for (let i = 0; i < particles.length; i++) {
-        for (let j = i + 1; j < particles.length; j++) {
-          const dx = particles[i].x - particles[j].x;
-          const dy = particles[i].y - particles[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 90) {
-            ctx.beginPath();
-            ctx.moveTo(particles[i].x, particles[i].y);
-            ctx.lineTo(particles[j].x, particles[j].y);
-            ctx.strokeStyle = "#C9A844";
-            ctx.globalAlpha = (1 - dist / 90) * 0.08;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        }
-      }
-      ctx.globalAlpha = 1;
-      animRef.current = requestAnimationFrame(draw);
-    };
-    draw();
-  }, []);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const observer = new ResizeObserver(() => {
-      cancelAnimationFrame(animRef.current);
-      init(canvas);
-    });
-    observer.observe(canvas);
-    init(canvas);
-    return () => { observer.disconnect(); cancelAnimationFrame(animRef.current); };
-  }, [init]);
-
-  return (
-    <canvas
-      ref={canvasRef}
-      className="absolute inset-0 w-full h-full pointer-events-none"
-      style={{ opacity: 0.65 }}
-    />
-  );
 }
 
 /* ── SVG vial fallback ──────────────────────────────────────────────── */
@@ -251,6 +169,10 @@ function ProductCard({
           <img
             src={productImage}
             alt={product.name}
+            width={447}
+            height={558}
+            loading="lazy"
+            decoding="async"
             className={`relative z-10 object-contain group-hover:scale-[1.07] group-hover:-translate-y-0.5 transition-transform duration-500 drop-shadow-lg ${featured ? "h-32 w-auto max-w-[90%]" : "h-28 sm:h-[5.5rem] w-auto max-w-[85%]"}`}
           />
         ) : (
@@ -356,6 +278,7 @@ function ProductCard({
 /* ── Page ───────────────────────────────────────────────────────────── */
 export default function ShopPage() {
   const { lang, dict } = useI18n();
+  const showDesktopHero = useIsDesktop();
   const copy = dict.shop;
 
   useEffect(() => {
@@ -448,12 +371,18 @@ export default function ShopPage() {
       <section className="relative w-full min-h-[88vh] flex items-center overflow-hidden bg-[#0A0A0A]">
         {/* Right-side image */}
         <div className="absolute right-0 top-0 bottom-0 w-[52%] z-0 hidden md:block">
-          <img
-            src="/peptides-collection.webp"
-            alt="AURYX peptide collection"
-            className="absolute inset-0 w-full h-[115%] object-cover"
-            style={{ objectPosition: "center top", top: "-7%" }}
-          />
+          {showDesktopHero && (
+            <img
+              src="/peptides-collection.webp"
+              alt="AURYX peptide collection"
+              width={1600}
+              height={2000}
+              fetchPriority="high"
+              decoding="async"
+              className="absolute inset-0 w-full h-[115%] object-cover"
+              style={{ objectPosition: "center top", top: "-7%" }}
+            />
+          )}
           <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.55) 18%, rgba(10,10,10,0.05) 45%, transparent 100%)" }} />
           <div className="absolute inset-0" style={{ background: "linear-gradient(to top, #0A0A0A 0%, transparent 22%)" }} />
           <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 55% 60% at 55% 38%, rgba(201,168,68,0.07) 0%, transparent 60%)" }} />

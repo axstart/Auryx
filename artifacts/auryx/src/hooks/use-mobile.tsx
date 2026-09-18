@@ -17,3 +17,19 @@ export function useIsMobile() {
 
   return !!isMobile
 }
+
+/** True at desktop widths. Initializes from matchMedia so mobile skips desktop-only images. */
+export function useIsDesktop() {
+  const [isDesktop, setIsDesktop] = React.useState(
+    () => typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches,
+  )
+
+  React.useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)")
+    const onChange = () => setIsDesktop(mq.matches)
+    mq.addEventListener("change", onChange)
+    return () => mq.removeEventListener("change", onChange)
+  }, [])
+
+  return isDesktop
+}

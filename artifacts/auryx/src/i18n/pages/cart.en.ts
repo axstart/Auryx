@@ -1,0 +1,15 @@
+export const cartEn = {
+  title: "Your Cart",
+  description: "Review and update items in your cart.",
+  close: "Close cart",
+  empty: "Your cart is empty.",
+  browse: "Browse protocols →",
+  autoAdded: "Auto-added — required for peptide preparation",
+  consultationRequired: "Consultation required",
+  removeAria: "Remove from cart",
+  decreaseAria: "Decrease quantity",
+  increaseAria: "Increase quantity",
+  subtotal: "Subtotal",
+  shippingNote: "Shipping calculated at checkout. All orders require physician review prior to fulfillment.",
+  checkout: "Proceed to Checkout",
+} as const;

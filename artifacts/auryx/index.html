@@ -4,16 +4,11 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 
-    <!-- Google tag (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-C4NK9NKTF1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-C4NK9NKTF1');
-    </script>
-
     <meta name="theme-color" content="#080807" />
+    <style>
+      html,body{background:#080807;margin:0}
+      #geo-static{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+    </style>
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -319,16 +314,16 @@
     <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
     <link rel="alternate" type="text/plain" href="/llms.txt" />
 
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/cormorant-garamond-400.woff2" crossorigin>
+    <link rel="preload" as="font" type="font/woff2" href="/fonts/dm-sans-400.woff2" crossorigin>
+    <link rel="preload" as="image" href="/Hero.webp" fetchpriority="high" media="(min-width: 768px)">
   </head>
   <body>
     <div id="root">
       <article id="geo-static">
         <p class="byline">Medically reviewed by <a rel="author" href="/about">Romy Fontoura, MD</a></p>
-        <h1>Auryx | MD-Led Peptide Therapy — Nationwide</h1>
-        <img src="/opengraph.jpg" width="1200" height="630" alt="Auryx MD-led peptide therapy nationwide" />
+        <h1>Physician-backed protocols. Real results. Delivered fast.</h1>
+        <img src="/opengraph.jpg" width="1200" height="630" alt="Auryx MD-led peptide therapy nationwide" loading="lazy" decoding="async" />
         <div data-geo-chunk="definition">
           <p data-geo-chunk="summary">Auryx is an MD-led peptide therapy clinic that serves patients nationwide via telemedicine. Founded and led by Romy Fontoura, MD, Auryx designs physician-supervised protocols for longevity, recovery, metabolic health, and cognitive performance. Every protocol is prescribed by a licensed physician and fulfilled through regulated United States compounding pharmacies.</p>
         </div>

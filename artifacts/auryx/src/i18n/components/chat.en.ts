@@ -1,0 +1,47 @@
+export const chatEn = {
+  openAria: "Open chat",
+  closeAria: "Close chat",
+  title: "Auryx Concierge",
+  subtitle: "Ask about protocols, shipping, or consultations",
+  placeholder: "Type your message…",
+  placeholderNamed: "Ask anything, {name}…",
+  send: "Send",
+  sendAria: "Send message",
+  thinking: "Thinking…",
+  floatingLabel: "Ask Aria — AI Concierge",
+  afterHours: "After hours",
+  preIntakeWelcome:
+    "Welcome to Auryx. I'm Aria, your personal health concierge — here to answer your questions about precision longevity and personalised peptide therapy.",
+  browseShop: "Browse Shop",
+  bookConsultation: "Book Consultation",
+  scheduleConsult: "Schedule a Private Consultation",
+  contactTeam: "Contact the Auryx team",
+  teamOffline: "Our team is currently offline",
+  escalateAvailable: "Want to connect with the Auryx team directly?",
+  escalateOffline:
+    "Available Mon–Fri, 8 AM – 8 PM ET. Email us and we'll respond{when}.",
+  escalateOfflineFallback: " first thing next business day",
+  emailUs: "Email us — {email}",
+  continueChatting: "Continue chatting with Aria",
+  escalateSuccess:
+    "Got it, {name} — your conversation has been flagged for the team. You'll hear back at {email} as soon as possible. Is there anything else I can help you with in the meantime?",
+  welcome:
+    "Hi — I'm the Auryx concierge. Ask me about peptide protocols, how ordering works, or how to book a consultation.",
+  error: "Something went wrong. Please try again or email info@auryxlife.com.",
+  suggested: [
+    "How does the Protocol Finder work?",
+    "Do you ship nationwide?",
+    "What's included in a consultation?",
+  ],
+
+  intakeBlurb: "To personalise your experience, please share a few details.",
+  intakeName: "Your name *",
+  intakeEmail: "Email address",
+  intakePhone: "Phone number",
+  intakeHint: "* Required · Email or phone required",
+  intakeNameError: "Please enter your name.",
+  intakeContactError: "Please enter an email address or phone number.",
+  intakeSubmit: "Start Conversation",
+  welcomeNamed: "Hello, {name} — welcome to Auryx. I'm Aria, your personal health concierge.\n\nI'm here to answer your questions about precision longevity protocols and peptide therapy, and to help find the right path for you.",
+  hoursNote: "\n\nOur team is currently outside business hours, but I'm here to help right now. I can also arrange for someone to reach out to you {when} — just let me know how you'd prefer to be contacted.",
+} as const;

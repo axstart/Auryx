@@ -47,6 +47,10 @@ Thumbs.db
 # Local caches (includes legacy Replit paths)
 .cache/
 .local/
+.vercel/
+
+# Local compiler dumps
+tsc-i18n.txt
 
 # secrets
 .env

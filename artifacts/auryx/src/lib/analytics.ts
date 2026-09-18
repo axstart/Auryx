@@ -1,12 +1,100 @@
 const GA_MEASUREMENT_ID = "G-C4NK9NKTF1";
 const SESSION_KEY = "auryx_analytics_sid";
+const GTAG_SRC = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
 
 type GtagFn = (...args: unknown[]) => void;
+
+type PendingGa =
+  | { kind: "event"; eventName: string; params: Record<string, unknown> }
+  | { kind: "page"; pagePath: string };
+
+let loadPromise: Promise<void> | null = null;
+let gaReady = false;
+const pendingGa: PendingGa[] = [];
 
 function getGtag(): GtagFn | undefined {
   if (typeof window === "undefined") return undefined;
   const gtag = (window as Window & { gtag?: GtagFn }).gtag;
   return typeof gtag === "function" ? gtag : undefined;
+}
+
+function installGtagStub() {
+  const w = window as Window & { dataLayer?: unknown[]; gtag?: GtagFn };
+  w.dataLayer = w.dataLayer || [];
+  w.gtag = function gtag() {
+    w.dataLayer!.push(arguments);
+  };
+  return w.gtag;
+}
+
+function flushPendingGa() {
+  const gtag = getGtag();
+  if (!gtag) return;
+  while (pendingGa.length) {
+    const item = pendingGa.shift()!;
+    if (item.kind === "event") {
+      gtag("event", item.eventName, item.params);
+    } else {
+      gtag("config", GA_MEASUREMENT_ID, { page_path: item.pagePath });
+    }
+  }
+}
+
+function sendGaEvent(eventName: string, params: Record<string, unknown>) {
+  const gtag = getGtag();
+  if (gaReady && gtag) {
+    gtag("event", eventName, params);
+    return;
+  }
+  pendingGa.push({ kind: "event", eventName, params });
+}
+
+/** Load gtag after window load + idle so it does not contend with LCP. */
+export function loadAnalytics(): Promise<void> {
+  if (typeof window === "undefined") return Promise.resolve();
+  if (loadPromise) return loadPromise;
+
+  loadPromise = new Promise((resolve) => {
+    const inject = () => {
+      const finish = () => {
+        const gtag = getGtag() ?? installGtagStub();
+        gtag("js", new Date());
+        // Initial and SPA hits are sent via trackPageView after this resolves.
+        gtag("config", GA_MEASUREMENT_ID, { send_page_view: false });
+        gaReady = true;
+        flushPendingGa();
+        resolve();
+      };
+
+      if (document.querySelector(`script[src="${GTAG_SRC}"]`)) {
+        finish();
+        return;
+      }
+
+      const script = document.createElement("script");
+      script.async = true;
+      script.src = GTAG_SRC;
+      script.onload = finish;
+      script.onerror = () => resolve();
+      document.head.appendChild(script);
+    };
+
+    const schedule = () => {
+      if (typeof window.requestIdleCallback === "function") {
+        window.requestIdleCallback(() => inject(), { timeout: 2500 });
+      } else {
+        window.setTimeout(inject, 1);
+      }
+    };
+
+    if (document.readyState === "complete") {
+      schedule();
+    } else {
+      window.addEventListener("load", schedule, { once: true });
+    }
+  });
+
+  return loadPromise;
 }
 
 export function getAnalyticsSessionId(): string {
@@ -73,25 +161,25 @@ function mirrorToBackend(eventName: string, params: TrackParams) {
 
 /** Fire GA4 event + mirror to Postgres funnel_events. */
 export function trackEvent(eventName: string, params: TrackParams = {}) {
-  const gtag = getGtag();
-  if (gtag) {
-    const { valueCents, currency, items, productSlug, stepKey, ...rest } = params;
-    gtag("event", eventName, {
-      ...rest,
-      ...(stepKey ? { step_key: stepKey } : {}),
-      ...(productSlug ? { item_id: productSlug, product_slug: productSlug } : {}),
-      ...(typeof valueCents === "number" ? { value: valueCents / 100, currency: currency ?? "USD" } : {}),
-      ...(items ? { items } : {}),
-      send_to: GA_MEASUREMENT_ID,
-    });
-  }
+  const { valueCents, currency, items, productSlug, stepKey, ...rest } = params;
+  sendGaEvent(eventName, {
+    ...rest,
+    ...(stepKey ? { step_key: stepKey } : {}),
+    ...(productSlug ? { item_id: productSlug, product_slug: productSlug } : {}),
+    ...(typeof valueCents === "number" ? { value: valueCents / 100, currency: currency ?? "USD" } : {}),
+    ...(items ? { items } : {}),
+    send_to: GA_MEASUREMENT_ID,
+  });
   mirrorToBackend(eventName, params);
 }
 
 export function trackPageView(pagePath: string) {
   const gtag = getGtag();
-  if (!gtag) return;
-  gtag("config", GA_MEASUREMENT_ID, { page_path: pagePath });
+  if (gaReady && gtag) {
+    gtag("config", GA_MEASUREMENT_ID, { page_path: pagePath });
+    return;
+  }
+  pendingGa.push({ kind: "page", pagePath });
 }
 
 export function trackViewItem(product: {

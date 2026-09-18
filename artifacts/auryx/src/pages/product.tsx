@@ -12,38 +12,38 @@ import { useI18n, langHref } from "@/i18n";
 import { applyProductLocale } from "@/i18n/products-locale";
 
 const PRODUCT_IMAGES: Record<string, string> = {
-  "semaglutide": "/products/semaglutide.png",
-  "tirzepatide": "/products/tirzepatide.png",
-  "retatrutide": "/products/retatrutide.png",
-  "sermorelin": "/products/sermorelin.png",
-  "tesamorelin": "/products/tesamorelin.png",
-  "tesamorelin-ipamorelin": "/products/ipamorelin.png",
-  "ipamorelin": "/products/ipamorelin.png",
-  "cjc-1295": "/products/cjc-1295.png",
-  "cjc-1295-dac": "/products/cjc-1295-dac.png",
-  "cjc-1295-ipamorelin": "/products/cjc-1295-ipamorelin.png",
-  "bpc-157": "/products/bpc-157.png",
-  "tb-500": "/products/tb-500.png",
-  "bpc-157-tb-500": "/products/bpc-157-tb-500.png",
-  "kpv": "/products/kpv.png",
-  "ghk-cu": "/products/ghk-cu.png",
-  "pt-141": "/products/pt-141.png",
-  "kisspeptin": "/products/kisspeptin.png",
-  "thymosin-alpha-1": "/products/thymosin-alpha-1.png",
-  "epithalon": "/products/epithalon.png",
-  "pinealon": "/products/pinealon.png",
-  "mots-c": "/products/mots-c.png",
-  "semax": "/products/semax.png",
-  "selank": "/products/selank.png",
-  "cerebrolysin": "/products/cerebrolysin.png",
-  "nad-plus": "/products/nad-plus.png",
-  "glutathione": "/products/glutathione.png",
-  "ss-31": "/products/ss-31.png",
-  "glow-complex": "/products/glow-complex.png",
-  "klow-complex": "/products/klow-complex.png",
-  "aod-9604": "/products/aod-9604.png",
-  "reconstitution-kit": "/products/reconstitution-kit.png",
-  "tirzepatide-b12-glycine": "/products/tirzepatide-b12-glycine.png",
+  "semaglutide": "/products/semaglutide.webp",
+  "tirzepatide": "/products/tirzepatide.webp",
+  "retatrutide": "/products/retatrutide.webp",
+  "sermorelin": "/products/sermorelin.webp",
+  "tesamorelin": "/products/tesamorelin.webp",
+  "tesamorelin-ipamorelin": "/products/ipamorelin.webp",
+  "ipamorelin": "/products/ipamorelin.webp",
+  "cjc-1295": "/products/cjc-1295.webp",
+  "cjc-1295-dac": "/products/cjc-1295-dac.webp",
+  "cjc-1295-ipamorelin": "/products/cjc-1295-ipamorelin.webp",
+  "bpc-157": "/products/bpc-157.webp",
+  "tb-500": "/products/tb-500.webp",
+  "bpc-157-tb-500": "/products/bpc-157-tb-500.webp",
+  "kpv": "/products/kpv.webp",
+  "ghk-cu": "/products/ghk-cu.webp",
+  "pt-141": "/products/pt-141.webp",
+  "kisspeptin": "/products/kisspeptin.webp",
+  "thymosin-alpha-1": "/products/thymosin-alpha-1.webp",
+  "epithalon": "/products/epithalon.webp",
+  "pinealon": "/products/pinealon.webp",
+  "mots-c": "/products/mots-c.webp",
+  "semax": "/products/semax.webp",
+  "selank": "/products/selank.webp",
+  "cerebrolysin": "/products/cerebrolysin.webp",
+  "nad-plus": "/products/nad-plus.webp",
+  "glutathione": "/products/glutathione.webp",
+  "ss-31": "/products/ss-31.webp",
+  "glow-complex": "/products/glow-complex.webp",
+  "klow-complex": "/products/klow-complex.webp",
+  "aod-9604": "/products/aod-9604.webp",
+  "reconstitution-kit": "/products/reconstitution-kit.webp",
+  "tirzepatide-b12-glycine": "/products/tirzepatide-b12-glycine.webp",
 };
 
 async function fetchProduct(slug: string): Promise<Product> {
@@ -313,6 +313,10 @@ export default function ProductPage() {
                   <img
                     src={PRODUCT_IMAGES[product.slug]}
                     alt={product.name}
+                    width={447}
+                    height={558}
+                    decoding="async"
+                    fetchPriority="high"
                     className="relative z-10 h-72 w-auto object-contain drop-shadow-2xl"
                   />
                 ) : (

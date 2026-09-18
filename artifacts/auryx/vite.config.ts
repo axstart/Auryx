@@ -38,7 +38,7 @@ export default defineConfig({
       srcDir: "src",
       filename: "sw.ts",
       registerType: "autoUpdate",
-      injectRegister: "auto",
+      injectRegister: "script-defer",
       manifest: {
         name: "Auryx",
         short_name: "Auryx",
@@ -101,6 +101,30 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          const normalized = id.replaceAll("\\", "/");
+          if (!normalized.includes("/node_modules/")) return;
+          if (
+            normalized.includes("/node_modules/react/") ||
+            normalized.includes("/node_modules/react-dom/") ||
+            normalized.includes("/node_modules/scheduler/")
+          ) {
+            return "vendor-react";
+          }
+          if (
+            normalized.includes("/node_modules/three/") ||
+            normalized.includes("/node_modules/@react-three/")
+          ) {
+            return "vendor-three";
+          }
+          if (normalized.includes("/node_modules/recharts/")) {
+            return "vendor-recharts";
+          }
+        },
+      },
+    },
   },
   server: {
     port,

@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { ConsultationModal } from "@/components/ConsultationModal";
@@ -9,6 +9,7 @@ import { useCart } from "@/context/CartContext";
 import type { ProductSummary } from "@/types/shop";
 import { applyPageSeo } from "@/lib/seo";
 import { useI18n } from "@/i18n";
+import { useIsDesktop } from "@/hooks/use-mobile";
 
 async function fetchProducts(): Promise<ProductSummary[]> {
   const res = await fetch("/api/products");
@@ -225,6 +226,7 @@ export default function Home() {
   const [addedSlugs, setAddedSlugs] = useState<Set<string>>(new Set());
   const { addToCart } = useCart();
   const { t, lang, dict } = useI18n();
+  const showDesktopHero = useIsDesktop();
   const home = dict.home;
   const { data: products = [] } = useQuery<ProductSummary[]>({
     queryKey: ["products"],
@@ -267,33 +269,31 @@ export default function Home() {
     setTimeout(() => setAddedSlugs(prev => { const s = new Set(prev); s.delete(slug); return s; }), 1500);
   }
 
-  const heroRef = useRef<HTMLElement>(null);
-  const { scrollYProgress } = useScroll({
-    target: heroRef,
-    offset: ["start start", "end start"],
-  });
-  const heroImageY = useTransform(scrollYProgress, [0, 1], ["0%", "18%"]);
-
   return (
     <div className="w-full bg-[#0A0A0A] text-white overflow-x-hidden">
 
       {/* ═══ 1. HERO ════════════════════════════════════════════════════ */}
-      <section ref={heroRef} className="relative w-full min-h-[100dvh] flex items-center overflow-hidden">
+      <section className="relative w-full min-h-[100dvh] flex items-center overflow-hidden">
 
-        {/* Hero image — right side */}
+        {/* Hero image — right side, desktop only so phones don't download it */}
         <div className="absolute right-0 top-0 bottom-0 w-[52%] z-0 hidden md:block">
-          <motion.img
-            src="/Hero.webp"
-            alt="Precision wellness"
-            className="absolute inset-0 w-full object-cover"
-            style={{
-              objectPosition: "center top",
-              height: "120%",
-              top: "-10%",
-              y: heroImageY,
-              willChange: "transform",
-            }}
-          />
+          {showDesktopHero && (
+            <picture>
+              <source media="(min-width: 768px)" srcSet="/Hero.webp" type="image/webp" />
+              <img
+                src="/Hero.webp"
+                alt="Precision wellness"
+                fetchPriority="high"
+                decoding="async"
+                className="absolute inset-0 w-full object-cover"
+                style={{
+                  objectPosition: "center top",
+                  height: "120%",
+                  top: "-10%",
+                }}
+              />
+            </picture>
+          )}
           {/* Fade image into dark background on left */}
           <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.55) 18%, rgba(10,10,10,0.05) 45%, transparent 100%)" }}/>
           {/* Subtle bottom fade */}
@@ -311,12 +311,8 @@ export default function Home() {
         <div className="absolute inset-0 z-0 md:hidden" style={{ background: "linear-gradient(to bottom, #0A0A0A 40%, rgba(10,10,10,0.85) 100%)" }}/>
 
         <div className="container relative z-10 mx-auto px-6 md:px-14 lg:px-20 pt-[calc(var(--site-header-height)+1rem)] pb-24 md:pt-[calc(var(--site-header-height)+1.5rem)] md:pb-28">
-          <motion.div
-            initial={{ opacity: 0, y: 28 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
-            className="max-w-lg md:max-w-[540px]"
-          >
+          {/* Above-the-fold copy stays at full opacity so it can become LCP immediately. */}
+          <div className="max-w-lg md:max-w-[540px]">
             <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-7 font-medium">{t("home.hero.eyebrow")}</p>
             <h1 className="font-serif text-3xl md:text-4xl lg:text-[3rem] leading-[1.15] mb-6 font-light">
               {t("home.hero.title1")}{" "}
@@ -347,7 +343,7 @@ export default function Home() {
             <p className="byline mt-3 text-[11px] text-white/35">
               Medically reviewed by <Link href="/about" rel="author" className="text-[#C9A844] hover:underline">Romy Fontoura, MD</Link>
             </p>
-          </motion.div>
+          </div>
         </div>
       </section>
 
@@ -443,6 +439,8 @@ export default function Home() {
             <img
               src="/peptides-collection.webp"
               alt="AURYX Peptide Collection — Sermorelin, BPC-157, NAD+, CJC-1295"
+              loading="lazy"
+              decoding="async"
               className="w-full h-full object-cover"
               style={{ objectPosition: "center 45%" }}
             />
@@ -707,6 +705,8 @@ export default function Home() {
               <img
                 src="/Lifestyle.webp"
                 alt="Research-grade peptide compounds"
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ objectPosition: "center 25%" }}
               />
@@ -854,6 +854,8 @@ export default function Home() {
               <img
                 src="/Peptide_standout.webp"
                 alt="AURYX Precision Peptides"
+                loading="lazy"
+                decoding="async"
                 className="absolute inset-0 w-full h-full object-cover"
                 style={{ objectPosition: "center 30%" }}
               />
