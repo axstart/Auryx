@@ -15,6 +15,7 @@ import { readFile, writeFile, mkdir } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { buildGeoInner, ES_FAQS, PT_FAQS } from "./seo-geo.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const APP_ROOT = path.resolve(__dirname, "..");
@@ -303,6 +304,13 @@ function injectBeforeHeadClose(html, snippet) {
   return html.replace("</head>", `    ${snippet}\n  </head>`);
 }
 
+function ensureLlmsLink(html) {
+  if (/rel="alternate"[^>]*type="text\/plain"/i.test(html) || /href="\/llms\.txt"/i.test(html)) {
+    return html;
+  }
+  return injectBeforeHeadClose(html, `<link rel="alternate" type="text/plain" href="/llms.txt" />`);
+}
+
 function removeHomeFaq(html) {
   return html.replace(
     /<script\s+type="application\/ld\+json"\s+id="ld-home-faq">[\s\S]*?<\/script>\s*/i,
@@ -347,26 +355,16 @@ function updateWebPageGraph(html, { url, title, description }) {
 }
 
 function injectNoscript(html, title, description) {
-  const block = `<noscript><h1>${esc(title)}</h1><p>${esc(description)}</p></noscript>`;
+  // geo-static already has the page H1; keep noscript to a paragraph so crawlers see one H1.
+  const block = `<noscript><p>${esc(description)}</p></noscript>`;
   if (html.includes("<noscript>")) {
     return html.replace(/<noscript>[\s\S]*?<\/noscript>/, block);
   }
   return html.replace("</body>", `    ${block}\n  </body>`);
 }
 
-function pageGeoInner(title, description) {
-  return `<p class="byline">Medically reviewed by <a rel="author" href="https://www.auryxlife.com/about">Romy Fontoura, MD</a></p>
-        <h1>${esc(title)}</h1>
-        <p>${esc(description)}</p>
-        <nav>
-          <a href="https://www.auryxlife.com/">Home</a>
-          <a href="https://www.auryxlife.com/shop">Shop</a>
-          <a href="https://www.auryxlife.com/learn">Learn</a>
-          <a href="https://www.auryxlife.com/contact">Contact</a>
-          <a href="https://www.auryxlife.com/sources">Sources</a>
-          <a href="https://www.auryxlife.com/privacy">Privacy</a>
-          <a href="https://www.auryxlife.com/terms">Terms</a>
-        </nav>`;
+function pageGeoInner(title, description, route, learnFaqs) {
+  return buildGeoInner(route, { title, description }, { learnFaqs });
 }
 
 function setGeoStatic(html, inner) {
@@ -396,7 +394,7 @@ function faqJsonLd(pairs) {
 
 function resolvePage(route, products, posts, learnFaqs, nyFaqs) {
   if (STATIC_PAGES[route]) {
-    const page = { ...STATIC_PAGES[route], path: unprefixedPath(route), extraJsonLd: [] };
+    const page = { ...STATIC_PAGES[route], path: unprefixedPath(route), extraJsonLd: [], learnFaqs };
     if (route === "/learn") {
       page.extraJsonLd.push(
         {
@@ -448,6 +446,12 @@ function resolvePage(route, products, posts, learnFaqs, nyFaqs) {
           },
         },
       );
+    }
+    if (route === "/es") {
+      page.extraJsonLd.push({ id: "ld-locale-faq", data: faqJsonLd(ES_FAQS) });
+    }
+    if (route === "/pt") {
+      page.extraJsonLd.push({ id: "ld-locale-faq", data: faqJsonLd(PT_FAQS) });
     }
     if (route === "/peptide-therapy-new-york") {
       page.extraJsonLd.push(
@@ -622,11 +626,12 @@ function applySeo(html, route, page) {
   }
 
   if (!page.keepHomeFaq) {
-    html = setGeoStatic(html, pageGeoInner(page.title, page.description));
+    html = setGeoStatic(html, pageGeoInner(page.title, page.description, route, page.learnFaqs));
     html = injectNoscript(html, page.title, page.description);
   } else {
     html = html.replace(/<noscript>[\s\S]*?<\/noscript>\s*/g, "");
   }
+  html = ensureLlmsLink(html);
   return html;
 }
 
@@ -657,6 +662,32 @@ function assertUniqueShells(written) {
   const product = written.find((w) => w.route === "/shop/semaglutide");
   if (product && !product.html.includes('"@type":"Product"') && !product.html.includes('"@type": "Product"')) {
     failures.push("/shop/semaglutide is missing Product JSON-LD");
+  }
+  const priority = ["/", "/es", "/pt", "/shop", "/learn", "/blog", "/our-method", "/about", "/contact", "/sources"];
+  for (const route of priority) {
+    const item = written.find((w) => w.route === route);
+    if (!item) {
+      failures.push(`${route} is missing from written shells`);
+      continue;
+    }
+    const article = (item.html.match(/<article id="geo-static">[\s\S]*?<\/article>/i) || [""])[0];
+    const text = article
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
+    const words = text.split(/\s+/).filter(Boolean).length;
+    const h1 = (article.match(/<h1\b/gi) || []).length;
+    const h2 = (article.match(/<h2\b/gi) || []).length;
+    if (words < 300) failures.push(`${route} geo-static has ${words} words (need 300+)`);
+    if (h1 !== 1) failures.push(`${route} geo-static has ${h1} H1s (need 1)`);
+    const docH1 = (item.html.replace(/<script[\s\S]*?<\/script>/gi, "").match(/<h1\b/gi) || []).length;
+    if (docH1 !== 1) failures.push(`${route} document has ${docH1} H1s (need 1)`);
+    if (h2 < 2) failures.push(`${route} geo-static has ${h2} H2s (need 2+)`);
+    if (!article.includes(`<h1>${esc(STATIC_PAGES[route].title)}</h1>`)) {
+      failures.push(`${route} H1 does not match title`);
+    }
   }
   if (failures.length > 0) {
     throw new Error(`SEO shell verification failed:\n  ${failures.join("\n  ")}`);

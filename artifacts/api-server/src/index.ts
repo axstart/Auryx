@@ -1,3 +1,10 @@
+import path from "node:path";
+import { fileURLToPath } from "node:url";
+import { loadEnvFile } from "./lib/loadEnv.js";
+
+loadEnvFile();
+loadEnvFile(path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../../.env"));
+
 import app from "./app";
 import { logger } from "./lib/logger";
 import { verifyMailer } from "./lib/mailer.js";

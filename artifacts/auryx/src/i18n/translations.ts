@@ -1,4 +1,37 @@
 import { HOME_FAQS, type HomeFaq } from "@/data/home-faqs";
+import { termsEn, termsEs, termsPt } from "./pages/terms";
+import { privacyEn, privacyEs, privacyPt } from "./pages/privacy";
+import {
+  contactEn,
+  contactEs,
+  contactPt,
+  sourcesEn,
+  sourcesEs,
+  sourcesPt,
+  notFoundEn,
+  notFoundEs,
+  notFoundPt,
+  disclaimerEn,
+  disclaimerEs,
+  disclaimerPt,
+} from "./pages/static";
+import { aboutEn, aboutEs, aboutPt } from "./pages/about";
+import { shopEn, shopEs, shopPt } from "./pages/shop";
+import { cartEn, cartEs, cartPt } from "./pages/cart";
+import { ourMethodEn, ourMethodEs, ourMethodPt } from "./pages/our-method";
+import { protocolFinderEn, protocolFinderEs, protocolFinderPt } from "./pages/protocol-finder";
+import { verifyCoaEn, verifyCoaEs, verifyCoaPt } from "./pages/verify-coa";
+import { blogEn, blogEs, blogPt } from "./pages/blog";
+import { productEn, productEs, productPt } from "./pages/product";
+import { checkoutEn, checkoutEs, checkoutPt } from "./pages/checkout";
+import { checkoutSuccessEn, checkoutSuccessEs, checkoutSuccessPt } from "./pages/checkout-success";
+import { newYorkEn, newYorkEs, newYorkPt } from "./pages/new-york";
+import { patientAssessmentEn, patientAssessmentEs, patientAssessmentPt } from "./components/patient-assessment";
+import { consultationEn, consultationEs, consultationPt } from "./components/consultation";
+import { reconKitEn, reconKitEs, reconKitPt } from "./components/reconstitution-kit";
+import { protocolContinuationEn, protocolContinuationEs, protocolContinuationPt } from "./components/protocol-continuation";
+import { chatEn, chatEs, chatPt } from "./components/chat";
+import { learnEn, learnEs, learnPt } from "./pages/learn";
 
 export type Lang = "en" | "es" | "pt";
 
@@ -23,6 +56,8 @@ const en = {
     ourMethod: "Our Method",
     learn: "Learn",
     pepTalk: "Pep Talk",
+    about: "About",
+    verifyCoa: "Verify COA",
     account: "Account",
     importantLabel: "Important:",
     disclaimer:
@@ -162,6 +197,29 @@ const en = {
       button: "Find Your Peptides",
     },
   },
+  terms: termsEn,
+  privacy: privacyEn,
+  contact: contactEn,
+  sources: sourcesEn,
+  notFound: notFoundEn,
+  disclaimer: disclaimerEn,
+  about: aboutEn,
+  shop: shopEn,
+  cart: cartEn,
+  ourMethod: ourMethodEn,
+  protocolFinder: protocolFinderEn,
+  verifyCoa: verifyCoaEn,
+  blog: blogEn,
+  product: productEn,
+  checkout: checkoutEn,
+  checkoutSuccess: checkoutSuccessEn,
+  newYork: newYorkEn,
+  learn: learnEn,
+  patientAssessment: patientAssessmentEn,
+  consultation: consultationEn,
+  protocolContinuation: protocolContinuationEn,
+  chat: chatEn,
+  reconKit: reconKitEn,
 };
 
 export type Dict = typeof en;
@@ -187,6 +245,8 @@ const es: Dict = {
     ourMethod: "Nuestro Método",
     learn: "Aprende",
     pepTalk: "Pep Talk",
+    about: "Acerca de",
+    verifyCoa: "Verificar COA",
     account: "Cuenta",
     importantLabel: "Importante:",
     disclaimer:
@@ -367,6 +427,29 @@ const es: Dict = {
       button: "Encuentra tus Péptidos",
     },
   },
+  terms: termsEs as unknown as typeof termsEn,
+  privacy: privacyEs as unknown as typeof privacyEn,
+  contact: contactEs as unknown as typeof contactEn,
+  sources: sourcesEs as unknown as typeof sourcesEn,
+  notFound: notFoundEs as unknown as typeof notFoundEn,
+  disclaimer: disclaimerEs as unknown as typeof disclaimerEn,
+  about: aboutEs as unknown as typeof aboutEn,
+  shop: shopEs as unknown as typeof shopEn,
+  cart: cartEs as unknown as typeof cartEn,
+  ourMethod: ourMethodEs as unknown as typeof ourMethodEn,
+  protocolFinder: protocolFinderEs as unknown as typeof protocolFinderEn,
+  verifyCoa: verifyCoaEs as unknown as typeof verifyCoaEn,
+  blog: blogEs as unknown as typeof blogEn,
+  product: productEs as unknown as typeof productEn,
+  checkout: checkoutEs as unknown as typeof checkoutEn,
+  checkoutSuccess: checkoutSuccessEs as unknown as typeof checkoutSuccessEn,
+  newYork: newYorkEs as unknown as typeof newYorkEn,
+  learn: learnEs as unknown as typeof learnEn,
+  patientAssessment: patientAssessmentEs as unknown as typeof patientAssessmentEn,
+  consultation: consultationEs as unknown as typeof consultationEn,
+  protocolContinuation: protocolContinuationEs as unknown as typeof protocolContinuationEn,
+  chat: chatEs as unknown as typeof chatEn,
+  reconKit: reconKitEs as unknown as typeof reconKitEn,
 };
 
 const pt: Dict = {
@@ -390,6 +473,8 @@ const pt: Dict = {
     ourMethod: "Nosso Método",
     learn: "Aprenda",
     pepTalk: "Pep Talk",
+    about: "Sobre",
+    verifyCoa: "Verificar COA",
     account: "Conta",
     importantLabel: "Importante:",
     disclaimer:
@@ -570,6 +655,29 @@ const pt: Dict = {
       button: "Encontre seus Peptídeos",
     },
   },
+  terms: termsPt as unknown as typeof termsEn,
+  privacy: privacyPt as unknown as typeof privacyEn,
+  contact: contactPt as unknown as typeof contactEn,
+  sources: sourcesPt as unknown as typeof sourcesEn,
+  notFound: notFoundPt as unknown as typeof notFoundEn,
+  disclaimer: disclaimerPt as unknown as typeof disclaimerEn,
+  about: aboutPt as unknown as typeof aboutEn,
+  shop: shopPt as unknown as typeof shopEn,
+  cart: cartPt as unknown as typeof cartEn,
+  ourMethod: ourMethodPt as unknown as typeof ourMethodEn,
+  protocolFinder: protocolFinderPt as unknown as typeof protocolFinderEn,
+  verifyCoa: verifyCoaPt as unknown as typeof verifyCoaEn,
+  blog: blogPt as unknown as typeof blogEn,
+  product: productPt as unknown as typeof productEn,
+  checkout: checkoutPt as unknown as typeof checkoutEn,
+  checkoutSuccess: checkoutSuccessPt as unknown as typeof checkoutSuccessEn,
+  newYork: newYorkPt as unknown as typeof newYorkEn,
+  learn: learnPt as unknown as typeof learnEn,
+  patientAssessment: patientAssessmentPt as unknown as typeof patientAssessmentEn,
+  consultation: consultationPt as unknown as typeof consultationEn,
+  protocolContinuation: protocolContinuationPt as unknown as typeof protocolContinuationEn,
+  chat: chatPt as unknown as typeof chatEn,
+  reconKit: reconKitPt as unknown as typeof reconKitEn,
 };
 
 export const translations: Record<Lang, Dict> = { en, es, pt };

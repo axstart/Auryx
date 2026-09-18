@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { Link } from "wouter";
 import { ChevronDown, ChevronUp, ArrowRight, ExternalLink } from "lucide-react";
 import { applyPageSeo, setMeta, SITE_ORIGIN } from "@/lib/seo";
+import { useI18n, langHref } from "@/i18n";
+import { getPeptideBody } from "@/i18n/pages/learn-peptides";
 
 /* ─── Data ──────────────────────────────────────────────────────────── */
 
@@ -278,49 +280,6 @@ const PEPTIDES: PeptideEntry[] = [
   },
 ];
 
-const FAQS = [
-  {
-    q: "What are research peptides?",
-    a: "Research peptides are short chains of amino acids studied for their biological activity in laboratory and preclinical settings. They are compounds of significant scientific interest for exploring molecular signaling pathways, receptor binding, cellular mechanisms, and biochemical processes. All compounds at AURYX are sold strictly for legitimate research purposes only and are not intended for human consumption.",
-  },
-  {
-    q: "What is the regulatory status of these compounds?",
-    a: "The compounds offered through AURYX are sold as research-grade peptides for laboratory use only. They have not been evaluated by the Food and Drug Administration for safety or efficacy in humans and are not intended to diagnose, treat, cure, or prevent any disease or condition. Buyers must acknowledge this prior to purchase.",
-  },
-  {
-    q: "What is BPC-157?",
-    a: "BPC-157 (Body Protection Compound 157) is a synthetic 15-amino-acid peptide originally derived from a protein sequence found in gastric secretion. It has been the subject of extensive preclinical investigation examining its effects on angiogenesis, fibroblast activity, nitric oxide signaling, and tissue-level biological mechanisms. It is available at AURYX strictly for research purposes.",
-  },
-  {
-    q: "What is semaglutide?",
-    a: "Semaglutide is a GLP-1 receptor agonist — a peptide compound that binds and activates glucagon-like peptide-1 receptors. It has been extensively studied in preclinical and clinical settings for its effects on glucose metabolism, gastric motility, and appetite-regulating neurocircuitry. It is available at AURYX strictly for research purposes.",
-  },
-  {
-    q: "How do GHRH and GHRP compounds work?",
-    a: "Growth hormone-releasing hormone (GHRH) analogues such as CJC-1295 bind GHRH receptors in the anterior pituitary, stimulating endogenous growth hormone secretion. Growth hormone-releasing peptides (GHRPs) such as ipamorelin act on ghrelin receptors to amplify GH pulses through a complementary mechanism. Both classes are of significant research interest for their effects on the somatotropic axis.",
-  },
-  {
-    q: "What is NAD+?",
-    a: "NAD+ (nicotinamide adenine dinucleotide) is a coenzyme central to numerous biochemical processes, including those involved in cellular energy metabolism, electron transport, and DNA repair mechanisms. It is a highly active area of research in molecular biology and cellular aging science. It is available at AURYX strictly for research purposes.",
-  },
-  {
-    q: "Who are AURYX's compounds intended for?",
-    a: "AURYX sells research-grade peptides exclusively to qualified researchers who acknowledge that all compounds are for legitimate scientific research purposes only — not for human consumption. Every buyer is required to confirm their research application, designate a research field, and agree to our terms of service prior to purchase.",
-  },
-  {
-    q: "What quality standards do AURYX compounds meet?",
-    a: "All compounds supplied by AURYX are sourced from US-based, FDA-registered compounding facilities and verified to ≥99% purity by independent third-party HPLC analysis. A Certificate of Analysis (COA) is available for every product and provided with every order.",
-  },
-  {
-    q: "What are the ordering requirements?",
-    a: "All orders require account creation with email verification, research field designation, and written acknowledgment of research-only terms prior to fulfillment. Orders are reviewed before shipment. We ship to physical addresses only within the United States — P.O. Box delivery is not accepted.",
-  },
-  {
-    q: "Where does AURYX ship?",
-    a: "AURYX ships to physical addresses in all 50 US states. International shipping is not currently available. P.O. Box addresses are not accepted. All shipments are reviewed for compliance prior to dispatch.",
-  },
-];
-
 function Accordion({ q, a }: { q: string; a: string }) {
   const [open, setOpen] = useState(false);
   return (
@@ -364,6 +323,8 @@ function FadeIn({ children, delay = 0, className = "" }: { children: React.React
 /* ── SEO ──────────────────────────────────────────────────────────── */
 
 export default function LearnPage() {
+  const { lang, dict } = useI18n();
+  const copy = dict.learn;
   const [activeCategory, setActiveCategory] = useState<string | null>(null);
 
   useEffect(() => {
@@ -371,9 +332,8 @@ export default function LearnPage() {
     setMeta("geo.placename", "United States");
 
     return applyPageSeo({
-      title: "Peptide Therapy Education | Auryx Learn",
-      description:
-        "Your complete peptide therapy guide — how peptides work, what BPC-157, semaglutide, CJC-1295 ipamorelin, and NAD+ do, and how to start a physician-supervised protocol at Auryx's telehealth peptide clinic.",
+      title: copy.seoTitle,
+      description: copy.seoDescriptionLong,
       path: "/learn",
       jsonLd: [
         {
@@ -381,7 +341,7 @@ export default function LearnPage() {
           data: {
             "@context": "https://schema.org",
             "@type": "FAQPage",
-            mainEntity: FAQS.map((f) => ({
+            mainEntity: copy.faqs.map((f) => ({
               "@type": "Question",
               name: f.q,
               acceptedAnswer: { "@type": "Answer", text: f.a },
@@ -393,11 +353,10 @@ export default function LearnPage() {
           data: {
             "@context": "https://schema.org",
             "@type": "MedicalWebPage",
-            name: "Peptide Therapy Education | Auryx Learn",
-            description:
-              "Physician-reviewed educational resource covering peptide therapy, longevity protocols, metabolic health, and precision medicine compounds.",
+            name: copy.seoTitle,
+            description: copy.seoDescription,
             url: `${SITE_ORIGIN}/learn`,
-            inLanguage: "en-US",
+            inLanguage: lang === "es" ? "es" : lang === "pt" ? "pt-BR" : "en-US",
             audience: { "@type": "Patient" },
             medicalAudience: { "@type": "MedicalAudience", audienceType: "Patient" },
             author: {
@@ -426,7 +385,7 @@ export default function LearnPage() {
         },
       ],
     });
-  }, []);
+  }, [lang, copy]);
 
   const filteredPeptides = activeCategory
     ? PEPTIDES.filter(p => p.category === activeCategory)
@@ -446,7 +405,7 @@ export default function LearnPage() {
         <div className="absolute right-0 top-0 bottom-0 w-[52%] z-0 hidden md:block">
           <img
             src="/hero-learn.webp"
-            alt="AURYX peptide encyclopedia — BPC-157 and CJC-1295 vials with reference books"
+            alt={copy.heroAlt}
             className="absolute inset-0 w-full h-[115%] object-cover"
             style={{ objectPosition: "center top", top: "-7%" }}
           />
@@ -465,30 +424,30 @@ export default function LearnPage() {
             transition={{ duration: 0.9, ease: [0.25, 0.1, 0.25, 1] }}
             className="max-w-lg md:max-w-[520px]"
           >
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-7 font-medium">Peptide Encyclopedia</p>
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-7 font-medium">{copy.heroEyebrow}</p>
             <h1 className="font-serif text-3xl md:text-4xl lg:text-[3rem] leading-[1.15] mb-6 font-light text-white">
-              Every peptide.{" "}
-              <em className="not-italic text-[#C9A844]">Explained.</em>
+              {copy.heroTitleBefore}{" "}
+              <em className="not-italic text-[#C9A844]">{copy.heroTitleEm}</em>
             </h1>
             <p className="text-white/55 text-sm md:text-base leading-relaxed mb-10 max-w-md">
-              A scientific reference guide to every compound in the AURYX catalog — molecular mechanisms, receptor targets, and published research properties. From semaglutide and BPC-157 to CJC-1295 ipamorelin and NAD+, each entry is a research resource for qualified scientists. All compounds sold for research purposes only.
+              {copy.heroBodyLong}
             </p>
             <div className="flex flex-col gap-3 max-w-[300px]">
               <Link
-                href="/protocol-finder"
+                href={langHref(lang, "/protocol-finder")}
                 className="flex items-center justify-center gap-2 bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.14em] text-[11px] uppercase px-8 py-4 rounded-lg hover:bg-[#D4B050] transition-colors"
               >
-                Find My Protocol
+                {copy.ctaProtocol}
               </Link>
               <Link
-                href="/shop"
+                href={langHref(lang, "/shop")}
                 className="flex items-center justify-center gap-2 border border-white/20 text-white/65 font-medium tracking-[0.14em] text-[11px] uppercase px-8 py-4 rounded-lg hover:border-[#C9A844]/50 hover:text-white/90 transition-colors"
               >
-                Browse All Peptides
+                {copy.ctaShop}
               </Link>
             </div>
             <p className="mt-7 text-[10px] text-white/30 tracking-[0.12em] uppercase">
-              26 compounds · 6 categories · Physician-reviewed
+              {copy.metaLine}
             </p>
           </motion.div>
         </div>
@@ -500,21 +459,21 @@ export default function LearnPage() {
           <FadeIn>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
               <div className="md:col-span-1">
-                <p className="text-[9px] uppercase tracking-[0.45em] text-[#B8962E] mb-3 font-semibold">What Are Research Peptides?</p>
+                <p className="text-[9px] uppercase tracking-[0.45em] text-[#B8962E] mb-3 font-semibold">{copy.introWhatTitle}</p>
                 <p className="text-[13px] text-[#111]/60 leading-relaxed">
-                  Research peptides are short chains of amino acids studied for their biological activity at the receptor and cellular level. All compounds in the AURYX collection are sold strictly for legitimate scientific research purposes only. Not intended for human consumption.
+                  {copy.introWhatBody}
                 </p>
               </div>
               <div className="md:col-span-1">
-                <p className="text-[9px] uppercase tracking-[0.45em] text-[#B8962E] mb-3 font-semibold">How to Use This Reference</p>
+                <p className="text-[9px] uppercase tracking-[0.45em] text-[#B8962E] mb-3 font-semibold">{copy.introHowTitle}</p>
                 <p className="text-[13px] text-[#111]/60 leading-relaxed">
-                  Browse all 26 compounds below, or filter by category — GLP-1 &amp; Metabolic, Growth Hormone, Recovery, Sexual Health, Immune, or Neuroprotective. Each entry covers molecular mechanism and observed research properties.
+                  {copy.introHowBody}
                 </p>
               </div>
               <div className="md:col-span-1">
-                <p className="text-[9px] uppercase tracking-[0.45em] text-[#B8962E] mb-3 font-semibold">Quality &amp; Sourcing</p>
+                <p className="text-[9px] uppercase tracking-[0.45em] text-[#B8962E] mb-3 font-semibold">{copy.introQualityTitle}</p>
                 <p className="text-[13px] text-[#111]/60 leading-relaxed">
-                  All compounds are sourced from US-based, FDA-registered compounding facilities and verified to ≥99% purity by independent third-party HPLC analysis. A Certificate of Analysis is available for every product.
+                  {copy.introQualityBody}
                 </p>
               </div>
             </div>
@@ -534,7 +493,7 @@ export default function LearnPage() {
                   : "bg-[#F5EEE4] text-[#0A0A0A]/55 hover:bg-[#EDE5D5]"
               }`}
             >
-              All
+              {copy.allCategories}
             </button>
             {CATEGORIES.map(cat => (
               <button
@@ -547,7 +506,7 @@ export default function LearnPage() {
                 }`}
                 style={activeCategory === cat ? { backgroundColor: CATEGORY_COLOR[cat] } : {}}
               >
-                {cat}
+                {copy.categoryLabels[cat] ?? cat}
               </button>
             ))}
           </div>
@@ -566,14 +525,18 @@ export default function LearnPage() {
                 <FadeIn>
                   <div className="flex items-center gap-4 mb-10">
                     <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: CATEGORY_COLOR[cat] }} />
-                    <h2 className="font-serif text-2xl md:text-3xl text-[#111]">{cat}</h2>
+                    <h2 className="font-serif text-2xl md:text-3xl text-[#111]">{copy.categoryLabels[cat] ?? cat}</h2>
                     <div className="flex-1 h-px bg-[#E0D9CC]" />
-                    <span className="text-[10px] uppercase tracking-widest text-[#111]/30 font-medium shrink-0">{items.length} peptide{items.length > 1 ? "s" : ""}</span>
+                    <span className="text-[10px] uppercase tracking-widest text-[#111]/30 font-medium shrink-0">
+                      {(items.length === 1 ? copy.peptideCountSingular : copy.peptideCount).replace("{n}", String(items.length))}
+                    </span>
                   </div>
                 </FadeIn>
 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
-                  {items.map((p, i) => (
+                  {items.map((p, i) => {
+                    const body = getPeptideBody(p.slug, lang) ?? p;
+                    return (
                     <FadeIn key={p.slug} delay={i * 0.06}>
                       <article className="group bg-white rounded-2xl border border-[#E0D9CC] hover:border-[#C9A844]/35 hover:shadow-md transition-all duration-300 overflow-hidden flex flex-col">
                         {/* Header */}
@@ -584,35 +547,35 @@ export default function LearnPage() {
                                 className="text-[9px] font-bold uppercase tracking-[0.2em] px-2.5 py-1 rounded-full text-white"
                                 style={{ backgroundColor: CATEGORY_COLOR[cat] }}
                               >
-                                {p.category}
+                                {copy.categoryLabels[p.category] ?? p.category}
                               </span>
                               {p.rx && (
                                 <span className="text-[9px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-teal-50 border border-teal-200 text-teal-700">
-                                  Rx Required
+                                  {copy.rxRequired}
                                 </span>
                               )}
                             </div>
                             <Link
-                              href={`/shop/${p.slug}`}
+                              href={langHref(lang, `/shop/${p.slug}`)}
                               className="shrink-0 text-[10px] text-[#B8962E] hover:text-[#C9A844] flex items-center gap-1 font-medium transition-colors opacity-0 group-hover:opacity-100"
                             >
-                              Shop <ExternalLink className="w-3 h-3" />
+                              {copy.shopLink} <ExternalLink className="w-3 h-3" />
                             </Link>
                           </div>
                           <h3 className="font-serif text-xl md:text-2xl text-[#111] leading-snug mb-3">{p.name}</h3>
-                          <p className="text-[13px] text-[#111]/60 leading-relaxed font-medium">{p.definition}</p>
+                          <p className="text-[13px] text-[#111]/60 leading-relaxed font-medium">{body.definition}</p>
                         </div>
 
                         {/* Body */}
                         <div className="px-7 py-5 flex-1 space-y-5">
                           <div>
-                            <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#B8962E] mb-2">How It Works</p>
-                            <p className="text-[12px] text-[#111]/55 leading-relaxed">{p.mechanism}</p>
+                            <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#B8962E] mb-2">{copy.howItWorks}</p>
+                            <p className="text-[12px] text-[#111]/55 leading-relaxed">{body.mechanism}</p>
                           </div>
                           <div>
-                            <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#111]/40 mb-2.5">Research Properties</p>
+                            <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#111]/40 mb-2.5">{copy.researchProperties}</p>
                             <ul className="space-y-1.5">
-                              {p.benefits.map((b, bi) => (
+                              {body.benefits.map((b, bi) => (
                                 <li key={bi} className="flex items-start gap-2 text-[12px] text-[#111]/60">
                                   <span className="w-1 h-1 rounded-full mt-1.5 shrink-0" style={{ backgroundColor: CATEGORY_COLOR[cat] }} />
                                   {b}
@@ -620,10 +583,10 @@ export default function LearnPage() {
                               ))}
                             </ul>
                           </div>
-                          {p.researchNote && (
+                          {body.researchNote && (
                             <div className="bg-[#F9F5EC] rounded-xl px-4 py-3">
                               <p className="text-[11px] text-[#B8962E] leading-relaxed">
-                                <span className="font-semibold">Research note: </span>{p.researchNote}
+                                <span className="font-semibold">{copy.researchNoteLabel} </span>{body.researchNote}
                               </p>
                             </div>
                           )}
@@ -632,15 +595,16 @@ export default function LearnPage() {
                         {/* Footer CTA */}
                         <div className="px-7 pb-6 pt-1">
                           <Link
-                            href={`/shop/${p.slug}`}
+                            href={langHref(lang, `/shop/${p.slug}`)}
                             className="inline-flex items-center gap-1.5 text-[10px] font-semibold uppercase tracking-widest text-[#B8962E] hover:gap-2.5 transition-all"
                           >
-                            View Protocol <ArrowRight className="w-3 h-3" />
+                            {copy.viewProtocol} <ArrowRight className="w-3 h-3" />
                           </Link>
                         </div>
                       </article>
                     </FadeIn>
-                  ))}
+                    );
+                  })}
                 </div>
               </section>
             );
@@ -652,14 +616,14 @@ export default function LearnPage() {
       <section className="bg-[#0A0A0A] py-24 px-6 md:px-14 lg:px-20">
         <div className="container mx-auto max-w-4xl">
           <FadeIn className="mb-12">
-            <p className="text-[10px] uppercase tracking-[0.45em] text-[#C9A844] mb-5 font-medium">Frequently Asked Questions</p>
+            <p className="text-[10px] uppercase tracking-[0.45em] text-[#C9A844] mb-5 font-medium">{copy.faqHeading}</p>
             <h2 className="font-serif text-4xl md:text-5xl leading-[1.1] font-light text-white">
-              Common questions,<br />
-              <em className="not-italic text-[#C9A844]">direct answers.</em>
+              {copy.faqTitleBefore}<br />
+              <em className="not-italic text-[#C9A844]">{copy.faqTitleEm}</em>
             </h2>
           </FadeIn>
           <div>
-            {FAQS.map((faq, i) => (
+            {copy.faqs.map((faq, i) => (
               <Accordion key={i} q={faq.q} a={faq.a} />
             ))}
           </div>
@@ -670,25 +634,25 @@ export default function LearnPage() {
       <section className="bg-[#F5EEE4] py-20 px-6 md:px-14 lg:px-20 text-center">
         <div className="container mx-auto max-w-xl">
           <FadeIn>
-            <p className="text-[10px] uppercase tracking-[0.45em] text-[#B8962E] mb-5 font-medium">Ready to Begin?</p>
-            <h2 className="font-serif text-4xl md:text-5xl leading-[1.1] font-light text-[#111] mb-6">
-              Find your protocol<br />in under a minute.
+            <p className="text-[10px] uppercase tracking-[0.45em] text-[#B8962E] mb-5 font-medium">{copy.bottomCtaEyebrow}</p>
+            <h2 className="font-serif text-4xl md:text-5xl leading-[1.1] font-light text-[#111] mb-6 whitespace-pre-line">
+              {copy.bottomCtaTitle}
             </h2>
             <p className="text-[#111]/50 text-sm leading-relaxed mb-10 max-w-md mx-auto">
-              Answer a few questions about your goals and lifestyle. We'll match you to the protocols best suited to your rhythm.
+              {copy.bottomCtaBody}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
-                href="/protocol-finder"
+                href={langHref(lang, "/protocol-finder")}
                 className="inline-flex items-center justify-center gap-2 bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.15em] text-[11px] uppercase px-10 py-4 rounded-xl hover:bg-[#D4B050] transition-colors"
               >
-                Find My Protocol <ArrowRight className="w-3.5 h-3.5" />
+                {copy.ctaProtocol} <ArrowRight className="w-3.5 h-3.5" />
               </Link>
               <Link
-                href="/shop"
+                href={langHref(lang, "/shop")}
                 className="inline-flex items-center justify-center gap-2 border border-[#111]/20 text-[#111]/60 font-medium tracking-[0.12em] text-[11px] uppercase px-10 py-4 rounded-xl hover:border-[#B8962E]/50 hover:text-[#B8962E] transition-colors"
               >
-                Browse All Peptides
+                {copy.ctaShop}
               </Link>
             </div>
           </FadeIn>
@@ -699,7 +663,7 @@ export default function LearnPage() {
       <div className="bg-[#F0EAE0] px-6 md:px-14 lg:px-20 py-6">
         <div className="container mx-auto max-w-7xl">
           <p className="text-[11px] text-[#111]/35 leading-relaxed">
-            <strong className="text-[#111]/50">Medical Disclaimer:</strong> The information on this page is for educational purposes only and does not constitute medical advice, diagnosis, or treatment recommendations. All protocols are physician-supervised. These statements have not been evaluated by the Food and Drug Administration. Consult a licensed healthcare provider before beginning any peptide protocol.
+            <strong className="text-[#111]/50">{copy.medicalDisclaimerLabel}</strong> {copy.medicalDisclaimer}
           </p>
         </div>
       </div>

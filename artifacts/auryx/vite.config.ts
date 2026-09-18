@@ -75,6 +75,7 @@ export default defineConfig({
         enabled: false,
       },
     }),
+    // Legacy Replit-only plugins — skipped unless REPL_ID is set (not used on Vercel/local).
     ...(process.env.NODE_ENV !== "production" &&
     process.env.REPL_ID !== undefined
       ? [

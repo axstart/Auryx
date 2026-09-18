@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Link, useLocation } from "wouter";
 import { applyPageSeo } from "@/lib/seo";
 import { trackBeginCheckout } from "@/lib/analytics";
+import { useI18n, langHref } from "@/i18n";
 
 // ── PaymentNode client-side tokenization (API 1B) ───────────────────────────
 // Card data is tokenized directly in the browser against PaymentNode's vault
@@ -68,8 +69,24 @@ class PaymentNodeTokenizeError extends Error {
   }
 }
 
-async function tokenizeCardClientSide(params: PaymentNodeTokenizeParams & { vaultUrl: string }): Promise<string> {
-  const { publicKey, vaultUrl, name, email, phone, address, number, cvd, expiry_date, type } = params;
+async function tokenizeCardClientSide(params: PaymentNodeTokenizeParams & {
+  vaultUrl: string;
+  messages?: {
+    unavailable: string;
+    notSupported: string;
+    checkDetails: string;
+    tokenizeFailed: string;
+    unexpected: string;
+  };
+}): Promise<string> {
+  const { publicKey, vaultUrl, name, email, phone, address, number, cvd, expiry_date, type, messages } = params;
+  const msg = messages ?? {
+    unavailable: "Payment system is temporarily unavailable. Please try again shortly.",
+    notSupported: "Card payments aren't currently supported. Please contact support.",
+    checkDetails: "Please check your card details and try again.",
+    tokenizeFailed: "Card tokenization failed. Please try again.",
+    unexpected: "Unexpected response from payment provider.",
+  };
 
   const res = await fetch(vaultUrl, {
     method: "POST",
@@ -88,20 +105,20 @@ async function tokenizeCardClientSide(params: PaymentNodeTokenizeParams & { vaul
     const code = typeof body.code === "string" ? body.code : undefined;
 
     if (res.status === 401) {
-      throw new PaymentNodeTokenizeError("Payment system is temporarily unavailable. Please try again shortly.", 401, code);
+      throw new PaymentNodeTokenizeError(msg.unavailable, 401, code);
     }
     if (res.status === 400 && code === "PAYMENT_METHOD_CHANNEL_NOT_SUPPORTED") {
-      throw new PaymentNodeTokenizeError("Card payments aren't currently supported. Please contact support.", 400, code);
+      throw new PaymentNodeTokenizeError(msg.notSupported, 400, code);
     }
     if (res.status === 400) {
-      const msg = typeof body.message === "string" ? body.message : "Please check your card details and try again.";
-      throw new PaymentNodeTokenizeError(msg, 400, code);
+      const bodyMsg = typeof body.message === "string" ? body.message : msg.checkDetails;
+      throw new PaymentNodeTokenizeError(bodyMsg, 400, code);
     }
-    throw new PaymentNodeTokenizeError("Card tokenization failed. Please try again.", res.status, code);
+    throw new PaymentNodeTokenizeError(msg.tokenizeFailed, res.status, code);
   }
 
   const data = await res.json() as { _id?: string };
-  if (!data._id) throw new PaymentNodeTokenizeError("Unexpected response from payment provider.", 502);
+  if (!data._id) throw new PaymentNodeTokenizeError(msg.unexpected, 502);
   return data._id;
 }
 
@@ -154,6 +171,8 @@ interface CheckoutPaymentProps {
 }
 
 function PaymentNodePayment({ form, totalCents, couponCode, onSuccess }: CheckoutPaymentProps) {
+  const { dict } = useI18n();
+  const copy = dict.checkout;
   const { items, clearCart } = useCart();
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -175,17 +194,17 @@ function PaymentNodePayment({ form, totalCents, couponCode, onSuccess }: Checkou
   function validateCard(): boolean {
     const errs: Record<string, string> = {};
     const digits = cardNumber.replace(/\s+/g, "");
-    if (!/^\d{13,19}$/.test(digits)) errs.cardNumber = "Enter a valid card number";
-    if (!/^\d{2}\/\d{2}$/.test(expiry)) errs.expiry = "Use MM/YY";
-    if (!/^\d{3,4}$/.test(cvv)) errs.cvv = "Enter a valid CVV";
+    if (!/^\d{13,19}$/.test(digits)) errs.cardNumber = copy.cardInvalid;
+    if (!/^\d{2}\/\d{2}$/.test(expiry)) errs.expiry = copy.expiryInvalid;
+    if (!/^\d{3,4}$/.test(cvv)) errs.cvv = copy.cvvInvalid;
 
     const addr = sameAsShipping
       ? { line1: form.street, city: form.city, province: form.state, postal_code: form.zip }
       : billing;
-    if (!addr.line1.trim()) errs.line1 = "Billing address required";
-    if (!addr.city.trim()) errs.city = "City required";
-    if (!addr.province.trim()) errs.province = "State required";
-    if (!addr.postal_code.trim()) errs.postal_code = "ZIP required";
+    if (!addr.line1.trim()) errs.line1 = copy.billingRequired;
+    if (!addr.city.trim()) errs.city = copy.billingCityRequired;
+    if (!addr.province.trim()) errs.province = copy.billingStateRequired;
+    if (!addr.postal_code.trim()) errs.postal_code = copy.billingZipRequired;
 
     setCardErrors(errs);
     return Object.keys(errs).length === 0;
@@ -219,6 +238,13 @@ function PaymentNodePayment({ form, totalCents, couponCode, onSuccess }: Checkou
         cvd: cvv,
         expiry_date: expiry,
         type: detectCardType(digits),
+        messages: {
+          unavailable: copy.paymentUnavailable,
+          notSupported: copy.cardNotSupported,
+          checkDetails: copy.checkCardDetails,
+          tokenizeFailed: copy.tokenizeFailed,
+          unexpected: copy.unexpectedPaymentResponse,
+        },
       });
 
       const orderId = crypto.randomUUID();
@@ -254,7 +280,7 @@ function PaymentNodePayment({ form, totalCents, couponCode, onSuccess }: Checkou
       const chargeBody = await chargeRes.json().catch(() => ({}) as Record<string, unknown>);
 
       if (!chargeRes.ok || chargeBody.success !== true) {
-        setError(typeof chargeBody.error === "string" ? chargeBody.error : "Payment charge failed. Please try again.");
+        setError(typeof chargeBody.error === "string" ? chargeBody.error : copy.chargeFailed);
         setLoading(false);
         return;
       }
@@ -271,7 +297,7 @@ function PaymentNodePayment({ form, totalCents, couponCode, onSuccess }: Checkou
       if (err instanceof PaymentNodeTokenizeError) {
         setError(err.message);
       } else {
-        setError("Payment failed. Please try again.");
+        setError(copy.paymentFailed);
       }
       setLoading(false);
       return;
@@ -281,13 +307,14 @@ function PaymentNodePayment({ form, totalCents, couponCode, onSuccess }: Checkou
   };
 
   const cardInputCls = "bg-white border-[#E8E8E4] text-[#0A0A0A] h-11 rounded-lg focus:border-[#0A0A0A] focus:ring-0 placeholder:text-[#0A0A0A]/30 text-base md:text-sm";
+  const orderTotal = `$${(totalCents / 100).toFixed(2)}`;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="border border-[#E8E8E4] rounded-xl bg-white p-5 space-y-3">
-        <h3 className="text-[10px] uppercase tracking-[0.25em] text-[#0A0A0A]/40 font-medium mb-2">Card Details</h3>
+        <h3 className="text-[10px] uppercase tracking-[0.25em] text-[#0A0A0A]/40 font-medium mb-2">{copy.cardDetails}</h3>
         <div>
-          <FieldLabel>Card Number *</FieldLabel>
+          <FieldLabel>{copy.cardNumber} *</FieldLabel>
           <Input
             placeholder="4242 4242 4242 4242"
             inputMode="numeric"
@@ -300,7 +327,7 @@ function PaymentNodePayment({ form, totalCents, couponCode, onSuccess }: Checkou
         </div>
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <FieldLabel>Expiry (MM/YY) *</FieldLabel>
+            <FieldLabel>{copy.expiry} *</FieldLabel>
             <Input
               placeholder="12/29"
               inputMode="numeric"
@@ -312,7 +339,7 @@ function PaymentNodePayment({ form, totalCents, couponCode, onSuccess }: Checkou
             {cardErrors.expiry && <p className="text-xs text-red-500 mt-1">{cardErrors.expiry}</p>}
           </div>
           <div>
-            <FieldLabel>CVV *</FieldLabel>
+            <FieldLabel>{copy.cvv} *</FieldLabel>
             <Input
               placeholder="123"
               inputMode="numeric"
@@ -328,7 +355,7 @@ function PaymentNodePayment({ form, totalCents, couponCode, onSuccess }: Checkou
 
       <div className="border border-[#E8E8E4] rounded-xl bg-white p-5 space-y-3">
         <div className="flex items-center justify-between">
-          <h3 className="text-[10px] uppercase tracking-[0.25em] text-[#0A0A0A]/40 font-medium">Billing Address</h3>
+          <h3 className="text-[10px] uppercase tracking-[0.25em] text-[#0A0A0A]/40 font-medium">{copy.billingAddress}</h3>
           <label className="flex items-center gap-2 text-xs text-[#0A0A0A]/55 cursor-pointer">
             <input
               type="checkbox"
@@ -336,34 +363,34 @@ function PaymentNodePayment({ form, totalCents, couponCode, onSuccess }: Checkou
               onChange={e => setSameAsShipping(e.target.checked)}
               className="rounded border-[#E8E8E4]"
             />
-            Same as shipping
+            {copy.sameAsShipping}
           </label>
         </div>
         {!sameAsShipping && (
           <div className="space-y-3">
             <div>
-              <FieldLabel>Address Line 1 *</FieldLabel>
+              <FieldLabel>{copy.line1} *</FieldLabel>
                 <Input placeholder="123 Main Street" autoComplete="billing street-address" value={billing.line1} onChange={setBillingField("line1")} className={cardInputCls} />
               {cardErrors.line1 && <p className="text-xs text-red-500 mt-1">{cardErrors.line1}</p>}
             </div>
             <div>
-              <FieldLabel>Address Line 2 (optional)</FieldLabel>
+              <FieldLabel>{copy.line2}</FieldLabel>
               <Input placeholder="Apt, suite, etc." autoComplete="billing address-line2" value={billing.line2} onChange={setBillingField("line2")} className={cardInputCls} />
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
-                <FieldLabel>City *</FieldLabel>
+                <FieldLabel>{copy.city} *</FieldLabel>
                 <Input placeholder="New York" autoComplete="billing address-level2" value={billing.city} onChange={setBillingField("city")} className={cardInputCls} />
                 {cardErrors.city && <p className="text-xs text-red-500 mt-1">{cardErrors.city}</p>}
               </div>
               <div>
-                <FieldLabel>State *</FieldLabel>
+                <FieldLabel>{copy.state} *</FieldLabel>
                 <Input placeholder="NY" autoComplete="billing address-level1" value={billing.province} onChange={setBillingField("province")} className={cardInputCls} />
                 {cardErrors.province && <p className="text-xs text-red-500 mt-1">{cardErrors.province}</p>}
               </div>
             </div>
             <div>
-              <FieldLabel>ZIP Code *</FieldLabel>
+              <FieldLabel>{copy.zip} *</FieldLabel>
               <Input placeholder="10001" inputMode="numeric" autoComplete="billing postal-code" value={billing.postal_code} onChange={setBillingField("postal_code")} className={`${cardInputCls} max-w-[160px]`} />
               {cardErrors.postal_code && <p className="text-xs text-red-500 mt-1">{cardErrors.postal_code}</p>}
             </div>
@@ -384,12 +411,12 @@ function PaymentNodePayment({ form, totalCents, couponCode, onSuccess }: Checkou
         className="w-full h-13 py-3.5 bg-[#0A0A0A] text-white text-sm font-medium tracking-wide uppercase rounded-xl flex items-center justify-center gap-2 hover:bg-[#222] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
       >
         {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-        {loading ? "Processing..." : `Complete Order — $${(totalCents / 100).toFixed(2)}`}
+        {loading ? copy.processing : copy.completeOrder.replace("${total}", orderTotal)}
       </button>
 
       <div className="flex items-center justify-center gap-2 text-xs text-[#0A0A0A]/40">
         <ShieldCheck className="w-3.5 h-3.5 text-[#0D9488]" />
-        256-bit TLS encryption · Card data never touches our servers
+        {copy.securityNote}
       </div>
     </form>
   );
@@ -406,14 +433,16 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 type Step = "details" | "verify" | "payment";
 
 export default function CheckoutPage() {
+  const { lang, dict } = useI18n();
+  const copy = dict.checkout;
   useEffect(() => {
     return applyPageSeo({
-      title: "Checkout | Auryx",
-      description: "Complete your Auryx order. Secure checkout for research-grade peptide compounds.",
+      title: copy.seoTitle,
+      description: copy.seoDescription,
       path: "/checkout",
       noindex: true,
     });
-  }, []);
+  }, [lang, copy]);
 
   const { items, totalCents, totalItems, addToCart } = useCart();
   const [, navigate] = useLocation();
@@ -457,7 +486,7 @@ export default function CheckoutPage() {
   async function applyPromoCode() {
     const code = promoCode.trim();
     if (!code) {
-      setPromoError("Enter a promo code.");
+      setPromoError(copy.promoRequired);
       return;
     }
     setPromoLoading(true);
@@ -473,14 +502,14 @@ export default function CheckoutPage() {
       if (!response.ok || body.valid !== true) {
         setAppliedPromoCode(null);
         setPromoPercent(0);
-        setPromoError(typeof body.message === "string" ? body.message : "Invalid or expired promo code.");
+        setPromoError(typeof body.message === "string" ? body.message : copy.promoInvalid);
         return;
       }
       setAppliedPromoCode(code.toUpperCase());
       setPromoPercent(Number(body.discount_percent) || 0);
-      setPromoMessage(typeof body.message === "string" ? body.message : "Promo code applied.");
+      setPromoMessage(typeof body.message === "string" ? body.message : copy.promoApplied);
     } catch {
-      setPromoError("Could not validate the promo code. Please try again.");
+      setPromoError(copy.promoError);
     } finally {
       setPromoLoading(false);
     }
@@ -496,17 +525,17 @@ export default function CheckoutPage() {
 
   const validate = useCallback(() => {
     const e: Partial<CheckoutForm> = {};
-    if (!form.customerName.trim()) e.customerName = "Name required";
-    if (!form.email.includes("@")) e.email = "Valid email required";
-    if (hasResearchItems && !form.researchField) e.researchField = "Please select your research application";
-    if (!form.termsAccepted) e.termsAccepted = "You must accept the Terms of Service to proceed" as unknown as boolean;
-    if (!form.street.trim()) e.street = "Street required";
-    if (!form.city.trim()) e.city = "City required";
-    if (!form.state.trim()) e.state = "State required";
-    if (!form.zip.trim()) e.zip = "ZIP required";
+    if (!form.customerName.trim()) e.customerName = copy.nameRequired;
+    if (!form.email.includes("@")) e.email = copy.emailRequired;
+    if (hasResearchItems && !form.researchField) e.researchField = copy.researchRequired;
+    if (!form.termsAccepted) e.termsAccepted = copy.termsRequired as unknown as boolean;
+    if (!form.street.trim()) e.street = copy.streetRequired;
+    if (!form.city.trim()) e.city = copy.cityRequired;
+    if (!form.state.trim()) e.state = copy.stateRequired;
+    if (!form.zip.trim()) e.zip = copy.zipRequired;
     setErrors(e);
     return Object.keys(e).length === 0;
-  }, [form, hasResearchItems]);
+  }, [form, hasResearchItems, copy]);
 
   const set = (k: keyof CheckoutForm) => (e: React.ChangeEvent<HTMLInputElement>) => {
     setForm(f => ({ ...f, [k]: e.target.value }));
@@ -533,7 +562,7 @@ export default function CheckoutPage() {
     });
     if (!r.ok) {
       const body = await r.json().catch(() => ({}));
-      throw new Error(body.error ?? "Could not send verification code");
+      throw new Error(body.error ?? copy.otpSendFailed);
     }
     return true;
   }
@@ -556,7 +585,7 @@ export default function CheckoutPage() {
       startResendCooldown();
       setStep("verify");
     } catch (err: unknown) {
-      setErrors(e => ({ ...e, email: err instanceof Error ? err.message : "Could not send code" }));
+      setErrors(e => ({ ...e, email: err instanceof Error ? err.message : copy.otpSendFailed }));
     } finally {
       setRequestingOtp(false);
     }
@@ -571,7 +600,7 @@ export default function CheckoutPage() {
       setOtpValue("");
       startResendCooldown();
     } catch (err: unknown) {
-      setOtpError(err instanceof Error ? err.message : "Could not resend code");
+      setOtpError(err instanceof Error ? err.message : copy.otpResendFailed);
     } finally {
       setRequestingOtp(false);
     }
@@ -580,7 +609,7 @@ export default function CheckoutPage() {
   async function handleVerify() {
     const code = otpValue.replace(/\D/g, "");
     if (code.length !== 6) {
-      setOtpError("Please enter the complete 6-digit code.");
+      setOtpError(copy.otpIncomplete);
       return;
     }
 
@@ -595,7 +624,7 @@ export default function CheckoutPage() {
       });
       if (!r.ok) {
         const body = await r.json().catch(() => ({}));
-        setOtpError(body.error ?? "Invalid code. Please try again.");
+        setOtpError(body.error ?? copy.otpInvalid);
         return;
       }
       setVerifiedEmail(form.email.trim().toLowerCase());
@@ -623,7 +652,7 @@ export default function CheckoutPage() {
         // non-blocking
       }
     } catch {
-      setOtpError("Verification failed. Please try again.");
+      setOtpError(copy.verificationFailed);
     } finally {
       setOtpLoading(false);
     }
@@ -633,8 +662,8 @@ export default function CheckoutPage() {
     return (
       <div className="min-h-screen flex items-center justify-center px-6" style={{ background: "#FAFAF8" }}>
         <div className="text-center">
-          <p className="text-[#0A0A0A]/45 mb-4 text-sm">Your cart is empty.</p>
-          <Link href="/shop" className="text-[#B8962E] hover:underline text-sm">← Browse protocols</Link>
+          <p className="text-[#0A0A0A]/45 mb-4 text-sm">{copy.emptyCart}</p>
+          <Link href={langHref(lang, "/shop")} className="text-[#B8962E] hover:underline text-sm">← Browse protocols</Link>
         </div>
       </div>
     );
@@ -654,11 +683,11 @@ export default function CheckoutPage() {
               <ArrowLeft className="w-3 h-3" /> Back
             </button>
           ) : (
-            <Link href="/shop" className="inline-flex items-center gap-1.5 text-xs text-[#0A0A0A]/40 hover:text-[#B8962E] transition-colors mb-4">
+            <Link href={langHref(lang, "/shop")} className="inline-flex items-center gap-1.5 text-xs text-[#0A0A0A]/40 hover:text-[#B8962E] transition-colors mb-4">
               <ArrowLeft className="w-3 h-3" /> Back to Shop
             </Link>
           )}
-          <h1 className="font-serif text-[#0A0A0A] text-4xl">Checkout</h1>
+          <h1 className="font-serif text-[#0A0A0A] text-4xl">{copy.title}</h1>
 
           {/* Step indicator */}
           <div className="flex items-center gap-1.5 sm:gap-2 mt-4 overflow-x-auto scrollbar-hide pb-1">
@@ -708,7 +737,7 @@ export default function CheckoutPage() {
                     {/* Contact */}
                     <div>
                       <h2 className="text-[10px] uppercase tracking-[0.25em] text-[#0A0A0A]/40 font-medium mb-5">
-                        Contact Information
+                        {copy.contactInfo}
                       </h2>
                       <div className="space-y-3">
                         <div>
@@ -748,14 +777,14 @@ export default function CheckoutPage() {
                           className="w-full h-11 bg-white border border-[#E8E8E4] text-[#0A0A0A] rounded-lg px-3 text-sm focus:border-[#0A0A0A] focus:outline-none focus:ring-0 appearance-none cursor-pointer"
                           style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%230A0A0A' stroke-width='1.5'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E")`, backgroundRepeat: "no-repeat", backgroundPosition: "right 12px center", backgroundSize: "16px", paddingRight: "36px" }}
                         >
-                          <option value="" disabled>Select research application…</option>
-                          {RESEARCH_FIELDS.map(f => (
-                            <option key={f} value={f}>{f}</option>
+                          <option value="" disabled>{copy.researchSelect}</option>
+                          {copy.researchOptions.map((label, i) => (
+                            <option key={RESEARCH_FIELDS[i]} value={RESEARCH_FIELDS[i]}>{label}</option>
                           ))}
                         </select>
                         {errors.researchField && <p className="text-xs text-red-500 mt-1">{errors.researchField}</p>}
                         <p className="text-[10px] text-[#0A0A0A]/35 mt-1.5 leading-relaxed">
-                          Research-grade compounds are sold strictly for legitimate scientific research and are not intended for human consumption.
+                          {copy.researchDisclaimer}
                         </p>
                       </div>
                     </div>
@@ -840,7 +869,7 @@ export default function CheckoutPage() {
                       {errors.termsAccepted && (
                         <div className="flex items-center gap-1.5 pl-6">
                           <AlertCircle className="w-3.5 h-3.5 text-red-500 shrink-0" />
-                          <p className="text-xs text-red-500">You must accept the Terms of Service to proceed.</p>
+                          <p className="text-xs text-red-500">{copy.termsRequired}</p>
                         </div>
                       )}
                     </div>
@@ -851,7 +880,7 @@ export default function CheckoutPage() {
                       className="w-full h-12 bg-[#0A0A0A] text-white text-sm font-medium tracking-wide uppercase rounded-xl hover:bg-[#222] transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
                     >
                       {requestingOtp && <Loader2 className="w-4 h-4 animate-spin" />}
-                      {requestingOtp ? "Sending code…" : "Continue — Verify Email"}
+                      {requestingOtp ? copy.otpSendingCode : copy.continueVerifyEmail}
                     </button>
                   </motion.div>
                 )}
@@ -871,9 +900,9 @@ export default function CheckoutPage() {
                         <Mail className="w-5 h-5 text-[#0D9488]" />
                       </div>
                       <div>
-                        <p className="text-sm font-medium text-[#0A0A0A]">Check your inbox</p>
+                        <p className="text-sm font-medium text-[#0A0A0A]">{copy.checkInbox}</p>
                         <p className="text-sm text-[#0A0A0A]/55 mt-0.5">
-                          We sent a 6-digit verification code to{" "}
+                          {copy.otpSentTo}{" "}
                           <span className="font-medium text-[#0A0A0A]">{form.email}</span>
                         </p>
                       </div>
@@ -904,7 +933,7 @@ export default function CheckoutPage() {
                         </div>
                       )}
                       <p className="text-[10px] text-[#0A0A0A]/35 mt-2">
-                        Code expires in 10 minutes. Check spam if you don't see it.
+                        {copy.otpExpires}
                       </p>
                     </div>
 
@@ -914,7 +943,7 @@ export default function CheckoutPage() {
                       className="w-full h-12 bg-[#0A0A0A] text-white text-sm font-medium tracking-wide uppercase rounded-xl hover:bg-[#222] transition-colors flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
                     >
                       {otpLoading && <Loader2 className="w-4 h-4 animate-spin" />}
-                      {otpLoading ? "Verifying…" : "Verify & Continue to Payment"}
+                      {otpLoading ? copy.otpVerifying : copy.otpSubmit}
                     </button>
 
                     <div className="flex items-center justify-between text-sm">
@@ -922,7 +951,7 @@ export default function CheckoutPage() {
                         onClick={() => setStep("details")}
                         className="text-xs text-[#0A0A0A]/40 hover:text-[#B8962E] transition-colors"
                       >
-                        ← Change email
+                        {copy.otpChangeEmail}
                       </button>
                       <button
                         onClick={handleResend}
@@ -930,8 +959,8 @@ export default function CheckoutPage() {
                         className="text-xs text-[#0A0A0A]/40 hover:text-[#0A0A0A] disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
                       >
                         {resendCooldown > 0
-                          ? `Resend in ${resendCooldown}s`
-                          : requestingOtp ? "Sending…" : "Resend code"}
+                          ? copy.otpResendIn.replace("{seconds}", String(resendCooldown))
+                          : requestingOtp ? copy.otpSending : copy.otpResend}
                       </button>
                     </div>
                   </motion.div>
@@ -970,10 +999,10 @@ export default function CheckoutPage() {
               </AnimatePresence>
             </div>
 
-            {/* Right — Order Summary */}
+            {/* Right — {copy.orderSummary} */}
             <div className="lg:col-span-2">
               <div className="bg-white border border-[#E8E8E4] rounded-2xl p-6 sticky top-[calc(var(--site-header-height)+1rem)] shadow-sm">
-                <h3 className="text-[10px] uppercase tracking-[0.25em] text-[#0A0A0A]/40 font-medium mb-5">Order Summary</h3>
+                <h3 className="text-[10px] uppercase tracking-[0.25em] text-[#0A0A0A]/40 font-medium mb-5">{copy.orderSummary}</h3>
 
                 <div className="space-y-3 mb-5">
                   {items.map(({ product, quantity }) => (
@@ -1079,7 +1108,7 @@ export default function CheckoutPage() {
                   </div>
                   {discountCents > 0 && (
                     <div className="flex justify-between text-sm text-[#0D9488]">
-                      <span>Promo discount ({promoPercent}%)</span>
+                      <span>{copy.promoDiscount.replace("{percent}", String(promoPercent))}</span>
                       <span>−${(discountCents / 100).toFixed(2)}</span>
                     </div>
                   )}
@@ -1094,16 +1123,16 @@ export default function CheckoutPage() {
                   <div className="mt-4 bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-start gap-2">
                     <AlertCircle className="w-3.5 h-3.5 text-amber-500 shrink-0 mt-0.5" />
                     <p className="text-[10px] text-amber-700 leading-relaxed">
-                      One or more items require a physician consultation. Our clinical team will contact you after ordering.
+                      {copy.consultRequiredNote}
                     </p>
                   </div>
                 )}
 
                 <div className="mt-5 pt-4 border-t border-[#E8E8E4] space-y-2">
                   {[
-                    "Physician-reviewed before fulfillment",
-                    "Discreet, insured shipping",
-                    "30-day satisfaction guarantee",
+                    copy.trustReview,
+                    copy.trustShipping,
+                    copy.trustGuarantee,
                   ].map(t => (
                     <div key={t} className="flex items-center gap-2">
                       <CheckCircle2 className="w-3.5 h-3.5 text-[#0D9488] shrink-0" />

@@ -31,6 +31,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useCreateConsultation } from "@workspace/api-client-react";
+import { useI18n } from "@/i18n";
 
 const INTEREST_OPTIONS = [
   { value: "fat-loss",      label: "Fat Loss & Body Composition" },
@@ -85,9 +86,12 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 function ProgressBar({ step }: { step: number }) {
+  const { dict } = useI18n();
+  const copy = dict.consultation;
   return (
     <div className="flex items-center justify-center gap-0 mb-5 sm:mb-6 pt-1 overflow-hidden">
       {STEPS.map((s, i) => {
+        const stepLabel = copy.steps[i] ?? s.label;
         const done = step > s.number;
         const active = step === s.number;
         return (
@@ -109,7 +113,7 @@ function ProgressBar({ step }: { step: number }) {
                   active ? "text-primary" : done ? "text-primary/60" : "text-muted-foreground/50"
                 }`}
               >
-                {s.label}
+                {stepLabel}
               </span>
             </div>
             {i < STEPS.length - 1 && (
@@ -133,6 +137,8 @@ const variants = {
 };
 
 export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpenChange: (open: boolean) => void }) {
+  const { dict } = useI18n();
+  const copy = dict.consultation;
   const { toast } = useToast();
   const createConsultation = useCreateConsultation();
   const [successEmail, setSuccessEmail] = useState<string | null>(null);
@@ -373,7 +379,7 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                               <FormLabel>Areas of Interest <span className="text-muted-foreground font-normal text-xs">(select all that apply)</span></FormLabel>
                               <FormControl>
                                 <div className="grid grid-cols-1 min-[420px]:grid-cols-2 gap-2 pt-1">
-                                  {INTEREST_OPTIONS.map((opt) => {
+                                  {copy.interestOptions.map((opt) => {
                                     const checked = (field.value as string[]).includes(opt.value);
                                     return (
                                       <button
@@ -535,7 +541,7 @@ export function ConsultationModal({ open, onOpenChange }: { open: boolean; onOpe
                     className="flex-1 min-h-11 bg-primary text-primary-foreground hover:bg-primary/90"
                     disabled={createConsultation.isPending}
                   >
-                    {createConsultation.isPending ? "Submitting..." : "Submit Request"}
+                    {createConsultation.isPending ? copy.submitting : copy.submit}
                   </Button>
                 )}
               </div>

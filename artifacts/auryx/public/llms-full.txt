@@ -1,0 +1,71 @@
+# Auryx — full FAQ for language models
+
+Source: FAQPage JSON-LD already published on https://www.auryxlife.com/ (homepage) and https://www.auryxlife.com/learn
+Clinic: Auryx · Romy Fontoura, MD · https://www.auryxlife.com
+These answers are educational clinic copy. They are not dosing instructions and they do not replace a licensed clinician.
+
+## Homepage FAQ
+
+Q: Are peptides safe?
+A: Peptide therapy is safe when prescribed by a licensed MD and sourced from regulated US compounding pharmacies. All Auryx protocols are physician-prescribed, 3rd-party tested, and monitored throughout treatment.
+
+Q: How quickly will I see results?
+A: Most patients notice improvements in sleep and energy within the first 2–4 weeks. Body composition and structural changes typically become visible within 1–3 months, depending on the protocol and individual biology.
+
+Q: Do I need to visit in person?
+A: No in-person visit is required. Auryx offers full telemedicine consultations and direct-to-door protocol delivery for eligible patients nationwide across the United States.
+
+Q: How are protocols personalized?
+A: Every protocol starts with a comprehensive biomarker panel, full medical history review, and lifestyle assessment — conducted by a licensed MD — to design a therapeutic intervention specific to your biology and goals.
+
+Q: Is Auryx right for me?
+A: Auryx is designed for individuals who treat their health as a high-performance asset and want precision medical optimization — not reactive healthcare. If that's you, we're the right fit.
+
+Q: How much does treatment cost?
+A: Protocol pricing depends on the compounds selected, dosing, and duration — all tailored to your biology. Full pricing is discussed during your private consultation with no obligation to proceed.
+
+Q: Does Auryx accept insurance?
+A: Auryx does not accept insurance. Peptide therapy is an elective precision medicine service and is self-pay only. We accept credit and debit cards, Zelle, and Venmo.
+
+Q: Who are Auryx's providers?
+A: Auryx was founded and is led by a licensed MD specializing in regenerative and integrative medicine. Every protocol is prescribed, reviewed, and monitored by our clinical team — you are always under direct medical supervision.
+
+Q: I'm already on a protocol from another provider. Can I continue it through Auryx?
+A: Yes — and it takes less than 24 hours. Complete a brief intake form covering your current protocol and a short medical screen. A licensed MD reviews and approves, and your compounds are delivered directly to you.
+
+Q: Is Auryx available in my state?
+A: Auryx serves patients nationwide across the United States via telemedicine with direct-to-door delivery. Reach out and our team will confirm availability for your location.
+
+## Learn FAQ
+
+Q: What are research peptides?
+A: Research peptides are short chains of amino acids studied for their biological activity in laboratory and preclinical settings. They are compounds of significant scientific interest for exploring molecular signaling pathways, receptor binding, cellular mechanisms, and biochemical processes. All compounds at AURYX are sold strictly for legitimate research purposes only and are not intended for human consumption.
+
+Q: What is the regulatory status of these compounds?
+A: The compounds offered through AURYX are sold as research-grade peptides for laboratory use only. They have not been evaluated by the Food and Drug Administration for safety or efficacy in humans and are not intended to diagnose, treat, cure, or prevent any disease or condition. Buyers must acknowledge this prior to purchase.
+
+Q: What is BPC-157?
+A: BPC-157 (Body Protection Compound 157) is a synthetic 15-amino-acid peptide originally derived from a protein sequence found in gastric secretion. It has been the subject of extensive preclinical investigation examining its effects on angiogenesis, fibroblast activity, nitric oxide signaling, and tissue-level biological mechanisms. It is available at AURYX strictly for research purposes.
+
+Q: What is semaglutide?
+A: Semaglutide is a GLP-1 receptor agonist — a peptide compound that binds and activates glucagon-like peptide-1 receptors. It has been extensively studied in preclinical and clinical settings for its effects on glucose metabolism, gastric motility, and appetite-regulating neurocircuitry. It is available at AURYX strictly for research purposes.
+
+Q: How do GHRH and GHRP compounds work?
+A: Growth hormone-releasing hormone (GHRH) analogues such as CJC-1295 bind GHRH receptors in the anterior pituitary, stimulating endogenous growth hormone secretion. Growth hormone-releasing peptides (GHRPs) such as ipamorelin act on ghrelin receptors to amplify GH pulses through a complementary mechanism. Both classes are of significant research interest for their effects on the somatotropic axis.
+
+Q: What is NAD+?
+A: NAD+ (nicotinamide adenine dinucleotide) is a coenzyme central to numerous biochemical processes, including those involved in cellular energy metabolism, electron transport, and DNA repair mechanisms. It is a highly active area of research in molecular biology and cellular aging science. It is available at AURYX strictly for research purposes.
+
+Q: Who are AURYX's compounds intended for?
+A: AURYX sells research-grade peptides exclusively to qualified researchers who acknowledge that all compounds are for legitimate scientific research purposes only — not for human consumption. Every buyer is required to confirm their research application, designate a research field, and agree to our terms of service prior to purchase.
+
+Q: What quality standards do AURYX compounds meet?
+A: All compounds supplied by AURYX are sourced from US-based, FDA-registered compounding facilities and verified to ≥99% purity by independent third-party HPLC analysis. A Certificate of Analysis (COA) is available for every product and provided with every order.
+
+## Related pages
+
+- https://www.auryxlife.com/
+- https://www.auryxlife.com/learn
+- https://www.auryxlife.com/llms.txt
+- https://www.auryxlife.com/about
+- https://www.auryxlife.com/sources

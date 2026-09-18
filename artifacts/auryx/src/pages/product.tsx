@@ -8,6 +8,8 @@ import { useState, useEffect } from "react";
 import type { Product } from "@/types/shop";
 import { applyPageSeo, siteUrl, SITE_ORIGIN } from "@/lib/seo";
 import { trackViewItem } from "@/lib/analytics";
+import { useI18n, langHref } from "@/i18n";
+import { applyProductLocale } from "@/i18n/products-locale";
 
 const PRODUCT_IMAGES: Record<string, string> = {
   "semaglutide": "/products/semaglutide.png",
@@ -111,14 +113,15 @@ function Accordion({ title, children }: { title: string; children: React.ReactNo
   );
 }
 
-const TRUST_BADGES = [
-  { label: "US-Sourced", icon: "🇺🇸" },
-  { label: "Pharma Grade", icon: "⚗️" },
-  { label: "3rd Party Tested", icon: "✓" },
-  { label: "Physician-Supervised", icon: "🩺" },
-];
+const TRUST_ICONS = ["🇺🇸", "⚗️", "✓", "🩺"] as const;
 
 export default function ProductPage() {
+  const { lang, dict } = useI18n();
+  const copy = dict.product;
+  const TRUST_BADGES = copy.trustBadges.map((label, i) => ({
+    label,
+    icon: TRUST_ICONS[i] ?? "✓",
+  }));
   const [, params] = useRoute("/shop/:slug");
   const slug = params?.slug ?? "";
   const { addToCart } = useCart();
@@ -126,11 +129,12 @@ export default function ProductPage() {
   const [qty, setQty] = useState(1);
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
 
-  const { data: product, isLoading, error } = useQuery({
+  const { data: rawProduct, isLoading, error } = useQuery({
     queryKey: ["product", slug],
     queryFn: () => fetchProduct(slug),
     enabled: !!slug,
   });
+  const product = rawProduct ? applyProductLocale(rawProduct, lang) : rawProduct;
 
   const { data: stockMap = {} } = useQuery<Record<string, number>>({
     queryKey: ["stock"],
@@ -162,11 +166,11 @@ export default function ProductPage() {
     const description =
       product.shortDescription ||
       product.fullDescription?.slice(0, 155) ||
-      `${product.name} from Auryx — physician-guided peptide protocols nationwide.`;
+      copy.seoDescriptionFallback.replace("{name}", product.name);
     const price = (product.priceCents ?? 0) / 100;
 
     return applyPageSeo({
-      title: `${product.name} | Auryx Shop`,
+      title: `${product.name} ${copy.seoTitleSuffix}`,
       description,
       path,
       type: "product",
@@ -265,8 +269,8 @@ export default function ProductPage() {
     return (
       <div className="min-h-screen flex items-center justify-center px-6" style={{ background: "#FAFAF8" }}>
         <div className="text-center">
-          <p className="text-[#0A0A0A]/50 mb-4 text-sm">Product not found.</p>
-          <Link href="/shop" className="text-[#B8962E] hover:underline text-sm">← Back to shop</Link>
+          <p className="text-[#0A0A0A]/50 mb-4 text-sm">{copy.notFound}.</p>
+          <Link href={langHref(lang, "/shop")} className="text-[#B8962E] hover:underline text-sm">← {copy.backToShop}</Link>
         </div>
       </div>
     );
@@ -278,7 +282,7 @@ export default function ProductPage() {
       <div className="pt-[calc(var(--site-header-height)+1rem)] pb-4 px-4 sm:px-6 md:px-12 border-b border-[#E8E8E4]">
         <div className="container mx-auto max-w-7xl">
           <Link href="/shop" className="inline-flex items-center gap-1.5 text-xs text-[#0A0A0A]/45 hover:text-[#B8962E] transition-colors">
-            <ArrowLeft className="w-3 h-3" /> Back to Shop
+            <ArrowLeft className="w-3 h-3" /> {copy.backToShop}
           </Link>
         </div>
       </div>
@@ -416,7 +420,7 @@ export default function ProductPage() {
                         >
                           {v.label}
                           {variantStock(v.label) === 0 && (
-                            <span className="ml-1.5 text-[10px] text-red-400/70">Out of Stock</span>
+                            <span className="ml-1.5 text-[10px] text-red-400/70">{copy.outOfStock}</span>
                           )}
                           {v.priceCents !== product.variants![0].priceCents && variantStock(v.label) !== 0 && (
                             <span className={`ml-1.5 text-[11px] ${selectedVariantIdx === i ? "text-white/60" : "text-[#0A0A0A]/40"}`}>
@@ -436,7 +440,7 @@ export default function ProductPage() {
                       <path strokeLinecap="round" strokeLinejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
                     <div>
-                      <p className="text-xs font-semibold text-blue-700">Cold Shipping Included</p>
+                      <p className="text-xs font-semibold text-blue-700">{copy.coldShipTitle}</p>
                       <p className="text-[11px] text-blue-600/80 leading-relaxed mt-0.5">Ships in insulated packaging with gel ice packs at no additional cost.</p>
                     </div>
                   </div>
@@ -448,13 +452,13 @@ export default function ProductPage() {
                     ${(displayPriceCents / 100).toFixed(2)}
                   </p>
                   <p className="text-xs text-[#0A0A0A]/40 mt-0.5">
-                    {hasVariants ? "Per vial · Physician-supervised protocol" : "Per protocol unit · Price may vary by dosing"}
+                    {hasVariants ? copy.perVial : copy.perProtocol}
                   </p>
                 </div>
 
                 {/* Quantity */}
                 <div>
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/45 font-medium mb-2.5">Quantity</p>
+                  <p className="text-[10px] uppercase tracking-[0.2em] text-[#0A0A0A]/45 font-medium mb-2.5">{copy.quantity}</p>
                   <div className="flex items-center gap-2">
                     {[1, 2, 3].map(n => (
                       <button
@@ -474,7 +478,7 @@ export default function ProductPage() {
 
                 {selectedOutOfStock ? (
                   <div className="w-full py-3.5 rounded-xl bg-[#0A0A0A]/6 border border-[#E8E8E4] flex items-center justify-center gap-2">
-                    <span className="text-sm text-[#0A0A0A]/35 font-medium tracking-widest uppercase">Out of Stock</span>
+                    <span className="text-sm text-[#0A0A0A]/35 font-medium tracking-widest uppercase">{copy.outOfStock}</span>
                   </div>
                 ) : (
                   <button
@@ -488,7 +492,7 @@ export default function ProductPage() {
                     {added ? (
                       <><CheckCircle2 className="w-4 h-4" /> Added to Cart</>
                     ) : (
-                      <><ShoppingCart className="w-4 h-4" /> Add to Cart — ${((displayPriceCents * qty) / 100).toFixed(2)}</>
+                      <><ShoppingCart className="w-4 h-4" /> {copy.addToCartPrice.replace("${price}", ((displayPriceCents * qty) / 100).toFixed(2))}</>
                     )}
                   </button>
                 )}
@@ -496,11 +500,11 @@ export default function ProductPage() {
 
               {/* Expandable Sections */}
               <div className="border-t border-[#E8E8E4]">
-                <Accordion title="Description">
+                <Accordion title={copy.accordionDescription}>
                   <p className="text-sm text-[#0A0A0A]/65 leading-relaxed">{product.fullDescription}</p>
                 </Accordion>
 
-                <Accordion title="Primary Benefits">
+                <Accordion title={copy.accordionBenefits}>
                   <ul className="space-y-2">
                     {product.benefits.map((b, i) => (
                       <li key={i} className="flex items-start gap-2.5 text-sm text-[#0A0A0A]/70">
@@ -511,7 +515,7 @@ export default function ProductPage() {
                   </ul>
                 </Accordion>
 
-                <Accordion title="Dosing Protocol">
+                <Accordion title={copy.accordionDosing}>
                   {product.regulatoryStatus === "prescription" ? (
                     <>
                       <p className="text-sm text-[#0A0A0A]/65 leading-relaxed">{product.dosingInfo}</p>
@@ -520,7 +524,7 @@ export default function ProductPage() {
                   ) : (
                     <div className="bg-[#F5F0E8] rounded-xl p-4">
                       <p className="text-sm text-[#0A0A0A]/65 leading-relaxed">
-                        Dosing guidance for this compound is provided privately during your consultation, following review of your health history and research objectives. Specific dosing information is not published publicly in accordance with applicable guidelines.
+                        {copy.dosingPrivate}
                       </p>
                       <p className="text-xs text-[#0A0A0A]/35 mt-3">Book a consultation to discuss your protocol with an Auryx physician.</p>
                     </div>
@@ -528,7 +532,7 @@ export default function ProductPage() {
                 </Accordion>
 
                 {product.physicianNote && (
-                  <Accordion title="Physician's Note">
+                  <Accordion title={copy.accordionPhysician}>
                     <div className="bg-[#F5F0E8] rounded-xl p-4">
                       <p className="text-sm text-[#0A0A0A]/70 italic leading-relaxed">"{product.physicianNote}"</p>
                     </div>
@@ -536,7 +540,7 @@ export default function ProductPage() {
                 )}
 
                 {product.coas && product.coas.length > 0 && (
-                  <Accordion title="Certificate of Analysis">
+                  <Accordion title={copy.accordionCoa}>
                     <div className="space-y-3">
                       {product.coas.map((coa, i) => (
                         <div key={i} className="flex items-center justify-between bg-[#F5F0E8] rounded-xl p-4 gap-4">
@@ -555,7 +559,7 @@ export default function ProductPage() {
                             className="shrink-0 flex items-center gap-1.5 text-[11px] font-medium text-[#B8962E] hover:text-[#0A0A0A] transition-colors uppercase tracking-wider"
                           >
                             <FileText className="w-3.5 h-3.5" />
-                            View COA
+                            {copy.viewCoa}
                           </a>
                         </div>
                       ))}
@@ -588,11 +592,11 @@ export default function ProductPage() {
           }`}
         >
           {selectedOutOfStock ? (
-            "Out of Stock"
+            copy.outOfStock
           ) : added ? (
-            <><CheckCircle2 className="h-4 w-4" /> Added to Cart</>
+            <><CheckCircle2 className="h-4 w-4" /> {copy.addedToCart}</>
           ) : (
-            <><ShoppingCart className="h-4 w-4" /> Add to Cart — ${((displayPriceCents * qty) / 100).toFixed(2)}</>
+            <><ShoppingCart className="h-4 w-4" /> {copy.addToCartPrice.replace("${price}", ((displayPriceCents * qty) / 100).toFixed(2))}</>
           )}
         </button>
       </div>

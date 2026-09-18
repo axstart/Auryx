@@ -21,10 +21,10 @@ export default function Footer() {
             {[
               { label: t("footer.shop"), href: "/shop" },
               { label: t("footer.ourMethod"), href: "/our-method" },
-              { label: "About", href: "/about" },
+              { label: t("footer.about"), href: "/about" },
               { label: t("footer.learn"), href: "/learn" },
               { label: t("footer.pepTalk"), href: "/blog" },
-              { label: "Verify COA", href: "/verify-coa" },
+              { label: t("footer.verifyCoa"), href: "/verify-coa" },
               { label: t("footer.account"), href: "/admin" },
             ].map(l => (
               <Link key={l.href} href={l.href} className="inline-flex min-h-11 items-center text-[11px] uppercase tracking-[0.2em] text-white/40 hover:text-[#C9A844] transition-colors font-medium">

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { applyPageSeo } from "@/lib/seo";
 import { trackPurchase } from "@/lib/analytics";
+import { useI18n, langHref } from "@/i18n";
 
 const GOALS = [
   "Weight Loss",
@@ -86,6 +87,8 @@ const MEDICAL_HISTORY_OPTIONS = [
 ] as const;
 
 export default function CheckoutSuccessPage() {
+  const { lang, dict } = useI18n();
+  const copy = dict.checkoutSuccess;
   const [orderId, setOrderId] = useState<number | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -108,7 +111,7 @@ export default function CheckoutSuccessPage() {
 
   useEffect(() => {
     applyPageSeo({
-      title: "Order Confirmed | Auryx",
+      title: copy.seoTitle,
       description: "Your Auryx order has been received and is under clinical review.",
       path: "/checkout/success",
       noindex: true,
@@ -288,7 +291,7 @@ export default function CheckoutSuccessPage() {
                     className="w-full h-11 bg-[#FAFAF8] border border-[#E8E8E4] rounded-lg px-3 text-base md:text-sm text-[#0A0A0A] focus:outline-none focus:border-[#C9A844]"
                   >
                     <option value="">Select a goal</option>
-                    {GOALS.map(g => <option key={g} value={g}>{g}</option>)}
+                    {copy.goals.map(g => <option key={g} value={g}>{g}</option>)}
                   </select>
                 </div>
               </div>
@@ -319,7 +322,7 @@ export default function CheckoutSuccessPage() {
                   Medical History — Select all that apply
                 </label>
                 <div className="space-y-1.5">
-                  {MEDICAL_HISTORY_OPTIONS.map((opt) => {
+                  {copy.conditions.map((opt) => {
                     const isSelected = conditions.includes(opt.key);
                     return (
                       <div key={opt.key}>
@@ -467,9 +470,9 @@ export default function CheckoutSuccessPage() {
         )}
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
-          <Link href="/shop">
+          <Link href={langHref(lang, "/shop")}>
             <Button variant="outline" className="border-border/60 h-10 text-sm">
-              Continue Shopping
+              {copy.continueShopping}
             </Button>
           </Link>
           <Link href="/">

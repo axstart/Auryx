@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { ChevronRight, ChevronLeft, ShieldAlert, CheckCircle2, ArrowRight } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 type Step = "protocol" | "screening" | "contact" | "redirected" | "success";
 
@@ -38,6 +39,8 @@ export function ProtocolContinuationModal({
   onOpenChange: (open: boolean) => void;
   onSwitchToConsultation: () => void;
 }) {
+  const { dict } = useI18n();
+  const copy = dict.protocolContinuation;
   const { toast } = useToast();
   const [step, setStep] = useState<Step>("protocol");
 
@@ -79,7 +82,7 @@ export function ProtocolContinuationModal({
     setStep("screening");
   };
 
-  const currentQuestion = SCREENING_QUESTIONS[screeningIndex];
+  const currentQuestion = copy.screeningQuestions[screeningIndex];
 
   const handleScreeningAnswer = (yes: boolean) => {
     const qId = currentQuestion.id;
@@ -89,7 +92,7 @@ export function ProtocolContinuationModal({
     const updatedFlags = yes ? [...redFlags, qId] : redFlags;
     if (yes) setRedFlags(updatedFlags);
 
-    if (screeningIndex < SCREENING_QUESTIONS.length - 1) {
+    if (screeningIndex < copy.screeningQuestions.length - 1) {
       setScreeningIndex(screeningIndex + 1);
     } else {
       const allFlags = Object.entries(updated).filter(([, v]) => v).map(([k]) => k);
@@ -136,7 +139,7 @@ export function ProtocolContinuationModal({
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent className="left-0 right-0 top-auto bottom-0 w-full max-w-none translate-x-0 translate-y-0 max-h-[calc(100dvh-env(safe-area-inset-top))] overflow-y-auto overscroll-contain rounded-t-2xl bg-card border-border/60 text-foreground p-4 pb-[max(1rem,env(safe-area-inset-bottom))] sm:left-[50%] sm:right-auto sm:top-[50%] sm:bottom-auto sm:max-w-2xl sm:max-h-[90vh] sm:translate-x-[-50%] sm:translate-y-[-50%] sm:rounded-lg sm:p-6 [&>button]:h-11 [&>button]:w-11 [&>button]:grid [&>button]:place-items-center motion-reduce:duration-0">
         <DialogHeader>
-          <DialogTitle className="font-serif text-2xl text-foreground mb-1">Continue My Protocol</DialogTitle>
+          <DialogTitle className="font-serif text-2xl text-foreground mb-1">{copy.title}</DialogTitle>
           <p className="text-sm text-muted-foreground">
             Already on a protocol? Our streamlined intake gets you approved and dispensed within 24 hours.
           </p>
@@ -245,12 +248,12 @@ export function ProtocolContinuationModal({
               <div className="mb-6">
                 <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
                   <span className="uppercase tracking-wider">Medical screening</span>
-                  <span>{screeningIndex + 1} of {SCREENING_QUESTIONS.length}</span>
+                  <span>{screeningIndex + 1} of {copy.screeningQuestions.length}</span>
                 </div>
                 <div className="h-[1px] bg-border rounded-full overflow-hidden mb-6">
                   <motion.div
                     className="h-full bg-primary/50 rounded-full"
-                    animate={{ width: `${((screeningIndex + 1) / SCREENING_QUESTIONS.length) * 100}%` }}
+                    animate={{ width: `${((screeningIndex + 1) / copy.screeningQuestions.length) * 100}%` }}
                     transition={{ duration: 0.3 }}
                   />
                 </div>
@@ -386,7 +389,7 @@ export function ProtocolContinuationModal({
                   disabled={!contactValid || submitting}
                   className="flex-1 bg-primary text-primary-foreground h-12 text-base tracking-wide disabled:opacity-40"
                 >
-                  {submitting ? "Submitting..." : <>Submit Intake <ArrowRight className="ml-2 w-4 h-4" /></>}
+                  {submitting ? copy.submitting : <>{copy.submit} <ArrowRight className="ml-2 w-4 h-4" /></>}
                 </Button>
               </div>
               <p className="text-xs text-muted-foreground/50 text-center">

@@ -16,6 +16,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { trackEvent } from "@/lib/analytics";
+import { useI18n } from "@/i18n";
 
 async function fetchProducts(): Promise<ProductSummary[]> {
   const res = await fetch("/api/products");
@@ -102,16 +103,15 @@ function OptionCard({ label, desc, onClick }: { label: string; desc: string; onC
 }
 
 function StepKnowledge({ stepLabel, onSelect }: { stepLabel: string; onSelect: (v: string) => void }) {
-  const options = [
-    { value: "new", label: "New to peptides", desc: "I've heard about them but don't know much yet." },
-    { value: "some", label: "Some knowledge", desc: "I've researched a few peptides and understand the basics." },
-    { value: "experienced", label: "Experienced", desc: "I've used peptides before and understand protocols well." },
-  ];
+  /*i18n:function StepKnowledge*/
+  const { dict } = useI18n();
+  const copy = dict.patientAssessment;
+  const options = copy.knowledge.options;
   return (
     <StepShell
       label={stepLabel}
-      headline="How familiar are you with peptide therapy?"
-      sub="This helps us tailor the information and guidance we share with you."
+      headline={copy.knowledge.headline}
+      sub={copy.knowledge.sub}
     >
       <div className="grid gap-2">
         {options.map((o) => (
@@ -130,6 +130,9 @@ const PEPTIDE_OPTIONS = [
 ];
 
 function StepCurrentPeptides({ stepLabel, onNext }: { stepLabel: string; onNext: (v: string) => void }) {
+  /*i18n:function StepCurrentPeptides*/
+  const { dict } = useI18n();
+  const copy = dict.patientAssessment;
   const [selected, setSelected] = useState<string[]>([]);
   const [custom, setCustom] = useState("");
 
@@ -139,14 +142,14 @@ function StepCurrentPeptides({ stepLabel, onNext }: { stepLabel: string; onNext:
   const handleContinue = () => {
     const all = [...selected];
     if (custom.trim()) all.push(custom.trim());
-    onNext(all.length ? all.join(", ") : "Not specified");
+    onNext(all.length ? all.join(", ") : copy.currentPeptides.notSpecified);
   };
 
   return (
     <StepShell
       label={stepLabel}
-      headline="What peptides are you currently using?"
-      sub="Select all that apply. You can add custom compounds below — doses and frequency are optional."
+      headline={copy.currentPeptides.headline}
+      sub={copy.currentPeptides.sub}
     >
       <div className="flex flex-wrap gap-2 mb-4">
         {PEPTIDE_OPTIONS.map((p) => {
@@ -170,7 +173,7 @@ function StepCurrentPeptides({ stepLabel, onNext }: { stepLabel: string; onNext:
         data-testid="input-custom-peptides"
         type="text"
         autoComplete="off"
-        placeholder="Other compounds (e.g. Epithalon 10mg, Kisspeptin 10mcg...)"
+        placeholder={copy.currentPeptides.customPlaceholder}
         value={custom}
         onChange={(e) => setCustom(e.target.value)}
         className="w-full mb-5 px-4 py-2.5 rounded-lg bg-[#161510] border border-[#C9A844]/20 text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none focus:border-primary/60 transition-colors"
@@ -180,46 +183,28 @@ function StepCurrentPeptides({ stepLabel, onNext }: { stepLabel: string; onNext:
         onClick={handleContinue}
         className="w-full bg-primary text-primary-foreground h-11 text-sm tracking-wide"
       >
-        Continue <ChevronRight className="ml-2 w-4 h-4" />
+        {copy.continue} <ChevronRight className="ml-2 w-4 h-4" />
       </Button>
       <button
-        onClick={() => onNext("Prefer not to say")}
+        onClick={() => onNext(copy.currentPeptides.preferNot)}
         className="w-full min-h-11 mt-3 text-xs text-muted-foreground hover:text-primary transition-colors py-2"
       >
-        Prefer not to share — skip this step
+        {copy.skipPreferNot}
       </button>
     </StepShell>
   );
 }
 
 function StepProtocolIntent({ stepLabel, onSelect }: { stepLabel: string; onSelect: (v: string) => void }) {
-  const options = [
-    {
-      value: "changes",
-      label: "I'd like to optimize or change my protocol",
-      desc: "I want to adjust doses, add compounds, cycle differently, or switch something.",
-    },
-    {
-      value: "questions",
-      label: "I have specific questions",
-      desc: "Mechanism of action, stacking, labs, side effects — I want expert answers.",
-    },
-    {
-      value: "continue",
-      label: "Continue my exact protocol under Auryx",
-      desc: "I'm happy with my current stack and just want to source it through Auryx.",
-    },
-    {
-      value: "maintaining",
-      label: "I'm happy with my current protocol",
-      desc: "I'm just exploring what Auryx offers and what's available.",
-    },
-  ];
+  /*i18n:function StepProtocolIntent*/
+  const { dict } = useI18n();
+  const copy = dict.patientAssessment;
+  const options = copy.protocolIntent.options;
   return (
     <StepShell
       label={stepLabel}
-      headline="What would you like from Auryx?"
-      sub="Given your experience with peptides, what would be most valuable for you right now?"
+      headline={copy.protocolIntent.headline}
+      sub={copy.protocolIntent.sub}
     >
       <div className="grid gap-2">
         {options.map((o) => (
@@ -230,84 +215,64 @@ function StepProtocolIntent({ stepLabel, onSelect }: { stepLabel: string; onSele
   );
 }
 
-function StepGoal({ stepLabel, onSubmit }: { stepLabel: string; onSubmit: (v: string) => void }) {
+function StepGoal({ stepLabel, onSubmit }: { stepLabel: string; onSubmit: (v: string[]) => void }) {
+  /*i18n:function StepGoal*/
+  const { dict } = useI18n();
+  const copy = dict.patientAssessment;
   const [selected, setSelected] = useState<string[]>([]);
-  const options = [
-    { value: "antiaging", label: "Anti-Aging & Longevity", desc: "Slow biological aging, improve cellular health, look and feel younger." },
-    { value: "fatloss", label: "Fat Loss & Body Composition", desc: "Metabolic acceleration, weight reduction, lean mass preservation." },
-    { value: "sexual", label: "Sexual Health & Vitality", desc: "Libido restoration, performance, hormonal balance." },
-    { value: "recovery", label: "Recovery & Regeneration", desc: "Injury healing, post-surgical recovery, tissue repair." },
-    { value: "cognitive", label: "Cognitive Performance", desc: "Focus, memory, neuroprotection, mental clarity." },
-    { value: "energy", label: "Energy & Vitality", desc: "Eliminate fatigue, optimize mitochondria, sustain peak output." },
-    { value: "unsure", label: "Not sure yet", desc: "I'd like guidance on what's most relevant for my situation." },
-  ];
+  const options = copy.goal.options;
 
-  const toggle = (v: string) =>
-    setSelected((prev) => prev.includes(v) ? prev.filter((x) => x !== v) : [...prev, v]);
+  const toggle = (value: string) => {
+    setSelected((prev) =>
+      prev.includes(value) ? prev.filter((v) => v !== value) : [...prev, value],
+    );
+  };
 
   return (
     <StepShell
       label={stepLabel}
-      headline="What are your areas of focus?"
-      sub="Select all that apply. Your protocol can address multiple goals simultaneously."
+      headline={copy.goal.headline}
+      sub={copy.goal.sub}
     >
-      <div className="grid gap-2 mb-5">
+      <div className="grid gap-2 mb-6">
         {options.map((o) => {
           const active = selected.includes(o.value);
           return (
             <button
               key={o.value}
-              data-testid={`option-${o.value}`}
+              type="button"
               onClick={() => toggle(o.value)}
-              className={`w-full min-h-11 text-left px-4 py-3 rounded-lg border transition-all duration-200 group motion-reduce:transition-none ${
-                active
-                  ? "border-primary bg-primary/10"
-                  : "border-[#C9A844]/20 bg-[#161510] hover:border-[#C9A844]/60 hover:bg-[#1e1a0a]"
+              className={`w-full min-h-11 text-left px-4 py-3 rounded-lg border transition-all duration-200 ${
+                active ? "border-primary bg-primary/10" : "border-white/[0.14] bg-white/[0.06] hover:border-primary/50"
               }`}
             >
-              <div className="flex items-center justify-between gap-3">
-                <div>
-                  <p className="font-medium text-sm text-foreground mb-0.5">{o.label}</p>
-                  <p className="text-xs text-muted-foreground leading-snug">{o.desc}</p>
-                </div>
-                <div className={`w-4 h-4 rounded border shrink-0 flex items-center justify-center transition-colors ${
-                  active ? "bg-primary border-primary" : "border-white/20"
-                }`}>
-                  {active && (
-                    <svg className="w-2.5 h-2.5" viewBox="0 0 10 10" fill="none">
-                      <path d="M2 5l2.5 2.5 3.5-4" stroke="#0A0A0A" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-                    </svg>
-                  )}
-                </div>
-              </div>
+              <div className="font-medium text-sm text-foreground">{o.label}</div>
+              <div className="text-xs text-muted-foreground mt-0.5">{o.desc}</div>
             </button>
           );
         })}
       </div>
       <Button
-        data-testid="goal-next"
         disabled={selected.length === 0}
-        onClick={() => onSubmit(selected.join(", "))}
-        className="w-full bg-primary text-primary-foreground h-11 text-sm tracking-wide disabled:opacity-40"
+        onClick={() => onSubmit(selected)}
+        className="w-full bg-primary text-primary-foreground h-11"
       >
-        Continue <ChevronRight className="ml-2 w-4 h-4" />
+        {copy.continue} <ChevronRight className="ml-2 w-4 h-4" />
       </Button>
     </StepShell>
   );
 }
 
 function StepEnergySleep({ stepLabel, onSelect }: { stepLabel: string; onSelect: (v: string) => void }) {
-  const options = [
-    { value: "excellent", label: "Consistently strong", desc: "I sleep well, wake rested, and sustain energy throughout the day." },
-    { value: "variable", label: "Variable", desc: "Some good days, some bad — energy and sleep quality fluctuate." },
-    { value: "low", label: "Often low", desc: "I frequently feel fatigued, struggle with afternoon crashes, or sleep poorly." },
-    { value: "poor", label: "Significantly compromised", desc: "Chronic fatigue, poor sleep, and low energy are real ongoing issues for me." },
-  ];
+  /*i18n:function StepEnergySleep*/
+  const { dict } = useI18n();
+  const copy = dict.patientAssessment;
+  const options = copy.energySleep.options;
   return (
     <StepShell
       label={stepLabel}
-      headline="How would you describe your current energy and sleep?"
-      sub="Your baseline vitality shapes which protocols will deliver the most meaningful impact."
+      headline={copy.energySleep.headline}
+      sub={copy.energySleep.sub}
     >
       <div className="grid gap-2">
         {options.map((o) => (
@@ -319,17 +284,15 @@ function StepEnergySleep({ stepLabel, onSelect }: { stepLabel: string; onSelect:
 }
 
 function StepActivityLevel({ stepLabel, onSelect }: { stepLabel: string; onSelect: (v: string) => void }) {
-  const options = [
-    { value: "very-active", label: "Very active", desc: "Training 5+ days/week — sport, strength, endurance, or performance-focused." },
-    { value: "moderately-active", label: "Moderately active", desc: "Regular movement 3–4x/week. Health-conscious and consistent." },
-    { value: "lightly-active", label: "Lightly active", desc: "Occasional exercise. Looking to build or rebuild a more active lifestyle." },
-    { value: "sedentary", label: "Mostly sedentary", desc: "Desk-based, limited movement. Health optimization is a new priority." },
-  ];
+  /*i18n:function StepActivityLevel*/
+  const { dict } = useI18n();
+  const copy = dict.patientAssessment;
+  const options = copy.activity.options;
   return (
     <StepShell
       label={stepLabel}
-      headline="How active is your lifestyle?"
-      sub="Activity level influences recovery demand, metabolic rate, and which compounds are most clinically relevant."
+      headline={copy.activity.headline}
+      sub={copy.activity.sub}
     >
       <div className="grid gap-2">
         {options.map((o) => (
@@ -341,17 +304,15 @@ function StepActivityLevel({ stepLabel, onSelect }: { stepLabel: string; onSelec
 }
 
 function StepIntent({ stepLabel, onSelect }: { stepLabel: string; onSelect: (v: string) => void }) {
-  const options = [
-    { value: "consultation", label: "I want a private consultation", desc: "I'm ready to speak with a physician and get a personalized protocol." },
-    { value: "purchase", label: "I'm looking to purchase peptides", desc: "I know what I want and would like to proceed with an order." },
-    { value: "learn", label: "I want to learn more first", desc: "I'm gathering information before making any decisions." },
-    { value: "browse", label: "Just exploring", desc: "I'm curious about what Auryx offers and how this works." },
-  ];
+  /*i18n:function StepIntent*/
+  const { dict } = useI18n();
+  const copy = dict.patientAssessment;
+  const options = copy.intent.options;
   return (
     <StepShell
       label={stepLabel}
-      headline="What brings you to Auryx today?"
-      sub="There's no wrong answer. This helps us direct you to exactly the right next step."
+      headline={copy.intent.headline}
+      sub={copy.intent.sub}
     >
       <div className="grid gap-2">
         {options.map((o) => (
@@ -363,17 +324,11 @@ function StepIntent({ stepLabel, onSelect }: { stepLabel: string; onSelect: (v: 
 }
 
 function StepMedical({ stepLabel, onSubmit }: { stepLabel: string; onSubmit: (selected: string[]) => void }) {
+  /*i18n:function StepMedical*/
+  const { dict } = useI18n();
+  const copy = dict.patientAssessment;
   const [selected, setSelected] = useState<string[]>([]);
-
-  const options = [
-    { value: "hormone-sensitive-cancer", label: "History of hormone-sensitive cancer", desc: "Breast, prostate, ovarian, endometrial, or other hormone-driven cancers." },
-    { value: "other-cancer", label: "History of other cancer", desc: "Any malignancy not listed above, past or present." },
-    { value: "active-treatment", label: "Currently undergoing cancer treatment", desc: "Chemotherapy, radiation, immunotherapy, or targeted therapy." },
-    { value: "cardiovascular", label: "Significant cardiovascular disease", desc: "Heart attack, stroke, heart failure, or serious arrhythmia." },
-    { value: "autoimmune", label: "Autoimmune condition", desc: "Lupus, MS, rheumatoid arthritis, IBD, or similar diagnosis." },
-    { value: "pregnant", label: "Pregnant or nursing", desc: "Current pregnancy or breastfeeding." },
-    { value: "none", label: "None of the above", desc: "I do not have any of the conditions listed." },
-  ];
+  const options = copy.medical.options;
 
   const toggle = (value: string) => {
     if (value === "none") { setSelected(["none"]); return; }
@@ -386,8 +341,8 @@ function StepMedical({ stepLabel, onSubmit }: { stepLabel: string; onSubmit: (se
   return (
     <StepShell
       label={stepLabel}
-      headline="Please review the following medical history items."
-      sub="This information is used solely to ensure your safety and guide appropriate protocol design. Select all that apply."
+      headline={copy.medical.headline}
+      sub={copy.medical.sub}
     >
       <div className="grid gap-2 mb-6">
         {options.map((o) => {
@@ -420,18 +375,17 @@ function StepMedical({ stepLabel, onSubmit }: { stepLabel: string; onSubmit: (se
         onClick={() => onSubmit(selected)}
         className="w-full bg-primary text-primary-foreground h-12 text-base tracking-wide"
       >
-        Analyse My Profile <ChevronRight className="ml-2 w-4 h-4" />
+        {copy.analyseProfile} <ChevronRight className="ml-2 w-4 h-4" />
       </Button>
     </StepShell>
   );
 }
 
 function LoadingScreen() {
-  const phrases = [
-    "Analysing your profile…",
-    "Matching compounds to your biology…",
-    "Calibrating protocol fit…",
-  ];
+  /*i18n:function LoadingScreen*/
+  const { dict } = useI18n();
+  const copy = dict.patientAssessment;
+  const phrases = copy.loadingPhrases as unknown as string[];
   const [phraseIndex] = useState(0);
 
   return (
@@ -455,7 +409,7 @@ function LoadingScreen() {
         </div>
       </div>
       <div className="text-center">
-        <p className="text-xs uppercase tracking-[0.25em] text-primary mb-3">Aria is working</p>
+        <p className="text-xs uppercase tracking-[0.25em] text-primary mb-3">{copy.ariaWorking}</p>
         <p className="text-muted-foreground text-sm">{phrases[phraseIndex]}</p>
       </div>
     </motion.div>
@@ -463,6 +417,9 @@ function LoadingScreen() {
 }
 
 function WaiverModal({ onAccept, onClose }: { onAccept: () => void; onClose: () => void }) {
+  /*i18n:function WaiverModal*/
+  const { dict } = useI18n();
+  const copy = dict.patientAssessment;
   const [agreed, setAgreed] = useState(false);
   return (
     <Dialog open onOpenChange={(nextOpen) => { if (!nextOpen) onClose(); }}>
@@ -477,42 +434,24 @@ function WaiverModal({ onAccept, onClose }: { onAccept: () => void; onClose: () 
         <div className="sticky top-0 bg-[#0f0f0f] border-b border-white/[0.06] px-6 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <ShieldAlert className="w-4 h-4 text-amber-400" />
-            <DialogTitle className="text-xs uppercase tracking-[0.2em] text-amber-400">Informed Consent & Waiver</DialogTitle>
+            <DialogTitle className="text-xs uppercase tracking-[0.2em] text-amber-400">{copy.waiver.title}</DialogTitle>
           </div>
-          <button onClick={onClose} className="min-h-11 min-w-11 -mr-3 inline-flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors" aria-label="Close waiver">
+          <button onClick={onClose} className="min-h-11 min-w-11 -mr-3 inline-flex items-center justify-center text-muted-foreground hover:text-foreground transition-colors" aria-label={copy.waiver.closeAria}>
             <X className="w-4 h-4" />
           </button>
         </div>
 
         <div className="px-6 py-6">
-          <h3 className="font-serif text-xl text-foreground mb-1">Self-Directed Protocol Waiver</h3>
-          <DialogDescription className="text-xs text-muted-foreground mb-5">Please read carefully before proceeding.</DialogDescription>
+          <h3 className="font-serif text-xl text-foreground mb-1">{copy.waiver.heading}</h3>
+          <DialogDescription className="text-xs text-muted-foreground mb-5">{copy.waiver.pleaseRead}</DialogDescription>
 
           <div className="space-y-4 text-sm text-foreground/65 leading-relaxed">
-            <div>
-              <p className="text-foreground/90 font-medium mb-1">1. No Medical Supervision</p>
-              <p>You are choosing to purchase AURYX peptide products without prior review or clearance by a licensed physician. AURYX strongly advises against self-directed peptide use by individuals with complex medical histories. By proceeding, you acknowledge this recommendation and waive it of your own free will.</p>
-            </div>
-            <div>
-              <p className="text-foreground/90 font-medium mb-1">2. Educational Use Only</p>
-              <p>All product information, protocol guidance, and AI-generated content provided by AURYX is for educational and informational purposes only. Nothing on this site constitutes medical advice, diagnosis, or treatment.</p>
-            </div>
-            <div>
-              <p className="text-foreground/90 font-medium mb-1">3. Voluntary Assumption of Risk</p>
-              <p>You voluntarily and knowingly assume all risks associated with self-directed peptide use, including but not limited to adverse reactions, contraindications with existing medications or conditions, and any outcomes arising from unsupervised administration.</p>
-            </div>
-            <div>
-              <p className="text-foreground/90 font-medium mb-1">4. Release of Liability</p>
-              <p>AURYX, its parent entities, affiliates, physicians, consultants, and staff bear no responsibility or liability for any health outcomes, adverse events, complications, or consequences arising from your decision to proceed without obtaining a physician consultation first.</p>
-            </div>
-            <div>
-              <p className="text-foreground/90 font-medium mb-1">5. Regulatory Compliance</p>
-              <p>Peptide compounds are research-grade substances. Laws governing their purchase, possession, and use vary by jurisdiction. You are solely responsible for ensuring compliance with all applicable local, state, and federal regulations in your location.</p>
-            </div>
-            <div>
-              <p className="text-foreground/90 font-medium mb-1">6. Consultation Remains Available</p>
-              <p>A private physician consultation through AURYX remains available to you at any time. We sincerely encourage you to reconsider and speak with our clinical team before beginning any protocol — particularly given the health history you have disclosed.</p>
-            </div>
+            {copy.waiver.sections.map((section) => (
+              <div key={section.title}>
+                <p className="text-foreground/90 font-medium mb-1">{section.title}</p>
+                <p>{section.body}</p>
+              </div>
+            ))}
           </div>
 
           <div className="mt-6 border-t border-white/[0.06] pt-5">
@@ -536,7 +475,7 @@ function WaiverModal({ onAccept, onClose }: { onAccept: () => void; onClose: () 
                 )}
               </div>
               <span className="text-xs text-muted-foreground leading-relaxed">
-                I have read and understood this waiver in full. I am making this decision voluntarily and accept complete personal responsibility for the risks involved. I release AURYX from any liability arising from my self-directed use of its products.
+                {copy.waiver.agree}
               </span>
             </label>
 
@@ -546,14 +485,14 @@ function WaiverModal({ onAccept, onClose }: { onAccept: () => void; onClose: () 
                 onClick={onAccept}
                 className="flex-1 bg-primary text-[#0A0A0A] hover:bg-primary/90 h-11 text-sm font-bold tracking-wide disabled:opacity-30"
               >
-                I Understand — Take Me to the Shop <ArrowRight className="ml-2 w-4 h-4" />
+                {copy.waiver.accept} <ArrowRight className="ml-2 w-4 h-4" />
               </Button>
               <Button
                 variant="outline"
                 onClick={onClose}
                 className="border-border/60 text-muted-foreground hover:border-primary/40 h-11 px-5"
               >
-                Cancel
+                {copy.waiver.cancel}
               </Button>
             </div>
           </div>
@@ -565,6 +504,9 @@ function WaiverModal({ onAccept, onClose }: { onAccept: () => void; onClose: () 
 }
 
 function MedicalResultScreen({ onReset, onConsult }: { onReset: () => void; onConsult: () => void }) {
+  /*i18n:function MedicalResultScreen*/
+  const { dict } = useI18n();
+  const copy = dict.patientAssessment;
   const [showWaiver, setShowWaiver] = useState(false);
   const [, navigate] = useLocation();
 
@@ -593,15 +535,12 @@ function MedicalResultScreen({ onReset, onConsult }: { onReset: () => void; onCo
         </div>
         <div className="flex items-center justify-center gap-3 mb-4">
           <div className="h-[1px] w-8 bg-primary/40" />
-          <span className="text-primary text-xs tracking-[0.25em] uppercase">Physician Review Required</span>
+          <span className="text-primary text-xs tracking-[0.25em] uppercase">{copy.medicalResult.eyebrow}</span>
           <div className="h-[1px] w-8 bg-primary/40" />
         </div>
-        <h3 className="text-3xl md:text-4xl font-serif mb-6 text-foreground">Physician Review Required</h3>
+        <h3 className="text-3xl md:text-4xl font-serif mb-6 text-foreground">{copy.medicalResult.title}</h3>
         <p className="text-muted-foreground leading-relaxed mb-8 text-base">
-          Based on your medical history, a direct consultation with one of our physicians is required before any protocol can be considered.
-          This is not a barrier — it is the standard of care we hold for every patient. Our team will review your case with complete
-          discretion, expertise, and compassion. Many patients with complex histories find that peptide therapy is still an excellent
-          fit under appropriate medical supervision.
+          {copy.medicalResult.body}
         </p>
         <div className="flex flex-col sm:flex-row gap-4 justify-center mb-6">
           <Button
@@ -609,7 +548,7 @@ function MedicalResultScreen({ onReset, onConsult }: { onReset: () => void; onCo
             onClick={onConsult}
             className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 text-base tracking-wide"
           >
-            Request a Physician Consultation <ArrowRight className="ml-2 w-4 h-4" />
+            {copy.medicalResult.consult} <ArrowRight className="ml-2 w-4 h-4" />
           </Button>
           <Button
             data-testid="result-reset"
@@ -617,7 +556,7 @@ function MedicalResultScreen({ onReset, onConsult }: { onReset: () => void; onCo
             onClick={onReset}
             className="border-border/60 text-muted-foreground hover:border-primary/40 h-12 px-8"
           >
-            Start Over
+            {copy.medicalResult.reset}
           </Button>
         </div>
 
@@ -626,11 +565,11 @@ function MedicalResultScreen({ onReset, onConsult }: { onReset: () => void; onCo
           onClick={() => setShowWaiver(true)}
           className="min-h-11 px-3 text-xs text-muted-foreground/50 hover:text-muted-foreground transition-colors underline underline-offset-4 decoration-muted-foreground/25"
         >
-          I'll take a risk and order on my own
+          {copy.medicalResult.selfOrder}
         </button>
 
         <p className="mt-6 text-xs text-muted-foreground/50 max-w-lg mx-auto">
-          All information shared is protected under strict medical privacy standards. Our physicians approach every case without judgment and with your wellbeing as the sole priority.
+          {copy.medicalResult.privacy}
         </p>
       </motion.div>
     </>
@@ -646,6 +585,9 @@ function AIResultScreen({
   onReset: () => void;
   onConsult: () => void;
 }) {
+  /*i18n:function AIResultScreen*/
+  const { dict } = useI18n();
+  const copy = dict.patientAssessment;
   const { addToCart } = useCart();
   const [addedSlugs, setAddedSlugs] = useState<Set<string>>(new Set());
   const [searchQuery, setSearchQuery] = useState("");
@@ -702,7 +644,7 @@ function AIResultScreen({
       <div className="flex items-center justify-center gap-3 mb-6">
         <div className="h-[1px] flex-1 bg-primary/20" />
         <span className="text-primary text-xs tracking-[0.25em] uppercase flex items-center gap-2">
-          <Sparkles className="w-3.5 h-3.5" /> Aria's Recommendation
+          <Sparkles className="w-3.5 h-3.5" /> {copy.aiResult.title}
         </span>
         <div className="h-[1px] flex-1 bg-primary/20" />
       </div>
@@ -718,7 +660,7 @@ function AIResultScreen({
         <input
           type="text"
           autoComplete="off"
-          placeholder="Search your recommendations…"
+          placeholder={copy.aiResult.searchPlaceholder}
           value={searchQuery}
           onChange={e => setSearchQuery(e.target.value)}
           className="w-full pl-10 pr-4 py-2.5 text-[13px] rounded-xl border border-[#C9A844]/20 bg-[#161510] text-foreground placeholder:text-foreground/25 focus:outline-none focus:border-[#C9A844]/60 focus:ring-1 focus:ring-[#C9A844]/15 transition-all"
@@ -727,9 +669,9 @@ function AIResultScreen({
           <button
             onClick={() => setSearchQuery("")}
             className="absolute right-0 top-1/2 min-h-11 px-3 -translate-y-1/2 text-foreground/25 hover:text-primary text-xs transition-colors"
-            aria-label="Clear recommendation search"
+            aria-label={copy.aiResult.clearSearchAria}
           >
-            Clear
+            {copy.aiResult.clearSearch}
           </button>
         )}
       </div>
@@ -778,7 +720,7 @@ function AIResultScreen({
                         }`}
                       >
                         <ShoppingCart className="w-3 h-3" />
-                        {isAdded ? "Added ✓" : "Add to Cart"}
+                        {isAdded ? copy.aiResult.added : copy.aiResult.addToCart}
                       </button>
                     </div>
                   )}
@@ -801,7 +743,7 @@ function AIResultScreen({
           onClick={onConsult}
           className="flex-1 bg-primary text-primary-foreground hover:bg-primary/90 h-11 text-sm tracking-wide"
         >
-          Book a Private Consultation <ArrowRight className="ml-2 w-4 h-4" />
+          {copy.aiResult.consult} <ArrowRight className="ml-2 w-4 h-4" />
         </Button>
         <Button
           data-testid="result-reset"
@@ -809,7 +751,7 @@ function AIResultScreen({
           onClick={onReset}
           className="border-border/60 text-muted-foreground hover:border-primary/40 h-11 px-6"
         >
-          <RotateCcw className="w-4 h-4 mr-2" /> Start Over
+          <RotateCcw className="w-4 h-4 mr-2" /> {copy.aiResult.reset}
         </Button>
       </div>
 
@@ -821,6 +763,9 @@ function AIResultScreen({
 }
 
 function ErrorResultScreen({ onReset, onConsult }: { onReset: () => void; onConsult: () => void }) {
+  /*i18n:function ErrorResultScreen*/
+  const { dict } = useI18n();
+  const copy = dict.patientAssessment;
   return (
     <motion.div
       key="error-result"
@@ -836,14 +781,12 @@ function ErrorResultScreen({ onReset, onConsult }: { onReset: () => void; onCons
       </div>
       <div className="flex items-center justify-center gap-3 mb-4">
         <div className="h-[1px] w-8 bg-primary/40" />
-        <span className="text-primary text-xs tracking-[0.25em] uppercase">Assessment Complete</span>
+        <span className="text-primary text-xs tracking-[0.25em] uppercase">{copy.errorResult.eyebrow}</span>
         <div className="h-[1px] w-8 bg-primary/40" />
       </div>
-      <h3 className="text-3xl md:text-4xl font-serif mb-6 text-foreground">You're Ready. So Are We.</h3>
+      <h3 className="text-3xl md:text-4xl font-serif mb-6 text-foreground">{copy.errorResult.title}</h3>
       <p className="text-muted-foreground leading-relaxed mb-10 text-base">
-        Your profile suggests strong candidacy for a personalized protocol. The next step is a private consultation with one of our
-        longevity physicians — they will design a protocol built entirely around your biology, goals, and history. Most patients leave
-        their first consultation with a clear, actionable plan in hand.
+        {copy.errorResult.body}
       </p>
       <div className="flex flex-col sm:flex-row gap-4 justify-center">
         <Button
@@ -851,7 +794,7 @@ function ErrorResultScreen({ onReset, onConsult }: { onReset: () => void; onCons
           onClick={onConsult}
           className="bg-primary text-primary-foreground hover:bg-primary/90 h-12 px-8 text-base tracking-wide"
         >
-          Book Your Private Consultation <ArrowRight className="ml-2 w-4 h-4" />
+          {copy.errorResult.consult} <ArrowRight className="ml-2 w-4 h-4" />
         </Button>
         <Button
           data-testid="result-reset"
@@ -859,7 +802,7 @@ function ErrorResultScreen({ onReset, onConsult }: { onReset: () => void; onCons
           onClick={onReset}
           className="border-border/60 text-muted-foreground hover:border-primary/40 h-12 px-8"
         >
-          Start Over
+          {copy.errorResult.reset}
         </Button>
       </div>
     </motion.div>
@@ -867,6 +810,9 @@ function ErrorResultScreen({ onReset, onConsult }: { onReset: () => void; onCons
 }
 
 export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpenConsult: () => void; onContinueProtocol?: () => void }) {
+  /*i18n:export function PatientAssessment*/
+  const { dict } = useI18n();
+  const copy = dict.patientAssessment;
   const [stepIndex, setStepIndex] = useState(0);
   const [answers, setAnswers] = useState<Answers>({});
   const [phase, setPhase] = useState<"quiz" | "loading" | "result" | "error" | "medical">("quiz");
@@ -954,7 +900,9 @@ export function PatientAssessment({ onOpenConsult, onContinueProtocol }: { onOpe
   };
 
   const progressPct = phase !== "quiz" ? 100 : (stepIndex / totalSteps) * 100;
-  const stepLabel = `Step ${stepIndex + 1} of ${totalSteps}`;
+  const stepLabel = copy.stepOf
+    .replace("{current}", String(stepIndex + 1))
+    .replace("{total}", String(totalSteps));
 
   return (
     <section id="assessment" className="pt-6 sm:pt-8 pb-8 sm:pb-10 px-3 sm:px-6 md:px-12 bg-card relative z-20">

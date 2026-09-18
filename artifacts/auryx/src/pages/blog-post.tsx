@@ -4,6 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ArrowRight, Clock, Calendar, User } from "lucide-react";
 import { getPost, formatDate, type Block } from "@/data/blog-posts";
 import { applyPageSeo, siteUrl, SITE_ORIGIN } from "@/lib/seo";
+import { useI18n, langHref } from "@/i18n";
 
 /* ─── Block renderer ──────────────────────────────────────────────── */
 function RenderBlock({ block }: { block: Block }) {
@@ -54,8 +55,10 @@ function RenderBlock({ block }: { block: Block }) {
 
 /* ─── Page ────────────────────────────────────────────────────────── */
 export default function BlogPostPage() {
+  const { lang, dict } = useI18n();
+  const copy = dict.blog;
   const { slug } = useParams<{ slug: string }>();
-  const post = getPost(slug ?? "");
+  const post = getPost(slug ?? "", lang);
 
   useEffect(() => {
     if (!post) return;
@@ -135,15 +138,15 @@ export default function BlogPostPage() {
       imageAlt: post.heroImageAlt,
       jsonLd,
     });
-  }, [post]);
+  }, [post, lang, copy]);
 
   if (!post) {
     return (
       <div className="min-h-screen bg-[#0A0A0A] flex items-center justify-center">
         <div className="text-center">
-          <p className="text-white/40 mb-4">Article not found.</p>
-          <Link href="/blog" className="text-[#C9A844] hover:underline text-sm">
-            ← Back to Journal
+          <p className="text-white/40 mb-4">{copy.postNotFound}</p>
+          <Link href={langHref(lang, "/blog")} className="text-[#C9A844] hover:underline text-sm">
+            ← {copy.backToJournal}
           </Link>
         </div>
       </div>
@@ -175,10 +178,10 @@ export default function BlogPostPage() {
               transition={{ duration: 0.75, ease: [0.25, 0.1, 0.25, 1] }}
             >
               <Link
-                href="/blog"
+                href={langHref(lang, "/blog")}
                 className="inline-flex items-center gap-1.5 text-white/45 hover:text-[#C9A844] text-[10px] uppercase tracking-widest font-semibold mb-6 transition-colors"
               >
-                <ArrowLeft className="w-3 h-3" /> AURYX Journal
+                <ArrowLeft className="w-3 h-3" /> {copy.journalName}
               </Link>
               <div className="flex items-center gap-2 mb-5">
                 <span
@@ -194,7 +197,7 @@ export default function BlogPostPage() {
                       }[post.category] ?? "#B8962E",
                   }}
                 >
-                  {post.category}
+                  {copy.categories[post.category] ?? post.category}
                 </span>
               </div>
               <h1 className="font-serif text-3xl md:text-4xl lg:text-5xl leading-[1.12] font-light text-white max-w-3xl mb-6">
@@ -208,11 +211,11 @@ export default function BlogPostPage() {
                 </span>
                 <span className="flex items-center gap-1.5">
                   <Calendar className="w-3.5 h-3.5" />
-                  {formatDate(post.publishDate)}
+                  {formatDate(post.publishDate, lang)}
                 </span>
                 <span className="flex items-center gap-1.5">
                   <Clock className="w-3.5 h-3.5" />
-                  {post.readTime} min read
+                  {copy.minReadLabel.replace("{n}", String(post.readTime))}
                 </span>
               </div>
             </motion.div>
@@ -238,7 +241,7 @@ export default function BlogPostPage() {
               <div>
                 <p className="text-[12px] font-semibold text-[#111]">{post.author}</p>
                 <p className="text-[11px] text-[#111]/45 mt-0.5 leading-snug">
-                  Physician and longevity medicine specialist at AURYX. Focused on evidence-based peptide protocols and precision metabolic health.
+                  {copy.authorBio}
                 </p>
               </div>
             </div>
@@ -250,27 +253,27 @@ export default function BlogPostPage() {
       <section className="bg-[#0A0A0A] py-20 px-6 md:px-14 lg:px-20 text-center">
         <div className="container mx-auto max-w-xl">
           <p className="text-[10px] uppercase tracking-[0.45em] text-[#C9A844] mb-5 font-medium">
-            Ready to Start Your Protocol?
+            {copy.postCtaEyebrow}
           </p>
           <h2 className="font-serif text-4xl md:text-5xl leading-[1.1] font-light text-white mb-6">
-            Book a private{" "}
-            <em className="not-italic text-[#C9A844]">consultation.</em>
+            {copy.postCtaTitleBefore}{" "}
+            <em className="not-italic text-[#C9A844]">{copy.postCtaTitleEm}</em>
           </h2>
           <p className="text-white/50 text-sm leading-relaxed mb-10 max-w-md mx-auto">
-            Our clinical team will design a protocol matched to your biology, goals, and lifestyle — physician-supervised from first order to ongoing optimization.
+            {copy.postCtaBody}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <Link
-              href="/protocol-finder"
+              href={langHref(lang, "/protocol-finder")}
               className="inline-flex items-center justify-center gap-2 bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.15em] text-[11px] uppercase px-10 py-4 rounded-xl hover:bg-[#D4B050] transition-colors"
             >
-              Find My Protocol <ArrowRight className="w-3.5 h-3.5" />
+              {copy.postCtaProtocol} <ArrowRight className="w-3.5 h-3.5" />
             </Link>
             <Link
-              href="/blog"
+              href={langHref(lang, "/blog")}
               className="inline-flex items-center justify-center gap-2 border border-white/20 text-white/55 font-medium tracking-[0.12em] text-[11px] uppercase px-10 py-4 rounded-xl hover:border-[#C9A844]/50 hover:text-white/80 transition-colors"
             >
-              Read More Articles
+              {copy.postCtaMore}
             </Link>
           </div>
         </div>
@@ -280,7 +283,7 @@ export default function BlogPostPage() {
       <div className="bg-[#F0EAE0] px-6 md:px-14 lg:px-20 py-5">
         <div className="container mx-auto max-w-4xl">
           <p className="text-[11px] text-[#111]/35 leading-relaxed">
-            <strong className="text-[#111]/45">Medical Disclaimer:</strong> This article is for educational purposes only and does not constitute medical advice, diagnosis, or treatment recommendations. All protocols are physician-supervised. These statements have not been evaluated by the Food and Drug Administration. Consult a licensed healthcare provider before beginning any peptide protocol.
+            <strong className="text-[#111]/45">{copy.medicalDisclaimerLabel}</strong> {copy.medicalDisclaimer}
           </p>
         </div>
       </div>

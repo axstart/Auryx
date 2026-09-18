@@ -11,6 +11,7 @@ import Terms from "@/pages/terms";
 import Privacy from "@/pages/privacy";
 import Contact from "@/pages/contact";
 import Sources from "@/pages/sources";
+import Disclaimer from "@/pages/disclaimer";
 import ShopPage from "@/pages/shop";
 import ProductPage from "@/pages/product";
 import CheckoutPage from "@/pages/checkout";
@@ -86,6 +87,7 @@ function Router() {
               <Route path="/privacy" component={Privacy} />
               <Route path="/contact" component={Contact} />
               <Route path="/sources" component={Sources} />
+              <Route path="/disclaimer" component={Disclaimer} />
               <Route path="/verify-coa" component={VerifyCoaPage} />
               <Route component={NotFound} />
             </Switch>

@@ -1,3 +1,7 @@
+# LEGACY — historical Replit project config. Production hosting is
+# Vercel (frontend) + Render (API) + Supabase (Postgres). See docs/OPS-RUNBOOK.md.
+# Kept for local history only; do not treat as the current deploy path.
+
 modules = ["nodejs-24", "python-3.11", "postgresql-16"]
 
 [deployment]

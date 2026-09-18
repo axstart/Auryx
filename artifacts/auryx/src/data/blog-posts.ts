@@ -1,23 +1,8 @@
-export type Block =
-  | { type: "h2"; text: string; faqAnswer?: string }
-  | { type: "h3"; text: string }
-  | { type: "p"; text: string }
-  | { type: "ul"; items: string[] }
-  | { type: "callout"; text: string };
+import { BLOG_POSTS_ES } from "./blog-posts.es";
+import { BLOG_POSTS_PT } from "./blog-posts.pt";
+import type { BlogPost } from "./blog-post-types";
 
-export interface BlogPost {
-  slug: string;
-  title: string;
-  category: string;
-  excerpt: string;
-  author: string;
-  publishDate: string;
-  readTime: number;
-  heroImage: string;
-  heroImageAlt: string;
-  metaDescription: string;
-  content: Block[];
-}
+export type { Block, BlogPost } from "./blog-post-types";
 
 export const BLOG_POSTS: BlogPost[] = [
   /* ─── Article 1 ────────────────────────────────────────────────── */
@@ -488,12 +473,19 @@ export const BLOG_POSTS: BlogPost[] = [
   },
 ];
 
-export function getPost(slug: string): BlogPost | undefined {
-  return BLOG_POSTS.find(p => p.slug === slug);
+export function getPosts(lang: "en" | "es" | "pt" = "en"): BlogPost[] {
+  if (lang === "es") return BLOG_POSTS_ES;
+  if (lang === "pt") return BLOG_POSTS_PT;
+  return BLOG_POSTS;
 }
 
-export function formatDate(dateStr: string): string {
-  return new Date(dateStr).toLocaleDateString("en-US", {
+export function getPost(slug: string, lang: "en" | "es" | "pt" = "en"): BlogPost | undefined {
+  return getPosts(lang).find(p => p.slug === slug);
+}
+
+export function formatDate(dateStr: string, lang: "en" | "es" | "pt" = "en"): string {
+  const locale = lang === "es" ? "es-ES" : lang === "pt" ? "pt-BR" : "en-US";
+  return new Date(dateStr).toLocaleDateString(locale, {
     year: "numeric",
     month: "long",
     day: "numeric",

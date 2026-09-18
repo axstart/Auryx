@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ConsultationModal } from "./ConsultationModal";
 import { useCart } from "@/context/CartContext";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useI18n } from "@/i18n";
 
 interface Message {
   role: "user" | "assistant";
@@ -35,14 +36,16 @@ const SUGGESTED = [
 const SUPPORT_EMAIL = "admin@auryxlife.com";
 
 function IntakeForm({ onSubmit }: { onSubmit: (info: UserInfo) => void }) {
+  const { dict } = useI18n();
+  const copy = dict.chat;
   const [form, setForm] = useState<UserInfo>({ name: "", email: "", phone: "" });
   const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.name.trim()) { setError("Please enter your name."); return; }
+    if (!form.name.trim()) { setError(copy.intakeNameError); return; }
     if (!form.email.trim() && !form.phone.trim()) {
-      setError("Please enter an email address or phone number.");
+      setError(copy.intakeContactError);
       return;
     }
     onSubmit(form);
@@ -51,13 +54,13 @@ function IntakeForm({ onSubmit }: { onSubmit: (info: UserInfo) => void }) {
   return (
     <form onSubmit={handleSubmit} className="px-5 py-5 space-y-3">
       <p className="text-xs text-muted-foreground leading-relaxed">
-        To personalise your experience, please share a few details.
+        {copy.intakeBlurb}
       </p>
       <div className="space-y-2.5">
         <div className="relative">
           <User className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground/50 pointer-events-none" />
           <Input
-            placeholder="Your name *"
+            placeholder={copy.intakeName}
             type="text"
             autoComplete="name"
             value={form.name}
@@ -66,7 +69,7 @@ function IntakeForm({ onSubmit }: { onSubmit: (info: UserInfo) => void }) {
           />
         </div>
         <Input
-          placeholder="Email address"
+          placeholder={copy.intakeEmail}
           type="email"
           autoComplete="email"
           inputMode="email"
@@ -75,7 +78,7 @@ function IntakeForm({ onSubmit }: { onSubmit: (info: UserInfo) => void }) {
           className="h-11 text-sm bg-background border-border"
         />
         <Input
-          placeholder="Phone number"
+          placeholder={copy.intakePhone}
           type="tel"
           autoComplete="tel"
           inputMode="tel"
@@ -83,17 +86,19 @@ function IntakeForm({ onSubmit }: { onSubmit: (info: UserInfo) => void }) {
           onChange={e => { setForm(f => ({ ...f, phone: e.target.value })); setError(""); }}
           className="h-11 text-sm bg-background border-border"
         />
-        <p className="text-[10px] text-muted-foreground/50">* Required · Email or phone required</p>
+        <p className="text-[10px] text-muted-foreground/50">{copy.intakeHint}</p>
       </div>
       {error && <p className="text-xs text-red-400">{error}</p>}
       <Button type="submit" className="w-full bg-primary text-primary-foreground h-11 text-sm">
-        Start Conversation
+        {copy.intakeSubmit}
       </Button>
     </form>
   );
 }
 
 export default function ChatWidget() {
+  const { dict } = useI18n();
+  const copy = dict.chat;
   const [open, setOpen]                     = useState(false);
   const [userInfo, setUserInfo]             = useState<UserInfo | null>(null);
   const [hours, setHours]                   = useState<HoursStatus | null>(null);
@@ -155,12 +160,12 @@ export default function ChatWidget() {
 
     const availNote =
       hours && !hours.available && hours.nextAvailable
-        ? `\n\nOur team is currently outside business hours, but I'm here to help right now. I can also arrange for someone to reach out to you ${hours.nextAvailable} — just let me know how you'd prefer to be contacted.`
+        ? copy.hoursNote.replace("{when}", hours.nextAvailable)
         : "";
 
     setMessages([{
       role: "assistant",
-      content: `Hello, ${firstName} — welcome to Auryx. I'm Aria, your personal health concierge.\n\nI'm here to answer your questions about precision longevity protocols and peptide therapy, and to help find the right path for you.${availNote}`,
+      content: `${copy.welcomeNamed.replace("{name}", firstName)}${availNote}`,
     }]);
     if (!isMobile) setTimeout(() => inputRef.current?.focus({ preventScroll: true }), 150);
   };
@@ -242,7 +247,7 @@ export default function ChatWidget() {
           const updated = [...prev];
           updated[placeholderIdx] = {
             role: "assistant",
-            content: "I apologise — something went wrong. Please try again or request a consultation directly.",
+            content: copy.error,
           };
           return updated;
         });
@@ -273,7 +278,9 @@ export default function ChatWidget() {
       const firstName = userInfo.name.split(" ")[0];
       setMessages(prev => [...prev, {
         role: "assistant",
-        content: `Got it, ${firstName} — your conversation has been flagged for the team. You'll hear back at ${SUPPORT_EMAIL} as soon as possible. Is there anything else I can help you with in the meantime?`,
+        content: copy.escalateSuccess
+          .replace("{name}", firstName)
+          .replace("{email}", SUPPORT_EMAIL),
       }]);
     } catch {
       /* silently fail */
@@ -291,13 +298,13 @@ export default function ChatWidget() {
       <div className={`fixed bottom-[max(1.5rem,env(safe-area-inset-bottom))] right-4 sm:right-6 z-50 flex flex-col items-end gap-3 ${open && isMobile ? "hidden" : ""}`}>
         {!open && labelVisible && (
           <div className="hidden sm:block bg-card border border-primary/30 text-foreground/80 text-sm px-4 py-2 rounded-full shadow-lg">
-            Ask Aria — AI Concierge
+            {copy.floatingLabel}
           </div>
         )}
         <button
           onClick={() => setOpen(o => !o)}
           className="w-14 h-14 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-2xl hover:bg-primary/90 transition-all duration-200 hover:scale-105 focus:outline-none focus-visible:ring-2 focus-visible:ring-ring motion-reduce:transition-none motion-reduce:hover:scale-100"
-          aria-label={open ? "Close chat" : "Open chat"}
+          aria-label={open ? copy.closeAria : copy.openAria}
         >
           {open ? <X className="w-5 h-5" /> : <MessageCircle className="w-6 h-6" />}
         </button>
@@ -320,21 +327,21 @@ export default function ChatWidget() {
             <div>
               <p id="aria-chat-title" className="text-sm font-medium text-foreground">Aria</p>
               <p className="text-xs text-muted-foreground">
-                {userInfo ? `Auryx Concierge · Hi, ${firstName}` : "Auryx AI Concierge"}
+                {userInfo ? `${copy.title} · Hi, ${firstName}` : copy.title}
               </p>
             </div>
             <div className="ml-auto flex items-center gap-2">
               {hours !== null && !teamAvailable && (
                 <span className="flex items-center gap-1 text-[10px] text-amber-400/80">
                   <Clock className="w-3 h-3" />
-                  After hours
+                  {copy.afterHours}
                 </span>
               )}
               <div className={`w-2 h-2 rounded-full ${teamAvailable ? "bg-emerald-500" : "bg-amber-400"}`} />
               <button
                 onClick={() => setOpen(false)}
                 className="sm:hidden min-h-11 min-w-11 -mr-3 inline-flex items-center justify-center text-muted-foreground hover:text-foreground"
-                aria-label="Close chat"
+                aria-label={copy.closeAria}
               >
                 <X className="w-5 h-5" />
               </button>
@@ -346,7 +353,7 @@ export default function ChatWidget() {
             <div className="flex-1 overflow-y-auto">
               <div className="px-5 pt-5 pb-2">
                 <p className="text-sm text-foreground/80 leading-relaxed">
-                  Welcome to Auryx. I'm Aria, your personal health concierge — here to answer your questions about precision longevity and personalised peptide therapy.
+                  {copy.preIntakeWelcome}
                 </p>
               </div>
               <IntakeForm onSubmit={handleIntakeSubmit} />
@@ -389,7 +396,7 @@ export default function ChatWidget() {
                         className="flex min-h-11 items-center gap-1.5 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-[11px] text-primary font-medium transition-colors"
                         >
                           <ShoppingCart className="w-3 h-3" />
-                          Browse Shop
+                          {copy.browseShop}
                         </button>
                         <button
                           onClick={() => {
@@ -399,7 +406,7 @@ export default function ChatWidget() {
                           className="flex min-h-11 items-center gap-1.5 px-3 py-2 bg-primary/10 hover:bg-primary/20 border border-primary/30 rounded-lg text-[11px] text-primary font-medium transition-colors"
                         >
                           <ArrowRight className="w-3 h-3" />
-                          Book Consultation
+                          {copy.bookConsultation}
                         </button>
                       </div>
                     )}
@@ -409,7 +416,7 @@ export default function ChatWidget() {
                 {/* Suggested questions */}
                 {showSuggested && messages.length === 1 && (
                   <div className="space-y-2 pt-1">
-                    {SUGGESTED.map((q, i) => (
+                    {copy.suggested.map((q, i) => (
                       <button
                         key={i}
                         onClick={() => sendMessage(q)}
@@ -428,13 +435,16 @@ export default function ChatWidget() {
                     {!teamAvailable && (
                       <div className="flex items-center gap-2">
                         <Clock className="w-3.5 h-3.5 text-amber-400 shrink-0" />
-                        <p className="text-xs font-medium text-foreground/90">Our team is currently offline</p>
+                        <p className="text-xs font-medium text-foreground/90">{copy.teamOffline}</p>
                       </div>
                     )}
                     <p className="text-xs text-foreground/80 leading-relaxed">
                       {teamAvailable
-                        ? "Want to connect with the Auryx team directly?"
-                        : `Available Mon–Fri, 8 AM – 8 PM ET. Email us and we'll respond${hours?.nextAvailable ? ` ${hours.nextAvailable}` : " first thing next business day"}.`}
+                        ? copy.escalateAvailable
+                        : copy.escalateOffline.replace(
+                            "{when}",
+                            hours?.nextAvailable ? ` ${hours.nextAvailable}` : copy.escalateOfflineFallback,
+                          )}
                     </p>
                     <a
                       href={`mailto:${SUPPORT_EMAIL}`}
@@ -444,7 +454,7 @@ export default function ChatWidget() {
                       <Mail className="w-3.5 h-3.5 shrink-0" />
                       {escLoading
                         ? <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                        : <span>Email us — {SUPPORT_EMAIL}</span>}
+                        : <span>{copy.emailUs.replace("{email}", SUPPORT_EMAIL)}</span>}
                     </a>
                     <Button
                       onClick={() => setShowEscalate(false)}
@@ -452,7 +462,7 @@ export default function ChatWidget() {
                       variant="outline"
                       className="w-full h-8 text-xs border-border/60"
                     >
-                      Continue chatting with Aria
+                      {copy.continueChatting}
                     </Button>
                   </div>
                 )}
@@ -469,7 +479,7 @@ export default function ChatWidget() {
                   }}
                   className="w-full min-h-11 flex items-center justify-center gap-2 text-primary text-xs font-medium py-2 hover:opacity-80 transition-opacity"
                 >
-                  Schedule a Private Consultation <ArrowRight className="w-3.5 h-3.5" />
+                  {copy.scheduleConsult} <ArrowRight className="w-3.5 h-3.5" />
                 </button>
               </div>
 
@@ -481,7 +491,7 @@ export default function ChatWidget() {
                     className="w-full min-h-11 text-[10px] text-muted-foreground/50 hover:text-primary/60 transition-colors py-2 flex items-center justify-center gap-1"
                   >
                     <Mail className="w-3 h-3" />
-                    Contact the Auryx team
+                    {copy.contactTeam}
                   </button>
                 </div>
               )}
@@ -499,7 +509,7 @@ export default function ChatWidget() {
                         sendMessage(input);
                       }
                     }}
-                    placeholder={`Ask anything, ${firstName}…`}
+                    placeholder={copy.placeholderNamed.replace("{name}", firstName)}
                     type="text"
                     autoComplete="off"
                     className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground/50 focus:outline-none"
@@ -509,7 +519,7 @@ export default function ChatWidget() {
                     onClick={() => sendMessage(input)}
                     disabled={!input.trim() || loading}
                     className="text-primary disabled:text-muted-foreground/30 transition-colors shrink-0 min-h-11 min-w-11 inline-flex items-center justify-center -mr-2"
-                    aria-label="Send message"
+                    aria-label={copy.sendAria}
                   >
                     {loading
                       ? <Loader2 className="w-4 h-4 animate-spin" />

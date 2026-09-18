@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "wouter";
 import { FileText, Search, ShieldCheck } from "lucide-react";
 import { applyPageSeo, siteUrl } from "@/lib/seo";
+import { useI18n, langHref } from "@/i18n";
 
 type CoaResult = {
   id: number;
@@ -16,6 +17,8 @@ type CoaResult = {
 };
 
 export default function VerifyCoaPage() {
+  const { lang, dict } = useI18n();
+  const copy = dict.verifyCoa;
   const [query, setQuery] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,9 +26,8 @@ export default function VerifyCoaPage() {
 
   useEffect(() => {
     return applyPageSeo({
-      title: "Verify Certificate of Analysis | Auryx",
-      description:
-        "Look up Auryx product batch or accession numbers to view the matching Certificate of Analysis (COA).",
+      title: copy.seoTitle,
+      description: copy.seoDescription,
       path: "/verify-coa",
       jsonLd: [
         {
@@ -33,7 +35,7 @@ export default function VerifyCoaPage() {
           data: {
             "@context": "https://schema.org",
             "@type": "WebApplication",
-            name: "Auryx COA Verification",
+            name: copy.appName,
             url: siteUrl("/verify-coa"),
             applicationCategory: "BusinessApplication",
             offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
@@ -41,13 +43,13 @@ export default function VerifyCoaPage() {
         },
       ],
     });
-  }, []);
+  }, [lang, copy]);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
     const q = query.trim();
     if (q.length < 3) {
-      setError("Enter at least 3 characters.");
+      setError(copy.minChars);
       return;
     }
     setLoading(true);
@@ -57,12 +59,12 @@ export default function VerifyCoaPage() {
       const res = await fetch(`/api/coa/verify?q=${encodeURIComponent(q)}`);
       const body = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(body.error ?? "Lookup failed");
+        setError(typeof body.error === "string" ? body.error : copy.lookupFailed);
         return;
       }
       setResults(body.results ?? []);
     } catch {
-      setError("Could not reach verification service.");
+      setError(copy.serviceError);
     } finally {
       setLoading(false);
     }
@@ -76,11 +78,9 @@ export default function VerifyCoaPage() {
             <ShieldCheck className="h-6 w-6 text-[#C9A844]" />
           </div>
           <h1 className="font-['Cormorant_Garamond'] text-4xl font-light tracking-wide text-[#C9A844]">
-            Verify COA
+            {copy.title}
           </h1>
-          <p className="mt-3 text-sm text-white/55 font-['DM_Sans'] leading-relaxed">
-            Enter a batch / lot or lab accession number to view the matching Certificate of Analysis.
-          </p>
+          <p className="mt-3 text-sm text-white/55 font-['DM_Sans'] leading-relaxed">{copy.subtitle}</p>
         </div>
 
         <form onSubmit={onSubmit} className="flex flex-col gap-3 sm:flex-row">
@@ -89,9 +89,9 @@ export default function VerifyCoaPage() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="e.g. 2605140082"
+              placeholder={copy.placeholder}
               className="min-h-12 w-full rounded-lg border border-white/10 bg-white/5 pl-10 pr-4 text-sm text-white placeholder:text-white/25 focus:border-[#C9A844]/50 focus:outline-none font-['DM_Sans']"
-              aria-label="Batch or accession number"
+              aria-label={copy.ariaLabel}
             />
           </div>
           <button
@@ -99,7 +99,7 @@ export default function VerifyCoaPage() {
             disabled={loading}
             className="min-h-12 rounded-lg bg-[#C9A844] px-6 text-sm font-medium uppercase tracking-widest text-black disabled:opacity-50 font-['DM_Sans']"
           >
-            {loading ? "Searching…" : "Verify"}
+            {loading ? copy.searching : copy.verify}
           </button>
         </form>
 
@@ -108,11 +108,11 @@ export default function VerifyCoaPage() {
         {results && results.length === 0 && (
           <div className="mt-8 rounded-xl border border-white/10 bg-white/[0.03] p-6 text-center">
             <p className="text-sm text-white/60 font-['DM_Sans']">
-              No published COA matched that number. Double-check the accession on your vial label, or{" "}
-              <Link href="/contact" className="text-[#C9A844] underline-offset-2 hover:underline">
-                contact us
+              {copy.noMatchBefore}
+              <Link href={langHref(lang, "/contact")} className="text-[#C9A844] underline-offset-2 hover:underline">
+                {copy.contactUs}
               </Link>
-              .
+              {copy.noMatchAfter}
             </p>
           </div>
         )}
@@ -120,10 +120,7 @@ export default function VerifyCoaPage() {
         {results && results.length > 0 && (
           <div className="mt-8 space-y-3">
             {results.map((r) => (
-              <article
-                key={r.id}
-                className="rounded-xl border border-white/10 bg-white/[0.03] p-5"
-              >
+              <article key={r.id} className="rounded-xl border border-white/10 bg-white/[0.03] p-5">
                 <div className="flex items-start justify-between gap-4">
                   <div>
                     <h2 className="text-lg text-white font-['Cormorant_Garamond']">{r.productName}</h2>
@@ -135,16 +132,16 @@ export default function VerifyCoaPage() {
                 </div>
                 <dl className="mt-4 grid grid-cols-2 gap-3 text-sm font-['DM_Sans']">
                   <div>
-                    <dt className="text-white/35 text-xs uppercase tracking-wider">Accession</dt>
+                    <dt className="text-white/35 text-xs uppercase tracking-wider">{copy.accession}</dt>
                     <dd className="text-white/80">{r.accession}</dd>
                   </div>
                   <div>
-                    <dt className="text-white/35 text-xs uppercase tracking-wider">Lot</dt>
+                    <dt className="text-white/35 text-xs uppercase tracking-wider">{copy.lot}</dt>
                     <dd className="text-white/80">{r.lotNumber ?? r.accession}</dd>
                   </div>
                   {r.purity && (
                     <div>
-                      <dt className="text-white/35 text-xs uppercase tracking-wider">Purity</dt>
+                      <dt className="text-white/35 text-xs uppercase tracking-wider">{copy.purity}</dt>
                       <dd className="text-white/80">{r.purity}</dd>
                     </div>
                   )}
@@ -155,14 +152,14 @@ export default function VerifyCoaPage() {
                   rel="noopener noreferrer"
                   className="mt-4 inline-flex text-sm text-[#C9A844] hover:underline font-['DM_Sans']"
                 >
-                  View Certificate of Analysis (PDF)
+                  {copy.viewPdf}
                 </a>
                 <div className="mt-2">
                   <Link
-                    href={`/shop/${r.productSlug}`}
+                    href={langHref(lang, `/shop/${r.productSlug}`)}
                     className="text-xs text-white/40 hover:text-white/70 font-['DM_Sans']"
                   >
-                    View product →
+                    {copy.viewProduct}
                   </Link>
                 </div>
               </article>

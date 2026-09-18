@@ -11,11 +11,10 @@ import { Link } from "wouter";
 import type { ProductSummary } from "@/types/shop";
 import type { RegulatoryStatus } from "@/types/shop";
 import { applyPageSeo } from "@/lib/seo";
+import { useI18n } from "@/i18n";
+import { applyProductLocale } from "@/i18n/products-locale";
 
-/* ── Page meta ──────────────────────────────────────────────────────── */
-
-const PAGE_TITLE = "Shop | Auryx — Research-Grade Peptides";
-const PAGE_DESC = "Browse Auryx's curated collection of physician-guided peptide compounds. GLP-1 agonists, growth hormone secretagogues, recovery peptides, cognitive enhancers, and longevity protocols.";
+/* ── Page meta (localized via dict.shop) ─────────────────────────────── */
 
 /* ── Product image map ──────────────────────────────────────────────── */
 const PRODUCT_IMAGES: Record<string, string> = {
@@ -356,23 +355,27 @@ function ProductCard({
 
 /* ── Page ───────────────────────────────────────────────────────────── */
 export default function ShopPage() {
+  const { lang, dict } = useI18n();
+  const copy = dict.shop;
+
   useEffect(() => {
     return applyPageSeo({
-      title: PAGE_TITLE,
-      description: PAGE_DESC,
+      title: copy.seoTitle,
+      description: copy.seoDescription,
       path: "/shop",
     });
-  }, []);
+  }, [lang, copy.seoTitle, copy.seoDescription]);
   const [activeCategory, setActiveCategory] = useState("All");
   const [searchQuery,    setSearchQuery]    = useState("");
   const [sortBy,         setSortBy]         = useState("featured");
   const gridRef = useRef<HTMLDivElement>(null);
   const goalRef = useRef<HTMLDivElement>(null);
 
-  const { data: products = [], isLoading, error } = useQuery({
+  const { data: rawProducts = [], isLoading, error } = useQuery({
     queryKey: ["products"],
     queryFn: fetchProducts,
   });
+  const products = rawProducts.map((p) => applyProductLocale(p, lang));
 
   const { data: stockMap = {} } = useQuery<Record<string, number>>({
     queryKey: ["stock"],
@@ -564,7 +567,7 @@ export default function ShopPage() {
               type="search"
               enterKeyHint="search"
               autoComplete="off"
-              placeholder="Search protocols by name, benefit, or goal…"
+              placeholder={copy.searchPlaceholder}
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               className="w-full pl-10 pr-14 py-3 text-base md:text-[13px] rounded-xl border border-[#E8E4DC] bg-white text-[#0A0A0A] placeholder:text-[#0A0A0A]/30 focus:outline-none focus:border-[#C9A844]/60 focus:ring-1 focus:ring-[#C9A844]/20 transition-all shadow-sm"
@@ -572,7 +575,7 @@ export default function ShopPage() {
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery("")}
-                aria-label="Clear protocol search"
+                aria-label={copy.clearSearch}
                 className="absolute right-1 top-1/2 min-h-11 min-w-11 -translate-y-1/2 text-[#0A0A0A]/30 hover:text-[#B8962E] text-xs transition-colors"
               >
                 Clear
@@ -747,12 +750,12 @@ export default function ShopPage() {
 
               {sorted.length === 0 && (
                 <div className="text-center py-20">
-                  <p className="text-[#0A0A0A]/30 text-sm">No protocols match your search.</p>
+                  <p className="text-[#0A0A0A]/30 text-sm">{copy.emptyTitle}</p>
                   <button
                     onClick={() => { setActiveCategory("All"); setSearchQuery(""); }}
                     className="mt-4 text-[11px] text-[#B8962E] uppercase tracking-widest font-medium hover:underline"
                   >
-                    Clear search
+                    {copy.resetFilters}
                   </button>
                 </div>
               )}
@@ -762,12 +765,7 @@ export default function ShopPage() {
           {/* ── Bottom trust strip ── */}
           <div className="mt-20 pt-12 border-t border-[#E8E4DC]">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-              {[
-                { label: "US-Sourced", sub: "Licensed compounding pharmacies" },
-                { label: "99%+ Purity", sub: "Third-party tested every batch" },
-                { label: "Physician-Supervised", sub: "Every order clinically reviewed" },
-                { label: "Direct to Door", sub: "Nationwide discreet delivery" },
-              ].map(item => (
+              {copy.qualityFooter.map(item => (
                 <div key={item.label} className="flex flex-col items-center gap-1.5">
                   <p className="text-[#B8962E] text-sm font-semibold">{item.label}</p>
                   <p className="text-[#0A0A0A]/38 text-xs leading-relaxed">{item.sub}</p>
