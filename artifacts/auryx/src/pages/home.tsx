@@ -9,7 +9,6 @@ import { useCart } from "@/context/CartContext";
 import type { ProductSummary } from "@/types/shop";
 import { applyPageSeo } from "@/lib/seo";
 import { useI18n } from "@/i18n";
-import { useIsDesktop } from "@/hooks/use-mobile";
 
 async function fetchProducts(): Promise<ProductSummary[]> {
   const res = await fetch("/api/products");
@@ -127,23 +126,6 @@ const GoldWave = () => (
   </div>
 );
 
-/* ─── Orbital accent for hero ────────────────────────────────────────── */
-const HeroOrbitalAccent = () => (
-  <svg className="absolute inset-0 w-full h-full" viewBox="0 0 600 700" fill="none" preserveAspectRatio="xMidYMid slice">
-    <ellipse cx="320" cy="340" rx="260" ry="260" stroke="#C9A844" strokeWidth="0.5" strokeOpacity="0.14"/>
-    <ellipse cx="320" cy="340" rx="180" ry="180" stroke="#C9A844" strokeWidth="0.5" strokeOpacity="0.11"/>
-    <ellipse cx="320" cy="340" rx="100" ry="100" stroke="#C9A844" strokeWidth="0.5" strokeOpacity="0.09"/>
-    <ellipse cx="310" cy="330" rx="300" ry="210" stroke="#C9A844" strokeWidth="0.4" strokeOpacity="0.09" transform="rotate(-18 310 330)"/>
-    <circle cx="320" cy="80" r="3.5" fill="#C9A844" fillOpacity="0.55"/>
-    <circle cx="580" cy="200" r="3" fill="#C9A844" fillOpacity="0.45"/>
-    <circle cx="530" cy="490" r="2.5" fill="#C9A844" fillOpacity="0.4"/>
-    <circle cx="100" cy="420" r="2" fill="#C9A844" fillOpacity="0.35"/>
-    <circle cx="65" cy="170" r="2" fill="#C9A844" fillOpacity="0.3"/>
-    <circle cx="440" cy="130" r="1.5" fill="#C9A844" fillOpacity="0.35"/>
-    <circle cx="180" cy="600" r="1.5" fill="#C9A844" fillOpacity="0.3"/>
-  </svg>
-);
-
 /* ─── Vial SVG ──────────────────────────────────────────────────────── */
 function VialSVG({ name, tag }: { name: string; tag: string }) {
   return (
@@ -226,7 +208,6 @@ export default function Home() {
   const [addedSlugs, setAddedSlugs] = useState<Set<string>>(new Set());
   const { addToCart } = useCart();
   const { t, lang, dict } = useI18n();
-  const showDesktopHero = useIsDesktop();
   const home = dict.home;
   const { data: products = [] } = useQuery<ProductSummary[]>({
     queryKey: ["products"],
@@ -272,80 +253,7 @@ export default function Home() {
   return (
     <div className="w-full bg-[#0A0A0A] text-white overflow-x-hidden">
 
-      {/* ═══ 1. HERO ════════════════════════════════════════════════════ */}
-      <section className="relative w-full min-h-[100dvh] flex items-center overflow-hidden">
-
-        {/* Hero image — right side, desktop only so phones don't download it */}
-        <div className="absolute right-0 top-0 bottom-0 w-[52%] z-0 hidden md:block">
-          {showDesktopHero && (
-            <picture>
-              <source media="(min-width: 768px)" srcSet="/Hero.webp" type="image/webp" />
-              <img
-                src="/Hero.webp"
-                alt="Precision wellness"
-                fetchPriority="high"
-                decoding="async"
-                className="absolute inset-0 w-full object-cover"
-                style={{
-                  objectPosition: "center top",
-                  height: "120%",
-                  top: "-10%",
-                }}
-              />
-            </picture>
-          )}
-          {/* Fade image into dark background on left */}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to right, #0A0A0A 0%, rgba(10,10,10,0.55) 18%, rgba(10,10,10,0.05) 45%, transparent 100%)" }}/>
-          {/* Subtle bottom fade */}
-          <div className="absolute inset-0" style={{ background: "linear-gradient(to top, #0A0A0A 0%, transparent 20%)" }}/>
-          {/* Enhance the natural gold glow from the image */}
-          <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse 55% 60% at 55% 38%, rgba(201,168,68,0.08) 0%, transparent 60%)" }}/>
-          {/* Orbital accent lines overlay */}
-          <HeroOrbitalAccent/>
-        </div>
-
-        {/* Subtle atmospheric gradient overall */}
-        <div className="absolute inset-0 z-0" style={{ background: "linear-gradient(135deg, #0A0A0A 0%, rgba(10,10,10,0.95) 40%, transparent 100%)" }}/>
-
-        {/* Mobile bg */}
-        <div className="absolute inset-0 z-0 md:hidden" style={{ background: "linear-gradient(to bottom, #0A0A0A 40%, rgba(10,10,10,0.85) 100%)" }}/>
-
-        <div className="container relative z-10 mx-auto px-6 md:px-14 lg:px-20 pt-[calc(var(--site-header-height)+1rem)] pb-24 md:pt-[calc(var(--site-header-height)+1.5rem)] md:pb-28">
-          {/* Above-the-fold copy stays at full opacity so it can become LCP immediately. */}
-          <div className="max-w-lg md:max-w-[540px]">
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[#C9A844] mb-7 font-medium">{t("home.hero.eyebrow")}</p>
-            <h1 className="font-serif text-3xl md:text-4xl lg:text-[3rem] leading-[1.15] mb-6 font-light">
-              {t("home.hero.title1")}{" "}
-              <em className="not-italic text-[#C9A844]">{t("home.hero.titleEm")}</em>{" "}
-              {t("home.hero.title2")}
-            </h1>
-            <p data-geo-chunk="definition" className="text-white/55 text-sm md:text-base leading-relaxed mb-10 max-w-md">
-              {t("home.hero.subtitle")}
-            </p>
-            <div className="flex flex-col gap-3 max-w-[300px]">
-              <Link
-                href="/protocol-finder"
-                className="flex items-center justify-center gap-2 bg-[#C9A844] text-[#0A0A0A] font-bold tracking-[0.14em] text-[11px] uppercase px-8 py-4 rounded-lg hover:bg-[#D4B050] transition-colors"
-              >
-                {t("home.hero.ctaFind")}
-              </Link>
-              <Link
-                href="/shop"
-                className="flex items-center justify-center gap-2 border border-white/20 text-white/65 font-medium tracking-[0.14em] text-[11px] uppercase px-8 py-4 rounded-lg hover:border-[#C9A844]/50 hover:text-white/90 transition-colors"
-              >
-                {t("home.hero.ctaExplore")}
-              </Link>
-            </div>
-            {/* Trust line */}
-            <p className="mt-7 text-[10px] text-white/30 tracking-[0.12em] uppercase">
-              {t("home.hero.trustLine")}
-            </p>
-            <p className="byline mt-3 text-[11px] text-white/35">
-              Medically reviewed by <Link href="/about" rel="author" className="text-[#C9A844] hover:underline">Romy Fontoura, MD</Link>
-            </p>
-          </div>
-        </div>
-      </section>
+      {/* Hero (H1 + desktop image) is #lcp-hero in index.html so it paints before JS. */}
 
       {/* ═══ 2. PROTOCOL COLLECTIONS ════════════════════════════════════ */}
       <section id="collections" className="relative py-20 md:py-28 px-6 md:px-14 lg:px-20 overflow-hidden" style={{ backgroundColor: "#0D0D0D" }}>

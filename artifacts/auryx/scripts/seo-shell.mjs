@@ -632,7 +632,18 @@ function applySeo(html, route, page) {
     html = html.replace(/<noscript>[\s\S]*?<\/noscript>\s*/g, "");
   }
   html = ensureLlmsLink(html);
+  html = syncLcpHero(html, route);
   return html;
+}
+
+function syncLcpHero(html, route) {
+  const home = route === "/" || route === "/es" || route === "/pt";
+  if (!home) {
+    return html.replace(/<!-- lcp-hero:start -->[\s\S]*?<!-- lcp-hero:end -->\s*/, "");
+  }
+  return html.replace(/<article id="geo-static">[\s\S]*?<\/article>/, (article) =>
+    article.replace(/<h1>/g, "<p>").replace(/<\/h1>/g, "</p>"),
+  );
 }
 
 function assertUniqueShells(written) {
@@ -680,14 +691,22 @@ function assertUniqueShells(written) {
     const words = text.split(/\s+/).filter(Boolean).length;
     const h1 = (article.match(/<h1\b/gi) || []).length;
     const h2 = (article.match(/<h2\b/gi) || []).length;
-    if (words < 300) failures.push(`${route} geo-static has ${words} words (need 300+)`);
-    if (h1 !== 1) failures.push(`${route} geo-static has ${h1} H1s (need 1)`);
     const docH1 = (item.html.replace(/<script[\s\S]*?<\/script>/gi, "").match(/<h1\b/gi) || []).length;
-    if (docH1 !== 1) failures.push(`${route} document has ${docH1} H1s (need 1)`);
-    if (h2 < 2) failures.push(`${route} geo-static has ${h2} H2s (need 2+)`);
-    if (!article.includes(`<h1>${esc(STATIC_PAGES[route].title)}</h1>`)) {
-      failures.push(`${route} H1 does not match title`);
+    const localeHome = route === "/" || route === "/es" || route === "/pt";
+    if (words < 300) failures.push(`${route} geo-static has ${words} words (need 300+)`);
+    if (localeHome) {
+      if (h1 !== 0) failures.push(`${route} geo-static has ${h1} H1s (homepage H1 must live in #lcp-hero)`);
+      if (docH1 !== 1) failures.push(`${route} document has ${docH1} H1s (need 1)`);
+      if (!item.html.includes('id="lcp-hero"')) failures.push(`${route} is missing #lcp-hero`);
+    } else {
+      if (h1 !== 1) failures.push(`${route} geo-static has ${h1} H1s (need 1)`);
+      if (docH1 !== 1) failures.push(`${route} document has ${docH1} H1s (need 1)`);
+      if (!article.includes(`<h1>${esc(STATIC_PAGES[route].title)}</h1>`)) {
+        failures.push(`${route} H1 does not match title`);
+      }
+      if (item.html.includes('id="lcp-hero"')) failures.push(`${route} still includes #lcp-hero`);
     }
+    if (h2 < 2) failures.push(`${route} geo-static has ${h2} H2s (need 2+)`);
   }
   if (failures.length > 0) {
     throw new Error(`SEO shell verification failed:\n  ${failures.join("\n  ")}`);

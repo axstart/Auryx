@@ -6,9 +6,57 @@
 
     <meta name="theme-color" content="#080807" />
     <style>
-      html,body{background:#080807;margin:0}
+      @font-face{font-family:"Cormorant Garamond";font-style:normal;font-weight:300;font-display:swap;src:url("/fonts/cormorant-garamond-400.woff2") format("woff2")}
+      @font-face{font-family:"DM Sans";font-style:normal;font-weight:400;font-display:swap;src:url("/fonts/dm-sans-400.woff2") format("woff2")}
+      html,body{background:#0A0A0A;margin:0;color:#fff}
+      html{font-size:17px}
       #geo-static{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+      #lcp-hero{display:none}
+      html.lcp-home #lcp-hero{display:flex;position:relative;width:100%;min-height:100dvh;align-items:center;overflow:hidden;background:#0A0A0A;box-sizing:border-box}
+      .lcp-es,.lcp-pt{display:none}
+      html.lcp-lang-es .lcp-en,html.lcp-lang-es .lcp-pt{display:none}
+      html.lcp-lang-es .lcp-es{display:inline}
+      html.lcp-lang-pt .lcp-en,html.lcp-lang-pt .lcp-es{display:none}
+      html.lcp-lang-pt .lcp-pt{display:inline}
+      .lcp-media{display:none}
+      .lcp-shade,.lcp-glow{position:absolute;inset:0;pointer-events:none}
+      .lcp-copy{position:relative;z-index:1;width:100%;max-width:1200px;margin:0 auto;padding:calc(7rem + 1rem) 1.5rem 6rem;box-sizing:border-box}
+      .lcp-copy-inner{max-width:34rem}
+      .lcp-eyebrow{margin:0 0 1.75rem;font-family:"DM Sans",sans-serif;font-size:10px;letter-spacing:.4em;text-transform:uppercase;color:#C9A844;font-weight:500}
+      #lcp-hero h1{margin:0 0 1.5rem;font-family:"Cormorant Garamond",serif;font-weight:300;font-size:1.875rem;line-height:1.15;letter-spacing:-.02em}
+      #lcp-hero h1 em{font-style:normal;color:#C9A844}
+      .lcp-sub{margin:0 0 2.5rem;max-width:28rem;font-family:"DM Sans",sans-serif;font-size:.875rem;line-height:1.6;color:rgba(255,255,255,.55)}
+      .lcp-actions{display:flex;flex-direction:column;gap:.75rem;max-width:300px}
+      .lcp-actions a{display:flex;align-items:center;justify-content:center;min-height:3rem;padding:.9rem 2rem;border-radius:.5rem;font-family:"DM Sans",sans-serif;font-size:11px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;box-sizing:border-box}
+      .lcp-primary{background:#C9A844;color:#0A0A0A;font-weight:700}
+      .lcp-secondary{border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.65);font-weight:500}
+      .lcp-trust{margin:1.75rem 0 0;font-family:"DM Sans",sans-serif;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(255,255,255,.3)}
+      .lcp-byline{margin:.75rem 0 0;font-family:"DM Sans",sans-serif;font-size:11px;color:rgba(255,255,255,.35)}
+      .lcp-byline a{color:#C9A844}
+      @media (min-width:768px){
+        .lcp-media{display:block;position:absolute;right:0;top:0;bottom:0;width:52%;z-index:0}
+        .lcp-media img{position:absolute;inset:0;width:100%;height:120%;top:-10%;object-fit:cover;object-position:center top}
+        .lcp-shade-side{background:linear-gradient(to right,#0A0A0A 0%,rgba(10,10,10,.55) 18%,rgba(10,10,10,.05) 45%,transparent 100%)}
+        .lcp-shade-bottom{background:linear-gradient(to top,#0A0A0A 0%,transparent 20%)}
+        .lcp-glow{background:radial-gradient(ellipse 55% 60% at 55% 38%,rgba(201,168,68,.08) 0%,transparent 60%)}
+        .lcp-copy{padding:calc(7rem + 1.5rem) 3.5rem 7rem}
+        #lcp-hero h1{font-size:2.25rem}
+        .lcp-sub{font-size:1rem}
+      }
+      @media (min-width:1024px){
+        .lcp-copy{padding-left:5rem;padding-right:5rem}
+        #lcp-hero h1{font-size:3rem}
+      }
     </style>
+    <script>
+      (function () {
+        var path = location.pathname.replace(/\/+$/, "") || "/";
+        var lang = path === "/es" || path.indexOf("/es/") === 0 ? "es" : path === "/pt" || path.indexOf("/pt/") === 0 ? "pt" : "en";
+        var home = path === "/" || path === "/es" || path === "/pt";
+        if (home) document.documentElement.classList.add("lcp-home");
+        if (lang !== "en") document.documentElement.classList.add("lcp-lang-" + lang);
+      })();
+    </script>
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -319,10 +367,53 @@
     <link rel="preload" as="image" href="/Hero.webp" fetchpriority="high" media="(min-width: 768px)">
   </head>
   <body>
+    <!-- lcp-hero:start -->
+    <section id="lcp-hero">
+      <div class="lcp-media">
+        <picture>
+          <source media="(max-width: 767px)" srcset="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" />
+          <source media="(min-width: 768px)" srcset="/Hero.webp" type="image/webp" />
+          <img src="/Hero.webp" alt="Precision wellness" width="1600" height="2000" decoding="async" fetchpriority="high" />
+        </picture>
+        <div class="lcp-shade lcp-shade-side"></div>
+        <div class="lcp-shade lcp-shade-bottom"></div>
+        <div class="lcp-glow"></div>
+      </div>
+      <div class="lcp-copy">
+        <div class="lcp-copy-inner">
+          <p class="lcp-eyebrow"><span class="lcp-en">Precision Peptides</span><span class="lcp-es">Péptidos de Precisión</span><span class="lcp-pt">Peptídeos de Precisão</span></p>
+          <h1>
+            <span class="lcp-en">Physician-backed protocols. </span><span class="lcp-es">Protocolos respaldados por médicos. </span><span class="lcp-pt">Protocolos com respaldo médico. </span><em><span class="lcp-en">Real results.</span><span class="lcp-es">Resultados reales.</span><span class="lcp-pt">Resultados reais.</span></em> <span class="lcp-en">Delivered fast.</span><span class="lcp-es">Entrega rápida.</span><span class="lcp-pt">Entrega rápida.</span>
+          </h1>
+          <p class="lcp-sub" data-geo-chunk="definition">
+            <span class="lcp-en">Auryx delivers MD-led peptide therapy nationwide. Feel your best, recover faster, and perform at your peak — free shipping on every order.*</span>
+            <span class="lcp-es">Siéntete en tu mejor momento, recupérate más rápido y rinde al máximo — envío gratis en cada pedido.*</span>
+            <span class="lcp-pt">Sinta-se no seu melhor, recupere-se mais rápido e alcance seu desempenho máximo — frete grátis em todos os pedidos.*</span>
+          </p>
+          <div class="lcp-actions">
+            <a class="lcp-primary" href="/protocol-finder" data-path="/protocol-finder"><span class="lcp-en">Find Your Peptides</span><span class="lcp-es">Encuentra tus Péptidos</span><span class="lcp-pt">Encontre seus Peptídeos</span></a>
+            <a class="lcp-secondary" href="/shop" data-path="/shop"><span class="lcp-en">Explore Collections</span><span class="lcp-es">Explora las Colecciones</span><span class="lcp-pt">Explore as Coleções</span></a>
+          </div>
+          <p class="lcp-trust"><span class="lcp-en">Third-party tested · Discreet shipping · Concierge guidance</span><span class="lcp-es">Verificado por terceros · Envío discreto · Acompañamiento personalizado</span><span class="lcp-pt">Testado por terceiros · Envio discreto · Acompanhamento concierge</span></p>
+          <p class="lcp-byline">Medically reviewed by <a rel="author" href="/about" data-path="/about">Romy Fontoura, MD</a></p>
+        </div>
+      </div>
+      <script>
+        (function () {
+          var root = document.documentElement;
+          var lang = root.classList.contains("lcp-lang-es") ? "es" : root.classList.contains("lcp-lang-pt") ? "pt" : "en";
+          if (lang === "en") return;
+          var prefix = "/" + lang;
+          var nodes = document.querySelectorAll("#lcp-hero [data-path]");
+          for (var i = 0; i < nodes.length; i++) nodes[i].setAttribute("href", prefix + nodes[i].getAttribute("data-path"));
+        })();
+      </script>
+    </section>
+    <!-- lcp-hero:end -->
     <div id="root">
       <article id="geo-static">
         <p class="byline">Medically reviewed by <a rel="author" href="/about">Romy Fontoura, MD</a></p>
-        <h1>Physician-backed protocols. Real results. Delivered fast.</h1>
+        <p>Physician-backed protocols. Real results. Delivered fast.</p>
         <img src="/opengraph.jpg" width="1200" height="630" alt="Auryx MD-led peptide therapy nationwide" loading="lazy" decoding="async" />
         <div data-geo-chunk="definition">
           <p data-geo-chunk="summary">Auryx is an MD-led peptide therapy clinic that serves patients nationwide via telemedicine. Founded and led by Romy Fontoura, MD, Auryx designs physician-supervised protocols for longevity, recovery, metabolic health, and cognitive performance. Every protocol is prescribed by a licensed physician and fulfilled through regulated United States compounding pharmacies.</p>

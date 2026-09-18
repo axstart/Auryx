@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useLayoutEffect, useState } from "react";
 import { Switch, Route, Router as WouterRouter, useLocation } from "wouter";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
@@ -52,6 +52,15 @@ function ScrollToTop() {
   const [location] = useLocation();
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, [location]);
+  return null;
+}
+
+/** Keep the HTML hero mounted on the homepage so its H1 and image stay the LCP nodes. */
+function LcpHeroGate() {
+  const [location] = useLocation();
+  useLayoutEffect(() => {
+    document.documentElement.classList.toggle("lcp-home", location === "/");
   }, [location]);
   return null;
 }
@@ -132,6 +141,7 @@ function App() {
             <AdminAuthProvider>
               <WouterRouter base={routerBase}>
                 <ScrollToTop />
+                <LcpHeroGate />
                 <Suspense fallback={null}>
                   <Analytics />
                   <WebVitals />
