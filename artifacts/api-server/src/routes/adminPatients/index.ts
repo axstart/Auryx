@@ -2,7 +2,7 @@ import { Router } from "express";
 import { db } from "@workspace/db";
 import { consultationRequestsTable, ordersTable, patientStagesTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
-import { sessionAuth } from "../../middlewares/sessionAuth.js";
+import { sessionAuth, requireAdmin } from "../../middlewares/sessionAuth.js";
 
 const router = Router();
 
@@ -105,7 +105,7 @@ router.get("/admin/patients", sessionAuth, async (_req, res): Promise<void> => {
 });
 
 // PATCH /api/admin/patients/:email/stage
-router.patch("/admin/patients/:email/stage", sessionAuth, async (req, res): Promise<void> => {
+router.patch("/admin/patients/:email/stage", sessionAuth, requireAdmin, async (req, res): Promise<void> => {
   const email = decodeURIComponent(req.params["email"] as string);
   const { stage } = req.body as { stage: string };
 
@@ -127,7 +127,7 @@ router.patch("/admin/patients/:email/stage", sessionAuth, async (req, res): Prom
 });
 
 // PATCH /api/admin/patients/:email/notes
-router.patch("/admin/patients/:email/notes", sessionAuth, async (req, res): Promise<void> => {
+router.patch("/admin/patients/:email/notes", sessionAuth, requireAdmin, async (req, res): Promise<void> => {
   const email = decodeURIComponent(req.params["email"] as string);
   const { notes } = req.body as { notes: string };
 

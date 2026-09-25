@@ -3,6 +3,7 @@ import { openai } from "@workspace/integrations-openai-ai-server";
 import { db } from "@workspace/db";
 import { chatEscalationsTable, ariaAnalyticsTable } from "@workspace/db/schema";
 import { sessionAuth } from "../../middlewares/sessionAuth.js";
+import { sendTwilioSms } from "../../lib/twilioSms.js";
 import { getAriaInstructions } from "./instructionsCache.js";
 import { detectIntent, detectPeptide } from "../analytics/index.js";
 
@@ -64,43 +65,14 @@ async function sendSmsAlert(
   name: string,
   contact: string,
 ): Promise<void> {
-  const accountSid  = process.env.TWILIO_ACCOUNT_SID;
-  const authToken   = process.env.TWILIO_AUTH_TOKEN;
-  const fromNumber  = process.env.TWILIO_FROM_NUMBER;
-  const toNumber    = process.env.NOTIFY_PHONE_NUMBER;
-
-  if (!accountSid || !authToken || !fromNumber || !toNumber) return;
+  const toNumber = process.env.NOTIFY_PHONE_NUMBER;
+  if (!toNumber) return;
 
   const nameContact = contact ? `${name} (${contact})` : name;
-  const body = `New Auryx chat escalation from ${nameContact}. Check admin dashboard: auryxlife.com/admin`;
-
-  const params = new URLSearchParams({
-    To:   toNumber,
-    From: fromNumber,
-    Body: body,
+  await sendTwilioSms({
+    to: toNumber,
+    body: `New Auryx chat escalation from ${nameContact}. Check admin dashboard: auryxlife.com/admin`,
   });
-
-  const credentials = Buffer.from(`${accountSid}:${authToken}`).toString("base64");
-
-  try {
-    const res = await fetch(
-      `https://api.twilio.com/2010-04-01/Accounts/${accountSid}/Messages.json`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Basic ${credentials}`,
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-        body: params.toString(),
-      }
-    );
-    if (!res.ok) {
-      const text = await res.text();
-      throw new Error(`Twilio ${res.status}: ${text}`);
-    }
-  } catch (err) {
-    console.error("SMS alert failed:", err);
-  }
 }
 
 // ── Routes ──────────────────────────────────────────────────────────────────

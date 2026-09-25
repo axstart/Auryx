@@ -48,7 +48,9 @@ void initApiSentry().finally(() => {
         .catch((e) => logger.warn({ err: e }, "Win-back enroll failed"));
       processEmailJourneys()
         .then((sent) => {
-          if (sent > 0) logger.info({ sent }, "Journey emails sent");
+          if (sent.emails > 0 || sent.sms > 0) {
+            logger.info(sent, "Journey messages sent");
+          }
         })
         .catch((e) => logger.warn({ err: e }, "Journey processing failed"));
     }, JOURNEY_MS);

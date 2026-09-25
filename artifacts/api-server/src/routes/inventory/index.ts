@@ -1,7 +1,7 @@
 import { Router, type IRouter } from "express";
 import { eq } from "drizzle-orm";
 import { db, inventoryItemsTable } from "@workspace/db";
-import { sessionAuth } from "../../middlewares/sessionAuth.js";
+import { sessionAuth, requireAdmin } from "../../middlewares/sessionAuth.js";
 import {
   CreateInventoryItemBody,
   UpdateInventoryItemResponse,
@@ -29,7 +29,7 @@ router.get("/inventory", sessionAuth, async (req, res): Promise<void> => {
   res.json(ListInventoryResponse.parse(records.map(inventoryResponse)));
 });
 
-router.post("/inventory", sessionAuth, async (req, res): Promise<void> => {
+router.post("/inventory", sessionAuth, requireAdmin, async (req, res): Promise<void> => {
   const parsed = CreateInventoryItemBody.safeParse(req.body);
   if (!parsed.success) {
     res.status(400).json({ error: parsed.error.message });
@@ -47,7 +47,7 @@ router.post("/inventory", sessionAuth, async (req, res): Promise<void> => {
   res.status(201).json(UpdateInventoryItemResponse.parse(inventoryResponse(record)));
 });
 
-router.patch("/inventory/:id", sessionAuth, async (req, res): Promise<void> => {
+router.patch("/inventory/:id", sessionAuth, requireAdmin, async (req, res): Promise<void> => {
   const params = UpdateInventoryItemParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });
@@ -90,7 +90,7 @@ router.patch("/inventory/:id", sessionAuth, async (req, res): Promise<void> => {
   res.json(UpdateInventoryItemResponse.parse(inventoryResponse(record)));
 });
 
-router.delete("/inventory/:id", sessionAuth, async (req, res): Promise<void> => {
+router.delete("/inventory/:id", sessionAuth, requireAdmin, async (req, res): Promise<void> => {
   const params = DeleteInventoryItemParams.safeParse(req.params);
   if (!params.success) {
     res.status(400).json({ error: params.error.message });

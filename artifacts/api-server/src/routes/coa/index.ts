@@ -1,24 +1,21 @@
 import { Router } from "express";
 import { z } from "zod";
 import { and, desc, eq, ilike, or, sql } from "drizzle-orm";
-import { db } from "@workspace/db";
+import { db, pool } from "@workspace/db";
 import { coaBatchesTable } from "@workspace/db/schema";
 import { sessionAuth, requireAdmin } from "../../middlewares/sessionAuth.js";
+import { logger } from "../../lib/logger.js";
 import { PRODUCTS } from "../shop/products.js";
+import { escapeIlike, searchCoaRows, type CoaSearchRow } from "./coaSearch.js";
 
-const router = Router();
-
-/** Seed coa_batches from the static product catalog if the table is empty. */
-export async function seedCoaBatchesFromCatalog(): Promise<number> {
-  const [{ count }] = await db
-    .select({ count: sql<number>`count(*)::int` })
-    .from(coaBatchesTable);
-  if ((count ?? 0) > 0) return 0;
-
-  const rows = [];
+function catalogCoaRows(): CoaSearchRow[] {
+  const rows: CoaSearchRow[] = [];
+  let i = 0;
   for (const product of PRODUCTS) {
     for (const coa of product.coas ?? []) {
+      i += 1;
       rows.push({
+        id: -i,
         accession: coa.accession,
         productSlug: product.slug,
         productName: product.name,
@@ -31,9 +28,104 @@ export async function seedCoaBatchesFromCatalog(): Promise<number> {
       });
     }
   }
-  if (rows.length === 0) return 0;
-  await db.insert(coaBatchesTable).values(rows).onConflictDoNothing();
-  return rows.length;
+  return rows;
+}
+
+const router = Router();
+
+const ENSURE_COA_BATCHES_SQL = `
+CREATE TABLE IF NOT EXISTS coa_batches (
+  id serial PRIMARY KEY,
+  accession text NOT NULL UNIQUE,
+  product_slug text NOT NULL,
+  product_name text NOT NULL DEFAULT '',
+  label text NOT NULL,
+  lab text NOT NULL,
+  purity text,
+  pdf_url text NOT NULL,
+  lot_number text,
+  published boolean NOT NULL DEFAULT true,
+  created_at timestamptz NOT NULL DEFAULT now(),
+  updated_at timestamptz NOT NULL DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS coa_batches_product_slug_idx ON coa_batches (product_slug);
+CREATE INDEX IF NOT EXISTS coa_batches_lot_number_idx ON coa_batches (lot_number);
+`;
+
+async function ensureCoaBatchesTable(): Promise<void> {
+  await pool.query(ENSURE_COA_BATCHES_SQL);
+}
+
+/** Seed coa_batches from the static product catalog if the table is empty. Never throws. */
+export async function seedCoaBatchesFromCatalog(): Promise<number> {
+  try {
+    await ensureCoaBatchesTable();
+    const [{ count }] = await db
+      .select({ count: sql<number>`count(*)::int` })
+      .from(coaBatchesTable);
+    if ((count ?? 0) > 0) return 0;
+
+    const rows = [];
+    for (const product of PRODUCTS) {
+      for (const coa of product.coas ?? []) {
+        rows.push({
+          accession: coa.accession,
+          productSlug: product.slug,
+          productName: product.name,
+          label: coa.label,
+          lab: coa.lab,
+          purity: coa.purity ?? null,
+          pdfUrl: coa.url,
+          lotNumber: coa.accession,
+          published: true,
+        });
+      }
+    }
+    if (rows.length === 0) return 0;
+    await db.insert(coaBatchesTable).values(rows).onConflictDoNothing();
+    return rows.length;
+  } catch (err) {
+    logger.warn({ err }, "COA seed failed");
+    return 0;
+  }
+}
+
+async function searchCoaInDb(q: string): Promise<CoaSearchRow[]> {
+  const exactNeedle = escapeIlike(q);
+  const fuzzyNeedle = `%${exactNeedle}%`;
+
+  const exact = await db
+    .select()
+    .from(coaBatchesTable)
+    .where(
+      and(
+        eq(coaBatchesTable.published, true),
+        or(
+          ilike(coaBatchesTable.accession, exactNeedle),
+          ilike(coaBatchesTable.lotNumber, exactNeedle),
+        ),
+      ),
+    )
+    .limit(5);
+
+  if (exact.length > 0) return exact;
+
+  return db
+    .select()
+    .from(coaBatchesTable)
+    .where(
+      and(
+        eq(coaBatchesTable.published, true),
+        or(
+          ilike(coaBatchesTable.accession, fuzzyNeedle),
+          ilike(coaBatchesTable.lotNumber, fuzzyNeedle),
+          ilike(coaBatchesTable.productName, fuzzyNeedle),
+          ilike(coaBatchesTable.productSlug, fuzzyNeedle),
+          ilike(coaBatchesTable.label, fuzzyNeedle),
+        ),
+      ),
+    )
+    .limit(10);
 }
 
 router.get("/coa/verify", async (req, res) => {
@@ -43,57 +135,43 @@ router.get("/coa/verify", async (req, res) => {
     return;
   }
 
-  await seedCoaBatchesFromCatalog();
-
-  const exact = await db
-    .select()
-    .from(coaBatchesTable)
-    .where(
-      and(
-        eq(coaBatchesTable.published, true),
-        or(
-          sql`lower(${coaBatchesTable.accession}) = ${q.toLowerCase()}`,
-          sql`lower(coalesce(${coaBatchesTable.lotNumber}, '')) = ${q.toLowerCase()}`,
-        ),
-      ),
-    )
-    .limit(5);
-
-  if (exact.length > 0) {
-    res.json({ query: q, results: exact });
-    return;
+  let results: CoaSearchRow[] = [];
+  try {
+    await seedCoaBatchesFromCatalog();
+    results = await searchCoaInDb(q);
+  } catch (err) {
+    logger.warn({ err, q }, "COA verify DB lookup failed; using catalog");
   }
 
-  const fuzzy = await db
-    .select()
-    .from(coaBatchesTable)
-    .where(
-      and(
-        eq(coaBatchesTable.published, true),
-        or(
-          ilike(coaBatchesTable.accession, `%${q}%`),
-          ilike(coaBatchesTable.lotNumber, `%${q}%`),
-        ),
-      ),
-    )
-    .limit(10);
+  if (results.length === 0) {
+    results = searchCoaRows(q, catalogCoaRows());
+  }
 
-  res.json({ query: q, results: fuzzy });
+  res.json({ query: q, results });
 });
 
 router.get("/coa/batches/:slug", async (req, res) => {
-  await seedCoaBatchesFromCatalog();
-  const rows = await db
-    .select()
-    .from(coaBatchesTable)
-    .where(
-      and(
-        eq(coaBatchesTable.productSlug, req.params.slug),
-        eq(coaBatchesTable.published, true),
-      ),
-    )
-    .orderBy(desc(coaBatchesTable.createdAt));
-  res.json(rows);
+  try {
+    await seedCoaBatchesFromCatalog();
+    const rows = await db
+      .select()
+      .from(coaBatchesTable)
+      .where(
+        and(
+          eq(coaBatchesTable.productSlug, req.params.slug),
+          eq(coaBatchesTable.published, true),
+        ),
+      )
+      .orderBy(desc(coaBatchesTable.createdAt));
+    if (rows.length > 0) {
+      res.json(rows);
+      return;
+    }
+  } catch (err) {
+    logger.warn({ err }, "COA batches DB lookup failed; using catalog");
+  }
+
+  res.json(catalogCoaRows().filter((r) => r.productSlug === req.params.slug && r.published));
 });
 
 router.get("/admin/coa-batches", sessionAuth, requireAdmin, async (_req, res) => {

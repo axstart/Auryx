@@ -1,15 +1,19 @@
 import { Router } from "express";
 import { z } from "zod";
-import { and, eq, sql } from "drizzle-orm";
+import { and, desc, eq, sql } from "drizzle-orm";
 import { db } from "@workspace/db";
 import {
   cartAbandonSnapshotsTable,
+  consultationRequestsTable,
   emailJourneyStateTable,
   marketingSubscribersTable,
+  ordersTable,
 } from "@workspace/db/schema";
 import { sessionAuth, requireAdmin } from "../../middlewares/sessionAuth.js";
 import { sendMail } from "../../lib/mailer.js";
 import { checkPersistentRateLimit } from "../../lib/otpRateLimiter.js";
+import { isMarketingSmsEnabled, journeySmsBody } from "../../lib/marketingSms.js";
+import { sendTwilioSms } from "../../lib/twilioSms.js";
 
 const router = Router();
 const SITE = "https://www.auryxlife.com";
@@ -156,6 +160,37 @@ async function isUnsubscribed(email: string) {
   return Boolean(row?.unsubscribedAt);
 }
 
+async function resolveSubscriberPhone(email: string): Promise<string | null> {
+  try {
+    const [order] = await db
+      .select({ phone: ordersTable.phone })
+      .from(ordersTable)
+      .where(sql`lower(${ordersTable.email}) = ${email}`)
+      .orderBy(desc(ordersTable.createdAt))
+      .limit(1);
+    if (order?.phone?.trim()) return order.phone.trim();
+
+    const [consult] = await db
+      .select({ phone: consultationRequestsTable.phone })
+      .from(consultationRequestsTable)
+      .where(sql`lower(${consultationRequestsTable.email}) = ${email}`)
+      .orderBy(desc(consultationRequestsTable.createdAt))
+      .limit(1);
+    return consult?.phone?.trim() || null;
+  } catch {
+    return null;
+  }
+}
+
+async function sendJourneySms(journey: string, email: string): Promise<boolean> {
+  if (!isMarketingSmsEnabled()) return false;
+  const body = journeySmsBody(journey);
+  if (!body) return false;
+  const phone = await resolveSubscriberPhone(email);
+  if (!phone) return false;
+  return sendTwilioSms({ to: phone, body });
+}
+
 async function sendJourneyEmail(journey: string, email: string, step: number) {
   const unsub = unsubUrl(email);
   const footer = `\n\n—\nAuryx\nUnsubscribe: ${unsub}`;
@@ -195,7 +230,7 @@ async function sendJourneyEmail(journey: string, email: string, step: number) {
   return false;
 }
 
-export async function processEmailJourneys(): Promise<number> {
+export async function processEmailJourneys(): Promise<{ emails: number; sms: number }> {
   const dueFixed = await db
     .select()
     .from(emailJourneyStateTable)
@@ -207,7 +242,8 @@ export async function processEmailJourneys(): Promise<number> {
     )
     .limit(50);
 
-  let sent = 0;
+  let emails = 0;
+  let sms = 0;
   for (const row of dueFixed) {
     if (await isUnsubscribed(row.email)) {
       await db
@@ -242,7 +278,10 @@ export async function processEmailJourneys(): Promise<number> {
       continue;
     }
 
-    sent += 1;
+    emails += 1;
+    if (await sendJourneySms(row.journey, row.email)) {
+      sms += 1;
+    }
     await db
       .update(emailJourneyStateTable)
       .set({
@@ -254,7 +293,7 @@ export async function processEmailJourneys(): Promise<number> {
       })
       .where(eq(emailJourneyStateTable.id, row.id));
   }
-  return sent;
+  return { emails, sms };
 }
 
 /** Enroll win-back for customers with no order in 60+ days. */
@@ -308,7 +347,13 @@ export async function enrollWinBackCandidates(): Promise<number> {
 router.post("/admin/marketing/process-journeys", sessionAuth, requireAdmin, async (_req, res) => {
   const winBack = await enrollWinBackCandidates();
   const sent = await processEmailJourneys();
-  res.json({ sent, winBackEnrolled: winBack });
+  res.json({
+    sent: sent.emails,
+    emails: sent.emails,
+    sms: sent.sms,
+    marketingSmsEnabled: isMarketingSmsEnabled(),
+    winBackEnrolled: winBack,
+  });
 });
 
 router.get("/admin/marketing/journeys", sessionAuth, async (_req, res) => {

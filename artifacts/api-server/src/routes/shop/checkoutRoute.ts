@@ -4,7 +4,7 @@ import { z } from "zod";
 import { createHash, randomBytes, randomInt } from "crypto";
 import { db } from "@workspace/db";
 import { ordersTable, inventoryItemsTable, emailVerificationsTable } from "@workspace/db/schema";
-import { sessionAuth } from "../../middlewares/sessionAuth.js";
+import { sessionAuth, requireAdmin } from "../../middlewares/sessionAuth.js";
 import { sendMail } from "../../lib/mailer.js";
 import { sendOrderStatusEmail } from "../../lib/orderEmail.js";
 import { getProductBySlug } from "./products.js";
@@ -550,7 +550,7 @@ router.get("/orders/:id", sessionAuth, async (req, res) => {
   res.json(order);
 });
 
-router.patch("/orders/:id", sessionAuth, async (req, res) => {
+router.patch("/orders/:id", sessionAuth, requireAdmin, async (req, res) => {
   const id = parseInt(req.params["id"] as string, 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 

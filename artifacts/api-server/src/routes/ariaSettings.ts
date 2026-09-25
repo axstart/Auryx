@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { sessionAuth } from "../middlewares/sessionAuth.js";
+import { sessionAuth, requireAdmin } from "../middlewares/sessionAuth.js";
 import { DEFAULT_ARIA_INSTRUCTIONS } from "./chat/defaultInstructions.js";
 
 const router = Router();
@@ -16,7 +16,7 @@ router.get("/admin/aria-settings", sessionAuth, async (_req, res) => {
   });
 });
 
-router.put("/admin/aria-settings", sessionAuth, async (_req, res) => {
+router.put("/admin/aria-settings", sessionAuth, requireAdmin, async (_req, res) => {
   res.status(409).json({
     error: "Aria instructions are managed in the system prompt file.",
   });

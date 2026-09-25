@@ -2,7 +2,7 @@ import { Router } from "express";
 import { eq } from "drizzle-orm";
 import { db } from "@workspace/db";
 import { protocolContinuationsTable } from "@workspace/db/schema";
-import { sessionAuth } from "../middlewares/sessionAuth.js";
+import { sessionAuth, requireAdmin } from "../middlewares/sessionAuth.js";
 import { sendMail } from "../lib/mailer.js";
 
 const DURATION_LABELS: Record<string, string> = {
@@ -82,7 +82,7 @@ router.get("/admin/protocol-continuations", sessionAuth, async (_req, res) => {
   res.json(rows);
 });
 
-router.patch("/admin/protocol-continuations/:id", sessionAuth, async (req, res) => {
+router.patch("/admin/protocol-continuations/:id", sessionAuth, requireAdmin, async (req, res) => {
   const id = parseInt(req.params.id as string);
   const { status } = req.body as { status: string };
 

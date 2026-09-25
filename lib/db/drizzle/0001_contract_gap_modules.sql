@@ -59,6 +59,11 @@ CREATE TABLE IF NOT EXISTS email_journey_state (
 CREATE INDEX IF NOT EXISTS email_journey_next_send_idx ON email_journey_state (next_send_at);
 CREATE INDEX IF NOT EXISTS email_journey_status_idx ON email_journey_state (status);
 
+-- Shop overlay: Drizzle schema has this column; genesis (0000) did not.
+-- Prod GET /api/products currently 500s without it. IF NOT EXISTS so re-apply is safe.
+ALTER TABLE IF EXISTS inventory_items
+  ADD COLUMN IF NOT EXISTS regulatory_status text NOT NULL DEFAULT 'Research Only';
+
 CREATE TABLE IF NOT EXISTS cart_abandon_snapshots (
   id serial PRIMARY KEY,
   email text NOT NULL,

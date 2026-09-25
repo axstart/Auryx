@@ -71,7 +71,9 @@ Set `ADMIN_MFA_DISABLED=true` only on local/dev — never in production or stagi
 ## Admin access
 
 - Password login + **email MFA OTP** (Resend preferred; Zoho SMTP fallback).
-- Roles: `staff` vs `admin` (`requireAdmin` for financials, COA CRUD, coupons).
+- Roles: `staff` vs `admin`.
+- `staff` is **read-only** on inventory, patients, orders, Aria settings, and CRM (consultations / protocol continuations).
+- `requireAdmin` is required for writes that change money, inventory, patients, orders, Aria settings, CRM, plus financials, COA CRUD, coupons, and users.
 - Env super-admins (`ADMIN_LEO_*`, `ADMIN_ROMY_*`) are set on **Render** environment variables and also require MFA in production.
 
 ## Secrets placement (quick map)
@@ -91,5 +93,24 @@ API process on Render runs an interval (every 15 minutes) that:
 
 1. Enrolls win-back candidates (60+ days since last paid order).
 2. Sends due journey emails (welcome, cart abandon, post-purchase, win-back).
+3. Optionally sends the same journeys as SMS **only when** `MARKETING_SMS_ENABLED=true` **and** existing Twilio env is set (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_FROM_NUMBER`). Default is off so production does not text without an explicit flag. SMS reuses email opt-out (`unsubscribed_at`) and Twilio `STOP`. Phone numbers are resolved from the latest order or consultation for that email — subscribers without a phone are skipped. Messaging cost is billed to the client's Twilio account.
 
 Manual trigger: `POST /api/admin/marketing/process-journeys` (admin session).
+
+## COA verify (`/api/coa/verify`)
+
+Public lookup. If `coa_batches` is missing or the query fails, the API falls back to the static product catalog and returns `{ results: [] }` on a miss (never 500). Apply `lib/db/drizzle/0001_contract_gap_modules.sql` (or `pnpm --filter @workspace/db push`) so the table exists in Supabase; seed also attempts `CREATE TABLE IF NOT EXISTS`.
+
+## Public products (`GET /api/products`)
+
+The shop catalog is static. Inventory only overlays `regulatory_status`. Prod genesis `inventory_items` never had that column, so `select slug, regulatory_status from inventory_items` 500s the storefront.
+
+After deploy, the API serves the catalog (default `"Research Only"`) if the column is missing. To add the column and `coa_batches` on the **Auryx** Supabase DB (set `DATABASE_URL` from Render / Supabase — do not guess credentials):
+
+```bash
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f lib/db/drizzle/0001_contract_gap_modules.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f lib/db/drizzle/0002_inventory_regulatory_status.sql
+# or: pnpm --filter @workspace/db push
+```
+
+Both SQL files use `IF NOT EXISTS`. Do not set `MARKETING_SMS_ENABLED=true` in production.
