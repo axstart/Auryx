@@ -3,6 +3,7 @@ import cors from "cors";
 import pinoHttp from "pino-http";
 import session from "express-session";
 import connectPgSimple from "connect-pg-simple";
+import { pool } from "@workspace/db";
 import router from "./routes";
 import { logger } from "./lib/logger";
 
@@ -41,7 +42,7 @@ app.use(cors({ origin: true, credentials: true }));
 app.use(
   session({
     store: new PgSession({
-      conString: process.env.DATABASE_URL,
+      pool,
       tableName: "session",
     }),
     secret: (() => {
