@@ -726,12 +726,12 @@ async function main() {
   const [productSource, blogSource, learnSource, nySource] = await Promise.all([
     readFile(path.join(REPO_ROOT, "artifacts/api-server/src/routes/shop/products.ts"), "utf8"),
     readFile(path.join(APP_ROOT, "src/data/blog-posts.en.ts"), "utf8"),
-    readFile(path.join(APP_ROOT, "src/pages/learn.tsx"), "utf8"),
+    readFile(path.join(APP_ROOT, "src/i18n/pages/learn.en.ts"), "utf8"),
     readFile(path.join(APP_ROOT, "src/pages/new-york.tsx"), "utf8"),
   ]);
   const products = extractProducts(productSource);
   const posts = extractBlogPosts(blogSource);
-  const learnFaqs = extractQaPairs(learnSource, "const FAQS = [");
+  const learnFaqs = extractQaPairs(learnSource, "faqs: [");
   const nyFaqs = extractQaPairs(nySource, "const NY_FAQS = [");
   if (products.length < 10) {
     throw new Error(`Product SEO extract returned only ${products.length} items`);
