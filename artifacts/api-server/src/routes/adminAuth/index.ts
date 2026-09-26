@@ -44,7 +44,7 @@ function generateOtpSalt() {
 }
 
 function mfaDisabled() {
-  return process.env.ADMIN_MFA_DISABLED === "true" && process.env.NODE_ENV !== "production";
+  return process.env.ADMIN_MFA_DISABLED === "true";
 }
 
 async function sendAdminMfaOtp(email: string) {

@@ -44,7 +44,7 @@ CORS on the API allows credentialed cross-origin if you ever call Render directl
 4. Aim Preview `VITE_API_BASE` / `/api` proxy at the staging Render URL — never point Preview at production DB or payment keys.
 5. Never share production `SESSION_SECRET` or payment keys with staging.
 
-Set `ADMIN_MFA_DISABLED=true` only on local/dev — never in production or staging that mirrors prod auth.
+Admin MFA is on by default. Set `ADMIN_MFA_DISABLED=true` only when you explicitly need to skip the email OTP (including production). Leave it unset to keep MFA on.
 
 ## Uptime & health
 
