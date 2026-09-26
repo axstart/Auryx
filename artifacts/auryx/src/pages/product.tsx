@@ -18,6 +18,9 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "sermorelin": "/products/sermorelin.webp",
   "tesamorelin": "/products/tesamorelin.webp",
   "tesamorelin-ipamorelin": "/products/ipamorelin.webp",
+  "tesofensine": "/products/tesofensine.webp",
+  "tesofensine-ipamorelin": "/products/tesofensine-ipamorelin.webp",
+  "cortagen": "/products/cortagen.webp",
   "ipamorelin": "/products/ipamorelin.webp",
   "cjc-1295": "/products/cjc-1295.webp",
   "cjc-1295-dac": "/products/cjc-1295-dac.webp",
@@ -128,6 +131,7 @@ export default function ProductPage() {
   const [added, setAdded] = useState(false);
   const [qty, setQty] = useState(1);
   const [selectedVariantIdx, setSelectedVariantIdx] = useState(0);
+  const [heroImgFailed, setHeroImgFailed] = useState(false);
 
   const { data: rawProduct, isLoading, error } = useQuery({
     queryKey: ["product", slug],
@@ -145,6 +149,7 @@ export default function ProductPage() {
 
   useEffect(() => {
     setSelectedVariantIdx(0);
+    setHeroImgFailed(false);
   }, [slug]);
 
   useEffect(() => {
@@ -160,9 +165,7 @@ export default function ProductPage() {
   useEffect(() => {
     if (!product?.name) return;
     const path = `/shop/${product.slug}`;
-    const imagePath = PRODUCT_IMAGES[product.slug]
-      ? `${SITE_ORIGIN}${PRODUCT_IMAGES[product.slug]}`
-      : `${SITE_ORIGIN}/opengraph.jpg`;
+    const imagePath = `${SITE_ORIGIN}${PRODUCT_IMAGES[product.slug] ?? `/products/${product.slug}.webp`}`;
     const description =
       product.shortDescription ||
       product.fullDescription?.slice(0, 155) ||
@@ -302,22 +305,24 @@ export default function ProductPage() {
                 className="relative rounded-3xl overflow-hidden flex items-center justify-center"
                 style={{
                   minHeight: "min(440px, 55dvh)",
-                  background: "linear-gradient(160deg, #F9F5EC 0%, #F2EAD6 55%, #EDE2CB 100%)",
+                  background: "linear-gradient(180deg, #1A1712 0%, #0C0B09 100%)",
                 }}
               >
                 <div
                   className="absolute inset-0 pointer-events-none"
-                  style={{ background: "radial-gradient(ellipse 65% 55% at 50% 52%, rgba(201,168,68,0.22) 0%, transparent 68%)" }}
+                  style={{ background: "radial-gradient(ellipse 65% 55% at 50% 52%, rgba(201,168,68,0.28) 0%, transparent 68%)" }}
                 />
-                {PRODUCT_IMAGES[product.slug] ? (
+                {!heroImgFailed ? (
                   <img
-                    src={PRODUCT_IMAGES[product.slug]}
+                    src={PRODUCT_IMAGES[product.slug] ?? `/products/${product.slug}.webp`}
                     alt={product.name}
                     width={447}
                     height={558}
                     decoding="async"
                     fetchPriority="high"
-                    className="relative z-10 h-72 w-auto object-contain drop-shadow-2xl"
+                    onError={() => setHeroImgFailed(true)}
+                    className="relative z-10 h-72 w-auto object-contain"
+                    style={{ filter: "drop-shadow(0 20px 28px rgba(0,0,0,0.5)) drop-shadow(0 0 22px rgba(201,168,68,0.2))" }}
                   />
                 ) : (
                   <PeptideVial category={product.category} />

@@ -25,6 +25,9 @@ const PRODUCT_IMAGES: Record<string, string> = {
   "sermorelin": "/products/sermorelin.webp",
   "tesamorelin": "/products/tesamorelin.webp",
   "tesamorelin-ipamorelin": "/products/ipamorelin.webp",
+  "tesofensine": "/products/tesofensine.webp",
+  "tesofensine-ipamorelin": "/products/tesofensine-ipamorelin.webp",
+  "cortagen": "/products/cortagen.webp",
   "ipamorelin": "/products/ipamorelin.webp",
   "cjc-1295": "/products/cjc-1295.webp",
   "cjc-1295-dac": "/products/cjc-1295-dac.webp",
@@ -121,7 +124,8 @@ function ProductCard({
 }) {
   const { addToCart } = useCart();
   const [adding, setAdding] = useState(false);
-  const productImage = PRODUCT_IMAGES[product.slug];
+  const [imgFailed, setImgFailed] = useState(false);
+  const productImage = PRODUCT_IMAGES[product.slug] ?? `/products/${product.slug}.webp`;
   const regulatoryStatus: RegulatoryStatus = product.regulatory_status ?? "Research Only";
   const regulatoryBadgeClass = regulatoryStatus === "FDA Approved Active Ingredient"
     ? "bg-green-50/90 border-green-200/70 text-green-700"
@@ -150,22 +154,22 @@ function ProductCard({
         transition-all duration-300"
       style={{ background: "linear-gradient(135deg, #F9F5EC 0%, #F3EBD8 50%, #EDE3CC 100%)" }}
     >
-      {/* ── Image zone — narrow vertical rectangle ── */}
+      {/* Dark image well — white vial cutouts disappear on cream */}
       <div
-        className={`relative shrink-0 flex h-40 sm:h-auto items-center justify-center overflow-hidden self-stretch ${featured ? "w-full sm:w-[26%]" : "w-full sm:w-[22%]"}`}
-        style={{ background: "linear-gradient(180deg, #F5F0E5 0%, #EDE3CC 100%)" }}
+        className={`relative shrink-0 flex items-center justify-center overflow-hidden
+          h-52 sm:h-auto sm:self-stretch
+          ${featured ? "w-full sm:w-[42%] sm:min-w-[12.5rem]" : "w-full sm:w-[34%] sm:min-w-[10.5rem]"}`}
+        style={{ background: "linear-gradient(180deg, #1A1712 0%, #0C0B09 100%)" }}
       >
-        {/* Permanent soft base glow */}
         <div
           className="absolute inset-0 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 90% 65% at 50% 55%, rgba(201,168,68,0.18) 0%, transparent 72%)" }}
+          style={{ background: "radial-gradient(circle at 50% 48%, rgba(201,168,68,0.22) 0%, transparent 68%)" }}
         />
-        {/* Stronger hover glow */}
         <div
           className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-600 pointer-events-none"
-          style={{ background: "radial-gradient(ellipse 85% 60% at 50% 55%, rgba(201,168,68,0.38) 0%, transparent 68%)" }}
+          style={{ background: "radial-gradient(circle at 50% 50%, rgba(201,168,68,0.38) 0%, transparent 70%)" }}
         />
-        {productImage ? (
+        {productImage && !imgFailed ? (
           <img
             src={productImage}
             alt={product.name}
@@ -173,10 +177,12 @@ function ProductCard({
             height={558}
             loading="lazy"
             decoding="async"
-            className={`relative z-10 object-contain group-hover:scale-[1.07] group-hover:-translate-y-0.5 transition-transform duration-500 drop-shadow-lg ${featured ? "h-32 w-auto max-w-[90%]" : "h-28 sm:h-[5.5rem] w-auto max-w-[85%]"}`}
+            onError={() => setImgFailed(true)}
+            className={`relative z-10 object-contain group-hover:scale-[1.06] group-hover:-translate-y-0.5 transition-transform duration-500 ${featured ? "h-44 w-auto max-w-[86%]" : "h-36 sm:h-32 w-auto max-w-[84%]"}`}
+            style={{ filter: "drop-shadow(0 16px 24px rgba(0,0,0,0.45)) drop-shadow(0 0 18px rgba(201,168,68,0.18))" }}
           />
         ) : (
-          <div className="relative z-10 group-hover:scale-[1.07] transition-transform duration-500 scale-75">
+          <div className="relative z-10 group-hover:scale-[1.06] transition-transform duration-500">
             <CardVial />
           </div>
         )}
