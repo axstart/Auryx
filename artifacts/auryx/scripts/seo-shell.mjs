@@ -725,7 +725,7 @@ async function main() {
 
   const [productSource, blogSource, learnSource, nySource] = await Promise.all([
     readFile(path.join(REPO_ROOT, "artifacts/api-server/src/routes/shop/products.ts"), "utf8"),
-    readFile(path.join(APP_ROOT, "src/data/blog-posts.ts"), "utf8"),
+    readFile(path.join(APP_ROOT, "src/data/blog-posts.en.ts"), "utf8"),
     readFile(path.join(APP_ROOT, "src/pages/learn.tsx"), "utf8"),
     readFile(path.join(APP_ROOT, "src/pages/new-york.tsx"), "utf8"),
   ]);
