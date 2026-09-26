@@ -110,7 +110,12 @@ After deploy, the API serves the catalog (default `"Research Only"`) if the colu
 ```bash
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f lib/db/drizzle/0001_contract_gap_modules.sql
 psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f lib/db/drizzle/0002_inventory_regulatory_status.sql
+psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -f lib/db/drizzle/0003_orders_coupon_columns.sql
 # or: pnpm --filter @workspace/db push
 ```
+
+## Admin dashboard (`GET /api/admin/dashboard`)
+
+Recent-order and order-list queries use the full Drizzle `orders` row. Prod genesis never had coupon columns (`original_total_cents`, `discount_cents`, `coupon_code`, `coupon_id`), so those selects 500. After deploy the API adds the columns on boot and falls back to genesis columns if they are still missing.
 
 Both SQL files use `IF NOT EXISTS`. Do not set `MARKETING_SMS_ENABLED=true` in production.

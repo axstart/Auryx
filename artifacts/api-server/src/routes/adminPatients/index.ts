@@ -1,8 +1,9 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { consultationRequestsTable, ordersTable, patientStagesTable } from "@workspace/db/schema";
+import { consultationRequestsTable, patientStagesTable } from "@workspace/db/schema";
 import { eq } from "drizzle-orm";
 import { sessionAuth, requireAdmin } from "../../middlewares/sessionAuth.js";
+import { selectOrders } from "../shop/ordersSelect.js";
 
 const router = Router();
 
@@ -10,7 +11,7 @@ const router = Router();
 router.get("/admin/patients", sessionAuth, async (_req, res): Promise<void> => {
   const [consultations, orders, stages] = await Promise.all([
     db.select().from(consultationRequestsTable).orderBy(consultationRequestsTable.createdAt),
-    db.select().from(ordersTable).orderBy(ordersTable.createdAt),
+    selectOrders(),
     db.select().from(patientStagesTable),
   ]);
 

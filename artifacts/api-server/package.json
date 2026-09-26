@@ -8,7 +8,7 @@
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "node --experimental-strip-types --test src/routes/coa/coaSearch.test.ts src/routes/shop/productsInventory.test.ts src/middlewares/sessionAuth.test.ts src/lib/marketingSms.test.ts"
+    "test": "node --experimental-strip-types --test src/routes/coa/coaSearch.test.ts src/routes/shop/productsInventory.test.ts src/routes/shop/ordersSelect.test.ts src/middlewares/sessionAuth.test.ts src/lib/marketingSms.test.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.97.1",

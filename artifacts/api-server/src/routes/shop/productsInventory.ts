@@ -20,7 +20,7 @@ export type PublicProductSummary = {
   regulatory_status: string;
 };
 
-function collectErrorSignals(err: unknown): { codes: string[]; messages: string[] } {
+export function collectErrorSignals(err: unknown): { codes: string[]; messages: string[] } {
   const codes: string[] = [];
   const messages: string[] = [];
   const seen = new Set<unknown>();

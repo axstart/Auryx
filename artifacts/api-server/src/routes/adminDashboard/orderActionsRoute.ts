@@ -8,6 +8,7 @@ import { chargePayment, refundPayment } from "../../lib/paymentnode.js";
 import { sendOrderApprovedEmail, sendOrderCancelledEmail } from "../../lib/orderEmail.js";
 import { sendMail } from "../../lib/mailer.js";
 import { calculateCoupon, getCouponById, recordCouponUse } from "../../lib/coupons.js";
+import { selectOrderById } from "../shop/ordersSelect.js";
 
 const router = Router();
 
@@ -23,7 +24,7 @@ router.post("/admin/orders/:id/approve", requireAdmin, async (req, res) => {
   const id = parseInt(req.params["id"] as string, 10);
   if (isNaN(id)) { res.status(400).json({ error: "Invalid id" }); return; }
 
-  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, id));
+  const order = await selectOrderById(id);
   if (!order) { res.status(404).json({ error: "Order not found" }); return; }
   if (order.status !== "pending") {
     res.status(409).json({ error: `Order is already ${order.status}` });
@@ -123,7 +124,7 @@ router.post("/admin/orders/:id/cancel", requireAdmin, async (req, res) => {
   const parsed = CancelSchema.safeParse(req.body);
   const reason = parsed.success ? parsed.data.reason : undefined;
 
-  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, id));
+  const order = await selectOrderById(id);
   if (!order) { res.status(404).json({ error: "Order not found" }); return; }
   if (order.status === "cancelled" || order.status === "refunded") {
     res.status(409).json({ error: `Order is already ${order.status}` });
@@ -201,7 +202,7 @@ router.post("/admin/orders/:id/email", requireAdmin, async (req, res) => {
     return;
   }
 
-  const [order] = await db.select().from(ordersTable).where(eq(ordersTable.id, id));
+  const order = await selectOrderById(id);
   if (!order) { res.status(404).json({ error: "Order not found" }); return; }
 
   const firstName = order.customerName.split(" ")[0] ?? order.customerName;

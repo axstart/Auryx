@@ -1,9 +1,11 @@
 import { Router } from "express";
 import { db } from "@workspace/db";
-import { ordersTable, inventoryItemsTable, consultationRequestsTable } from "@workspace/db/schema";
+import { ordersTable, inventoryItemsTable } from "@workspace/db/schema";
 import { sql, gte, lt, and, eq } from "drizzle-orm";
 import { sessionAuth } from "../../middlewares/sessionAuth.js";
 import { requireAdmin } from "../../middlewares/sessionAuth.js";
+import { selectOrders } from "../shop/ordersSelect.js";
+import { logger } from "../../lib/logger.js";
 
 const router = Router();
 
@@ -12,15 +14,7 @@ router.get("/admin/dashboard", sessionAuth, async (_req, res) => {
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
   const startOfNextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1);
 
-  const [
-    monthlyRevenue,
-    activeOrders,
-    pendingOrders,
-    distinctPatients,
-    recentOrders,
-    lowStockItems,
-  ] = await Promise.all([
-    // Monthly revenue from delivered/shipped/approved orders only
+  const settled = await Promise.allSettled([
     db.select({ total: sql<number>`coalesce(sum(total_cents), 0)` })
       .from(ordersTable)
       .where(and(
@@ -28,15 +22,12 @@ router.get("/admin/dashboard", sessionAuth, async (_req, res) => {
         lt(ordersTable.createdAt, startOfNextMonth),
         sql`status NOT IN ('cancelled', 'refunded')`,
       )),
-    // Active orders (not yet delivered, not cancelled/refunded)
     db.select({ count: sql<number>`count(*)` })
       .from(ordersTable)
       .where(sql`status NOT IN ('delivered', 'cancelled', 'refunded')`),
-    // Pending orders
     db.select({ count: sql<number>`count(*)` })
       .from(ordersTable)
       .where(eq(ordersTable.status, "pending")),
-    // Distinct patients: unique emails across orders + consultations
     db.execute(sql`
       SELECT COUNT(*) AS count FROM (
         SELECT email FROM orders
@@ -44,15 +35,25 @@ router.get("/admin/dashboard", sessionAuth, async (_req, res) => {
         SELECT email FROM consultation_requests
       ) AS combined
     `),
-    // Recent 10 orders
-    db.select().from(ordersTable)
-      .orderBy(sql`created_at DESC`)
-      .limit(10),
-    // Low stock items
+    selectOrders({ newestFirst: true, limit: 10 }),
     db.select().from(inventoryItemsTable)
       .where(sql`stock <= low_stock_threshold`)
       .orderBy(inventoryItemsTable.name),
   ]);
+
+  const rejected = settled
+    .map((s, i) => (s.status === "rejected" ? { i, reason: s.reason } : null))
+    .filter(Boolean);
+  if (rejected.length > 0) {
+    logger.warn({ rejected }, "admin dashboard partial query failure");
+  }
+
+  const monthlyRevenue = settled[0].status === "fulfilled" ? settled[0].value : [{ total: 0 }];
+  const activeOrders = settled[1].status === "fulfilled" ? settled[1].value : [{ count: 0 }];
+  const pendingOrders = settled[2].status === "fulfilled" ? settled[2].value : [{ count: 0 }];
+  const distinctPatients = settled[3].status === "fulfilled" ? settled[3].value : { rows: [{ count: "0" }] };
+  const recentOrders = settled[4].status === "fulfilled" ? settled[4].value : [];
+  const lowStockItems = settled[5].status === "fulfilled" ? settled[5].value : [];
 
   const patientCount = Number((distinctPatients.rows[0] as { count: string })?.count ?? 0);
 

@@ -11,6 +11,7 @@ import { verifyMailer } from "./lib/mailer.js";
 import { syncInventoryFromCatalog } from "./lib/syncInventory.js";
 import { initApiSentry } from "./lib/sentry.js";
 import { seedCoaBatchesFromCatalog } from "./routes/coa/index.js";
+import { ensureOrdersCouponColumns } from "./routes/shop/ordersSelect.js";
 import { processEmailJourneys, enrollWinBackCandidates } from "./routes/marketing/index.js";
 
 const rawPort = process.env["PORT"];
@@ -38,6 +39,9 @@ void initApiSentry().finally(() => {
     verifyMailer();
     syncInventoryFromCatalog();
     seedCoaBatchesFromCatalog().catch((e) => logger.warn({ err: e }, "COA seed failed"));
+    ensureOrdersCouponColumns()
+      .then(() => logger.info("orders coupon columns ensured"))
+      .catch((e) => logger.warn({ err: e }, "orders coupon column ensure failed"));
 
     const JOURNEY_MS = 15 * 60 * 1000;
     setInterval(() => {
