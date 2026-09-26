@@ -1,6 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { pgSslConfig } from "./pgSsl.ts";
+import { connectionStringWithPgSsl, pgPoolConfig, pgSslConfig } from "./pgSsl.ts";
 
 describe("pgSslConfig", () => {
   const previous = process.env.DATABASE_SSL_REJECT_UNAUTHORIZED;
@@ -23,7 +23,7 @@ describe("pgSslConfig", () => {
     }
   });
 
-  it("relaxes verification for hosted Postgres (Supabase)", () => {
+  it("relaxes verification for hosted Postgres even when sslmode=require", () => {
     delete process.env.DATABASE_SSL_REJECT_UNAUTHORIZED;
     try {
       assert.deepEqual(
@@ -49,5 +49,29 @@ describe("pgSslConfig", () => {
     } finally {
       restoreEnv();
     }
+  });
+});
+
+describe("pgPoolConfig", () => {
+  it("does not pass connectionString so node-pg cannot overwrite ssl", () => {
+    const cfg = pgPoolConfig(
+      "postgresql://u:p%40ss@db.abc.supabase.co:6543/postgres?sslmode=require",
+    );
+    assert.equal(cfg.connectionString, undefined);
+    assert.equal(cfg.host, "db.abc.supabase.co");
+    assert.equal(cfg.port, 6543);
+    assert.equal(cfg.user, "u");
+    assert.equal(cfg.password, "p@ss");
+    assert.equal(cfg.database, "postgres");
+    assert.deepEqual(cfg.ssl, { rejectUnauthorized: false });
+  });
+});
+
+describe("connectionStringWithPgSsl", () => {
+  it("rewrites sslmode=require to no-verify for URL-only clients", () => {
+    assert.equal(
+      connectionStringWithPgSsl("postgresql://u:p@db.abc.supabase.co:5432/postgres?sslmode=require"),
+      "postgresql://u:p@db.abc.supabase.co:5432/postgres?sslmode=no-verify",
+    );
   });
 });
